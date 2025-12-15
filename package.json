@@ -1,0 +1,31 @@
+{
+  "name": "web27-boostcamp",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev:backend": "npm run start:dev --workspace=backend",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/boostcampwm2025/web27-boostcamp.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/boostcampwm2025/web27-boostcamp/issues"
+  },
+  "homepage": "https://github.com/boostcampwm2025/web27-boostcamp#readme",
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "prettier": "^3.4.2"
+  }
+}
