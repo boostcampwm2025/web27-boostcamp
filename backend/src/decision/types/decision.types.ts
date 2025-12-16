@@ -27,3 +27,17 @@ export interface ScoredCandidate extends Campaign {
   score: number;
   matchedTags: Tag[];
 }
+
+export interface ScoringResult {
+  score: number;
+  breakdown: {
+    cpc: number;
+    matchCount: number;
+    otherBonus: number;
+  };
+}
+
+export interface SelectionResult {
+  winner: ScoredCandidate;
+  candidates: ScoredCandidate[];
+}
