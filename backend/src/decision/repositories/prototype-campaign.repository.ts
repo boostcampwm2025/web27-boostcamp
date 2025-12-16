@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { CampaignRepository } from './campaign.repository.interface';
-import { Campaign, Tag } from '../types/decision.types';
+import type { CampaignRepository } from './campaign.repository.interface';
+import type { Campaign, Tag } from '../types/decision.types';
 import { readFile } from 'fs/promises';
 import { join } from 'path';
 
