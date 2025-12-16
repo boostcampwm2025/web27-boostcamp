@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { CampaignMatcher } from './campaign-matcher.interface';
+import { Matcher } from './matcher.interface';
 import { CampaignRepository } from '../repositories/campaign.repository.interface';
 import type { Campaign, DecisionContext, Tag } from '../types/decision.types';
 
 @Injectable()
-export class TagBasedMatcher implements CampaignMatcher {
+export class PrototypeMatcher implements Matcher {
   constructor(private readonly campaignRepo: CampaignRepository) {}
 
   async findCandidatesByTags(context: DecisionContext): Promise<Campaign[]> {

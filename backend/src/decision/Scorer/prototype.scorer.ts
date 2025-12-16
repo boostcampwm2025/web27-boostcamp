@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ScoringStrategy } from './scoring.strategy.interface';
+import { Scorer } from './scorer.interface';
 import type {
   Campaign,
   DecisionContext,
@@ -7,7 +7,7 @@ import type {
 } from '../types/decision.types';
 
 @Injectable()
-export class PrototypeScoringStrategy implements ScoringStrategy {
+export class PrototypeScorer implements Scorer {
   score(campaign: Campaign, context: DecisionContext): Promise<ScoringResult> {
     // CPC 기본 점수 (max_price 사용)
     const cpc = campaign.max_price;

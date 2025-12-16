@@ -5,7 +5,7 @@ import { readFile } from 'fs/promises';
 import { join } from 'path';
 
 @Injectable()
-export class InMemoryCampaignRepository
+export class PrototypeCampaignRepository
   implements CampaignRepository, OnModuleInit
 {
   private campaigns: Campaign[] = [];
