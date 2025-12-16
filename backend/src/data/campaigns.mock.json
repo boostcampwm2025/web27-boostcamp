@@ -1,0 +1,247 @@
+[
+  {
+    "id": "campaign-1",
+    "title": "JavaScript 완전 정복 로드맵",
+    "content": "프론트엔드 핵심 언어 JavaScript의 기초부터 고급 문법까지 한 번에 배우기",
+    "image": "/img/javascript.png",
+    "url": "https://inflearn.com/course/js-master",
+    "tags": [{ "id": 1, "name": "JavaScript" }],
+    "min_price": 50,
+    "max_price": 300
+  },
+  {
+    "id": "campaign-2",
+    "title": "타입으로 안전한 코드 - TypeScript 마스터클래스",
+    "content": "JavaScript 개발자를 위한 실무형 TypeScript 완전 정복",
+    "image": "/img/typescript.png",
+    "url": "https://inflearn.com/course/ts-pro",
+    "tags": [{ "id": 2, "name": "TypeScript" }],
+    "min_price": 80,
+    "max_price": 550
+  },
+  {
+    "id": "campaign-3",
+    "title": "React로 만드는 SPA 프로젝트",
+    "content": "최신 React 훅과 상태관리 기법으로 실전 애플리케이션 구현",
+    "image": "/img/react.png",
+    "url": "https://inflearn.com/course/react-spa",
+    "tags": [
+      { "id": 3, "name": "React" },
+      { "id": 2, "name": "TypeScript" }
+    ],
+    "min_price": 120,
+    "max_price": 600
+  },
+  {
+    "id": "campaign-4",
+    "title": "Next.js로 풀스택 개발 시작하기",
+    "content": "Next.js를 활용한 SSR, SEO 최적화, 백엔드 API 통합하기",
+    "image": "/img/nextjs.png",
+    "url": "https://inflearn.com/course/nextjs-fullstack",
+    "tags": [
+      { "id": 4, "name": "NextJS" },
+      { "id": 3, "name": "React" }
+    ],
+    "min_price": 150,
+    "max_price": 700
+  },
+  {
+    "id": "campaign-5",
+    "title": "Spring Boot로 배우는 백엔드 API 설계",
+    "content": "스프링 프레임워크로 RESTful API를 직접 제작해보기",
+    "image": "/img/spring.png",
+    "url": "https://inflearn.com/course/spring-api",
+    "tags": [
+      { "id": 5, "name": "Spring" },
+      { "id": 7, "name": "SQL" }
+    ],
+    "min_price": 200,
+    "max_price": 650
+  },
+  {
+    "id": "campaign-6",
+    "title": "NestJS로 백엔드 서버 구축하기",
+    "content": "Node.js 기반 NestJS로 효율적이고 확장 가능한 서버 만들기",
+    "image": "/img/nestjs.png",
+    "url": "https://inflearn.com/course/nestjs-server",
+    "tags": [
+      { "id": 6, "name": "NestJS" },
+      { "id": 2, "name": "TypeScript" }
+    ],
+    "min_price": 130,
+    "max_price": 550
+  },
+  {
+    "id": "campaign-7",
+    "title": "데이터베이스 완벽 가이드 - SQL 입문",
+    "content": "SELECT부터 JOIN까지, 데이터 다루기의 핵심 SQL 배우기",
+    "image": "/img/sql.png",
+    "url": "https://inflearn.com/course/sql-basic",
+    "tags": [{ "id": 7, "name": "SQL" }],
+    "min_price": 50,
+    "max_price": 250
+  },
+  {
+    "id": "campaign-8",
+    "title": "AWS 인프라 구축과 운영",
+    "content": "클라우드 네이티브 환경 구축을 위한 AWS 서비스 실전 활용",
+    "image": "/img/aws.png",
+    "url": "https://inflearn.com/course/aws-cloud",
+    "tags": [{ "id": 8, "name": "AWS" }],
+    "min_price": 180,
+    "max_price": 700
+  },
+  {
+    "id": "campaign-9",
+    "title": "Redis 캐시 시스템 실전 입문",
+    "content": "고성능 애플리케이션을 위한 Redis 캐싱 구조 이해와 구현",
+    "image": "/img/redis.png",
+    "url": "https://inflearn.com/course/redis-intro",
+    "tags": [
+      { "id": 9, "name": "Redis" },
+      { "id": 7, "name": "SQL" }
+    ],
+    "min_price": 90,
+    "max_price": 400
+  },
+  {
+    "id": "campaign-10",
+    "title": "AI 초급자를 위한 머신러닝 입문",
+    "content": "Python 없이 개념부터 배우는 AI와 머신러닝 기본 구조",
+    "image": "/img/ai.png",
+    "url": "https://inflearn.com/course/ai-basic",
+    "tags": [{ "id": 10, "name": "AI" }],
+    "min_price": 100,
+    "max_price": 450
+  },
+  {
+    "id": "campaign-11",
+    "title": "React + TypeScript 실전 프로젝트",
+    "content": "프론트엔드 개발의 베스트 조합으로 대규모 프로젝트 구현",
+    "image": "/img/react-ts.png",
+    "url": "https://inflearn.com/course/react-typescript",
+    "tags": [
+      { "id": 3, "name": "React" },
+      { "id": 2, "name": "TypeScript" }
+    ],
+    "min_price": 120,
+    "max_price": 600
+  },
+  {
+    "id": "campaign-12",
+    "title": "Next.js + NestJS 풀스택 통합 과정",
+    "content": "Next.js 프론트엔드와 NestJS 백엔드를 연동해보는 실무 프로젝트",
+    "image": "/img/fullstack-next-nest.png",
+    "url": "https://inflearn.com/course/fullstack-next-nest",
+    "tags": [
+      { "id": 4, "name": "NextJS" },
+      { "id": 6, "name": "NestJS" }
+    ],
+    "min_price": 250,
+    "max_price": 750
+  },
+  {
+    "id": "campaign-13",
+    "title": "AWS + Spring Boot 배포 자동화",
+    "content": "EC2, RDS, S3와 Jenkins를 통한 CI/CD 구축 실습",
+    "image": "/img/aws-spring.png",
+    "url": "https://inflearn.com/course/aws-springboot",
+    "tags": [
+      { "id": 5, "name": "Spring" },
+      { "id": 8, "name": "AWS" }
+    ],
+    "min_price": 200,
+    "max_price": 650
+  },
+  {
+    "id": "campaign-14",
+    "title": "AI 서비스를 위한 백엔드 설계",
+    "content": "AI 모델을 웹 서비스로 배포하고 관리하는 백엔드 아키텍처",
+    "image": "/img/ai-backend.png",
+    "url": "https://inflearn.com/course/ai-backend",
+    "tags": [
+      { "id": 10, "name": "AI" },
+      { "id": 6, "name": "NestJS" }
+    ],
+    "min_price": 180,
+    "max_price": 700
+  },
+  {
+    "id": "campaign-15",
+    "title": "Redis + NestJS 세션 관리",
+    "content": "로그인 유지와 캐싱을 위한 Redis 기반 세션 설계",
+    "image": "/img/redis-nest.png",
+    "url": "https://inflearn.com/course/nestjs-redis",
+    "tags": [
+      { "id": 9, "name": "Redis" },
+      { "id": 6, "name": "NestJS" }
+    ],
+    "min_price": 100,
+    "max_price": 450
+  },
+  {
+    "id": "campaign-16",
+    "title": "React + AWS 배포 실습",
+    "content": "React 프로젝트를 AWS S3와 CloudFront로 빠르게 배포하기",
+    "image": "/img/react-aws.png",
+    "url": "https://inflearn.com/course/react-aws",
+    "tags": [
+      { "id": 3, "name": "React" },
+      { "id": 8, "name": "AWS" }
+    ],
+    "min_price": 150,
+    "max_price": 600
+  },
+  {
+    "id": "campaign-17",
+    "title": "Next.js + AI 이미지 생성 서비스 개발",
+    "content": "AI API를 연동해 Next.js 기반 이미지 생성 웹앱 만들기",
+    "image": "/img/next-ai.png",
+    "url": "https://inflearn.com/course/nextjs-ai",
+    "tags": [
+      { "id": 4, "name": "NextJS" },
+      { "id": 10, "name": "AI" }
+    ],
+    "min_price": 200,
+    "max_price": 680
+  },
+  {
+    "id": "campaign-18",
+    "title": "Spring + Redis 캐싱 전략",
+    "content": "대규모 트래픽을 효율적으로 처리하기 위한 Spring 캐싱 설계",
+    "image": "/img/spring-redis.png",
+    "url": "https://inflearn.com/course/spring-redis",
+    "tags": [
+      { "id": 5, "name": "Spring" },
+      { "id": 9, "name": "Redis" }
+    ],
+    "min_price": 180,
+    "max_price": 600
+  },
+  {
+    "id": "campaign-19",
+    "title": "TypeScript + NestJS 백엔드 설계 패턴",
+    "content": "TS 언어의 장점을 살린 NestJS 아키텍처 설계 실무",
+    "image": "/img/nest-ts.png",
+    "url": "https://inflearn.com/course/nestjs-typescript",
+    "tags": [
+      { "id": 2, "name": "TypeScript" },
+      { "id": 6, "name": "NestJS" }
+    ],
+    "min_price": 120,
+    "max_price": 500
+  },
+  {
+    "id": "campaign-20",
+    "title": "AI 챗봇 만들기 - JavaScript 편",
+    "content": "간단한 머신러닝 모델을 JavaScript로 활용한 대화형 챗봇 구축",
+    "image": "/img/js-ai.png",
+    "url": "https://inflearn.com/course/js-ai-bot",
+    "tags": [
+      { "id": 10, "name": "AI" },
+      { "id": 1, "name": "JavaScript" }
+    ],
+    "min_price": 130,
+    "max_price": 550
+  }
+]
