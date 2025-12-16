@@ -34,7 +34,7 @@
   },
   {
     "id": "campaign-4",
-    "title": "Next.js로 풀스택 개발 시작하기",
+    "title": "Next.js와 React로 풀스택 개발 시작하기",
     "content": "Next.js를 활용한 SSR, SEO 최적화, 백엔드 API 통합하기",
     "image": "/img/nextjs.png",
     "url": "https://inflearn.com/course/nextjs-fullstack",
@@ -60,8 +60,8 @@
   },
   {
     "id": "campaign-6",
-    "title": "NestJS로 백엔드 서버 구축하기",
-    "content": "Node.js 기반 NestJS로 효율적이고 확장 가능한 서버 만들기",
+    "title": "NestJS로 Typescript로 백엔드 서버 구축하기",
+    "content": "Node.js 기반 NestJS와 Typescript로 효율적이고 확장 가능한 서버 만들기",
     "image": "/img/nestjs.png",
     "url": "https://inflearn.com/course/nestjs-server",
     "tags": [

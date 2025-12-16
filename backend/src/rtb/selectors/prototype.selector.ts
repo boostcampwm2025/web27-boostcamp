@@ -3,7 +3,7 @@ import { CampaignSelector } from './selector.interface';
 import type { ScoredCandidate, SelectionResult } from '../types/decision.types';
 
 @Injectable()
-export class PrototypeScoreSelector implements CampaignSelector {
+export class PrototypeCampaignSelector implements CampaignSelector {
   async selectWinner(candidates: ScoredCandidate[]): Promise<SelectionResult> {
     if (candidates.length === 0) {
       throw new Error('No candidates available for selection');
