@@ -9,6 +9,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # AWS CLI v1.15.85 (NCP Object Storage 가이드 호환)
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.8"
+
       # 1. Node.js 세팅 및 캐싱
       - uses: actions/setup-node@v4
         with:
@@ -40,8 +45,13 @@ jobs:
         run: |
           set -euo pipefail
 
+          python -m pip install --upgrade pip
+          python -m pip install --user awscli==1.15.85
+          AWS="$HOME/.local/bin/aws"
+          "$AWS" --version
+
           # 0) 엔드포인트/권한 사전 검증 (이게 실패하면 PutObject도 당연히 실패)
-          aws --endpoint-url "$ENDPOINT" s3 ls "s3://$BUCKET"
+          "$AWS" --endpoint-url "$ENDPOINT" s3 ls "s3://$BUCKET"
 
           # 1) 업로드(동기화)
-          aws --endpoint-url "$ENDPOINT" s3 sync frontend/dist "s3://$BUCKET" --delete
+          "$AWS" --endpoint-url "$ENDPOINT" s3 sync frontend/dist "s3://$BUCKET" --delete
