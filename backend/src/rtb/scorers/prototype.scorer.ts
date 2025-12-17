@@ -16,7 +16,7 @@ export class PrototypeScorer implements Scorer {
     const matchedTags = campaign.tags.filter((tag) =>
       context.tags.includes(tag.name)
     );
-    const matchCount = matchedTags.length ** 5;
+    const matchCount = matchedTags.length ** 3;
 
     // 기타 보너스 (MVP에선 0)
     const otherBonus = 0;
