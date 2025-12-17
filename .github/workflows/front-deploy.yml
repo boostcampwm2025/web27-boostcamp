@@ -36,8 +36,12 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.NCP_SECRET_KEY }}
           AWS_DEFAULT_REGION: kr-standard
           ENDPOINT: https://kr.object.ncloudstorage.com
-          BUCKET: ${{ secrets.NCP_BUCKET }} # Settings의 Secret 이름 확인!
+          BUCKET: ${{ secrets.NCP_BUCKET }}
         run: |
-          aws s3 sync frontend/dist s3://$BUCKET \
-            --endpoint-url "$ENDPOINT" \
-            --delete
+          set -euo pipefail
+
+          # 0) 엔드포인트/권한 사전 검증 (이게 실패하면 PutObject도 당연히 실패)
+          aws --endpoint-url "$ENDPOINT" s3 ls "s3://$BUCKET"
+
+          # 1) 업로드(동기화)
+          aws --endpoint-url "$ENDPOINT" s3 sync frontend/dist "s3://$BUCKET" --delete
