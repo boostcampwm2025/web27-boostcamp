@@ -23,13 +23,17 @@ export class DevAdSDK {
     console.log('[DevAd SDK] 추출된 태그:', tags);
 
     if (tags.length === 0) {
-      console.warn('[DevAd SDK] 태그를 추출하지 못했습니다. 광고 매칭이 잘 되지 않을 수 있습니다.');
+      console.warn(
+        '[DevAd SDK] 태그를 추출하지 못했습니다. 광고 매칭이 잘 되지 않을 수 있습니다.'
+      );
     }
+
+    const url = window.location.href;
 
     // 각 존마다 광고 요청 및 렌더링
     zones.forEach(async (zone, index) => {
       try {
-        const data = await this.apiClient.fetchDecision(tags);
+        const data = await this.apiClient.fetchDecision(tags, url);
         this.adRenderer.render(data.winner, zone as HTMLElement);
       } catch (error) {
         console.error(`[DevAd SDK] Zone ${index + 1} 렌더링 실패:`, error);
