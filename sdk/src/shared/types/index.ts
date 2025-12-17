@@ -10,7 +10,7 @@ export interface Tag {
   name: string;
 }
 
-// 광고 캠페인 타입
+// 광고 캠페인 타입 (순수 캠페인 정보)
 export interface Campaign {
   id: string;
   title: string;
@@ -18,26 +18,29 @@ export interface Campaign {
   image: string;
   url: string;
   tags: Tag[];
-  min_price: number;
-  max_price: number;
+}
+
+// 매칭된 캠페인 (Campaign + 매칭 결과)
+export interface MatchedCampaign extends Campaign {
+  explain: string;
+  score: number;
 }
 
 // Decision API 응답 타입
 export interface DecisionResponse {
-  winner: Campaign | null;
-  explainText: string;
-  score: number;
+  winner: MatchedCampaign | null;
+  candidates: MatchedCampaign[];
 }
 
 // 전략 패턴 인터페이스들
 export interface TagExtractor {
-  extract(): string[];
+  extract(): Tag[];
 }
 
 export interface APIClient {
-  fetchDecision(tags: string[]): Promise<DecisionResponse>;
+  fetchDecision(tags: Tag[], url: string): Promise<DecisionResponse>;
 }
 
 export interface AdRenderer {
-  render(ad: Campaign | null, container: HTMLElement): void;
+  render(ad: MatchedCampaign | null, container: HTMLElement): void;
 }
