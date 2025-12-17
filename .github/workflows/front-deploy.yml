@@ -20,7 +20,7 @@ jobs:
       - name: Build frontend
         working-directory: frontend
         run: |
-          npm ci
+          npm install
           npm run build 
 
       # 3. NCP Object Storage 업로드 
