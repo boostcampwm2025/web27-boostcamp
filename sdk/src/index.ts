@@ -9,6 +9,7 @@ import type {
   TagExtractor as TagExtractorInterface,
   AdRenderer,
 } from './shared/types';
+import './global';
 
 (function () {
   'use strict';
@@ -26,8 +27,8 @@ import type {
     sdk.init();
   }
 
-  // 외부 API 노출 (프로토타입 테스트용 + 확장성)
-  (window as any).DevAd = {
+  // 외부 API 노출 (프로토타입 테스트용, 확장성)
+  window.DevAd = {
     version: SDK_VERSION,
     config,
     sdk,
