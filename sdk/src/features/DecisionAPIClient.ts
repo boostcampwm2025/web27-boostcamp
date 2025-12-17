@@ -1,18 +1,23 @@
-import type { APIClient, DecisionResponse, SDKConfig } from '@/shared/types';
+import type {
+  APIClient,
+  DecisionResponse,
+  SDKConfig,
+  Tag,
+} from '@/shared/types';
 
 // Decision API 클라이언트 (광고 가져오기)
 export class DecisionAPIClient implements APIClient {
   constructor(private readonly config: SDKConfig) {}
 
-  async fetchDecision(tags: string[]): Promise<DecisionResponse> {
+  async fetchDecision(tags: Tag[], url: string): Promise<DecisionResponse> {
     const requestBody = {
       tags,
       blogId: this.config.blogId,
-      pageUrl: window.location.href,
+      url,
     };
 
     try {
-      const response = await fetch(`${this.config.apiBase}/b/decision`, {
+      const response = await fetch(`${this.config.apiBase}/decision`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -21,9 +26,7 @@ export class DecisionAPIClient implements APIClient {
       });
 
       if (!response.ok) {
-        throw new Error(
-          `API 오류: ${response.status} ${response.statusText}`
-        );
+        throw new Error(`API 오류: ${response.status} ${response.statusText}`);
       }
 
       return await response.json();
@@ -32,8 +35,7 @@ export class DecisionAPIClient implements APIClient {
       // API 실패 시 빈 응답 반환 (광고 없음 상태)
       return {
         winner: null,
-        explainText: '광고를 불러오는데 실패했습니다',
-        score: 0,
+        candidates: [],
       };
     }
   }

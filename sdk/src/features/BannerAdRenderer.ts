@@ -1,11 +1,13 @@
-import type { AdRenderer, Campaign, SDKConfig } from '@/shared/types';
+import type { AdRenderer, MatchedCampaign, SDKConfig } from '@/shared/types';
 
 // 배너 광고 렌더러
 export class BannerAdRenderer implements AdRenderer {
   constructor(private readonly config: SDKConfig) {}
 
-  render(ad: Campaign | null, container: HTMLElement): void {
-    container.innerHTML = ad ? this.renderAdWidget(ad) : this.renderEmptyState();
+  render(ad: MatchedCampaign | null, container: HTMLElement): void {
+    container.innerHTML = ad
+      ? this.renderAdWidget(ad)
+      : this.renderEmptyState();
   }
 
   private renderEmptyState(): string {
@@ -25,7 +27,7 @@ export class BannerAdRenderer implements AdRenderer {
     `;
   }
 
-  private renderAdWidget(ad: Campaign): string {
+  private renderAdWidget(ad: MatchedCampaign): string {
     return `
       <div class="devad-widget" style="
         border: 1px solid #e0e0e0;
@@ -71,7 +73,7 @@ export class BannerAdRenderer implements AdRenderer {
           line-height: 1.6;
         ">${ad.content}</p>
 
-        <a href="${this.config.apiBase}/c/r/${ad.id}" style="
+        <a href="${this.config.apiBase}/redirect/${ad.id}" style="
           display: inline-block;
           padding: 10px 20px;
           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
