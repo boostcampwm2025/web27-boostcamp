@@ -25,7 +25,9 @@ export class RTBService {
       const candidates = await this.matcher.findCandidatesByTags(context);
 
       if (candidates.length === 0) {
-        throw new Error('태그에 맞는 후보자들이 존재하지 않습니다.');
+        throw new Error(
+          `${context.tags.join(', ')}태그에 맞는 후보자들이 존재하지 않습니다.`
+        );
       }
 
       // 2. 점수 계산 (아 복잡하다)
@@ -53,7 +55,18 @@ export class RTBService {
 
       // 에러 발생 시(예: 후보 없음) null winner와 빈 리스트를 반환하여 정상 응답 처리
       return {
-        winner: null,
+        winner: {
+          id: null,
+          title: '경매 실패',
+          content: null,
+          image: null,
+          url: null,
+          tags: [],
+          min_price: null,
+          max_price: null,
+          matchedTags: [],
+          explain: '경매 실패: ' + errorMessage,
+        },
         candidates: [],
       };
     }
