@@ -1,20 +1,17 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { RTBService } from './rtb.service';
-import { DecisionContext } from './types/decision.types';
+import { plainToInstance } from 'class-transformer';
 
-class DecisionRequestDto {
-  sdkId: string;
-  postId: string;
-  tags: string[];
-  postURL: string;
-}
+import { RTBRequestDto } from './dto/rtb-request.dto';
+import { RTBResponseDto } from './dto/rtb-response.dto';
+import type { DecisionContext } from './types/decision.types';
 
-@Controller('api/v1/b')
+@Controller('api/b')
 export class RTBController {
   constructor(private readonly rtbService: RTBService) {}
 
   @Post('decision')
-  async getDecision(@Body() body: DecisionRequestDto) {
+  async getDecision(@Body() body: RTBRequestDto) {
     const context: DecisionContext = {
       sdkId: body.sdkId,
       postId: body.postId,
@@ -24,21 +21,9 @@ export class RTBController {
 
     const result = await this.rtbService.runAuction(context);
 
-    return {
-      winner: {
-        campaignId: result.winner.id,
-        title: result.winner.title,
-        image: result.winner.image,
-        url: result.winner.url,
-        score: result.winner.score,
-        matchedTags: result.winner.matchedTags,
-      },
-      candidates: result.candidates.map((c) => ({
-        campaignId: c.id,
-        title: c.title,
-        score: c.score,
-        matchedTags: c.matchedTags,
-      })),
-    };
+    // Expose 데코레이터가 붙은 속성만 포함하여 DTO 인스턴스로 변환
+    return plainToInstance(RTBResponseDto, result, {
+      excludeExtraneousValues: true,
+    });
   }
 }
