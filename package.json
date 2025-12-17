@@ -11,8 +11,7 @@
   "scripts": {
     "dev": "npm run build:sdk && concurrently \"npm -w backend run start:dev\" \"npm -w frontend run dev\"",
     "build": "npm -w frontend run build && npm -w backend run build",
-    "build:sdk": "npm -w sdk run build && npm run copy:sdk",
-    "copy:sdk": "cp sdk/dist/sdk.js backend/public/sdk.js",
+    "build:sdk": "npm -w sdk run build",
     "lint": "npm -w backend run lint && npm -w frontend run lint",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,md}\""
