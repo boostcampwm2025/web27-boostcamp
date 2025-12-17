@@ -1,10 +1,17 @@
 name: frontend-deploy
 on:
+  workflow_dispatch:
   push:
-    branches: [feature/deploy]
+    paths:
+      - frontend/**
+      - .github/workflows/front-deploy.yml
+
+env:
+  DEPLOY_BRANCH: ${{ vars.DEPLOY_BRANCH || 'feature/deploy' }}
 
 jobs:
   build-and-upload:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.ref_name == env.DEPLOY_BRANCH }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

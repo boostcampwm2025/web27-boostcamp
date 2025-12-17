@@ -1,0 +1,89 @@
+name: backend-deploy
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - backend/**
+      - nginx/**
+      - docker-compose.yml
+      - .github/workflows/back-deploy.yml
+
+env:
+  DEPLOY_BRANCH: ${{ vars.DEPLOY_BRANCH || 'feature/deploy' }}
+
+jobs:
+  build-push:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.ref_name == env.DEPLOY_BRANCH }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Docker 로그인 (Ncloud NCR: access key / secret key)
+      - name: Login to Ncloud Container Registry
+        run: |
+          echo "${{ secrets.NCP_SECRET_KEY }}" | docker login \
+            -u "${{ secrets.NCP_ACCESS_KEY }}" \
+            --password-stdin \
+            "${{ secrets.NCR_ENDPOINT }}"
+
+      # 태그: 커밋 SHA (권장)
+      - name: Build and push backend/nginx images
+        run: |
+          IMAGE_TAG="${GITHUB_SHA}"
+          BACKEND_IMAGE="${{ secrets.NCR_ENDPOINT }}/boostad/backend:${IMAGE_TAG}"
+          NGINX_IMAGE="${{ secrets.NCR_ENDPOINT }}/boostad/nginx:${IMAGE_TAG}"
+
+          docker build -f backend/dockerfile -t "$BACKEND_IMAGE" .
+          docker push "$BACKEND_IMAGE"
+          docker tag "$BACKEND_IMAGE" "${{ secrets.NCR_ENDPOINT }}/boostad/backend:deploy"
+          docker push "${{ secrets.NCR_ENDPOINT }}/boostad/backend:deploy"
+
+          docker build -f nginx/Dockerfile -t "$NGINX_IMAGE" .
+          docker push "$NGINX_IMAGE"
+          docker tag "$NGINX_IMAGE" "${{ secrets.NCR_ENDPOINT }}/boostad/nginx:deploy"
+          docker push "${{ secrets.NCR_ENDPOINT }}/boostad/nginx:deploy"
+
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+
+  deploy:
+    needs: build-push
+    if: ${{ github.event_name == 'workflow_dispatch' || github.ref_name == env.DEPLOY_BRANCH }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH (pull + up)
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: ${{ secrets.DEPLOY_PORT || '22' }}
+          script: |
+            set -euo pipefail
+            cd "${{ secrets.DEPLOY_PATH }}"
+
+            DEPLOY_BRANCH="${{ env.DEPLOY_BRANCH }}"
+
+            # (옵션) 서버 repo는 compose 파일만 관리한다면 git pull은 유지
+            git fetch --prune origin
+            git checkout -B "$DEPLOY_BRANCH" "origin/$DEPLOY_BRANCH"
+            git reset --hard "origin/$DEPLOY_BRANCH"
+
+            # 커밋 SHA 태그로 pull 하도록 환경 주입
+            export IMAGE_TAG="${{ github.sha }}"
+            export NCR_ENDPOINT="${{ secrets.NCR_ENDPOINT }}"
+
+            echo "${{ secrets.NCP_SECRET_KEY }}" | docker login \
+              -u "${{ secrets.NCP_ACCESS_KEY }}" \
+              --password-stdin \
+              "${{ secrets.NCR_ENDPOINT }}"
+
+            if docker compose version >/dev/null 2>&1; then
+              COMPOSE="docker compose"
+            else
+              COMPOSE="docker-compose"
+            fi
+
+            $COMPOSE pull
+            $COMPOSE up -d --remove-orphans
+            $COMPOSE ps

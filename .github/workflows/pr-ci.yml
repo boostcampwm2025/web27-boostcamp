@@ -2,7 +2,7 @@ name: pr-ci
 
 on:
   pull_request:
-    branches: [feature/deploy]
+    # base branch 제한 없이 PR이면 CI 수행
 
 jobs:
   backend:

@@ -1,5 +1,6 @@
 services:
   nginx:
+    image: ${NCR_ENDPOINT:-local}/boostad/nginx:${IMAGE_TAG:-deploy}
     build:
       context: .
       dockerfile: nginx/Dockerfile
@@ -10,6 +11,7 @@ services:
     restart: unless-stopped
 
   backend:
+    image: ${NCR_ENDPOINT:-local}/boostad/backend:${IMAGE_TAG:-deploy}
     build:
       context: .
       dockerfile: backend/dockerfile
