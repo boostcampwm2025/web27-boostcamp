@@ -1,7 +1,7 @@
 name: frontend-deploy
 on:
   push:
-    branches: [feature/deploy] 
+    branches: [feature/deploy]
 
 jobs:
   build-and-upload:
@@ -27,9 +27,9 @@ jobs:
 
       - name: Build frontend
         working-directory: frontend
-        run: npm run build 
+        run: npm run build
 
-      # 3. NCP Object Storage 업로드 
+      # 3. NCP Object Storage 업로드
       - name: Upload to NCP Object Storage
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.NCP_ACCESS_KEY }}
@@ -40,5 +40,4 @@ jobs:
         run: |
           aws s3 sync frontend/dist s3://$BUCKET \
             --endpoint-url "$ENDPOINT" \
-            --delete \
-            --acl public-read
+            --delete
