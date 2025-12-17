@@ -20,26 +20,43 @@ export class RTBService {
   ) {}
 
   async runAuction(context: DecisionContext) {
-    // 1. 후보 필터링
-    const candidates = await this.matcher.findCandidatesByTags(context);
+    try {
+      // 1. 후보 필터링
+      const candidates = await this.matcher.findCandidatesByTags(context);
 
-    // 2. 점수 계산 (아 복잡하다)
-    const scored = await this.scoreCandidates(candidates, context);
+      if (candidates.length === 0) {
+        throw new Error('태그에 맞는 후보자들이 존재하지 않습니다.');
+      }
 
-    // 3. 우승자 선정
-    const result = await this.selector.selectWinner(scored);
+      // 2. 점수 계산 (아 복잡하다)
+      const scored = await this.scoreCandidates(candidates, context);
 
-    // 4. explain 추가
-    return {
-      winner: {
-        ...result.winner,
-        explain: this.generateExplain(result.winner, context),
-      },
-      candidates: result.candidates.map((c) => ({
-        ...c,
-        explain: this.generateExplain(c, context),
-      })),
-    };
+      // 3. 우승자 선정
+      const result = await this.selector.selectWinner(scored);
+
+      // 4. explain 추가
+      return {
+        winner: {
+          ...result.winner,
+          explain: this.generateExplain(result.winner, context),
+        },
+        candidates: result.candidates.map((c) => ({
+          ...c,
+          explain: this.generateExplain(c, context),
+        })),
+      };
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+
+      this.logger.warn(`Auction failed: ${errorMessage}`);
+
+      // 에러 발생 시(예: 후보 없음) null winner와 빈 리스트를 반환하여 정상 응답 처리
+      return {
+        winner: null,
+        candidates: [],
+      };
+    }
   }
 
   private async scoreCandidates(

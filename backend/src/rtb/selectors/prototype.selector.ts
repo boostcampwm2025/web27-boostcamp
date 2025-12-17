@@ -5,10 +5,6 @@ import type { ScoredCandidate, SelectionResult } from '../types/decision.types';
 @Injectable()
 export class PrototypeCampaignSelector implements CampaignSelector {
   async selectWinner(candidates: ScoredCandidate[]): Promise<SelectionResult> {
-    if (candidates.length === 0) {
-      throw new Error('No candidates available for selection');
-    }
-
     // 점수 내림차순 정렬 (동점자 비교)
     const sorted = [...candidates].sort((a, b) => {
       // 1차: 점수 비교
