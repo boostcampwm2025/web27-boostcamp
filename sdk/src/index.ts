@@ -9,7 +9,7 @@ import type {
   TagExtractor as TagExtractorInterface,
   AdRenderer,
 } from './shared/types';
-import './global';
+import './global.d.ts';
 
 (function () {
   'use strict';

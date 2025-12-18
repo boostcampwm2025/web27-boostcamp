@@ -73,7 +73,7 @@ export class BannerAdRenderer implements AdRenderer {
           line-height: 1.6;
         ">${ad.content}</p>
 
-        <a href="${this.config.apiBase}/redirect/${ad.id}" style="
+        <a href="${this.config.apiBase.replace('/api', '/api/c')}/r/${ad.id}" style="
           display: inline-block;
           padding: 10px 20px;
           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

@@ -17,7 +17,7 @@ export class DecisionAPIClient implements APIClient {
     };
 
     try {
-      const response = await fetch(`${this.config.apiBase}/decision`, {
+      const response = await fetch(`${this.config.apiBase}/b/decision`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
