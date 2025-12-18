@@ -4,6 +4,9 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // API Global Prefix 설정 (예: http://localhost:3000/api/...)
+  app.setGlobalPrefix('api');
+
   // CORS 설정
   app.enableCors({
     origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
