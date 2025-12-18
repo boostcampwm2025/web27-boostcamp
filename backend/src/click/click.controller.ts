@@ -7,12 +7,15 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ClickService } from './click.service';
-import { TrackClickDto, TrackClickResponseDto } from '../types/dto/track-click.dto';
+import {
+  TrackClickDto,
+  TrackClickResponseDto,
+} from '../types/dto/track-click.dto';
 import { ClickLog } from '../types/click-log';
 
 @Controller('click')
 export class ClickController {
-  constructor(private readonly clickService: ClickService) { }
+  constructor(private readonly clickService: ClickService) {}
 
   @Post('track')
   trackClick(@Body(ValidationPipe) dto: TrackClickDto): TrackClickResponseDto {

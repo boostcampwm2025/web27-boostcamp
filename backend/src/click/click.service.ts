@@ -1,11 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { ClickLogRepository } from './click-log.repository';
 import { ClickLog } from '../types/click-log';
-import { TrackClickDto, TrackClickResponseDto } from '../types/dto/track-click.dto';
+import {
+  TrackClickDto,
+  TrackClickResponseDto,
+} from '../types/dto/track-click.dto';
 
 @Injectable()
 export class ClickService {
-  constructor(private readonly clickLogRepository: ClickLogRepository) { }
+  constructor(private readonly clickLogRepository: ClickLogRepository) {}
 
   trackClick(dto: TrackClickDto): TrackClickResponseDto {
     const { campaignId, campaignName, url } = dto;
