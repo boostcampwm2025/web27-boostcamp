@@ -6,12 +6,18 @@ interface TagSelectorProps {
   onTagToggle: (tag: Tag) => void;
 }
 
-export const TagSelector = ({ availableTags, selectedTags, onTagToggle }: TagSelectorProps) => {
+export const TagSelector = ({
+  availableTags,
+  selectedTags,
+  onTagToggle,
+}: TagSelectorProps) => {
   const isSelected = (tag: Tag) => selectedTags.some((t) => t.id === tag.id);
 
   return (
     <div className="mb-6">
-      <h3 className="text-sm font-medium text-neutral-700 mb-3">태그 수정하기:</h3>
+      <h3 className="text-sm font-medium text-neutral-700 mb-3">
+        태그 수정하기:
+      </h3>
       <div className="grid grid-cols-2 gap-3">
         {availableTags.map((tag) => {
           const selected = isSelected(tag);

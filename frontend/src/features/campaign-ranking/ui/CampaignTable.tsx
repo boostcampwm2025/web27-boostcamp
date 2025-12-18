@@ -14,7 +14,9 @@ export const CampaignTable = ({ campaigns }: CampaignTableProps) => {
 
   return (
     <div>
-      <h3 className="text-lg font-semibold text-neutral-900 mb-3">후보 캠페인 순위:</h3>
+      <h3 className="text-lg font-semibold text-neutral-900 mb-3">
+        후보 캠페인 순위:
+      </h3>
 
       <WinnerCard campaign={winner} />
 
@@ -29,7 +31,9 @@ export const CampaignTable = ({ campaigns }: CampaignTableProps) => {
                 <h5 className="font-semibold text-neutral-900">
                   {index + 2}. {campaign.title}
                 </h5>
-                <span className="text-sm text-neutral-600">{campaign.score}점</span>
+                <span className="text-sm text-neutral-600">
+                  {campaign.score}점
+                </span>
               </div>
               <p className="text-xs text-neutral-500">{campaign.explain}</p>
             </div>

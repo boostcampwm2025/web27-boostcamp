@@ -54,7 +54,10 @@ html {
 
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
   font-size: var(--font-size-base);
   background-color: #f9fafb;
   color: #111827;

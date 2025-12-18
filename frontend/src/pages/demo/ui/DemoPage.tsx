@@ -21,7 +21,8 @@ const DUMMY_CANDIDATES: MatchedCampaign[] = [
     min_price: 180,
     max_price: 520,
     score: 95,
-    explain: 'TypeScript, NestJS 태그가 전달되었고 2개가 매칭되어 350원에 낙찰되었습니다.',
+    explain:
+      'TypeScript, NestJS 태그가 전달되었고 2개가 매칭되어 350원에 낙찰되었습니다.',
   },
   {
     id: 'campaign-3',
@@ -29,9 +30,7 @@ const DUMMY_CANDIDATES: MatchedCampaign[] = [
     content: 'React와 Backend를 함께 배우는 과정',
     image: '/img/fullstack.png',
     url: 'https://inflearn.com/course/fullstack',
-    tags: [
-      { id: 6, name: 'NestJS' },
-    ],
+    tags: [{ id: 6, name: 'NestJS' }],
     min_price: 100,
     max_price: 700,
     score: 82,
@@ -43,9 +42,7 @@ const DUMMY_CANDIDATES: MatchedCampaign[] = [
     content: '최신 NextJS로 풀스택 애플리케이션 구축',
     image: '/img/nextjs.png',
     url: 'https://inflearn.com/course/nextjs-14',
-    tags: [
-      { id: 2, name: 'TypeScript' },
-    ],
+    tags: [{ id: 2, name: 'TypeScript' }],
     min_price: 150,
     max_price: 580,
     score: 75,
@@ -78,7 +75,9 @@ export const DemoPage = () => {
 
   const handleTagToggle = (tag: Tag) => {
     setSelectedTags((prev) =>
-      prev.some((t) => t.id === tag.id) ? prev.filter((t) => t.id !== tag.id) : [...prev, tag],
+      prev.some((t) => t.id === tag.id)
+        ? prev.filter((t) => t.id !== tag.id)
+        : [...prev, tag]
     );
   };
 
