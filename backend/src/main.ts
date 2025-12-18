@@ -17,8 +17,19 @@ async function bootstrap() {
     })
   );
 
+  const allowedOrigins = process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(',').map((origin) => origin.trim())
+    : [];
+
   app.enableCors({
-    origin: [process.env.CORS_ORIGIN],
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+      // origin 없음(스크립트 태그) 또는 CORS_ORIGIN 미설정(모든 외부 블로그 허용) 또는 허용 목록에 포함
+      if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
   });
 

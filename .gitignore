@@ -1,10 +1,6 @@
 # Dependencies
 node_modules/
 
-# Build outputs
-dist/
-build/
-
 # Environment
 .env
 .env.local

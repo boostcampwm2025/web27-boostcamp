@@ -8,6 +8,38 @@ export class BannerAdRenderer implements AdRenderer {
     container.innerHTML = ad
       ? this.renderAdWidget(ad)
       : this.renderEmptyState();
+
+    if (ad) {
+      const link = container.querySelector('.devad-link');
+      link?.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.handleAdClick(ad);
+      });
+    }
+  }
+
+  private async handleAdClick(ad: MatchedCampaign): Promise<void> {
+    try {
+      const response = await fetch(`${this.config.apiBase}/click/track`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          campaignId: ad.id,
+          campaignName: ad.title,
+          url: ad.url,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json() as { redirectUrl: string };
+        window.open(data.redirectUrl, '_blank');
+      } else {
+        window.open(ad.url, '_blank');
+      }
+    } catch (error) {
+      console.error('[DevAd SDK] Click tracking failed:', error);
+      window.open(ad.url, '_blank');
+    }
   }
 
   private renderEmptyState(): string {
@@ -73,7 +105,7 @@ export class BannerAdRenderer implements AdRenderer {
           line-height: 1.6;
         ">${ad.content}</p>
 
-        <a href="${this.config.apiBase.replace('/api', '/api/c')}/r/${ad.id}" style="
+        <a href="${ad.url}" class="devad-link" target="_blank" style="
           display: inline-block;
           padding: 10px 20px;
           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -83,6 +115,7 @@ export class BannerAdRenderer implements AdRenderer {
           font-size: 14px;
           font-weight: 600;
           transition: opacity 0.2s;
+          cursor: pointer;
         " onmouseover="this.style.opacity='0.9';" onmouseout="this.style.opacity='1';">
           자세히 보기 →
         </a>

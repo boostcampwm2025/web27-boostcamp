@@ -21,7 +21,7 @@ export const DemoPage = () => {
       try {
         const result = await window.DevAd.fetchDecision(
           selectedTags,
-          window.location.href,
+          window.location.href
         );
 
         setAdCampaign(result.winner);
