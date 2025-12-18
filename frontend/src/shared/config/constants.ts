@@ -1,8 +1,5 @@
 import type { Tag, Campaign, BlogPost, ClickLog } from '../types/common';
 
-/**
- * 선택 가능한 태그 목록 (10개 고정)
- */
 export const AVAILABLE_TAGS: Tag[] = [
   { id: 1, name: 'JavaScript' },
   { id: 2, name: 'TypeScript' },
@@ -16,9 +13,6 @@ export const AVAILABLE_TAGS: Tag[] = [
   { id: 10, name: 'AI' },
 ];
 
-/**
- * 더미 캠페인 목록 (9개)
- */
 export const DUMMY_CAMPAIGNS: Campaign[] = [
   {
     id: 'campaign-1',
@@ -142,9 +136,6 @@ export const DUMMY_CAMPAIGNS: Campaign[] = [
   },
 ];
 
-/**
- * 더미 블로그 포스트
- */
 export const DUMMY_POST: BlogPost = {
   title: 'NestJS로 확장 가능한 REST API 만들기',
   content: `
@@ -159,9 +150,6 @@ export const DUMMY_POST: BlogPost = {
   ],
 };
 
-/**
- * 더미 클릭 로그
- */
 export const DUMMY_CLICK_LOGS: ClickLog[] = [
   {
     timestamp: '14:23',
