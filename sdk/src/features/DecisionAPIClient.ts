@@ -11,9 +11,9 @@ export class DecisionAPIClient implements APIClient {
 
   async fetchDecision(tags: Tag[], url: string): Promise<DecisionResponse> {
     const requestBody = {
-      tags,
-      blogId: this.config.blogId,
-      url,
+      postId: this.config.blogId,
+      tags: tags.map((tag) => tag.name),
+      postURL: url,
     };
 
     try {

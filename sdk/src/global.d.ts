@@ -37,7 +37,7 @@ export interface DevAdSDKAPI {
   trackClick: (
     campaignId: string,
     campaignName: string,
-    url: string,
+    url: string
   ) => Promise<TrackClickResponse>;
   getClickLogs: (limit?: number) => Promise<ClickLog[]>;
 }

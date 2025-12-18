@@ -31,7 +31,7 @@ export class BannerAdRenderer implements AdRenderer {
       });
 
       if (response.ok) {
-        const data = await response.json() as { redirectUrl: string };
+        const data = (await response.json()) as { redirectUrl: string };
         window.open(data.redirectUrl, '_blank');
       } else {
         window.open(ad.url, '_blank');

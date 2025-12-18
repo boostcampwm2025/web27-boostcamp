@@ -59,7 +59,7 @@ import './global.d.ts';
     async trackClick(
       campaignId: string,
       campaignName: string,
-      url: string,
+      url: string
     ): Promise<{ redirectUrl: string; logId: string; timestamp: string }> {
       const response = await fetch(`${config.apiBase}/click/track`, {
         method: 'POST',
@@ -83,7 +83,7 @@ import './global.d.ts';
       }>
     > {
       const response = await fetch(
-        `${config.apiBase}/click/logs?limit=${limit}`,
+        `${config.apiBase}/click/logs?limit=${limit}`
       );
 
       if (!response.ok) {
