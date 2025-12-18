@@ -3,10 +3,6 @@
   "version": "1.0.0",
   "description": "RTB 광고 플랫폼",
   "private": true,
-  "workspaces": [
-    "backend",
-    "frontend"
-  ],
   "scripts": {
     "dev": "concurrently \"npm -w backend run start:dev\" \"npm -w frontend run dev\"",
     "build": "npm -w frontend run build && npm -w backend run build",
