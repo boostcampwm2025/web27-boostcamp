@@ -17,8 +17,13 @@ async function bootstrap() {
     })
   );
 
+  // CORS_ORIGIN이 '*'면 모든 origin 허용, 미설정이면 모두 허용, 그 외에는 지정된 origin만
+  const corsOrigin = process.env.CORS_ORIGIN;
   app.enableCors({
-    origin: [process.env.CORS_ORIGIN],
+    origin:
+      !corsOrigin || corsOrigin === '*'
+        ? true
+        : corsOrigin.split(',').map((o) => o.trim()),
     credentials: true,
   });
 

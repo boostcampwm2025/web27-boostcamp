@@ -30,7 +30,7 @@ export const BlogSection = ({
       <BlogPost post={post} />
 
       <div className="bg-white rounded-lg border border-neutral-200 shadow-sm p-6">
-        <AutoTags tags={post.autoTags} />
+        <AutoTags tags={selectedTags} />
         <TagSelector
           availableTags={availableTags}
           selectedTags={selectedTags}
