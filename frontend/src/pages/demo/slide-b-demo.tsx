@@ -30,7 +30,7 @@ export function SlideBDemo() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/b/decision`, {
+    fetch(`${API_BASE_URL}/api/b/decision`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
