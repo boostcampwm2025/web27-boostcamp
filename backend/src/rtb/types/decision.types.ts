@@ -1,5 +1,4 @@
 export interface DecisionContext {
-  sdkId: string;
   postId: string;
   tags: string[];
   postURL: string;
