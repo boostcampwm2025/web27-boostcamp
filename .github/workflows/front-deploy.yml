@@ -38,6 +38,8 @@ jobs:
 
       - name: Build frontend
         working-directory: frontend
+        env:
+          VITE_API_URL: ${{ vars.VITE_API_URL || 'http://localhost:3000' }}
         run: npm run build
 
       # 3. NCP Object Storage 업로드
@@ -47,7 +49,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.NCP_SECRET_KEY }}
           AWS_DEFAULT_REGION: kr-standard
           ENDPOINT: https://kr.object.ncloudstorage.com
-          BUCKET: ${{ secrets.NCP_BUCKET }}
+          BUCKET: ${{ secrets.NCP_FRONT_BUCKET || secrets.NCP_BUCKET }}
         run: |
           set -euo pipefail
 

@@ -11,9 +11,15 @@
 - Workflow: `.github/workflows/front-deploy.yml`
 - Trigger: push to `DEPLOY_BRANCH`(default: `feature/deploy`)
 - Required Secrets:
-  - `NCP_ACCESS_KEY`, `NCP_SECRET_KEY`, `NCP_BUCKET`
+  - `NCP_ACCESS_KEY`, `NCP_SECRET_KEY`, `NCP_FRONT_BUCKET` (legacy: `NCP_BUCKET`)
 - Notes:
   - NCP Object Storage 호환 이슈로 `awscli==1.15.85`(v1)로 업로드합니다.
+
+### SDK
+- Workflow: `.github/workflows/sdk-deploy.yml`
+- Trigger: push to `DEPLOY_BRANCH`(default: `feature/deploy`) (sdk 변경 시)
+- Required Secrets:
+  - `NCP_ACCESS_KEY`, `NCP_SECRET_KEY`, `NCP_SDK_BUCKET` (legacy: `NCR_SDK_BUCKET`)
 
 ### Backend
 - Workflow: `.github/workflows/back-deploy.yml`

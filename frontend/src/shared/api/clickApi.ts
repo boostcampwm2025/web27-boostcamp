@@ -13,7 +13,7 @@ export const trackClick = async (
   campaignName: string,
   url: string,
 ): Promise<TrackClickResponse> => {
-  const response = await fetch(`${API_BASE_URL}/click/track`, {
+  const response = await fetch(`${API_BASE_URL}/api/click/track`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -29,7 +29,7 @@ export const trackClick = async (
 };
 
 export const getClickLogs = async (limit: number = 10): Promise<ClickLog[]> => {
-  const response = await fetch(`${API_BASE_URL}/click/logs?limit=${limit}`);
+  const response = await fetch(`${API_BASE_URL}/api/click/logs?limit=${limit}`);
 
   if (!response.ok) {
     throw new Error(`Failed to fetch click logs: ${response.statusText}`);

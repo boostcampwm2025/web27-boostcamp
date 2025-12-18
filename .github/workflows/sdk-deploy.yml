@@ -43,7 +43,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.NCP_SECRET_KEY }}
           AWS_DEFAULT_REGION: kr-standard
           ENDPOINT: https://kr.object.ncloudstorage.com
-          BUCKET: ${{ secrets.NCR_SDK_BUCKET }}
+          BUCKET: ${{ secrets.NCP_SDK_BUCKET }}
         run: |
           set -euo pipefail
 
