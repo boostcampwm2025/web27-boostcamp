@@ -347,7 +347,12 @@ const icons: Record<IconName, ReactNode> = {
   ),
 };
 
-export const Icon = ({ name, size = 16, className = '', ...props }: IconProps) => {
+export const Icon = ({
+  name,
+  size = 16,
+  className = '',
+  ...props
+}: IconProps) => {
   return (
     <svg
       width={size}

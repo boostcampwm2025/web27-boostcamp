@@ -2,7 +2,11 @@ import { BlogPost } from '@/features/blog-post/ui/BlogPost';
 import { TagSelector } from '@/features/tag-selector/ui/TagSelector';
 import { AutoTags } from '@/features/tag-selector/ui/AutoTags';
 import { AdCard } from '@/features/ad-card/ui/AdCard';
-import type { BlogPost as BlogPostType, Tag, MatchedCampaign } from '@/shared/types/common';
+import type {
+  BlogPost as BlogPostType,
+  Tag,
+  MatchedCampaign,
+} from '@/shared/types/common';
 
 interface BlogSectionProps {
   post: BlogPostType;
@@ -34,7 +38,9 @@ export const BlogSection = ({
         />
       </div>
 
-      {adCampaign && <AdCard campaign={adCampaign} onClickTracked={onClickTracked} />}
+      {adCampaign && (
+        <AdCard campaign={adCampaign} onClickTracked={onClickTracked} />
+      )}
     </div>
   );
 };

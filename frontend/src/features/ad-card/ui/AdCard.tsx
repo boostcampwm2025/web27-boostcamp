@@ -20,7 +20,11 @@ export const AdCard = ({ campaign, onClickTracked }: AdCardProps) => {
       setIsTracking(true);
 
       // 클릭 추적 API 호출 (전체 캠페인 정보 전송)
-      const result = await trackClick(campaign.id, campaign.title, campaign.url);
+      const result = await trackClick(
+        campaign.id,
+        campaign.title,
+        campaign.url
+      );
 
       // 클릭 추적 성공 후 콜백 실행 (로그 새로고침용)
       if (onClickTracked) {
@@ -41,7 +45,9 @@ export const AdCard = ({ campaign, onClickTracked }: AdCardProps) => {
   return (
     <Card className="mt-6">
       <SponsoredBadge />
-      <h2 className="text-2xl font-bold text-neutral-900 mb-3">{campaign.title}</h2>
+      <h2 className="text-2xl font-bold text-neutral-900 mb-3">
+        {campaign.title}
+      </h2>
       <p className="text-base text-neutral-700 mb-4">{campaign.content}</p>
       <Button
         variant="primary"

@@ -11,7 +11,7 @@ interface TrackClickResponse {
 export const trackClick = async (
   campaignId: string,
   campaignName: string,
-  url: string,
+  url: string
 ): Promise<TrackClickResponse> => {
   const response = await fetch(`${API_BASE_URL}/api/click/track`, {
     method: 'POST',
