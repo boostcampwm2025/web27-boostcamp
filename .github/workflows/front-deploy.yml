@@ -4,7 +4,6 @@ on:
   push:
     paths:
       - frontend/**
-      - .github/workflows/front-deploy.yml
 
 env:
   DEPLOY_BRANCH: ${{ vars.DEPLOY_BRANCH || 'feature/deploy' }}

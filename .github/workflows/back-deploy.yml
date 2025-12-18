@@ -7,7 +7,6 @@ on:
       - backend/**
       - nginx/**
       - docker-compose.yml
-      - .github/workflows/back-deploy.yml
 
 env:
   DEPLOY_BRANCH: ${{ vars.DEPLOY_BRANCH || 'feature/deploy' }}
