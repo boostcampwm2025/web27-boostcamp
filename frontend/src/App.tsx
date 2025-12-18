@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import SlideBDemo from './pages/slide-b-demo';
 
-function App() {
+function Home() {
   const [count, setCount] = useState(0);
 
   return (
@@ -18,6 +20,17 @@ function App() {
         <p className="mt-4 text-gray-600">Tailwind CSS v4 is working!</p>
       </div>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/slide-b-demo" element={<SlideBDemo />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
