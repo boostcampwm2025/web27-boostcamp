@@ -10,7 +10,7 @@ interface TrackClickResponse {
 export const trackClick = async (
   campaignId: string,
   campaignName: string,
-  url: string,
+  url: string
 ): Promise<TrackClickResponse> => {
   return window.DevAd.trackClick(campaignId, campaignName, url);
 };

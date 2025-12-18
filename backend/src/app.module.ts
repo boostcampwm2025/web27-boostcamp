@@ -4,6 +4,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { RTBModule } from './rtb/rtb.module';
 import { ClickModule } from './click/click.module';
 
 @Module({
@@ -15,6 +16,7 @@ import { ClickModule } from './click/click.module';
       serveRoot: '/',
     }),
     ClickModule,
+    RTBModule,
   ],
   controllers: [AppController],
   providers: [AppService],

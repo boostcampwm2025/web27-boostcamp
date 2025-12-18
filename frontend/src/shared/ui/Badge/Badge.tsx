@@ -12,12 +12,21 @@ const variantStyles: Record<BadgeVariant, string> = {
   winner: 'bg-success-100 text-success-600 font-semibold',
 };
 
-export const Badge = ({ variant = 'default', className = '', children, ...props }: BadgeProps) => {
-  const baseClasses = 'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium';
+export const Badge = ({
+  variant = 'default',
+  className = '',
+  children,
+  ...props
+}: BadgeProps) => {
+  const baseClasses =
+    'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium';
   const variantClasses = variantStyles[variant];
 
   return (
-    <span className={`${baseClasses} ${variantClasses} ${className}`} {...props}>
+    <span
+      className={`${baseClasses} ${variantClasses} ${className}`}
+      {...props}
+    >
       {children}
     </span>
   );

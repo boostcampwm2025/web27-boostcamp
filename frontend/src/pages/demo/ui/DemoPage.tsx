@@ -56,7 +56,9 @@ export const DemoPage = () => {
 
   const handleTagToggle = (tag: Tag) => {
     setSelectedTags((prev) =>
-      prev.some((t) => t.id === tag.id) ? prev.filter((t) => t.id !== tag.id) : [...prev, tag],
+      prev.some((t) => t.id === tag.id)
+        ? prev.filter((t) => t.id !== tag.id)
+        : [...prev, tag]
     );
   };
 
