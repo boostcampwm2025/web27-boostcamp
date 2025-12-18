@@ -25,7 +25,7 @@ interface ApiResponse {
   candidates: Campaign[];
 }
 
-export default function SlideBDemo() {
+export function SlideBDemo() {
   const [data, setData] = useState<ApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
 

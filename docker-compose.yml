@@ -1,0 +1,26 @@
+services:
+  nginx:
+    image: ${NCR_ENDPOINT:-local}/boostad/nginx:${IMAGE_TAG:-deploy}
+    build:
+      context: .
+      dockerfile: nginx/Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  backend:
+    image: ${NCR_ENDPOINT:-local}/boostad/backend:${IMAGE_TAG:-deploy}
+    build:
+      context: .
+      dockerfile: backend/dockerfile
+      target: runner
+    environment:
+      PORT: "3000"
+      # 배포 시 프론트엔드(정적 호스팅) Origin 으로 주입 (GitHub Actions vars.CORS_ORIGIN 등)
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
+      NODE_ENV: "production"
+    expose:
+      - "3000"
+    restart: unless-stopped
