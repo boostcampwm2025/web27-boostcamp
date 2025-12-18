@@ -1,0 +1,63 @@
+name: frontend-deploy
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - frontend/**
+
+env:
+  DEPLOY_BRANCH: ${{ vars.DEPLOY_BRANCH || 'feature/deploy' }}
+
+jobs:
+  build-and-upload:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.ref_name == (vars.DEPLOY_BRANCH || 'feature/deploy') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # AWS CLI v1.15.85 (NCP Object Storage 가이드 호환)
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.8"
+
+      # 1. Node.js 세팅 및 캐싱
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      # 2. 설치/패치/빌드 (frontend 폴더에서 실행)
+      - name: Install deps
+        working-directory: frontend
+        run: npm install
+
+      - name: Patch rollup binary for linux
+        working-directory: frontend
+        run: npm install --ignore-scripts --no-save @rollup/rollup-linux-x64-gnu
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
+      # 3. NCP Object Storage 업로드
+      - name: Upload to NCP Object Storage
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.NCP_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.NCP_SECRET_KEY }}
+          AWS_DEFAULT_REGION: kr-standard
+          ENDPOINT: https://kr.object.ncloudstorage.com
+          BUCKET: ${{ secrets.NCP_BUCKET }}
+        run: |
+          set -euo pipefail
+
+          python -m pip install --upgrade pip
+          python -m pip install --user awscli==1.15.85
+          AWS="$HOME/.local/bin/aws"
+          "$AWS" --version
+
+          # 0) 엔드포인트/권한 사전 검증 (이게 실패하면 PutObject도 당연히 실패)
+          "$AWS" --endpoint-url "$ENDPOINT" s3 ls "s3://$BUCKET"
+
+          # 1) 업로드(동기화)
+          "$AWS" --endpoint-url "$ENDPOINT" s3 sync frontend/dist "s3://$BUCKET" --delete
