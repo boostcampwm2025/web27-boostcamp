@@ -20,11 +20,16 @@ import './global.d.ts';
   const adRenderer = new BannerAdRenderer(config);
   const sdk = new DevAdSDK(tagExtractor, apiClient, adRenderer);
 
-  // DOM 로드 완료 후 SDK 초기화
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => sdk.init());
-  } else {
-    sdk.init();
+  // DOM 로드 완료 후 SDK 초기화 (data-devad-zone이 있을 때만)
+  const autoRenderZone = document.querySelector('[data-devad-zone]');
+
+  if (autoRenderZone) {
+    // 외부 블로거 모드: 자동 렌더링
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => sdk.init());
+    } else {
+      sdk.init();
+    }
   }
 
   // 외부 API 노출 (프로토타입 테스트용, 확장성)
@@ -43,6 +48,49 @@ import './global.d.ts';
     reload() {
       sdk.init();
       console.log('[DevAd SDK] SDK가 다시 로드되었습니다');
+    },
+
+    // Decision API 래퍼 (데모 페이지용)
+    async fetchDecision(tags, url) {
+      return apiClient.fetchDecision(tags, url);
+    },
+
+    // Click API 래퍼 (데모 페이지용)
+    async trackClick(
+      campaignId: string,
+      campaignName: string,
+      url: string,
+    ): Promise<{ redirectUrl: string; logId: string; timestamp: string }> {
+      const response = await fetch(`${config.apiBase}/click/track`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ campaignId, campaignName, url }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to track click: ${response.statusText}`);
+      }
+
+      return response.json();
+    },
+
+    async getClickLogs(limit = 10): Promise<
+      Array<{
+        timestamp: string;
+        campaignId: string;
+        campaignName: string;
+        url: string;
+      }>
+    > {
+      const response = await fetch(
+        `${config.apiBase}/click/logs?limit=${limit}`,
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch click logs: ${response.statusText}`);
+      }
+
+      return response.json();
     },
   };
 })();

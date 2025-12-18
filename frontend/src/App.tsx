@@ -1,24 +1,27 @@
-import { useState } from 'react';
+import { useEffect } from 'react';
+import { RouterProvider } from './app/providers/RouterProvider';
+import './app/styles/globals.css';
 
 function App() {
-  const [count, setCount] = useState(0);
+  // SDK 동적 로드
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src =
+      import.meta.env.VITE_SDK_URL || 'http://localhost:3000/sdk.js';
+    script.dataset.blogId = 'demo-blog';
+    script.dataset.apiBase =
+      import.meta.env.VITE_API_URL || 'http://localhost:3000';
+    script.async = true;
 
-  return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-md">
-        <h1 className="text-3xl font-bold text-blue-600 mb-4">
-          Vite + React + Tailwind
-        </h1>
-        <button
-          onClick={() => setCount((count) => count + 1)}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          count is {count}
-        </button>
-        <p className="mt-4 text-gray-600">Tailwind CSS v4 is working!</p>
-      </div>
-    </div>
-  );
+    document.head.appendChild(script);
+
+    return () => {
+      // 클린업: SDK 스크립트 제거
+      document.head.removeChild(script);
+    };
+  }, []);
+
+  return <RouterProvider />;
 }
 
 export default App;

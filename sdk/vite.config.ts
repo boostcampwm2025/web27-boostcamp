@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
 import path from 'path';
-import { copyFileSync } from 'fs';
+import { copyFileSync, mkdirSync, existsSync } from 'fs';
 
 export default defineConfig({
   build: {
@@ -32,9 +32,16 @@ export default defineConfig({
     {
       name: 'copy-to-backend',
       closeBundle() {
-        // 빌드 완료 후 backend/public으로 복사
+        // 개발 환경에서만 backend/public으로 복사
         const src = path.resolve(__dirname, 'dist/sdk.js');
-        const dest = path.resolve(__dirname, '../backend/public/sdk.js');
+        const destDir = path.resolve(__dirname, '../backend/public');
+        const dest = path.resolve(destDir, 'sdk.js');
+
+        // public 디렉토리 생성 (없으면)
+        if (!existsSync(destDir)) {
+          mkdirSync(destDir, { recursive: true });
+        }
+
         copyFileSync(src, dest);
         console.log('✅ SDK copied to backend/public/sdk.js');
       },

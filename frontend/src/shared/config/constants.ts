@@ -1,22 +1,28 @@
-// API Base URL (프록시 사용: /api → http://localhost:3000)
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+import type { Tag, BlogPost } from '../types/common';
 
-// SDK URL (외부 블로그에서 로드하므로 절대 URL 필요)
-export const SDK_URL =
-  import.meta.env.VITE_SDK_URL || 'http://localhost:3000/sdk.js';
+export const AVAILABLE_TAGS: Tag[] = [
+  { id: 1, name: 'JavaScript' },
+  { id: 2, name: 'TypeScript' },
+  { id: 3, name: 'React' },
+  { id: 4, name: 'NextJS' },
+  { id: 5, name: 'Spring' },
+  { id: 6, name: 'NestJS' },
+  { id: 7, name: 'SQL' },
+  { id: 8, name: 'AWS' },
+  { id: 9, name: 'Redis' },
+  { id: 10, name: 'AI' },
+];
 
-// 태그 목록 (프로토타입용 - 10개 고정)
-export const AVAILABLE_TAGS = [
-  'JavaScript',
-  'TypeScript',
-  'React',
-  'NextJS',
-  'Spring',
-  'NestJS',
-  'SQL',
-  'AWS',
-  'Redis',
-  'AI',
-] as const;
+export const DUMMY_POST: BlogPost = {
+  title: 'NestJS로 확장 가능한 REST API 만들기',
+  content: `
+    NestJS는 TypeScript 기반의 프레임워크로,
+    확장 가능하고 유지보수가 쉬운 서버 사이드 애플리케이션을 만들 수 있습니다.
 
-export type Tag = (typeof AVAILABLE_TAGS)[number];
+    이 글에서는 NestJS의 핵심 개념과 실전 활용법을 다룹니다.
+  `,
+  autoTags: [
+    { id: 2, name: 'TypeScript' },
+    { id: 6, name: 'NestJS' },
+  ],
+};
