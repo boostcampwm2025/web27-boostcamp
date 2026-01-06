@@ -34,7 +34,7 @@ export class BehaviorDataDto {
 export class RTBRequestDto {
   @Expose()
   @IsString()
-  blogId: string;
+  campaignId: string;
 
   @Expose()
   @IsString()
