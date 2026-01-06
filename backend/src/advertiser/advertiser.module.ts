@@ -1,4 +1,7 @@
 import { Module } from '@nestjs/common';
+import { AdvertiserController } from './advertiser.controller';
 
-@Module({})
+@Module({
+  controllers: [AdvertiserController],
+})
 export class AdvertiserModule {}
