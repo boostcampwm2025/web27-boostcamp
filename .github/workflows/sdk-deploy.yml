@@ -21,7 +21,7 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.8"
+          python-version: '3.8'
 
       - uses: actions/setup-node@v4
         with:
@@ -35,6 +35,8 @@ jobs:
 
       - name: Build SDK
         working-directory: sdk
+        env:
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
         run: npm run build
 
       - name: Upload SDK to NCP Object Storage
@@ -43,7 +45,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.NCP_SECRET_KEY }}
           AWS_DEFAULT_REGION: kr-standard
           ENDPOINT: https://kr.object.ncloudstorage.com
-          BUCKET: ${{ secrets.NCR_SDK_BUCKET }}
+          BUCKET: ${{ secrets.NCP_SDK_BUCKET }}
         run: |
           set -euo pipefail
 

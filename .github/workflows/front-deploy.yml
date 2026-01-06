@@ -18,7 +18,7 @@ jobs:
       # AWS CLI v1.15.85 (NCP Object Storage 가이드 호환)
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.8"
+          python-version: '3.8'
 
       # 1. Node.js 세팅 및 캐싱
       - uses: actions/setup-node@v4
@@ -38,6 +38,9 @@ jobs:
 
       - name: Build frontend
         working-directory: frontend
+        env:
+          VITE_API_URL: ${{ vars.VITE_API_URL || 'http://localhost:3000' }}
+          VITE_SDK_URL: ${{ vars.VITE_SDK_URL }}
         run: npm run build
 
       # 3. NCP Object Storage 업로드
@@ -47,7 +50,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.NCP_SECRET_KEY }}
           AWS_DEFAULT_REGION: kr-standard
           ENDPOINT: https://kr.object.ncloudstorage.com
-          BUCKET: ${{ secrets.NCP_BUCKET }}
+          BUCKET: ${{ secrets.NCP_FRONT_BUCKET || secrets.NCP_BUCKET }}
         run: |
           set -euo pipefail
 

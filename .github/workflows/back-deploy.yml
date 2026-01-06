@@ -10,6 +10,7 @@ on:
 
 env:
   DEPLOY_BRANCH: ${{ vars.DEPLOY_BRANCH || 'feature/deploy' }}
+  CORS_ORIGIN: ${{ vars.CORS_ORIGIN || 'http://localhost:5173' }}
 
 jobs:
   build-push:
@@ -71,6 +72,7 @@ jobs:
             # 커밋 SHA 태그로 pull 하도록 환경 주입
             export IMAGE_TAG="${{ github.sha }}"
             export NCR_ENDPOINT="${{ secrets.NCR_ENDPOINT }}"
+            export CORS_ORIGIN="${{ vars.CORS_ORIGIN || 'http://localhost:5173' }}"
 
             echo "${{ secrets.NCP_SECRET_KEY }}" | docker login \
               -u "${{ secrets.NCP_ACCESS_KEY }}" \
