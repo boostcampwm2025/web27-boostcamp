@@ -1,5 +1,5 @@
 export class SaveViewLogDto {
-  auctiondId: string;
+  auctionId: string;
   campaignId: string;
   blogId: number;
   cost: number;
