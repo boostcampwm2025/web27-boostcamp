@@ -7,7 +7,7 @@ export class SdkController {
   constructor(private readonly sdkservice: SdkService) {}
 
   @Post('campaign-view')
-  logCampaignView(@Body() createViewLogDto: CreateViewLogDto) {
-    this.sdkservice.logCampaignView(createViewLogDto);
+  recordView(@Body() createViewLogDto: CreateViewLogDto) {
+    this.sdkservice.recordView(createViewLogDto);
   }
 }
