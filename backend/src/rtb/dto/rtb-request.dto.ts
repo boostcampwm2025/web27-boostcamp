@@ -4,6 +4,7 @@ import {
   IsArray,
   IsNumber,
   IsOptional,
+  IsBoolean,
   ValidateNested,
   Min,
   Max,
@@ -53,4 +54,14 @@ export class RTBRequestDto {
   @Type(() => BehaviorDataDto)
   @IsOptional() // 표에서 Nullable이 Y
   behaviorData?: BehaviorDataDto;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  behaviorScore: number;
+
+  @Expose()
+  @IsOptional()
+  @IsBoolean()
+  isHighIntent: boolean;
 }
