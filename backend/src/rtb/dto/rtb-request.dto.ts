@@ -1,10 +1,47 @@
-import { Expose } from 'class-transformer';
-import { IsString, IsArray } from 'class-validator';
+import { Expose, Type } from 'class-transformer';
+import {
+  IsString,
+  IsArray,
+  IsNumber,
+  IsOptional,
+  ValidateNested,
+  Min,
+  Max,
+} from 'class-validator';
+
+export class BehaviorDataDto {
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  dwellTime?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  scrollDepth?: number;
+
+  @Expose()
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  copyCount?: number;
+}
 
 export class RTBRequestDto {
   @Expose()
   @IsString()
-  postId: string;
+  blogId: string;
+
+  @Expose()
+  @IsString()
+  sessionId: string;
+
+  @Expose()
+  @IsString()
+  url: string;
 
   @Expose()
   @IsArray()
@@ -12,6 +49,8 @@ export class RTBRequestDto {
   tags: string[];
 
   @Expose()
-  @IsString()
-  postURL: string;
+  @ValidateNested()
+  @Type(() => BehaviorDataDto)
+  @IsOptional() // 표에서 Nullable이 Y
+  behaviorData?: BehaviorDataDto;
 }
