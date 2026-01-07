@@ -6,6 +6,7 @@ import {
   Max,
   IsOptional,
   IsNotEmpty,
+  IsBoolean,
 } from 'class-validator';
 
 export class CreateViewLogDto {
@@ -20,6 +21,14 @@ export class CreateViewLogDto {
   @IsUrl()
   @IsNotEmpty()
   postUrl: string;
+
+  @IsBoolean()
+  @IsNotEmpty()
+  isHighIntent: boolean;
+
+  @IsNumber()
+  @IsNotEmpty()
+  behaviorScore: number;
 
   @IsOptional()
   @IsNumber()
