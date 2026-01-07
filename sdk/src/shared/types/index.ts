@@ -44,20 +44,25 @@ export interface DecisionResponse {
 export interface ViewLogRequest {
   auctionId: string;
   campaignId: string;
-  blogKey: string;
+  postUrl: string;
+  isHighIntent: boolean;
+  behaviorScore: number;
   positionRatio: number | null;
 }
 
 // ViewLog API 응답 타입
 export interface ViewLogResponse {
-  viewId: string;
+  status: string;
+  message: string;
+  data: {
+    viewId: number;
+  };
+  timestamp: string;
 }
 
 // ClickLog API 요청 타입
 export interface ClickLogRequest {
-  auctionId: string;
-  campaignId: string;
-  blogKey: string;
+  viewId: number;
 }
 
 // ClickLog API 응답 타입
@@ -65,7 +70,7 @@ export interface ClickLogResponse {
   status: string;
   message: string;
   data: {
-    clickId: string;
+    clickId: number;
   };
   timestamp: string;
 }
@@ -85,7 +90,14 @@ export interface APIClient {
 }
 
 export interface AdRenderer {
-  render(ad: Campaign | null, container: HTMLElement, auctionId: string): void;
+  render(
+    campaign: Campaign | null,
+    container: HTMLElement,
+    auctionId: string,
+    postUrl?: string,
+    behaviorScore?: number,
+    isHighIntent?: boolean
+  ): void;
 }
 
 export interface BehaviorTracker {
