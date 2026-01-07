@@ -12,6 +12,7 @@ import type {
 @Injectable()
 export class RTBService {
   private readonly logger = new Logger(RTBService.name);
+  private auctionId: number = 0;
 
   constructor(
     private readonly matcher: Matcher,
@@ -37,15 +38,22 @@ export class RTBService {
       const result = await this.selector.selectWinner(scored);
 
       // 4. explain 추가
+      // return {
+      //   winner: {
+      //     ...result.winner,
+      //     explain: this.generateExplain(result.winner, context),
+      //   },
+      //   candidates: result.candidates.map((c) => ({
+      //     ...c,
+      //     explain: this.generateExplain(c, context),
+      //   })),
+      // };
+
       return {
-        winner: {
-          ...result.winner,
-          explain: this.generateExplain(result.winner, context),
-        },
-        candidates: result.candidates.map((c) => ({
-          ...c,
-          explain: this.generateExplain(c, context),
-        })),
+        status: 'success',
+        message: '광고 선정 완료',
+        data: { campaign: { ...result.winner }, auctionId: this.auctionId++ },
+        timestamp: new Date().toISOString(),
       };
     } catch (error) {
       const errorMessage =
@@ -54,20 +62,19 @@ export class RTBService {
       this.logger.warn(`Auction failed: ${errorMessage}`);
 
       // 에러 발생 시(예: 후보 없음) null winner와 빈 리스트를 반환하여 정상 응답 처리
+
+      // message와 error 필드에 대해서는 추후에 통일된 에러 헨들링 전략 사용이 용이할 거 같음
       return {
-        winner: {
-          id: null,
-          title: '경매 실패',
-          content: null,
-          image: null,
-          url: null,
-          tags: [],
-          min_price: null,
-          max_price: null,
-          matchedTags: [],
-          explain: '경매 실패: ' + errorMessage,
-        },
-        candidates: [],
+        status: 'error',
+        message: 'error message',
+        data: null,
+        errors: [
+          {
+            field: 'field',
+            message: 'error message',
+          },
+        ],
+        timestamp: new Date().toISOString(),
       };
     }
   }

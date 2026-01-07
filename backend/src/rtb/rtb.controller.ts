@@ -13,9 +13,11 @@ export class RTBController {
   @Post('decision')
   async getDecision(@Body() body: RTBRequestDto) {
     const context: DecisionContext = {
-      campaignId: body.campaignId,
+      blogKey: body.blogKey,
       tags: body.tags,
-      url: body.url,
+      postUrl: body.postUrl,
+      behaviorScore: body.behaviorScore,
+      isHighIntent: body.isHighIntent,
     };
 
     const result = await this.rtbService.runAuction(context);

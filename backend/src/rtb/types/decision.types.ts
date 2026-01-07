@@ -1,7 +1,9 @@
 export interface DecisionContext {
-  campaignId: string;
+  blogKey: string;
   tags: string[];
-  url: string;
+  postUrl: string;
+  behaviorScore: number;
+  isHighIntent: boolean;
   zoneId?: string; // 혹시 모르니깐 넣어둠
 }
 
