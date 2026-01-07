@@ -1,7 +1,7 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 
 import { MLEngine } from './mlEngine.interface';
-import type { Pipeline } from '@xenova/transformers';
+import { pipeline, Pipeline, Tensor } from '@xenova/transformers';
 
 @Injectable()
 export class XenovaMLEngine extends MLEngine implements OnModuleInit {
@@ -34,21 +34,21 @@ export class XenovaMLEngine extends MLEngine implements OnModuleInit {
 
   async getEmbedding(text: string): Promise<number[]> {
     if (!this.embedder) {
-      throw new Error('Model not loaded yet');
+      throw new Error('모델이 아직 로드되지 않았습니다.');
     }
 
-    const result = await this.embedder(text, {
+    const result: Tensor = await this.embedder(text, {
       pooling: 'mean',
       normalize: true,
     });
 
-    return Array.from(result.data);
+    return result.tolist(); // Tensor객체의 값을 배열로 변환
   }
 
   calculateSimilarity(vecA: number[], vecB: number[]): number {
     if (vecA.length !== vecB.length) {
       throw new Error(
-        `Vector dimensions must match: ${vecA.length} vs ${vecB.length}`
+        `Vector 차원이 일치해야 유사도 비교가 가능합니다.: ${vecA.length} vs ${vecB.length}`
       );
     }
 
@@ -65,9 +65,6 @@ export class XenovaMLEngine extends MLEngine implements OnModuleInit {
   }
 
   private async loadModel() {
-    // transformers 모듈 동적 로드
-    const { pipeline } = await import('@xenova/transformers');
-
     // 이제 pipeline으로 모델 로드
     this.embedder = await pipeline(XenovaMLEngine.TASK, XenovaMLEngine.MODEL);
   }
