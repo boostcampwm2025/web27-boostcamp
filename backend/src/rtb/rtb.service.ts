@@ -7,6 +7,7 @@ import type {
   ScoredCandidate,
   ScoringResult,
   Campaign,
+  Candidate,
 } from './types/decision.types';
 
 @Injectable()
@@ -23,11 +24,12 @@ export class RTBService {
   async runAuction(context: DecisionContext) {
     try {
       // 1. 후보 필터링
-      const candidates = await this.matcher.findCandidatesByTags(context);
+      const candidates: Candidate[] =
+        await this.matcher.findCandidatesByTags(context);
 
       if (candidates.length === 0) {
         throw new Error(
-          `${context.tags.join(', ')}태그에 맞는 후보자들이 존재하지 않습니다.`
+          `${context.tags.join(', ')}태그에 유사도가 비슷한 후보자들이 존재하지 않습니다.`
         );
       }
 

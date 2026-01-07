@@ -9,7 +9,8 @@ import { PrototypeCampaignRepository } from './repositories/prototype-campaign.r
 
 // Matcher
 import { Matcher } from './matchers/matcher.interface';
-import { PrototypeMatcher } from './matchers/prototype.matcher';
+// import { PrototypeMatcher } from './matchers/prototype.matcher';
+import { TransformerMatcher } from './matchers/xenova.matcher';
 
 // Scorer
 import { Scorer } from './scorers/scorer.interface';
@@ -36,7 +37,7 @@ import { RTBController } from './rtb.controller';
     // Matcher
     {
       provide: Matcher,
-      useClass: PrototypeMatcher,
+      useClass: TransformerMatcher,
     },
 
     // Scorer
