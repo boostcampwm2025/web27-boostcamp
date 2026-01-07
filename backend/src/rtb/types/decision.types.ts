@@ -23,13 +23,13 @@ export interface Campaign {
   status?: 'active' | 'inactive'; // 혹시 모르니깐 넣어둠
 }
 
-export interface Candidate extends Campaign {
+export interface Candidate {
+  campaign: Campaign;
   similarity: number;
 }
 
 export interface ScoredCandidate extends Campaign {
   score: number;
-  matchedTags: Tag[];
 }
 
 export interface ScoringResult {

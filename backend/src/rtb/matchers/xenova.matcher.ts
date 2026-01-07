@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Matcher } from './matcher.interface';
 import { CampaignRepository } from '../repositories/campaign.repository.interface';
-import { XenovaMLEngine } from '../ml/xenova-mlEngine';
+import { MLEngine } from '../ml/mlEngine.interface';
 import type {
   Campaign,
   Candidate,
@@ -17,7 +17,7 @@ export class TransformerMatcher extends Matcher {
 
   constructor(
     private readonly campaignRepo: CampaignRepository,
-    private readonly mlEngine: XenovaMLEngine
+    private readonly mlEngine: MLEngine
   ) {
     super();
   }
@@ -54,11 +54,9 @@ export class TransformerMatcher extends Matcher {
     );
 
     // 임계값 이상만 필터링
-    const candidates = withSimilarity
-      .filter(({ similarity }) => similarity >= this.SIMILARITY_THRESHOLD)
-      .map(({ campaign, similarity }) => {
-        return { ...campaign, similarity };
-      });
+    const candidates = withSimilarity.filter(
+      ({ similarity }) => similarity >= this.SIMILARITY_THRESHOLD
+    );
 
     this.logger.debug(
       `필터링된 캠페인 수 ${candidates.length}/${allCampaigns.length} 캠페인의 유사도 (임계값: ${this.SIMILARITY_THRESHOLD})`
