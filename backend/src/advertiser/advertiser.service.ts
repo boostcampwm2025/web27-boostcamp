@@ -14,7 +14,8 @@ export class AdvertiserService {
     if (isAdvertiser === false) {
       return;
     }
-
-    this.campaignRepository.listByUserId(userId).map((campaign) => {campaign.id});
+    const campaignIds = this.campaignRepository
+      .listByUserId(userId)
+      .map((campaign) => campaign.id);
   }
 }
