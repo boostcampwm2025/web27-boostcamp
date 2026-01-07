@@ -17,6 +17,9 @@ describe('SdkController', () => {
           useValue: {
             saveViewLog: jest.fn(),
             saveClickLog: jest.fn(),
+            getViewLog: jest.fn(),
+            listViewLogs: jest.fn(),
+            listClickLogs: jest.fn(),
           },
         },
         {
