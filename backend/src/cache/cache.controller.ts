@@ -1,6 +1,7 @@
 import { Body, Controller, ForbiddenException, Post } from '@nestjs/common';
 import { AuctionStore } from './auction/auction.store';
 import { SeedAuctionDto } from './dto/seed-auction.dto';
+import { successResponse } from 'src/common/response/success-response';
 
 @Controller('cache')
 export class CacheController {
@@ -14,6 +15,6 @@ export class CacheController {
 
     const { auctionId, blogId, cost } = dto;
     this.auctionStore.set(auctionId, { blogId, cost });
-    return { auctionId };
+    return successResponse({ auctionId }, 'auction seeded');
   }
 }
