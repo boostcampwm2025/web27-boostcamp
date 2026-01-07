@@ -1,11 +1,7 @@
-import { IsNotEmpty, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsNumber } from 'class-validator';
 
 export class CreateClickLogDto {
-  @IsUUID()
+  @IsNumber()
   @IsNotEmpty()
-  auctionId: string;
-
-  @IsUUID()
-  @IsNotEmpty()
-  campaignId: string;
+  viewId: number;
 }
