@@ -3,5 +3,5 @@ import { SaveViewLog } from '../types/save-view-log.type';
 
 export abstract class LogRepository {
   abstract saveViewLog(dto: SaveViewLog): number;
-  abstract saveClickLog(dto: SaveClickLog): void;
+  abstract saveClickLog(dto: SaveClickLog): number;
 }

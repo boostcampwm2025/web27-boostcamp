@@ -17,12 +17,10 @@ export class InMemoryLogRepository extends LogRepository {
   }
 
   // todo: abstact class 선언해두어서 일단 구현부를 작성해두었는데 return을 어떤걸 해줄지 정하고 수정할 예정
-  saveClickLog(dto: SaveClickLog): void {
-    const { viewId, createdAt } = dto;
+  saveClickLog(dto: SaveClickLog): number {
     this.clickLogIdx += 1;
-    this.clickLog.set(this.clickLogIdx, {
-      viewId,
-      createdAt,
-    });
+    this.clickLog.set(this.clickLogIdx, { ...dto });
+
+    return this.clickLogIdx;
   }
 }
