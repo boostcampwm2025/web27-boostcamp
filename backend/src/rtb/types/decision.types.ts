@@ -4,7 +4,6 @@ export interface DecisionContext {
   postUrl: string;
   behaviorScore: number;
   isHighIntent: boolean;
-  zoneId?: string; // 혹시 모르니깐 넣어둠
 }
 
 export interface Tag {
@@ -24,6 +23,10 @@ export interface Campaign {
   status?: 'active' | 'inactive'; // 혹시 모르니깐 넣어둠
 }
 
+export interface Candidate extends Campaign {
+  similarity: number;
+}
+
 export interface ScoredCandidate extends Campaign {
   score: number;
   matchedTags: Tag[];
@@ -31,10 +34,12 @@ export interface ScoredCandidate extends Campaign {
 
 export interface ScoringResult {
   score: number;
+  matchedTags: Tag[];
   breakdown: {
     cpc: number;
     matchCount: number;
-    otherBonus: number;
+    similarity?: number;
+    otherBonus?: number;
   };
 }
 

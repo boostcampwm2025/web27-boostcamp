@@ -2,7 +2,11 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Matcher } from './matcher.interface';
 import { CampaignRepository } from '../repositories/campaign.repository.interface';
 import { XenovaMLEngine } from '../ml/xenova-mlEngine';
-import type { Campaign, DecisionContext } from '../types/decision.types';
+import type {
+  Campaign,
+  Candidate,
+  DecisionContext,
+} from '../types/decision.types';
 
 @Injectable()
 export class TransformerMatcher extends Matcher {
@@ -24,7 +28,7 @@ export class TransformerMatcher extends Matcher {
    * @param context - 의사결정 문맥 (현재는 태그 목록 포함)
    * @returns 유사도 임계값을 넘는 캠페인 목록
    */
-  async findCandidatesByTags(context: DecisionContext): Promise<Campaign[]> {
+  async findCandidatesByTags(context: DecisionContext): Promise<Candidate[]> {
     // ML 모델 준비 안 됐으면 빈 배열 반환 (Scorer에서 태그 매칭으로 커버)
     if (!this.mlEngine.isReady()) {
       this.logger.warn('ML 모델이 준비가 안 되었습니다.');
@@ -52,7 +56,9 @@ export class TransformerMatcher extends Matcher {
     // 임계값 이상만 필터링
     const candidates = withSimilarity
       .filter(({ similarity }) => similarity >= this.SIMILARITY_THRESHOLD)
-      .map(({ campaign }) => campaign);
+      .map(({ campaign, similarity }) => {
+        return { ...campaign, similarity };
+      });
 
     this.logger.debug(
       `필터링된 캠페인 수 ${candidates.length}/${allCampaigns.length} 캠페인의 유사도 (임계값: ${this.SIMILARITY_THRESHOLD})`
