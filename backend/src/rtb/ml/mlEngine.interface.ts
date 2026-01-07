@@ -9,7 +9,7 @@ export abstract class MLEngine {
   abstract isReady(): boolean;
 
   /**
-   * 텍스트를 벡터로 변환
+   * 텍스트 or 단어를 벡터로 변환
    * @param text - 변환할 텍스트 (예: "React TypeScript Hooks")
    * @returns 임베딩 벡터 (384차원)
    */
