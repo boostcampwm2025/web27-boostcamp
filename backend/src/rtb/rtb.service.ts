@@ -4,16 +4,14 @@ import { Scorer } from './scorers/scorer.interface';
 import { CampaignSelector } from './selectors/selector.interface';
 import type {
   DecisionContext,
-  ScoredCandidate,
-  ScoringResult,
-  Campaign,
   Candidate,
+  ScoredCandidate,
 } from './types/decision.types';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class RTBService {
   private readonly logger = new Logger(RTBService.name);
-  private auctionId: number = 0;
 
   constructor(
     private readonly matcher: Matcher,
@@ -23,6 +21,8 @@ export class RTBService {
 
   async runAuction(context: DecisionContext) {
     try {
+      const auctionId = randomUUID();
+
       // 1. 후보 필터링
       const candidates: Candidate[] =
         await this.matcher.findCandidatesByTags(context);
@@ -34,12 +34,13 @@ export class RTBService {
       }
 
       // 2. 점수 계산 (아 복잡하다)
-      const scored = await this.scoreCandidates(candidates, context);
+      const scored: ScoredCandidate[] =
+        await this.scorer.scoreCandidates(candidates);
 
       // 3. 우승자 선정
       const result = await this.selector.selectWinner(scored);
 
-      // 4. explain 추가
+      // 4. explain(reason) 생성 추후 로깅용 -> 일단 보류
       // return {
       //   winner: {
       //     ...result.winner,
@@ -54,14 +55,18 @@ export class RTBService {
       return {
         status: 'success',
         message: '광고 선정 완료',
-        data: { campaign: { ...result.winner }, auctionId: this.auctionId++ },
+        data: {
+          auctionId,
+          campaign: { ...result.winner },
+          candidates: result.candidates,
+        },
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
 
-      this.logger.warn(`Auction failed: ${errorMessage}`);
+      this.logger.warn(`Auction 실패: ${errorMessage}`);
 
       // 에러 발생 시(예: 후보 없음) null winner와 빈 리스트를 반환하여 정상 응답 처리
 
@@ -79,47 +84,5 @@ export class RTBService {
         timestamp: new Date().toISOString(),
       };
     }
-  }
-
-  private async scoreCandidates(
-    candidates: Campaign[],
-    context: DecisionContext
-  ): Promise<ScoredCandidate[]> {
-    return Promise.all(
-      candidates.map(async (campaign) => {
-        const { score, breakdown }: ScoringResult = await this.scorer.score(
-          campaign,
-          context
-        );
-
-        this.logger.debug(
-          `Campaign ${campaign.id}: CPC=${breakdown.cpc}, Match=${breakdown.matchCount}, Score=${score}`
-        );
-
-        const matchedTags = campaign.tags.filter((tag) =>
-          context.tags.includes(tag.name)
-        );
-
-        return {
-          ...campaign,
-          score,
-          matchedTags,
-        };
-      })
-    );
-  }
-
-  private generateExplain(
-    candidate: ScoredCandidate,
-    context: DecisionContext
-  ): string {
-    const matchedTagNames = candidate.matchedTags.map((t) => t.name).join(', ');
-    const matchCount = candidate.matchedTags.length;
-
-    return (
-      `[${matchedTagNames}] ${matchCount} / ${context.tags.length} 일치 ` +
-      `[CPC]: ${candidate.max_price}원, ` +
-      `[SCORE]: ${candidate.score}점으로 선정`
-    );
   }
 }
