@@ -37,11 +37,11 @@ class CampaignDto {
 
 class RTBDataDto {
   @Expose()
-  @Type(() => CampaignDto)
-  campaign: CampaignDto;
+  auctionId: string;
 
   @Expose()
-  auctionId: string;
+  @Type(() => CampaignDto)
+  campaign: CampaignDto;
 }
 
 export class RTBResponseDto {
