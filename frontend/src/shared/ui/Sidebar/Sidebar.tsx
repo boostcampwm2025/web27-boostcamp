@@ -37,7 +37,7 @@ export function Sidebar() {
       aria-label="Main navigation"
     >
       {/* 로고 영역 */}
-      <header className="flex flex-row items-center gap-3 py-4 px-6 border-b border-gray-200 text-gray-900 text-lg font-bold">
+      <header className="flex flex-row h-16 items-center gap-3 py-4 px-6 border-b border-gray-200 text-gray-900 text-lg font-bold">
         <Icon.Logo className="w-8 h-8 text-blue-500" />
         BoostAD
       </header>
