@@ -7,6 +7,10 @@ import { RTBService } from './rtb.service';
 import { CampaignRepository } from './repositories/campaign.repository.interface';
 import { PrototypeCampaignRepository } from './repositories/prototype-campaign.repository';
 
+// MLEngine
+import { MLEngine } from './ml/mlEngine.interface';
+import { XenovaMLEngine } from './ml/xenova-mlEngine';
+
 // Matcher
 import { Matcher } from './matchers/matcher.interface';
 // import { PrototypeMatcher } from './matchers/prototype.matcher';
@@ -14,7 +18,8 @@ import { TransformerMatcher } from './matchers/xenova.matcher';
 
 // Scorer
 import { Scorer } from './scorers/scorer.interface';
-import { PrototypeScorer } from './scorers/prototype.scorer';
+// import { PrototypeScorer } from './scorers/prototype.scorer';
+import { TransformerScorer } from './scorers/xenova.scorer';
 
 // Selector
 import { CampaignSelector } from './selectors/selector.interface';
@@ -43,13 +48,19 @@ import { RTBController } from './rtb.controller';
     // Scorer
     {
       provide: Scorer,
-      useClass: PrototypeScorer,
+      useClass: TransformerScorer,
     },
 
     // Selector
     {
       provide: CampaignSelector,
       useClass: PrototypeCampaignSelector,
+    },
+
+    // MLEngine,
+    {
+      provide: MLEngine,
+      useClass: XenovaMLEngine,
     },
   ],
   exports: [RTBService],
