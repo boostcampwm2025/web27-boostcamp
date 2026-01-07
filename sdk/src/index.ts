@@ -4,6 +4,7 @@ import { getSDKConfig } from './shared/config/sdk-config';
 import { TagExtractor } from './features/TagExtractor';
 import { DecisionAPIClient } from './features/DecisionAPIClient';
 import { BannerAdRenderer } from './features/BannerAdRenderer';
+import { BehaviorTracker } from './features/BehaviorTracker';
 import { DevAdSDK } from './features/DevAdSDK';
 
 (function () {
@@ -13,7 +14,8 @@ import { DevAdSDK } from './features/DevAdSDK';
   const tagExtractor = new TagExtractor(TAGS);
   const apiClient = new DecisionAPIClient(config);
   const adRenderer = new BannerAdRenderer(config);
-  const sdk = new DevAdSDK(tagExtractor, apiClient, adRenderer);
+  const behaviorTracker = new BehaviorTracker();
+  const sdk = new DevAdSDK(tagExtractor, apiClient, adRenderer, behaviorTracker);
 
   // DOM 로드 완료 후 SDK 자동 초기화
   const autoRenderZone = document.querySelector('[data-devad-zone]');
