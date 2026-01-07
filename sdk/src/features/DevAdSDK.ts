@@ -43,7 +43,14 @@ export class DevAdSDK {
     zones.forEach(async (zone, index) => {
       try {
         const data = await this.apiClient.fetchDecision(tags, postUrl, 0, false);
-        this.adRenderer.render(data.data.campaign, zone as HTMLElement, data.data.auctionId);
+        this.adRenderer.render(
+          data.data.campaign,
+          zone as HTMLElement,
+          data.data.auctionId,
+          postUrl,
+          0,
+          false
+        );
       } catch (error) {
         console.error(`[DevAd SDK] Zone ${index + 1} 렌더링 실패:`, error);
         (zone as HTMLElement).innerHTML =
@@ -79,7 +86,14 @@ export class DevAdSDK {
     zones.forEach(async (zone, index) => {
       try {
         const data = await this.apiClient.fetchDecision(tags, postUrl, score, isHighIntent);
-        this.adRenderer.render(data.data.campaign, zone as HTMLElement, data.data.auctionId);
+        this.adRenderer.render(
+          data.data.campaign,
+          zone as HTMLElement,
+          data.data.auctionId,
+          postUrl,
+          score,
+          isHighIntent
+        );
       } catch (error) {
         console.error(`[DevAd SDK] Zone ${index + 1} 2차 광고 렌더링 실패:`, error);
       }
