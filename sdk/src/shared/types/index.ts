@@ -20,16 +20,54 @@ export interface Campaign {
   tags: Tag[];
 }
 
-// 매칭된 캠페인 (Campaign + 매칭 결과)
-export interface MatchedCampaign extends Campaign {
-  explain: string;
-  score: number;
+// Decision API 요청 타입
+export interface DecisionRequest {
+  blogKey: string;
+  tags: string[];
+  postUrl: string;
+  behaviorScore: number;
+  isHighIntent: boolean;
 }
 
 // Decision API 응답 타입
 export interface DecisionResponse {
-  winner: MatchedCampaign | null;
-  candidates: MatchedCampaign[];
+  status: string;
+  message: string;
+  data: {
+    campaign: Campaign | null;
+    auctionId: string;
+  };
+  timestamp: string;
+}
+
+// ViewLog API 요청 타입
+export interface ViewLogRequest {
+  auctionId: string;
+  campaignId: string;
+  blogKey: string;
+  positionRatio: number | null;
+}
+
+// ViewLog API 응답 타입
+export interface ViewLogResponse {
+  viewId: string;
+}
+
+// ClickLog API 요청 타입
+export interface ClickLogRequest {
+  auctionId: string;
+  campaignId: string;
+  blogKey: string;
+}
+
+// ClickLog API 응답 타입
+export interface ClickLogResponse {
+  status: string;
+  message: string;
+  data: {
+    clickId: string;
+  };
+  timestamp: string;
 }
 
 // 전략 패턴 인터페이스들
@@ -38,9 +76,22 @@ export interface TagExtractor {
 }
 
 export interface APIClient {
-  fetchDecision(tags: Tag[], url: string): Promise<DecisionResponse>;
+  fetchDecision(
+    tags: Tag[],
+    postUrl: string,
+    behaviorScore?: number,
+    isHighIntent?: boolean
+  ): Promise<DecisionResponse>;
 }
 
 export interface AdRenderer {
-  render(ad: MatchedCampaign | null, container: HTMLElement): void;
+  render(ad: Campaign | null, container: HTMLElement, auctionId: string): void;
+}
+
+export interface BehaviorTracker {
+  start(): void; // 행동 추적 시작 (이벤트 리스너 등록)
+  stop(): void; // 행동 추적 중지 (이벤트 리스너 제거)
+  getCurrentScore(): number; // 현재 점수 반환
+  isHighIntent(): boolean; // 70점 이상인지 확인
+  onThresholdReached(callback: () => void): void; // 70점 도달 시 콜백 실행
 }
