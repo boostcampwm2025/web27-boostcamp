@@ -4,7 +4,7 @@ declare module '@xenova/transformers' {
     data: Float32Array;
     dims: number[];
     type: string;
-    tolist(): number[]; // 배열로 변환하는 유용한 메서드
+    tolist(): number[[]]; // 배열로 변환하는 유용한 메서드
   }
 
   // 2. 파이프라인 객체 정의 (함수이자 객체)
