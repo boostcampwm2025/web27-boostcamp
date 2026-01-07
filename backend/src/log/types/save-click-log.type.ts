@@ -1,4 +1,4 @@
-export class SaveClickLogDto {
+export type SaveClickLog = {
   viewId: number;
   createdAt: Date;
-}
+};

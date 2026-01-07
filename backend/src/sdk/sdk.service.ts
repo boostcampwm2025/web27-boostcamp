@@ -7,7 +7,7 @@ export class SdkService {
   constructor(private readonly logRepository: LogRepository) {}
   recordView(dto: CreateViewLogDto) {
     const { auctionId, campaignId, positionRatio } = dto;
-
+    
     this.logRepository.saveViewLog({});
   }
 }

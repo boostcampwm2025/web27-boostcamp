@@ -1,7 +1,7 @@
-import { SaveClickLogDto } from '../dto/save-click-log.dto';
-import { SaveViewLogDto } from '../dto/save-view-log.dto';
+import { SaveClickLog } from '../types/save-click-log.type';
+import { SaveViewLog } from '../types/save-view-log.type';
 
 export abstract class LogRepository {
-  abstract saveViewLog(dto: SaveViewLogDto): number;
-  abstract saveClickLog(dto: SaveClickLogDto): void;
+  abstract saveViewLog(dto: SaveViewLog): number;
+  abstract saveClickLog(dto: SaveClickLog): void;
 }
