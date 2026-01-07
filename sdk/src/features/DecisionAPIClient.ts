@@ -1,5 +1,6 @@
 import type {
   APIClient,
+  DecisionRequest,
   DecisionResponse,
   SDKConfig,
   Tag,
@@ -9,15 +10,22 @@ import type {
 export class DecisionAPIClient implements APIClient {
   constructor(private readonly config: SDKConfig) {}
 
-  async fetchDecision(tags: Tag[], url: string): Promise<DecisionResponse> {
-    const requestBody = {
-      postId: this.config.blogId,
+  async fetchDecision(
+    tags: Tag[],
+    postUrl: string,
+    behaviorScore: number = 0,
+    isHighIntent: boolean = false
+  ): Promise<DecisionResponse> {
+    const requestBody: DecisionRequest = {
+      blogKey: this.config.blogId,
       tags: tags.map((tag) => tag.name),
-      postURL: url,
+      postUrl,
+      behaviorScore,
+      isHighIntent,
     };
 
     try {
-      const response = await fetch(`${this.config.apiBase}/b/decision`, {
+      const response = await fetch(`${this.config.apiBase}/sdk/decision`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -34,8 +42,13 @@ export class DecisionAPIClient implements APIClient {
       console.error('[DevAd SDK] API 호출 실패:', error);
       // API 실패 시 빈 응답 반환 (광고 없음 상태)
       return {
-        winner: null,
-        candidates: [],
+        status: 'error',
+        message: 'API 호출 실패',
+        data: {
+          campaign: null,
+          auctionId: '',
+        },
+        timestamp: new Date().toISOString(),
       };
     }
   }

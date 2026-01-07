@@ -1,11 +1,20 @@
-import type { TagExtractor, APIClient, AdRenderer } from '@/shared/types';
+import type {
+  TagExtractor,
+  APIClient,
+  AdRenderer,
+  BehaviorTracker,
+  Tag,
+} from '@/shared/types';
 
 // DevAd SDK 메인 클래스 (전략 패턴)
 export class DevAdSDK {
+  private hasRequestedSecondAd = false;
+
   constructor(
     public tagExtractor: TagExtractor,
     public apiClient: APIClient,
-    public adRenderer: AdRenderer
+    public adRenderer: AdRenderer,
+    public behaviorTracker: BehaviorTracker
   ) {}
 
   async init(): Promise<void> {
@@ -28,17 +37,51 @@ export class DevAdSDK {
       );
     }
 
-    const url = window.location.href;
+    const postUrl = window.location.href;
 
-    // 각 존마다 광고 요청 및 렌더링
+    // 1차 광고 요청 (behaviorScore=0, isHighIntent=false)
     zones.forEach(async (zone, index) => {
       try {
-        const data = await this.apiClient.fetchDecision(tags, url);
-        this.adRenderer.render(data.winner, zone as HTMLElement);
+        const data = await this.apiClient.fetchDecision(tags, postUrl, 0, false);
+        this.adRenderer.render(data.data.campaign, zone as HTMLElement, data.data.auctionId);
       } catch (error) {
         console.error(`[DevAd SDK] Zone ${index + 1} 렌더링 실패:`, error);
         (zone as HTMLElement).innerHTML =
           '<div style="color: red;">광고 로드 실패</div>';
+      }
+    });
+
+    // 행동 추적 시작 + 70점 도달 시 2차 광고 요청
+    this.behaviorTracker.onThresholdReached(() => {
+      this.requestSecondAd(tags, postUrl, zones);
+    });
+    this.behaviorTracker.start();
+  }
+
+  private async requestSecondAd(
+    tags: Tag[],
+    postUrl: string,
+    zones: NodeListOf<Element>
+  ): Promise<void> {
+    if (this.hasRequestedSecondAd) {
+      console.log('[DevAd SDK] 2차 광고 이미 요청됨, 스킵');
+      return;
+    }
+
+    this.hasRequestedSecondAd = true;
+
+    const score = this.behaviorTracker.getCurrentScore();
+    const isHighIntent = this.behaviorTracker.isHighIntent();
+
+    console.log('[DevAd SDK] 2차 광고 요청 - Score:', score, 'HighIntent:', isHighIntent);
+
+    // 2차 광고 요청 (실제 behaviorScore, isHighIntent=true)
+    zones.forEach(async (zone, index) => {
+      try {
+        const data = await this.apiClient.fetchDecision(tags, postUrl, score, isHighIntent);
+        this.adRenderer.render(data.data.campaign, zone as HTMLElement, data.data.auctionId);
+      } catch (error) {
+        console.error(`[DevAd SDK] Zone ${index + 1} 2차 광고 렌더링 실패:`, error);
       }
     });
   }
