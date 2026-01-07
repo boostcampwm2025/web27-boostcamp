@@ -1,10 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateViewLogDto } from './dto/create-view-log.dto';
 import { LogRepository } from 'src/log/repository/log.repository';
+import { AuctionStore } from 'src/cache/auction/auction.store';
 
 @Injectable()
 export class SdkService {
-  constructor(private readonly logRepository: LogRepository) {}
+  constructor(
+    private readonly logRepository: LogRepository,
+    private readonly auctionStore: AuctionStore
+  ) {}
   recordView(dto: CreateViewLogDto) {
     const {
       auctionId,
@@ -14,7 +18,23 @@ export class SdkService {
       behaviorScore,
       positionRatio,
     } = dto;
-    
-    this.logRepository.saveViewLog({});
+
+    const auctionData = this.auctionStore.get(auctionId);
+    if (!auctionData) {
+      throw new NotFoundException('404 not found');
+    }
+
+    const { blogId, cost } = auctionData;
+    this.logRepository.saveViewLog({
+      auctionId,
+      campaignId,
+      blogId,
+      postUrl,
+      cost,
+      positionRatio,
+      isHighIntent,
+      behaviorScore,
+      createdAt: new Date(),
+    });
   }
 }

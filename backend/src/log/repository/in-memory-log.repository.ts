@@ -10,17 +10,8 @@ export class InMemoryLogRepository extends LogRepository {
 
   // 인메모리 Map 자료구조에 저장 (다음주에 DB로 갈아끼우기)
   saveViewLog(dto: SaveViewLog): number {
-    const { auctionId, campaignId, blogId, cost, positionRatio, createdAt } =
-      dto;
     this.viewLogIdx += 1;
-    this.viewLog.set(this.viewLogIdx, {
-      auctionId,
-      campaignId,
-      blogId,
-      cost,
-      positionRatio,
-      createdAt,
-    });
+    this.viewLog.set(this.viewLogIdx, { ...dto });
 
     return this.viewLogIdx;
   }
