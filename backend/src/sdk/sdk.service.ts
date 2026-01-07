@@ -14,7 +14,7 @@ export class SdkService {
       behaviorScore,
       positionRatio,
     } = dto;
-
+    
     this.logRepository.saveViewLog({});
   }
 }
