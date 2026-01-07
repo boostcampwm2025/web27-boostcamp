@@ -8,6 +8,7 @@ export class SdkController {
 
   @Post('campaign-view')
   recordView(@Body() createViewLogDto: CreateViewLogDto) {
-    this.sdkservice.recordView(createViewLogDto);
+    const viewId = this.sdkservice.recordView(createViewLogDto);
+    return { viewId };
   }
 }

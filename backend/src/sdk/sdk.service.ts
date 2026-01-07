@@ -25,7 +25,7 @@ export class SdkService {
     }
 
     const { blogId, cost } = auctionData;
-    this.logRepository.saveViewLog({
+    return this.logRepository.saveViewLog({
       auctionId,
       campaignId,
       blogId,
