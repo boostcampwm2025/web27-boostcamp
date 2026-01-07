@@ -1,6 +1,7 @@
 import {
   IsNumber,
   IsUUID,
+  IsUrl,
   Min,
   Max,
   IsOptional,
@@ -15,6 +16,10 @@ export class CreateViewLogDto {
   @IsUUID()
   @IsNotEmpty()
   campaignId: string;
+
+  @IsUrl()
+  @IsNotEmpty()
+  postUrl: string;
 
   @IsOptional()
   @IsNumber()
