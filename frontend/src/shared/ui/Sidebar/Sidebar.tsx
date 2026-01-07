@@ -1,0 +1,75 @@
+import { Icon } from '@shared/ui/Icon';
+import { NavLink } from 'react-router-dom';
+
+interface MenuItem {
+  id: string;
+  to: string;
+  icon: keyof typeof Icon;
+  label: string;
+}
+
+export function Sidebar() {
+  const menuItems: MenuItem[] = [
+    {
+      id: '1',
+      to: '/dashboard',
+      icon: 'Dashboard',
+      label: '대시보드',
+    },
+    {
+      id: '2',
+      to: '/campaigns',
+      icon: 'LoudSpeaker',
+      label: '캠페인 관리',
+    },
+    {
+      id: '3',
+      to: '/budget',
+      icon: 'Wallet',
+      label: '예산 관리',
+    },
+  ];
+
+  return (
+    <aside
+      className="flex flex-col w-64 bg-white border-r border-gray-200"
+      role="navigation"
+      aria-label="Main navigation"
+    >
+      {/* 로고 영역 */}
+      <header className="flex flex-row items-center gap-3 py-4 px-6 border-b border-gray-200 text-gray-900 text-lg font-bold">
+        <Icon.Logo className="w-8 h-8 text-blue-500" />
+        BoostAD
+      </header>
+
+      {/* 네비게이션 메뉴 */}
+      <nav className="p-4">
+        <ul className="flex flex-col gap-1">
+          {menuItems.map((item) => {
+            const IconComponent = Icon[item.icon];
+            return (
+              <li key={item.id}>
+                <NavLink
+                  to={item.to}
+                  className={({ isActive }: { isActive: boolean }) =>
+                    `flex flex-row items-center gap-3 p-2 rounded-lg ${
+                      isActive
+                        ? 'bg-blue-500 text-white'
+                        : 'text-gray-600 hover:bg-blue-100'
+                    }`
+                  }
+                  aria-current={({ isActive }: { isActive: boolean }) =>
+                    isActive ? 'page' : undefined
+                  }
+                >
+                  <IconComponent className="w-7 h-7" />
+                  <span className="font-medium">{item.label}</span>
+                </NavLink>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+    </aside>
+  );
+}
