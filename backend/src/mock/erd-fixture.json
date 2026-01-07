@@ -1,0 +1,152 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "email": "advertiser1@example.com",
+      "role": "ADVERTISER",
+      "balance": 200000,
+      "created_at": "2025-12-15T00:00:00.000Z",
+      "deleted_at": null
+    },
+    {
+      "id": 2,
+      "email": "publisher1@example.com",
+      "role": "PUBLISHER",
+      "balance": 0,
+      "created_at": "2025-12-15T00:00:00.000Z",
+      "deleted_at": null
+    }
+  ],
+  "blogs": [
+    {
+      "id": 1,
+      "user_id": 2,
+      "domain": "devblog.example.com",
+      "name": "Dev Blog",
+      "blog_key": "7d4b9e7c-6f4a-4d8e-8f6a-5d8b8a4b6f1a",
+      "verified": true,
+      "created_at": "2025-12-16T00:00:00.000Z",
+      "deleted_at": null
+    }
+  ],
+  "campaigns": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "user_id": 1,
+      "title": "[React] 프론트엔드 개발자 로드맵 강의",
+      "content": "MVP 캠페인 A 설명",
+      "image": "https://cdn.example.com/campaigns/a.png",
+      "url": "https://advertiser.example.com/landing/a",
+      "max_cpc": 500,
+      "daily_budget": 50000,
+      "total_budget": 300000,
+      "is_high_intent": false,
+      "status": "ACTIVE",
+      "start_date": "2025-12-20T00:00:00.000Z",
+      "end_date": "2026-02-20T00:00:00.000Z",
+      "created_at": "2025-12-20T00:00:00.000Z",
+      "deleted_at": null
+    },
+    {
+      "id": "8c3a1f39-4d7f-4f1d-9d46-2c8a0b2f9a3d",
+      "user_id": 1,
+      "title": "[Backend] Node.js/NestJS 실전 서버 구축",
+      "content": "MVP 캠페인 B 설명",
+      "image": "https://cdn.example.com/campaigns/b.png",
+      "url": "https://advertiser.example.com/landing/b",
+      "max_cpc": 800,
+      "daily_budget": 80000,
+      "total_budget": null,
+      "is_high_intent": true,
+      "status": "ACTIVE",
+      "start_date": "2025-12-25T00:00:00.000Z",
+      "end_date": "2026-02-25T00:00:00.000Z",
+      "created_at": "2025-12-25T00:00:00.000Z",
+      "deleted_at": null
+    }
+  ],
+  "tags": [
+    { "id": 1, "name": "React" },
+    { "id": 2, "name": "Backend" }
+  ],
+  "campaign_tags": [
+    { "campaign_id": "550e8400-e29b-41d4-a716-446655440000", "tag_id": 1 },
+    { "campaign_id": "8c3a1f39-4d7f-4f1d-9d46-2c8a0b2f9a3d", "tag_id": 2 }
+  ],
+  "bid_logs": [
+    {
+      "id": 1,
+      "auction_id": "c8f4b6a2-8c4f-4f6b-a2f4-1b6c8f4a2d10",
+      "campaign_id": "550e8400-e29b-41d4-a716-446655440000",
+      "blog_id": 1,
+      "status": "WIN",
+      "bid_price": 320,
+      "reason": null,
+      "created_at": "2026-01-06T10:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "auction_id": "c8f4b6a2-8c4f-4f6b-a2f4-1b6c8f4a2d10",
+      "campaign_id": "8c3a1f39-4d7f-4f1d-9d46-2c8a0b2f9a3d",
+      "blog_id": 1,
+      "status": "LOSS",
+      "bid_price": 280,
+      "reason": "입찰가 미달",
+      "created_at": "2026-01-06T10:00:00.000Z"
+    }
+  ],
+  "view_logs": [
+    {
+      "id": 1,
+      "auction_id": "c8f4b6a2-8c4f-4f6b-a2f4-1b6c8f4a2d10",
+      "campaign_id": "550e8400-e29b-41d4-a716-446655440000",
+      "blog_id": 1,
+      "post_url": "https://devblog.example.com/posts/1",
+      "cost": 300,
+      "position_ratio": 0.2,
+      "is_high_intent": false,
+      "behavior_score": 35,
+      "created_at": "2026-01-06T10:00:03.000Z"
+    },
+    {
+      "id": 2,
+      "auction_id": "9b3e7c1a-4f2b-4c8d-9a1e-3c7b2f4a8d11",
+      "campaign_id": "550e8400-e29b-41d4-a716-446655440000",
+      "blog_id": 1,
+      "post_url": "https://devblog.example.com/posts/2",
+      "cost": 250,
+      "position_ratio": 0.6,
+      "is_high_intent": false,
+      "behavior_score": 20,
+      "created_at": "2026-01-05T09:10:00.000Z"
+    },
+    {
+      "id": 3,
+      "auction_id": "5d2a8c4f-1b6c-4f2a-8c4f-9b3e7c1a4f21",
+      "campaign_id": "8c3a1f39-4d7f-4f1d-9d46-2c8a0b2f9a3d",
+      "blog_id": 1,
+      "post_url": "https://devblog.example.com/posts/3",
+      "cost": 400,
+      "position_ratio": 0.1,
+      "is_high_intent": true,
+      "behavior_score": 80,
+      "created_at": "2026-01-02T13:00:00.000Z"
+    },
+    {
+      "id": 4,
+      "auction_id": "b1c2d3e4-f5a6-4b7c-8d9e-0f1a2b3c4d51",
+      "campaign_id": "8c3a1f39-4d7f-4f1d-9d46-2c8a0b2f9a3d",
+      "blog_id": 1,
+      "post_url": "https://devblog.example.com/posts/4",
+      "cost": 380,
+      "position_ratio": 0.8,
+      "is_high_intent": true,
+      "behavior_score": 65,
+      "created_at": "2025-12-28T08:30:00.000Z"
+    }
+  ],
+  "click_logs": [
+    { "id": 1, "view_id": 1, "created_at": "2026-01-06T10:00:15.000Z" },
+    { "id": 2, "view_id": 3, "created_at": "2026-01-02T13:00:10.000Z" }
+  ]
+}
