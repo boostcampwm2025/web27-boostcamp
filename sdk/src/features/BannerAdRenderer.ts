@@ -1,10 +1,23 @@
-import type { AdRenderer, MatchedCampaign, SDKConfig } from '@/shared/types';
+import type {
+  AdRenderer,
+  Campaign,
+  SDKConfig,
+  ViewLogRequest,
+  ViewLogResponse,
+  ClickLogRequest,
+  ClickLogResponse,
+} from '@/shared/types';
 
 // 배너 광고 렌더러
 export class BannerAdRenderer implements AdRenderer {
+  private currentAuctionId: string = '';
+
   constructor(private readonly config: SDKConfig) {}
 
-  render(ad: MatchedCampaign | null, container: HTMLElement): void {
+  render(ad: Campaign | null, container: HTMLElement, auctionId: string): void {
+    // auctionId 저장 (클릭 시 사용)
+    this.currentAuctionId = auctionId;
+
     container.innerHTML = ad
       ? this.renderAdWidget(ad)
       : this.renderEmptyState();
@@ -15,29 +28,64 @@ export class BannerAdRenderer implements AdRenderer {
         e.preventDefault();
         this.handleAdClick(ad);
       });
+
+      // 광고 렌더링 성공 시 ViewLog 기록
+      this.trackCampaignView(auctionId, ad.id);
     }
   }
 
-  private async handleAdClick(ad: MatchedCampaign): Promise<void> {
+  private async trackCampaignView(auctionId: string, campaignId: string): Promise<void> {
     try {
-      const response = await fetch(`${this.config.apiBase}/click/track`, {
+      const requestBody: ViewLogRequest = {
+        auctionId,
+        campaignId,
+        blogKey: this.config.blogId,
+        positionRatio: null, // 일단 null로 전송
+      };
+
+      const response = await fetch(`${this.config.apiBase}/sdk/campaign-view`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          campaignId: ad.id,
-          campaignName: ad.title,
-          url: ad.url,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       if (response.ok) {
-        const data = (await response.json()) as { redirectUrl: string };
-        window.open(data.redirectUrl, '_blank');
+        const data: ViewLogResponse = await response.json();
+        console.log('[DevAd SDK] ViewLog 기록 성공:', data.viewId);
       } else {
-        window.open(ad.url, '_blank');
+        console.warn('[DevAd SDK] ViewLog 기록 실패:', response.status);
       }
     } catch (error) {
-      console.error('[DevAd SDK] Click tracking failed:', error);
+      console.error('[DevAd SDK] ViewLog API 호출 실패:', error);
+    }
+  }
+
+  private async handleAdClick(ad: Campaign): Promise<void> {
+    try {
+      const requestBody: ClickLogRequest = {
+        auctionId: this.currentAuctionId,
+        campaignId: ad.id,
+        blogKey: this.config.blogId,
+      };
+
+      const response = await fetch(`${this.config.apiBase}/sdk/campaign-click`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (response.ok) {
+        const data: ClickLogResponse = await response.json();
+        console.log('[DevAd SDK] ClickLog 기록 성공:', data.data.clickId);
+      } else {
+        console.warn('[DevAd SDK] ClickLog 기록 실패:', response.status);
+      }
+
+      // 클릭 로그 성공/실패 여부와 관계없이 광고 페이지 열기
+      window.open(ad.url, '_blank');
+    } catch (error) {
+      console.error('[DevAd SDK] ClickLog API 호출 실패:', error);
+      // API 실패 시에도 광고 페이지는 열기
       window.open(ad.url, '_blank');
     }
   }
@@ -59,7 +107,7 @@ export class BannerAdRenderer implements AdRenderer {
     `;
   }
 
-  private renderAdWidget(ad: MatchedCampaign): string {
+  private renderAdWidget(ad: Campaign): string {
     return `
       <div class="devad-widget" style="
         border: 1px solid #e0e0e0;
