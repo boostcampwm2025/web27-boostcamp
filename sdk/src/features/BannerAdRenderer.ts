@@ -10,36 +10,58 @@ import type {
 
 // 배너 광고 렌더러
 export class BannerAdRenderer implements AdRenderer {
-  private currentAuctionId: string = '';
+  private currentViewId: number | null = null;
+  private currentAdUrl: string | null = null;
 
   constructor(private readonly config: SDKConfig) {}
 
-  render(ad: Campaign | null, container: HTMLElement, auctionId: string): void {
-    // auctionId 저장 (클릭 시 사용)
-    this.currentAuctionId = auctionId;
-
-    container.innerHTML = ad
-      ? this.renderAdWidget(ad)
+  render(
+    campaign: Campaign | null,
+    container: HTMLElement,
+    auctionId: string,
+    postUrl?: string,
+    behaviorScore?: number,
+    isHighIntent?: boolean
+  ): void {
+    container.innerHTML = campaign
+      ? this.renderAdWidget(campaign)
       : this.renderEmptyState();
 
-    if (ad) {
+    if (campaign) {
+      // 광고 URL 저장 (클릭 시 사용)
+      this.currentAdUrl = campaign.url;
+
       const link = container.querySelector('.devad-link');
       link?.addEventListener('click', (e) => {
         e.preventDefault();
-        this.handleAdClick(ad);
+        this.handleAdClick();
       });
 
       // 광고 렌더링 성공 시 ViewLog 기록
-      this.trackCampaignView(auctionId, ad.id);
+      this.trackCampaignView(
+        auctionId,
+        campaign.id,
+        postUrl || window.location.href,
+        behaviorScore || 0,
+        isHighIntent || false
+      );
     }
   }
 
-  private async trackCampaignView(auctionId: string, campaignId: string): Promise<void> {
+  private async trackCampaignView(
+    auctionId: string,
+    campaignId: string,
+    postUrl: string,
+    behaviorScore: number,
+    isHighIntent: boolean
+  ): Promise<void> {
     try {
       const requestBody: ViewLogRequest = {
         auctionId,
         campaignId,
-        blogKey: this.config.blogId,
+        postUrl,
+        isHighIntent,
+        behaviorScore,
         positionRatio: null, // 일단 null로 전송
       };
 
@@ -51,7 +73,8 @@ export class BannerAdRenderer implements AdRenderer {
 
       if (response.ok) {
         const data: ViewLogResponse = await response.json();
-        console.log('[DevAd SDK] ViewLog 기록 성공:', data.viewId);
+        this.currentViewId = data.data.viewId;
+        console.log('[DevAd SDK] ViewLog 기록 성공:', data.data.viewId);
       } else {
         console.warn('[DevAd SDK] ViewLog 기록 실패:', response.status);
       }
@@ -60,12 +83,15 @@ export class BannerAdRenderer implements AdRenderer {
     }
   }
 
-  private async handleAdClick(ad: Campaign): Promise<void> {
+  private async handleAdClick(): Promise<void> {
+    if (this.currentViewId === null) {
+      console.warn('[DevAd SDK] ViewLog가 아직 기록되지 않았습니다. ClickLog를 기록하지 않습니다.');
+      return;
+    }
+
     try {
       const requestBody: ClickLogRequest = {
-        auctionId: this.currentAuctionId,
-        campaignId: ad.id,
-        blogKey: this.config.blogId,
+        viewId: this.currentViewId,
       };
 
       const response = await fetch(`${this.config.apiBase}/sdk/campaign-click`, {
@@ -82,11 +108,15 @@ export class BannerAdRenderer implements AdRenderer {
       }
 
       // 클릭 로그 성공/실패 여부와 관계없이 광고 페이지 열기
-      window.open(ad.url, '_blank');
+      if (this.currentAdUrl) {
+        window.open(this.currentAdUrl, '_blank');
+      }
     } catch (error) {
       console.error('[DevAd SDK] ClickLog API 호출 실패:', error);
       // API 실패 시에도 광고 페이지는 열기
-      window.open(ad.url, '_blank');
+      if (this.currentAdUrl) {
+        window.open(this.currentAdUrl, '_blank');
+      }
     }
   }
 
@@ -107,7 +137,7 @@ export class BannerAdRenderer implements AdRenderer {
     `;
   }
 
-  private renderAdWidget(ad: Campaign): string {
+  private renderAdWidget(campaign: Campaign): string {
     return `
       <div class="devad-widget" style="
         border: 1px solid #e0e0e0;
@@ -130,7 +160,7 @@ export class BannerAdRenderer implements AdRenderer {
           Sponsored
         </div>
 
-        <img src="${ad.image}" alt="${ad.title}" style="
+        <img src="${campaign.image}" alt="${campaign.title}" style="
           width: 100%;
           border-radius: 8px;
           margin-bottom: 16px;
@@ -144,16 +174,16 @@ export class BannerAdRenderer implements AdRenderer {
           font-weight: 600;
           color: #333;
           line-height: 1.4;
-        ">${ad.title}</h3>
+        ">${campaign.title}</h3>
 
         <p style="
           margin: 0 0 16px;
           color: #666;
           font-size: 14px;
           line-height: 1.6;
-        ">${ad.content}</p>
+        ">${campaign.content}</p>
 
-        <a href="${ad.url}" class="devad-link" target="_blank" style="
+        <a href="${campaign.url}" class="devad-link" target="_blank" style="
           display: inline-block;
           padding: 10px 20px;
           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
