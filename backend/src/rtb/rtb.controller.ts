@@ -6,16 +6,16 @@ import { RTBRequestDto } from './dto/rtb-request.dto';
 import { RTBResponseDto } from './dto/rtb-response.dto';
 import type { DecisionContext } from './types/decision.types';
 
-@Controller('b')
+@Controller('sdk')
 export class RTBController {
   constructor(private readonly rtbService: RTBService) {}
 
   @Post('decision')
   async getDecision(@Body() body: RTBRequestDto) {
     const context: DecisionContext = {
-      postId: body.campaignId,
+      campaignId: body.campaignId,
       tags: body.tags,
-      postURL: body.url,
+      url: body.url,
     };
 
     const result = await this.rtbService.runAuction(context);

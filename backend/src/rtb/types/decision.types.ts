@@ -1,7 +1,7 @@
 export interface DecisionContext {
-  postId: string;
+  campaignId: string;
   tags: string[];
-  postURL: string;
+  url: string;
   zoneId?: string; // 혹시 모르니깐 넣어둠
 }
 
