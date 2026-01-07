@@ -6,8 +6,8 @@ import { LogRepository } from 'src/log/repository/log.repository';
 export class SdkService {
   constructor(private readonly logRepository: LogRepository) {}
   recordView(dto: CreateViewLogDto) {
-    const { auctionId, campaignId, positionRatio } = dto;
-    
+    const { auctionId, campaignId, blogKey, positionRatio } = dto;
+
     this.logRepository.saveViewLog({});
   }
 }
