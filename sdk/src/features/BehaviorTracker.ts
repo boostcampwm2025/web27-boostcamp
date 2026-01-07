@@ -25,7 +25,9 @@ export class BehaviorTracker implements BehaviorTrackerInterface {
 
     // 1초마다 체류 시간 업데이트
     this.timerInterval = setInterval(() => {
-      this.metrics.timeOnPage = Math.floor((Date.now() - this.startTime) / 1000);
+      this.metrics.timeOnPage = Math.floor(
+        (Date.now() - this.startTime) / 1000
+      );
       this.checkThreshold();
     }, 1000);
 
@@ -80,7 +82,9 @@ export class BehaviorTracker implements BehaviorTrackerInterface {
 
   private handleCopy = (): void => {
     this.metrics.copyEvents++;
-    console.log(`[DevAd SDK] 복사 이벤트 감지 (${this.metrics.copyEvents}회) → +${this.metrics.copyEvents * 5}점`);
+    console.log(
+      `[DevAd SDK] 복사 이벤트 감지 (${this.metrics.copyEvents}회) → +${this.metrics.copyEvents * 5}점`
+    );
     this.checkThreshold();
   };
 
@@ -110,11 +114,19 @@ export class BehaviorTracker implements BehaviorTrackerInterface {
     // 70점 이상이고 아직 콜백 실행 안 했으면
     if (!this.thresholdReached && this.metrics.score >= 70) {
       this.thresholdReached = true;
-      console.log('[DevAd SDK] 70점 도달! 5초 후 2차 광고 요청... (현재:', this.metrics.score, '점)');
+      console.log(
+        '[DevAd SDK] 70점 도달! 5초 후 2차 광고 요청... (현재:',
+        this.metrics.score,
+        '점)'
+      );
 
-      // 5초 후 콜백 실행 (사용자가 계속 행동하면 점수 증가)
+      // 5초 후 콜백 실행 (전부 70점으로만 몰리지 않도록 하기 위해서)
       setTimeout(() => {
-        console.log('[DevAd SDK] 2차 광고 요청 실행 (최종 점수:', this.metrics.score, '점)');
+        console.log(
+          '[DevAd SDK] 2차 광고 요청 실행 (최종 점수:',
+          this.metrics.score,
+          '점)'
+        );
         if (this.thresholdCallback) {
           this.thresholdCallback();
         }
