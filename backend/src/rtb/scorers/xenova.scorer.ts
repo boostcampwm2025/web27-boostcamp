@@ -15,34 +15,23 @@ export class TransformerScorer extends Scorer {
     super();
   }
 
-  /**
-   * 여러 캠페인 후보의 점수를 병렬(비동기)로 계산합니다.
-   *
-   * @param candidates - 점수를 매길 캠페인 후보 목록
-   * @returns 점수가 계산된 캠페인 목록
-   */
+  // 여러 캠페인 후보의 점수를 병렬(비동기)로 계산합니다.
   async scoreCandidates(candidates: Candidate[]): Promise<ScoredCandidate[]> {
     return Promise.all(
       candidates.map((candidate) => this.scoreCandidate(candidate))
     );
   }
 
-  /**
-   * 단일 캠페인의 점수를 계산합니다.
-   * CPC와 유사도(Similarity)를 가중치에 따라 합산합니다.
-   *
-   * @param candidate - 점수를 매길 단일 캠페인 후보
-   * @returns 점수가 포함된 캠페인 객체 (Promise)
-   */
+  // 단일 캠페인의 점수를 계산합니다.
   private scoreCandidate(candidate: Candidate): Promise<ScoredCandidate> {
     const { campaign, similarity } = candidate;
 
-    // 1. 매칭된 태그 계산
+    // 매칭된 태그 계산 (현재 사용 안 함) 참고용으로 남겨둠
     // const matchedTags = campaign.tags.filter((tag) =>
     //   context.tags.includes(tag.name)
     // );
 
-    // 2. 점수 계산: CPC * 0.3 + Similarity * 70
+    // 점수 계산: CPC * 0.3 + Similarity * 70
     const cpc = campaign.max_cpc;
     const cpcScore = cpc * this.CPC_WEIGHT;
     const similarityScore = similarity * 100 * this.SIMILARITY_WEIGHT;

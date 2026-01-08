@@ -4,12 +4,11 @@ declare module '@xenova/transformers' {
     data: Float32Array;
     dims: number[];
     type: string;
-    tolist(): number[[]]; // 배열로 변환하는 유용한 메서드
+    tolist(): number[[]];
   }
 
   // 2. 파이프라인 객체 정의 (함수이자 객체)
   export interface Pipeline {
-    // [호출 시그니처] 이 객체는 함수처럼 실행 가능
     (
       text: string | string[],
       options?: {

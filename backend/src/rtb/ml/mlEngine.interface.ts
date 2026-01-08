@@ -1,7 +1,3 @@
-/**
- * ML 기반 텍스트 임베딩 및 유사도 계산 추상 클래스
- * Matcher와 Scorer에서 DI로 주입받아 사용
- */
 export abstract class MLEngine {
   /**
    * 서비스 초기화 완료 여부 (모델 로딩 상태)
