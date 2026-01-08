@@ -12,15 +12,24 @@ interface DashboardStatsResponse {
     averageCtrChange: number; // CTR 변화량
     totalSpent: number; // 총 사용 금액 (나중에 쓸 수도 있으니 타입에는 포함)
   };
+  budget?: {
+    totalBudget: number;
+    totalSpent: number;
+    remainingBudget: number;
+    spentToday: number;
+    dailyTrend: Array<{
+      date: string;
+      spent: number;
+    }>;
+  };
+}
+interface UseStatsReturn {
+  data: DashboardStatsResponse['performance'] | null;
+  isLoading: boolean;
+  error: string | null;
 }
 
 // 이 훅이 반환하는 것들
-interface UseStatsReturn {
-  data: DashboardStatsResponse['performance'] | null; // performance 데이터 전체
-  isLoading: boolean; // 로딩 중인지
-  error: string | null; // 에러 메시지
-}
-
 export function useStats(): UseStatsReturn {
   const [data, setData] = useState<
     DashboardStatsResponse['performance'] | null

@@ -10,13 +10,17 @@ export async function apiClient<T>(endpoint: string): Promise<T> {
       },
     });
 
-    const data = await response.json();
+    const rawData = await response.json();
 
-    if (data.status === 'error') {
-      throw new Error(data.message || '요청에 실패했습니다');
+    if (rawData.status === 'error') {
+      throw new Error(rawData.message || '요청에 실패했습니다');
     }
 
-    return data;
+    if (!rawData.data) {
+      throw new Error(rawData.message || 'API 응답 데이터가 없습니다');
+    }
+
+    return rawData.data;
   } catch (error) {
     if (error instanceof Error) {
       throw error;
