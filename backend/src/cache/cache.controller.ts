@@ -1,4 +1,10 @@
-import { Body, Controller, ForbiddenException, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  ForbiddenException,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { AuctionStore } from './auction/auction.store';
@@ -94,10 +100,7 @@ type Fixture = {
   click_logs: FixtureClickLog[];
 };
 
-const toSaveViewLog = (
-  v: FixtureViewLog,
-  createdAt?: Date
-): SaveViewLog => {
+const toSaveViewLog = (v: FixtureViewLog, createdAt?: Date): SaveViewLog => {
   return {
     auctionId: v.auction_id,
     campaignId: v.campaign_id,

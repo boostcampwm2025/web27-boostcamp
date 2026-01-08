@@ -1,20 +1,23 @@
 import {
   IsNumber,
-  IsUUID,
+  // IsUUID,
   IsUrl,
   Min,
   Max,
   IsOptional,
   IsNotEmpty,
   IsBoolean,
+  IsString,
 } from 'class-validator';
 
 export class CreateViewLogDto {
-  @IsUUID()
+  // @IsUUID()
+  @IsString()
   @IsNotEmpty()
   auctionId: string;
 
-  @IsUUID()
+  // @IsUUID()
+  @IsString()
   @IsNotEmpty()
   campaignId: string;
 

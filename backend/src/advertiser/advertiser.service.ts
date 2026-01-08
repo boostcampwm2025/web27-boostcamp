@@ -14,7 +14,7 @@ export class AdvertiserService {
     private readonly campaignRepository: CampaignRepository,
     private readonly logRepository: LogRepository
   ) {}
-
+  // todo: 추후 DB에 데이터를 넣게되면 로직 수정
   getDashboardStats(userId: number) {
     const isAdvertiser = this.userRepository.verifyRole(userId, 'ADVERTISER');
 
@@ -54,7 +54,10 @@ export class AdvertiserService {
     };
   }
 
-  private getPerformanceSnapshot(campaignIdSet: Set<string>, snapshot: Snapshot) {
+  private getPerformanceSnapshot(
+    campaignIdSet: Set<string>,
+    snapshot: Snapshot
+  ) {
     let totalImpressions = 0;
     const impressionsByCampaign = new Map<string, number>();
     for (const viewLog of this.logRepository.listViewLogs()) {
