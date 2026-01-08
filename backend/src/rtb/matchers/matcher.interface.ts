@@ -1,5 +1,5 @@
-import type { Campaign, DecisionContext } from '../types/decision.types';
+import type { Candidate, DecisionContext } from '../types/decision.types';
 
 export abstract class Matcher {
-  abstract findCandidatesByTags(context: DecisionContext): Promise<Campaign[]>;
+  abstract findCandidatesByTags(context: DecisionContext): Promise<Candidate[]>;
 }

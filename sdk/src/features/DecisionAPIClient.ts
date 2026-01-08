@@ -17,7 +17,7 @@ export class DecisionAPIClient implements APIClient {
     isHighIntent: boolean = false
   ): Promise<DecisionResponse> {
     const requestBody: DecisionRequest = {
-      blogKey: this.config.blogId,
+      blogKey: this.config.blogKey,
       tags: tags.map((tag) => tag.name),
       postUrl,
       behaviorScore,

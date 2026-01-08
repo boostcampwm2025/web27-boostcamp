@@ -26,21 +26,35 @@ class CampaignDto {
 
   @Expose()
   @Type(() => TagDto)
-  tags: TagDto[];
+  tags?: TagDto[]; // 추후에 추가될 수도 있으므로 optional
 
   @Expose()
-  explain: string;
+  explain?: string; // 추후에 추가될 수도 있으므로 optional
 
   @Expose()
-  score: number;
+  score?: number; // 추후에 추가될 수도 있으므로 optional
+}
+
+class RTBDataDto {
+  @Expose()
+  auctionId: string;
+
+  @Expose()
+  @Type(() => CampaignDto)
+  campaign: CampaignDto;
 }
 
 export class RTBResponseDto {
   @Expose()
-  @Type(() => CampaignDto)
-  winner: CampaignDto;
+  status: string;
 
   @Expose()
-  @Type(() => CampaignDto)
-  candidates: CampaignDto[];
+  message: string;
+
+  @Expose()
+  @Type(() => RTBDataDto)
+  data: RTBDataDto;
+
+  @Expose()
+  timestamp: string;
 }
