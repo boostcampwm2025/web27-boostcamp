@@ -27,7 +27,20 @@ export function RealtimeBidsTableRow({ bid }: RealtimeBidsTableRowProps) {
       <td className="px-5 py-4 text-gray-900 font-semibold">
         {bid.campaignTitle}
       </td>
-      <td className="px-5 py-4 text-gray-900">{bid.blogName}</td>
+      <td className="px-5 py-4">
+        {bid.blogDomain ? (
+          <a
+            href={`https://${bid.blogDomain}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-gray-900 hover:text-blue-600 hover:underline cursor-pointer"
+          >
+            {bid.blogName}
+          </a>
+        ) : (
+          <span className="text-gray-900">{bid.blogName}</span>
+        )}
+      </td>
       <td
         className={`px-5 py-4 ${bid.isWon ? 'text-green-500' : 'text-gray-600'}`}
       >

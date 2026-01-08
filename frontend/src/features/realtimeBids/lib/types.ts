@@ -5,7 +5,6 @@ export interface BidInsight {
 
 export interface BidLog {
   id: number;
-  auctionId: string;
   timestamp: string;
   campaignId: string;
   campaignTitle: string;
@@ -20,8 +19,4 @@ export interface BidLog {
   insight?: BidInsight;
 }
 
-export interface RealtimeBidsResponse {
-  total: number;
-  hasMore: boolean;
-  bids: BidLog[];
-}
+export type RealtimeBidsResponse = BidLog[];
