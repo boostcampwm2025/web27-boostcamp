@@ -1,0 +1,40 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { SdkService } from './sdk.service';
+import { LogRepository } from 'src/log/repository/log.repository';
+import { AuctionStore } from 'src/cache/auction/auction.store';
+
+describe('SdkService', () => {
+  let service: SdkService;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        SdkService,
+        {
+          provide: LogRepository,
+          useValue: {
+            saveViewLog: jest.fn(),
+            saveClickLog: jest.fn(),
+            getViewLog: jest.fn(),
+            listViewLogs: jest.fn(),
+            listClickLogs: jest.fn(),
+          },
+        },
+        {
+          provide: AuctionStore,
+          useValue: {
+            set: jest.fn(),
+            get: jest.fn(),
+            delete: jest.fn(),
+          },
+        },
+      ],
+    }).compile();
+
+    service = module.get<SdkService>(SdkService);
+  });
+
+  it('should be defined', () => {
+    expect(service).toBeDefined();
+  });
+});
