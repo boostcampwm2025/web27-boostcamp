@@ -42,8 +42,13 @@ export class XenovaMLEngine extends MLEngine implements OnModuleInit {
       normalize: true,
     });
 
-    const embeddings = result.tolist(); // [[0.1, 0.2, ...]]
-    return embeddings[0]; // Tensor객체의 값을 배열로 변환 (2차원 배열이므로 첫 번째 요소 추출)
+    const embeddings = result.tolist() as number[][]; // [[0.1, 0.2, ...]]
+
+    if (!embeddings || !embeddings[0]) {
+      throw new Error('임베딩 생성에 실패했습니다.');
+    }
+
+    return embeddings?.[0]; // Tensor객체의 값을 배열로 변환 (2차원 배열이므로 첫 번째 요소 추출)
   }
 
   calculateSimilarity(vecA: number[], vecB: number[]): number {
