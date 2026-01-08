@@ -1,13 +1,11 @@
 // src/rtb/rtb.module.ts
 
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { RTBService } from './rtb.service';
 
 // Repository
 import { CampaignRepository } from './repositories/campaign.repository.interface';
 import { PrototypeCampaignRepository } from './repositories/prototype-campaign.repository';
-import { BidLogRepository } from './repositories/bid-log.repository';
-import { InMemoryBidLogRepository } from './repositories/in-memory-bid-log.repository';
 
 // MLEngine
 import { MLEngine } from './ml/mlEngine.interface';
@@ -33,8 +31,11 @@ import { RTBController } from './rtb.controller';
 // Cache (AuctionStore 사용을 위해)
 import { CacheModule } from '../cache/cache.module';
 
+// BidLog (순환 의존성)
+import { BidLogModule } from '../bid-log/bid-log.module';
+
 @Module({
-  imports: [CacheModule],
+  imports: [CacheModule, forwardRef(() => BidLogModule)],
   controllers: [RTBController],
   providers: [
     RTBService,
@@ -43,10 +44,6 @@ import { CacheModule } from '../cache/cache.module';
     {
       provide: CampaignRepository,
       useClass: PrototypeCampaignRepository,
-    },
-    {
-      provide: BidLogRepository,
-      useClass: InMemoryBidLogRepository,
     },
 
     // Matcher
@@ -73,6 +70,6 @@ import { CacheModule } from '../cache/cache.module';
       useClass: XenovaMLEngine,
     },
   ],
-  exports: [RTBService],
+  exports: [RTBService, CampaignRepository],
 })
 export class RTBModule {}

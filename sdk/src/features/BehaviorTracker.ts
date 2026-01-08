@@ -67,7 +67,8 @@ export class BehaviorTracker implements BehaviorTrackerInterface {
 
     // 스크롤 깊이 계산 (0-100%)
     const prevDepth = this.metrics.scrollDepth;
-    const scrollPercent = (scrollTop / (scrollHeight - clientHeight)) * 100;
+    const denominator = scrollHeight - clientHeight;
+    const scrollPercent = denominator > 0 ? (scrollTop / denominator) * 100 : 0;
     this.metrics.scrollDepth = Math.min(100, Math.max(0, scrollPercent));
 
     // 스크롤 임계값 통과 시 로그

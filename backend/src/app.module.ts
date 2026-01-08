@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { RTBModule } from './rtb/rtb.module';
-import { ClickModule } from './click/click.module';
+import { BidLogModule } from './bid-log/bid-log.module';
 import { SdkModule } from './sdk/sdk.module';
 import { AdvertiserModule } from './advertiser/advertiser.module';
 import { LogModule } from './log/log.module';
@@ -13,7 +13,7 @@ import { UserModule } from './user/user.module';
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     RTBModule,
-    ClickModule,
+    BidLogModule,
     SdkModule,
     AdvertiserModule,
     LogModule,

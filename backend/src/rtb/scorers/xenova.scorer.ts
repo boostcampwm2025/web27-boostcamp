@@ -43,7 +43,7 @@ export class TransformerScorer extends Scorer {
     // );
 
     // 2. 점수 계산: CPC * 0.3 + Similarity * 70
-    const cpc = campaign.max_price;
+    const cpc = campaign.max_cpc;
     const cpcScore = cpc * this.CPC_WEIGHT;
     const similarityScore = similarity * 100 * this.SIMILARITY_WEIGHT;
     const finalScore = cpcScore + similarityScore;
