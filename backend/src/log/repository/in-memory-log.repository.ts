@@ -23,4 +23,16 @@ export class InMemoryLogRepository extends LogRepository {
 
     return this.clickLogIdx;
   }
+
+  getViewLog(viewId: number): SaveViewLog | undefined {
+    return this.viewLog.get(viewId);
+  }
+
+  listViewLogs(): Iterable<SaveViewLog> {
+    return this.viewLog.values();
+  }
+
+  listClickLogs(): Iterable<SaveClickLog> {
+    return this.clickLog.values();
+  }
 }
