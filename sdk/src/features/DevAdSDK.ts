@@ -42,7 +42,12 @@ export class DevAdSDK {
     // 1차 광고 요청 (behaviorScore=0, isHighIntent=false)
     zones.forEach(async (zone, index) => {
       try {
-        const data = await this.apiClient.fetchDecision(tags, postUrl, 0, false);
+        const data = await this.apiClient.fetchDecision(
+          tags,
+          postUrl,
+          0,
+          false
+        );
         this.adRenderer.render(
           data.data.campaign,
           zone as HTMLElement,
@@ -80,12 +85,22 @@ export class DevAdSDK {
     const score = this.behaviorTracker.getCurrentScore();
     const isHighIntent = this.behaviorTracker.isHighIntent();
 
-    console.log('[DevAd SDK] 2차 광고 요청 - Score:', score, 'HighIntent:', isHighIntent);
+    console.log(
+      '[DevAd SDK] 2차 광고 요청 - Score:',
+      score,
+      'HighIntent:',
+      isHighIntent
+    );
 
     // 2차 광고 요청 (실제 behaviorScore, isHighIntent=true)
     zones.forEach(async (zone, index) => {
       try {
-        const data = await this.apiClient.fetchDecision(tags, postUrl, score, isHighIntent);
+        const data = await this.apiClient.fetchDecision(
+          tags,
+          postUrl,
+          score,
+          isHighIntent
+        );
         this.adRenderer.render(
           data.data.campaign,
           zone as HTMLElement,
@@ -95,7 +110,10 @@ export class DevAdSDK {
           isHighIntent
         );
       } catch (error) {
-        console.error(`[DevAd SDK] Zone ${index + 1} 2차 광고 렌더링 실패:`, error);
+        console.error(
+          `[DevAd SDK] Zone ${index + 1} 2차 광고 렌더링 실패:`,
+          error
+        );
       }
     });
   }

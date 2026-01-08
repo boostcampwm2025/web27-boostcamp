@@ -15,7 +15,12 @@ import { DevAdSDK } from './features/DevAdSDK';
   const apiClient = new DecisionAPIClient(config);
   const adRenderer = new BannerAdRenderer(config);
   const behaviorTracker = new BehaviorTracker();
-  const sdk = new DevAdSDK(tagExtractor, apiClient, adRenderer, behaviorTracker);
+  const sdk = new DevAdSDK(
+    tagExtractor,
+    apiClient,
+    adRenderer,
+    behaviorTracker
+  );
 
   // DOM 로드 완료 후 SDK 자동 초기화
   const autoRenderZone = document.querySelector('[data-devad-zone]');
