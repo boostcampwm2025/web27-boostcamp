@@ -13,15 +13,21 @@ export interface Tag {
 
 export interface Campaign {
   id: string;
+  user_id: number;
   title: string;
   content: string;
   image: string;
   url: string;
   tags: Tag[];
-  min_price: number;
-  max_price: number;
-  is_high_intent?: boolean; // 고의도 타겟팅 (옵션)
-  status?: 'ACTIVE' | 'PAUSED' | 'PENDING' | 'ENDED'; // 캠페인 상태 (옵션)
+  max_cpc: number;
+  daily_budget: number;
+  total_budget: number | null;
+  is_high_intent: boolean;
+  status: 'ACTIVE' | 'PAUSED' | 'PENDING' | 'ENDED';
+  start_date: string;
+  end_date: string;
+  created_at: string;
+  deleted_at: string | null;
 }
 
 export interface Candidate {

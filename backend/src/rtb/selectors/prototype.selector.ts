@@ -12,8 +12,8 @@ export class PrototypeCampaignSelector implements CampaignSelector {
         return b.score - a.score;
       }
 
-      // 2차: 동점이면 max_price 비교
-      return b.max_price - a.max_price;
+      // 2차: 동점이면 max_cpc 비교
+      return b.max_cpc - a.max_cpc;
     });
 
     // 1등 = winner, 나머지 = candidates
