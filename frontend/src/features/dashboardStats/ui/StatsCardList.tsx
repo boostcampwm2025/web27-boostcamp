@@ -5,15 +5,8 @@ import { useStats } from '../lib/useStats';
 export function StatsCardList() {
   const { data, isLoading, error } = useStats();
 
-  if (error) {
-    return (
-      <div className="flex flex-row gap-4 min-w-fit">
-        <div className="p-5 text-red-500">오류: {error}</div>
-      </div>
-    );
-  }
-
-  if (isLoading || !data) {
+  // 에러가 있거나 로딩 중이거나 데이터가 없으면 0 값 표시
+  if (error || isLoading || !data) {
     return (
       <div className="flex flex-row gap-4 min-w-fit">
         <StatsCard
@@ -77,7 +70,7 @@ export function StatsCardList() {
       />
       <StatsCard
         title="총 사용"
-        value="72,500원"
+        value={`${data.totalSpent.toLocaleString()}원`}
         icon={<Icon.Dollar className="w-8 h-8" />}
       />
     </div>
