@@ -3,6 +3,12 @@
   "collection": "@nestjs/schematics",
   "sourceRoot": "src",
   "compilerOptions": {
+    "assets": [
+      {
+        "include": "mock/*.json",
+        "outDir": "dist"
+      }
+    ],
     "deleteOutDir": true
   }
 }

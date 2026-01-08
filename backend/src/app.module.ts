@@ -4,6 +4,8 @@ import { SdkModule } from './sdk/sdk.module';
 import { AdvertiserModule } from './advertiser/advertiser.module';
 import { LogModule } from './log/log.module';
 import { CacheModule } from './cache/cache.module';
+import { CampaignModule } from './campaign/campaign.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -12,6 +14,8 @@ import { CacheModule } from './cache/cache.module';
     AdvertiserModule,
     LogModule,
     CacheModule,
+    CampaignModule,
+    UserModule,
   ],
   controllers: [],
   providers: [],
