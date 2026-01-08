@@ -1,6 +1,6 @@
 // SDK 설정 타입 (스크립트 태그의 data-* 속성)
 export interface SDKConfig {
-  blogId: string;
+  blogKey: string;
   apiBase: string;
 }
 
