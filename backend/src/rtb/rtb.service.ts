@@ -4,10 +4,10 @@ import { Scorer } from './scorers/scorer.interface';
 import { CampaignSelector } from './selectors/selector.interface';
 import type {
   DecisionContext,
+  Candidate,
   ScoredCandidate,
-  ScoringResult,
-  Campaign,
 } from './types/decision.types';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class RTBService {
@@ -21,96 +21,68 @@ export class RTBService {
 
   async runAuction(context: DecisionContext) {
     try {
+      const auctionId = randomUUID();
+
       // 1. 후보 필터링
-      const candidates = await this.matcher.findCandidatesByTags(context);
+      const candidates: Candidate[] =
+        await this.matcher.findCandidatesByTags(context);
 
       if (candidates.length === 0) {
         throw new Error(
-          `${context.tags.join(', ')}태그에 맞는 후보자들이 존재하지 않습니다.`
+          `${context.tags.join(', ')}태그에 유사도가 비슷한 후보자들이 존재하지 않습니다.`
         );
       }
 
       // 2. 점수 계산 (아 복잡하다)
-      const scored = await this.scoreCandidates(candidates, context);
+      const scored: ScoredCandidate[] =
+        await this.scorer.scoreCandidates(candidates);
 
       // 3. 우승자 선정
       const result = await this.selector.selectWinner(scored);
 
-      // 4. explain 추가
+      // 4. explain(reason) 생성 추후 로깅용 -> 일단 보류
+      // return {
+      //   winner: {
+      //     ...result.winner,
+      //     explain: this.generateExplain(result.winner, context),
+      //   },
+      //   candidates: result.candidates.map((c) => ({
+      //     ...c,
+      //     explain: this.generateExplain(c, context),
+      //   })),
+      // };
+
       return {
-        winner: {
-          ...result.winner,
-          explain: this.generateExplain(result.winner, context),
+        status: 'success',
+        message: '광고 선정 완료',
+        data: {
+          auctionId,
+          campaign: { ...result.winner },
+          candidates: result.candidates,
         },
-        candidates: result.candidates.map((c) => ({
-          ...c,
-          explain: this.generateExplain(c, context),
-        })),
+        timestamp: new Date().toISOString(),
       };
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
 
-      this.logger.warn(`Auction failed: ${errorMessage}`);
+      this.logger.warn(`Auction 실패: ${errorMessage}`);
 
       // 에러 발생 시(예: 후보 없음) null winner와 빈 리스트를 반환하여 정상 응답 처리
+
+      // message와 error 필드에 대해서는 추후에 통일된 에러 헨들링 전략 사용이 용이할 거 같음
       return {
-        winner: {
-          id: null,
-          title: '경매 실패',
-          content: null,
-          image: null,
-          url: null,
-          tags: [],
-          min_price: null,
-          max_price: null,
-          matchedTags: [],
-          explain: '경매 실패: ' + errorMessage,
-        },
-        candidates: [],
+        status: 'error',
+        message: 'error message',
+        data: null,
+        errors: [
+          {
+            field: 'field',
+            message: 'error message',
+          },
+        ],
+        timestamp: new Date().toISOString(),
       };
     }
-  }
-
-  private async scoreCandidates(
-    candidates: Campaign[],
-    context: DecisionContext
-  ): Promise<ScoredCandidate[]> {
-    return Promise.all(
-      candidates.map(async (campaign) => {
-        const { score, breakdown }: ScoringResult = await this.scorer.score(
-          campaign,
-          context
-        );
-
-        this.logger.debug(
-          `Campaign ${campaign.id}: CPC=${breakdown.cpc}, Match=${breakdown.matchCount}, Score=${score}`
-        );
-
-        const matchedTags = campaign.tags.filter((tag) =>
-          context.tags.includes(tag.name)
-        );
-
-        return {
-          ...campaign,
-          score,
-          matchedTags,
-        };
-      })
-    );
-  }
-
-  private generateExplain(
-    candidate: ScoredCandidate,
-    context: DecisionContext
-  ): string {
-    const matchedTagNames = candidate.matchedTags.map((t) => t.name).join(', ');
-    const matchCount = candidate.matchedTags.length;
-
-    return (
-      `[${matchedTagNames}] ${matchCount} / ${context.tags.length} 일치 ` +
-      `[CPC]: ${candidate.max_price}원, ` +
-      `[SCORE]: ${candidate.score}점으로 선정`
-    );
   }
 }
