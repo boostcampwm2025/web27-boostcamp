@@ -1,6 +1,6 @@
 import {
   IsNumber,
-  IsUUID,
+  IsString,
   IsUrl,
   Min,
   Max,
@@ -10,11 +10,11 @@ import {
 } from 'class-validator';
 
 export class CreateViewLogDto {
-  @IsUUID()
+  @IsString()
   @IsNotEmpty()
   auctionId: string;
 
-  @IsUUID()
+  @IsString()
   @IsNotEmpty()
   campaignId: string;
 
