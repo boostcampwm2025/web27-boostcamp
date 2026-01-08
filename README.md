@@ -3,11 +3,13 @@
 ## Deploy (GitHub Actions)
 
 ### Branch gating
+
 - 기본 배포 브랜치: `feature/deploy`
 - GitHub 설정에서 `DEPLOY_BRANCH` Actions Variable을 만들면(예: `main`) 프론트/백 배포 워크플로우가 그 브랜치에서만 동작합니다.
 - 수동 재실행이 필요하면 각 워크플로우의 `workflow_dispatch`로 실행 가능합니다.
 
 ### Frontend
+
 - Workflow: `.github/workflows/front-deploy.yml`
 - Trigger: push to `DEPLOY_BRANCH`(default: `feature/deploy`)
 - Required Secrets:
@@ -16,6 +18,7 @@
   - NCP Object Storage 호환 이슈로 `awscli==1.15.85`(v1)로 업로드합니다.
 
 ### Backend
+
 - Workflow: `.github/workflows/back-deploy.yml`
 - Trigger: push to `DEPLOY_BRANCH`(default: `feature/deploy`) (backend/nginx/compose 변경 시)
 - Required Secrets:
