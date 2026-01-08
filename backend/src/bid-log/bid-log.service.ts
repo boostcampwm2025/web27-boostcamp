@@ -12,8 +12,8 @@ export class BidLogService {
   ) {}
 
   async getRealtimeBidLogs(
-    limit: number = 3,
-    offset: number = 0
+    limit: number,
+    offset: number
   ): Promise<BidLogResponseDto> {
     // 1. 모든 BidLog 가져오기
     const allBidLogs = this.bidLogRepository.getAll();
