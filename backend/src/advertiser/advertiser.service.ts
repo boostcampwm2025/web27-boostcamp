@@ -3,9 +3,8 @@ import { CampaignRepository } from 'src/campaign/repository/campaign.repository'
 import { LogRepository } from 'src/log/repository/log.repository';
 import { UserRepository } from 'src/user/repository/user.repository';
 
-type TimeWindow = {
-  startMs: number;
-  endMs: number;
+type Snapshot = {
+  endMsExclusive: number;
 };
 
 @Injectable()
@@ -30,33 +29,36 @@ export class AdvertiserService {
     );
 
     const now = new Date();
-    const todayWindow = getKstDayWindow(now, 0);
-    const yesterdayWindow = getKstDayWindow(now, -1);
+    const startOfTodayMs = getKstStartOfDayMs(now);
 
-    const todayPerf = this.getPerformance(campaignIdSet, todayWindow);
-    const yesterdayPerf = this.getPerformance(campaignIdSet, yesterdayWindow);
+    const totalPerf = this.getPerformanceSnapshot(campaignIdSet, {
+      endMsExclusive: now.getTime(),
+    });
+    const yesterdayTotalPerf = this.getPerformanceSnapshot(campaignIdSet, {
+      endMsExclusive: startOfTodayMs,
+    });
 
     return {
       performance: {
-        totalClicks: todayPerf.totalClicks,
-        clicksChange: todayPerf.totalClicks - yesterdayPerf.totalClicks,
-        totalImpressions: todayPerf.totalImpressions,
+        totalClicks: totalPerf.totalClicks,
+        clicksChange: totalPerf.totalClicks - yesterdayTotalPerf.totalClicks,
+        totalImpressions: totalPerf.totalImpressions,
         impressionsChange:
-          todayPerf.totalImpressions - yesterdayPerf.totalImpressions,
-        averageCtr: todayPerf.averageCtr,
+          totalPerf.totalImpressions - yesterdayTotalPerf.totalImpressions,
+        averageCtr: totalPerf.averageCtr,
         averageCtrChange: roundTo1Decimal(
-          todayPerf.averageCtr - yesterdayPerf.averageCtr
+          totalPerf.averageCtr - yesterdayTotalPerf.averageCtr
         ),
-        totalSpent: todayPerf.totalSpent,
+        totalSpent: totalPerf.totalSpent,
       },
     };
   }
 
-  private getPerformance(campaignIdSet: Set<string>, window: TimeWindow) {
+  private getPerformanceSnapshot(campaignIdSet: Set<string>, snapshot: Snapshot) {
     let totalImpressions = 0;
     const impressionsByCampaign = new Map<string, number>();
     for (const viewLog of this.logRepository.listViewLogs()) {
-      if (!isInWindow(viewLog.createdAt, window)) {
+      if (!isBefore(viewLog.createdAt, snapshot.endMsExclusive)) {
         continue;
       }
       if (!campaignIdSet.has(viewLog.campaignId)) {
@@ -73,7 +75,7 @@ export class AdvertiserService {
     let totalSpent = 0;
     const clicksByCampaign = new Map<string, number>();
     for (const clickLog of this.logRepository.listClickLogs()) {
-      if (!isInWindow(clickLog.createdAt, window)) {
+      if (!isBefore(clickLog.createdAt, snapshot.endMsExclusive)) {
         continue;
       }
       const viewLog = this.logRepository.getViewLog(clickLog.viewId);
@@ -104,7 +106,6 @@ export class AdvertiserService {
 const roundTo1Decimal = (v: number) => Math.round(v * 10) / 10;
 
 const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
-const DAY_MS = 24 * 60 * 60 * 1000;
 
 const getAverageCtrPercent = (
   impressionsByCampaign: Map<string, number>,
@@ -135,13 +136,5 @@ const getKstStartOfDayMs = (date: Date) => {
   return Date.UTC(year, month, day) - KST_OFFSET_MS;
 };
 
-const getKstDayWindow = (now: Date, dayOffset: number): TimeWindow => {
-  const startOfTodayMs = getKstStartOfDayMs(now);
-  const startMs = startOfTodayMs + dayOffset * DAY_MS;
-  return { startMs, endMs: startMs + DAY_MS };
-};
-
-const isInWindow = (d: Date, window: TimeWindow) => {
-  const t = d.getTime();
-  return t >= window.startMs && t < window.endMs;
-};
+const isBefore = (d: Date, endMsExclusive: number) =>
+  d.getTime() < endMsExclusive;

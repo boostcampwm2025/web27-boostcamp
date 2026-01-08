@@ -1,4 +1,4 @@
-import { Body, Controller, ForbiddenException, Post } from '@nestjs/common';
+import { Body, Controller, ForbiddenException, Post, Query } from '@nestjs/common';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { AuctionStore } from './auction/auction.store';
@@ -26,23 +26,29 @@ export class CacheController {
   }
 
   @Post('seed/logs')
-  seedLogs() {
+  seedLogs(@Query('useNow') useNow?: string) {
     if (process.env.NODE_ENV === 'production') {
       throw new ForbiddenException();
     }
 
     const fixture = loadFixture();
+    const shouldUseNow =
+      useNow === '1' || useNow === 'true' || useNow === 'now';
+    const nowMs = Date.now();
 
     const fixtureViewIdToSavedViewId = new Map<number, number>();
-    for (const viewLog of fixture.view_logs) {
+    for (const [idx, viewLog] of fixture.view_logs.entries()) {
       const savedViewId = this.logRepository.saveViewLog(
-        toSaveViewLog(viewLog)
+        toSaveViewLog(
+          viewLog,
+          shouldUseNow ? new Date(nowMs + idx * 1000) : undefined
+        )
       );
       fixtureViewIdToSavedViewId.set(viewLog.id, savedViewId);
     }
 
     let seededClicks = 0;
-    for (const clickLog of fixture.click_logs) {
+    for (const [idx, clickLog] of fixture.click_logs.entries()) {
       const savedViewId = fixtureViewIdToSavedViewId.get(clickLog.view_id);
       if (!savedViewId) {
         continue;
@@ -50,7 +56,9 @@ export class CacheController {
 
       this.logRepository.saveClickLog({
         viewId: savedViewId,
-        createdAt: new Date(clickLog.created_at),
+        createdAt: shouldUseNow
+          ? new Date(nowMs + idx * 1000 + 500)
+          : new Date(clickLog.created_at),
       });
       seededClicks += 1;
     }
@@ -86,7 +94,10 @@ type Fixture = {
   click_logs: FixtureClickLog[];
 };
 
-const toSaveViewLog = (v: FixtureViewLog): SaveViewLog => {
+const toSaveViewLog = (
+  v: FixtureViewLog,
+  createdAt?: Date
+): SaveViewLog => {
   return {
     auctionId: v.auction_id,
     campaignId: v.campaign_id,
@@ -96,7 +107,7 @@ const toSaveViewLog = (v: FixtureViewLog): SaveViewLog => {
     positionRatio: v.position_ratio ?? undefined,
     isHighIntent: v.is_high_intent,
     behaviorScore: v.behavior_score ?? 0,
-    createdAt: new Date(v.created_at),
+    createdAt: createdAt ?? new Date(v.created_at),
   };
 };
 
