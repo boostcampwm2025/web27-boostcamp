@@ -10,13 +10,13 @@ export function StatsCardList() {
     return (
       <div className="flex flex-row gap-4 min-w-fit">
         <StatsCard
-          title="전체 광고비 집행 수"
+          title="전체 광고 클릭 수"
           value="0"
           change="+0"
           icon={<Icon.Click className="w-8 h-8" />}
         />
         <StatsCard
-          title="전체 광고비 노출 수"
+          title="전체 광고 노출 수"
           value="0"
           change="+0"
           icon={<Icon.Eye className="w-8 h-8" />}
@@ -39,7 +39,7 @@ export function StatsCardList() {
   return (
     <div className="flex flex-row gap-4 min-w-fit">
       <StatsCard
-        title="전체 광고비 집행 수"
+        title="전체 캠페인 클릭 수"
         value={data.totalClicks.toLocaleString()}
         change={
           data.clicksChange > 0
@@ -49,7 +49,7 @@ export function StatsCardList() {
         icon={<Icon.Click className="w-8 h-8" />}
       />
       <StatsCard
-        title="전체 광고비 노출 수"
+        title="전체 캠페인 노출 수"
         value={data.totalImpressions.toLocaleString()}
         change={
           data.impressionsChange > 0
