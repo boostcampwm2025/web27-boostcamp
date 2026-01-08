@@ -126,7 +126,7 @@
     },
     {
       "id": "8996aebc-b62f-4c51-bce8-1ad2964a8b20",
-      "user_id": 3,
+      "user_id": 1,
       "title": "[Frontend] UI/UX 기초 가이드",
       "content": "MVP 캠페인 UI/UX 기초 가이드 설명",
       "image": "https://cdn.example.com/campaigns/01.png",
@@ -241,7 +241,7 @@
     },
     {
       "id": "0795687e-bef1-4221-b36f-77b12f17011d",
-      "user_id": 1,
+      "user_id": 8,
       "title": "[Mobile] Android Jetpack Compose",
       "content": "MVP 캠페인 Android Jetpack Compose 설명",
       "image": "https://cdn.example.com/campaigns/06.png",
