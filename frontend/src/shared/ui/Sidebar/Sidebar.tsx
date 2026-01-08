@@ -58,9 +58,6 @@ export function Sidebar() {
                         : 'text-gray-600 hover:bg-blue-100'
                     }`
                   }
-                  aria-current={({ isActive }: { isActive: boolean }) =>
-                    isActive ? 'page' : undefined
-                  }
                 >
                   <IconComponent className="w-7 h-7" />
                   <span className="font-medium">{item.label}</span>
