@@ -17,7 +17,6 @@ export async function apiClient<T>(endpoint: string): Promise<T> {
     }
 
     return data;
-
   } catch (error) {
     if (error instanceof Error) {
       throw error;
