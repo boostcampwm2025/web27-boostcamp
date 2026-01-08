@@ -93,7 +93,13 @@
       "start_date": "2025-12-20T00:00:00.000Z",
       "end_date": "2026-02-20T00:00:00.000Z",
       "created_at": "2025-12-20T00:00:00.000Z",
-      "deleted_at": null
+      "deleted_at": null,
+      "tags": [
+        {
+          "id": 1,
+          "name": "React"
+        }
+      ]
     },
     {
       "id": "8c3a1f39-4d7f-4f1d-9d46-2c8a0b2f9a3d",
@@ -110,11 +116,17 @@
       "start_date": "2025-12-25T00:00:00.000Z",
       "end_date": "2026-02-25T00:00:00.000Z",
       "created_at": "2025-12-25T00:00:00.000Z",
-      "deleted_at": null
+      "deleted_at": null,
+      "tags": [
+        {
+          "id": 2,
+          "name": "Backend"
+        }
+      ]
     },
     {
       "id": "8996aebc-b62f-4c51-bce8-1ad2964a8b20",
-      "user_id": 3,
+      "user_id": 1,
       "title": "[Frontend] UI/UX 기초 가이드",
       "content": "MVP 캠페인 UI/UX 기초 가이드 설명",
       "image": "https://cdn.example.com/campaigns/01.png",
@@ -127,7 +139,13 @@
       "start_date": "2025-12-26T00:00:00.000Z",
       "end_date": "2026-02-24T00:00:00.000Z",
       "created_at": "2025-12-26T00:00:00.000Z",
-      "deleted_at": null
+      "deleted_at": null,
+      "tags": [
+        {
+          "id": 1,
+          "name": "React"
+        }
+      ]
     },
     {
       "id": "f8ad7920-fccf-4225-aed3-1ec617711e92",
@@ -144,7 +162,13 @@
       "start_date": "2025-12-27T00:00:00.000Z",
       "end_date": "2026-02-25T00:00:00.000Z",
       "created_at": "2025-12-27T00:00:00.000Z",
-      "deleted_at": null
+      "deleted_at": null,
+      "tags": [
+        {
+          "id": 2,
+          "name": "Backend"
+        }
+      ]
     },
     {
       "id": "1d22946c-f201-4e9a-af82-0edb095a7788",
@@ -161,7 +185,13 @@
       "start_date": "2025-12-28T00:00:00.000Z",
       "end_date": "2026-02-26T00:00:00.000Z",
       "created_at": "2025-12-28T00:00:00.000Z",
-      "deleted_at": null
+      "deleted_at": null,
+      "tags": [
+        {
+          "id": 2,
+          "name": "Backend"
+        }
+      ]
     },
     {
       "id": "5c94c603-515d-4236-85ed-8e05c9299104",
@@ -178,7 +208,13 @@
       "start_date": "2025-12-29T00:00:00.000Z",
       "end_date": "2026-02-27T00:00:00.000Z",
       "created_at": "2025-12-29T00:00:00.000Z",
-      "deleted_at": null
+      "deleted_at": null,
+      "tags": [
+        {
+          "id": 2,
+          "name": "Backend"
+        }
+      ]
     },
     {
       "id": "94b6e4f4-ee16-46a1-b0ab-e2f6fcf35c1a",
@@ -195,7 +231,13 @@
       "start_date": "2025-12-30T00:00:00.000Z",
       "end_date": "2026-02-28T00:00:00.000Z",
       "created_at": "2025-12-30T00:00:00.000Z",
-      "deleted_at": null
+      "deleted_at": null,
+      "tags": [
+        {
+          "id": 1,
+          "name": "React"
+        }
+      ]
     },
     {
       "id": "0795687e-bef1-4221-b36f-77b12f17011d",
@@ -212,7 +254,13 @@
       "start_date": "2025-12-31T00:00:00.000Z",
       "end_date": "2026-03-01T00:00:00.000Z",
       "created_at": "2025-12-31T00:00:00.000Z",
-      "deleted_at": null
+      "deleted_at": null,
+      "tags": [
+        {
+          "id": 1,
+          "name": "React"
+        }
+      ]
     },
     {
       "id": "4c8ccc6d-c408-4487-af7e-e3bab2b37712",
@@ -229,7 +277,13 @@
       "start_date": "2026-01-01T00:00:00.000Z",
       "end_date": "2026-03-02T00:00:00.000Z",
       "created_at": "2026-01-01T00:00:00.000Z",
-      "deleted_at": null
+      "deleted_at": null,
+      "tags": [
+        {
+          "id": 1,
+          "name": "React"
+        }
+      ]
     },
     {
       "id": "72bfe644-1175-4351-99e1-6fc8f293f800",
@@ -246,7 +300,13 @@
       "start_date": "2026-01-02T00:00:00.000Z",
       "end_date": "2026-03-03T00:00:00.000Z",
       "created_at": "2026-01-02T00:00:00.000Z",
-      "deleted_at": null
+      "deleted_at": null,
+      "tags": [
+        {
+          "id": 2,
+          "name": "Backend"
+        }
+      ]
     },
     {
       "id": "13e431d6-dab7-4806-ab6c-ea0732267549",
@@ -263,7 +323,13 @@
       "start_date": "2026-01-03T00:00:00.000Z",
       "end_date": "2026-03-04T00:00:00.000Z",
       "created_at": "2026-01-03T00:00:00.000Z",
-      "deleted_at": null
+      "deleted_at": null,
+      "tags": [
+        {
+          "id": 2,
+          "name": "Backend"
+        }
+      ]
     },
     {
       "id": "1e3d77ae-10c1-4e7d-83f4-846b75b35121",
@@ -280,7 +346,13 @@
       "start_date": "2026-01-04T00:00:00.000Z",
       "end_date": "2026-03-05T00:00:00.000Z",
       "created_at": "2026-01-04T00:00:00.000Z",
-      "deleted_at": null
+      "deleted_at": null,
+      "tags": [
+        {
+          "id": 2,
+          "name": "Backend"
+        }
+      ]
     },
     {
       "id": "0afea344-e7c8-401b-ada4-fa749f6b5c12",
@@ -297,11 +369,17 @@
       "start_date": "2026-01-05T00:00:00.000Z",
       "end_date": "2026-03-06T00:00:00.000Z",
       "created_at": "2026-01-05T00:00:00.000Z",
-      "deleted_at": null
+      "deleted_at": null,
+      "tags": [
+        {
+          "id": 1,
+          "name": "React"
+        }
+      ]
     },
     {
       "id": "54e92912-e23d-471f-b700-81caf834da51",
-      "user_id": 8,
+      "user_id": 1,
       "title": "[Bootcamp] 풀스택 취업 패키지",
       "content": "MVP 캠페인 풀스택 취업 패키지 설명",
       "image": "https://cdn.example.com/campaigns/12.png",
@@ -314,7 +392,13 @@
       "start_date": "2026-01-06T00:00:00.000Z",
       "end_date": "2026-03-07T00:00:00.000Z",
       "created_at": "2026-01-06T00:00:00.000Z",
-      "deleted_at": null
+      "deleted_at": null,
+      "tags": [
+        {
+          "id": 1,
+          "name": "React"
+        }
+      ]
     },
     {
       "id": "08ce3a3f-7888-472d-9a8b-61f6196356d5",
@@ -331,7 +415,13 @@
       "start_date": "2026-01-07T00:00:00.000Z",
       "end_date": "2026-03-08T00:00:00.000Z",
       "created_at": "2026-01-07T00:00:00.000Z",
-      "deleted_at": null
+      "deleted_at": null,
+      "tags": [
+        {
+          "id": 1,
+          "name": "React"
+        }
+      ]
     },
     {
       "id": "c2cdd275-1ba9-4df4-a749-d06f0512609c",
@@ -348,7 +438,13 @@
       "start_date": "2026-01-08T00:00:00.000Z",
       "end_date": "2026-03-09T00:00:00.000Z",
       "created_at": "2026-01-08T00:00:00.000Z",
-      "deleted_at": null
+      "deleted_at": null,
+      "tags": [
+        {
+          "id": 2,
+          "name": "Backend"
+        }
+      ]
     },
     {
       "id": "53c4409f-cb17-4a86-9de3-cb6070a357f2",
@@ -365,7 +461,13 @@
       "start_date": "2026-01-09T00:00:00.000Z",
       "end_date": "2026-03-10T00:00:00.000Z",
       "created_at": "2026-01-09T00:00:00.000Z",
-      "deleted_at": null
+      "deleted_at": null,
+      "tags": [
+        {
+          "id": 2,
+          "name": "Backend"
+        }
+      ]
     },
     {
       "id": "ae08c7ab-586e-42d5-83a4-990ee736d11c",
@@ -382,7 +484,13 @@
       "start_date": "2026-01-10T00:00:00.000Z",
       "end_date": "2026-03-11T00:00:00.000Z",
       "created_at": "2026-01-10T00:00:00.000Z",
-      "deleted_at": null
+      "deleted_at": null,
+      "tags": [
+        {
+          "id": 1,
+          "name": "React"
+        }
+      ]
     },
     {
       "id": "0465bd34-e2b8-479a-8fc8-2416384b4ce3",
@@ -399,7 +507,13 @@
       "start_date": "2026-01-11T00:00:00.000Z",
       "end_date": "2026-03-12T00:00:00.000Z",
       "created_at": "2026-01-11T00:00:00.000Z",
-      "deleted_at": null
+      "deleted_at": null,
+      "tags": [
+        {
+          "id": 1,
+          "name": "React"
+        }
+      ]
     },
     {
       "id": "47e00fb8-741a-492c-b660-f8d42876548e",
@@ -416,7 +530,13 @@
       "start_date": "2026-01-12T00:00:00.000Z",
       "end_date": "2026-03-13T00:00:00.000Z",
       "created_at": "2026-01-12T00:00:00.000Z",
-      "deleted_at": null
+      "deleted_at": null,
+      "tags": [
+        {
+          "id": 1,
+          "name": "React"
+        }
+      ]
     },
     {
       "id": "93b146a3-1948-4a61-8f51-294404bfdff8",
@@ -433,7 +553,13 @@
       "start_date": "2026-01-13T00:00:00.000Z",
       "end_date": "2026-03-14T00:00:00.000Z",
       "created_at": "2026-01-13T00:00:00.000Z",
-      "deleted_at": null
+      "deleted_at": null,
+      "tags": [
+        {
+          "id": 1,
+          "name": "React"
+        }
+      ]
     },
     {
       "id": "1705c780-114c-4af8-bfb8-b192f7406431",
@@ -450,7 +576,13 @@
       "start_date": "2026-01-14T00:00:00.000Z",
       "end_date": "2026-03-15T00:00:00.000Z",
       "created_at": "2026-01-14T00:00:00.000Z",
-      "deleted_at": null
+      "deleted_at": null,
+      "tags": [
+        {
+          "id": 2,
+          "name": "Backend"
+        }
+      ]
     },
     {
       "id": "3369e6cd-ad4f-4eed-aaab-d594638e2bc7",
@@ -467,7 +599,13 @@
       "start_date": "2026-01-15T00:00:00.000Z",
       "end_date": "2026-03-16T00:00:00.000Z",
       "created_at": "2026-01-15T00:00:00.000Z",
-      "deleted_at": null
+      "deleted_at": null,
+      "tags": [
+        {
+          "id": 2,
+          "name": "Backend"
+        }
+      ]
     },
     {
       "id": "64e7c665-9980-4283-82fe-a14618cbfe96",
@@ -484,7 +622,13 @@
       "start_date": "2026-01-16T00:00:00.000Z",
       "end_date": "2026-03-17T00:00:00.000Z",
       "created_at": "2026-01-16T00:00:00.000Z",
-      "deleted_at": null
+      "deleted_at": null,
+      "tags": [
+        {
+          "id": 2,
+          "name": "Backend"
+        }
+      ]
     }
   ],
   "tags": [
