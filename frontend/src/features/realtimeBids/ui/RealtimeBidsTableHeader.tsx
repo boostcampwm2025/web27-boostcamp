@@ -6,7 +6,9 @@ export function RealtimeBidsTableHeader() {
         <th className="px-5 py-3 text-left font-medium text-gray-600">
           캠페인
         </th>
-        <th className="px-5 py-3 text-left font-medium text-gray-600">블로그</th>
+        <th className="px-5 py-3 text-left font-medium text-gray-600">
+          블로그
+        </th>
         <th className="px-5 py-3 text-left font-medium text-gray-600">
           나의 입찰
         </th>
