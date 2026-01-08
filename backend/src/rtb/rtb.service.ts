@@ -8,9 +8,9 @@ import type {
   ScoredCandidate,
 } from './types/decision.types';
 import { randomUUID } from 'crypto';
-import { BidLogRepository } from './repositories/bid-log.repository';
+import { BidLogRepository } from '../bid-log/repositories/bid-log.repository';
 import { AuctionStore } from '../cache/auction/auction.store';
-import { BidLog } from './types/bid-log.types';
+import { BidLog } from '../bid-log/bid-log.types';
 import { getBlogIdByKey } from '../common/utils/blog.utils';
 
 @Injectable()
@@ -70,7 +70,7 @@ export class RTBService {
       // 4. AuctionStore에 경매 데이터 저장 (ViewLog에서 조회용)
       this.auctionStore.set(auctionId, {
         blogId: blogId,
-        cost: result.winner.max_price,
+        cost: result.winner.max_cpc,
       });
 
       // 5. BidLog 저장 (모든 참여 캠페인의 입찰 기록)
@@ -80,7 +80,9 @@ export class RTBService {
         campaignId: candidate.id,
         blogId: context.blogKey,
         status: candidate.id === result.winner.id ? 'WIN' : 'LOSS',
-        bidPrice: candidate.max_price,
+        bidPrice: candidate.max_cpc,
+        isHighIntent: context.isHighIntent,
+        behaviorScore: context.behaviorScore,
         timestamp,
       }));
       this.bidLogRepository.saveMany(bidLogs);
