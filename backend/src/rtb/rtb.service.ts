@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Matcher } from './matchers/matcher.interface';
 import { Scorer } from './scorers/scorer.interface';
 import { CampaignSelector } from './selectors/selector.interface';
@@ -8,6 +8,10 @@ import type {
   ScoredCandidate,
 } from './types/decision.types';
 import { randomUUID } from 'crypto';
+import { BidLogRepository } from './repositories/bid-log.repository';
+import { AuctionStore } from '../cache/auction/auction.store';
+import { BidLog } from './types/bid-log.types';
+import { getBlogIdByKey } from '../common/utils/blog.utils';
 
 @Injectable()
 export class RTBService {
@@ -16,16 +20,39 @@ export class RTBService {
   constructor(
     private readonly matcher: Matcher,
     private readonly scorer: Scorer,
-    private readonly selector: CampaignSelector
+    private readonly selector: CampaignSelector,
+    private readonly bidLogRepository: BidLogRepository,
+    private readonly auctionStore: AuctionStore
   ) {}
 
   async runAuction(context: DecisionContext) {
     try {
       const auctionId = randomUUID();
 
+      // 0. blogKey → blogId 변환
+      const blogId = getBlogIdByKey(context.blogKey);
+      if (blogId === null) {
+        throw new NotFoundException(
+          `블로그 키 '${context.blogKey}'에 해당하는 블로그를 찾을 수 없습니다.`
+        );
+      }
+
       // 1. 후보 필터링
-      const candidates: Candidate[] =
+      let candidates: Candidate[] =
         await this.matcher.findCandidatesByTags(context);
+
+      // 2. 고의도 필터링 (isHighIntent에 따라 광고 분리)
+      if (context.isHighIntent) {
+        // 고의도 요청: is_high_intent=true 광고만
+        candidates = candidates.filter(
+          (c) => c.campaign.is_high_intent === true
+        );
+      } else {
+        // 일반 요청: is_high_intent=false 광고만
+        candidates = candidates.filter(
+          (c) => c.campaign.is_high_intent === false
+        );
+      }
 
       if (candidates.length === 0) {
         throw new Error(
@@ -40,7 +67,29 @@ export class RTBService {
       // 3. 우승자 선정
       const result = await this.selector.selectWinner(scored);
 
-      // 4. explain(reason) 생성 추후 로깅용 -> 일단 보류
+      // 4. AuctionStore에 경매 데이터 저장 (ViewLog에서 조회용)
+      this.auctionStore.set(auctionId, {
+        blogId: blogId,
+        cost: result.winner.max_price,
+      });
+
+      // 5. BidLog 저장 (모든 참여 캠페인의 입찰 기록)
+      const timestamp = new Date().toISOString();
+      const bidLogs: BidLog[] = result.candidates.map((candidate) => ({
+        auctionId,
+        campaignId: candidate.id,
+        blogId: context.blogKey,
+        status: candidate.id === result.winner.id ? 'WIN' : 'LOSS',
+        bidPrice: candidate.max_price,
+        timestamp,
+      }));
+      this.bidLogRepository.saveMany(bidLogs);
+
+      this.logger.log(
+        `Auction ${auctionId}: ${bidLogs.length}개 BidLog 저장 완료 (WIN: ${result.winner.id})`
+      );
+
+      // 6. explain(reason) 생성 추후 로깅용 -> 일단 보류
       // return {
       //   winner: {
       //     ...result.winner,
