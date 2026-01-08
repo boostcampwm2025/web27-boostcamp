@@ -20,7 +20,8 @@ export interface Campaign {
   tags: Tag[];
   min_price: number;
   max_price: number;
-  status?: 'active' | 'inactive'; // 혹시 모르니깐 넣어둠
+  is_high_intent?: boolean; // 고의도 타겟팅 (옵션)
+  status?: 'ACTIVE' | 'PAUSED' | 'PENDING' | 'ENDED'; // 캠페인 상태 (옵션)
 }
 
 export interface Candidate {
