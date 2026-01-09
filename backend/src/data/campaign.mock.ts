@@ -382,7 +382,7 @@ export const CAMPAIGNS_MOCK: Campaign[] = [
   },
   {
     id: 'ae08c7ab-586e-42d5-83a4-990ee736d11c',
-    user_id: 6,
+    user_id: 1,
     title: '[Frontend] 프리미엄 리액트 심화',
     content:
       '시니어 레벨로 도약하기 위한 리액트 심화 과정. 성능 최적화, 서버 사이드 렌더링(SSR), 상태 관리 패턴.',
