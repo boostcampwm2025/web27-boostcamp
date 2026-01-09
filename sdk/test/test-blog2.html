@@ -1,696 +1,142 @@
 <!doctype html>
 <html lang="ko">
   <head>
-    <meta charset="utf-8" />
+    <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BoostAD - Week 3 Technical Review</title>
-
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reset.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/white.min.css"
-      id="theme"
-    />
-
+    <title>외부 블로그 테스트 - DevAd SDK</title>
     <style>
-      /* Typography & Layout Overrides for High Density */
-      @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-
       body {
-        font-family: 'Pretendard', sans-serif !important;
-      }
-
-      .reveal {
-        color: #222;
-      }
-      .reveal h1,
-      .reveal h2,
-      .reveal h3,
-      .reveal h4 {
-        font-family: 'Pretendard', sans-serif;
-        font-weight: 700;
-        text-transform: none;
-        letter-spacing: -0.5px;
-        margin-bottom: 0.5em;
-      }
-
-      /* Font Sizing Controls */
-      .reveal p,
-      .reveal li,
-      .reveal div {
-        font-size: 20px;
-        line-height: 1.5;
-      }
-      .reveal h1 {
-        font-size: 2.2em;
-      }
-      .reveal h2 {
-        font-size: 1.5em;
-        border-bottom: 2px solid #000;
-        padding-bottom: 15px;
-      }
-      .reveal h3 {
-        font-size: 1.1em;
-        color: #444;
-        margin-top: 20px;
-      }
-
-      /* Layout Utilities */
-      .grid-2 {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 30px;
-        text-align: left;
-      }
-      .grid-3 {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 20px;
-        text-align: left;
-      }
-      .flex-col {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-      }
-
-      /* Components */
-      .card {
-        background: #f8f9fa;
-        border: 1px solid #e9ecef;
-        border-left: 4px solid #000;
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
         padding: 20px;
-        border-radius: 4px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        background: #f5f5f5;
       }
-      .code-box {
-        background: #2d2d2d;
-        color: #eee;
-        padding: 15px;
-        border-radius: 6px;
-        font-family: 'D2Coding', monospace;
-        font-size: 0.7em !important;
-        white-space: pre-wrap;
-        margin-top: 10px;
+      .blog-container {
+        background: white;
+        padding: 40px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       }
-      .highlight {
-        font-weight: bold;
-        background: #eee;
-        padding: 2px 5px;
-        border-radius: 3px;
-      }
-      .tag {
-        display: inline-block;
-        padding: 2px 8px;
-        border-radius: 12px;
-        font-size: 0.6em !important;
-        font-weight: bold;
-        margin-right: 5px;
-        vertical-align: middle;
-      }
-      .tag-black {
-        background: #000;
-        color: #fff;
-      }
-      .tag-gray {
-        background: #eee;
+      h1 {
         color: #333;
-        border: 1px solid #ddd;
+        margin-bottom: 10px;
       }
-
-      /* List Styles */
-      ul.detail-list li {
-        margin-bottom: 8px;
-        list-style-type: square;
+      .meta {
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 30px;
       }
-      ul.detail-list ul li {
-        list-style-type: circle;
-        color: #555;
-        font-size: 0.9em;
+      .content {
+        line-height: 1.8;
+        color: #444;
       }
-
-      /* Status Indicators */
-      .status-badge {
-        font-size: 0.6em;
-        padding: 3px 6px;
-        border: 1px solid #000;
+      .content p {
+        margin-bottom: 20px;
+      }
+      .ad-zone {
+        margin: 40px 0;
+        padding: 20px;
+        background: #fafafa;
+        border: 2px dashed #ddd;
+        border-radius: 8px;
+        text-align: center;
+        color: #999;
+      }
+      code {
+        background: #f4f4f4;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-family: 'Courier New', monospace;
+      }
+      .tags {
+        margin: 30px 0;
+        padding: 20px;
+        background: #f9f9f9;
+        border-radius: 8px;
+      }
+      .tags h2 {
+        font-size: 16px;
+        color: #666;
+        margin: 0 0 10px 0;
+      }
+      .tags .items {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .tags .items a {
+        display: inline-block;
+        padding: 6px 12px;
+        background: #e0e0e0;
+        color: #333;
+        text-decoration: none;
         border-radius: 4px;
-        font-weight: bold;
+        font-size: 14px;
+      }
+      .tags .items a:hover {
+        background: #d0d0d0;
       }
     </style>
   </head>
   <body>
-    <div class="reveal">
-      <div class="slides">
-        <section data-background="#fff">
-          <div style="text-align: left">
-            <h1 style="font-size: 3.5em; line-height: 1.1">
-              BoostAD<br /><span style="font-weight: 300">Week 3 Demo</span>
-            </h1>
-            <div
-              style="border-top: 4px solid black; width: 100px; margin: 30px 0"
-            ></div>
-            <p style="font-size: 1.2em; font-weight: 500">
-              콘텐츠 맥락 기반, 투명한 입찰 광고 플랫폼
-            </p>
-            <p style="color: #666; font-size: 0.8em; margin-top: 50px">
-              Boostcamp Web27 Team Project<br />
-              2025.01.08
-            </p>
-          </div>
-        </section>
+    <div class="blog-container">
+      <!--HTML, CSS, 반응형 웹 디자인 기초.-->
+      <h1>HTML, CSS, 반응형 웹 디자인 기초</h1>
+      <div class="meta">작성일: 2025년 12월 18일 | 카테고리: 백엔드 개발</div>
 
-        <section>
-          <h2>Agenda</h2>
-          <div class="grid-2">
-            <ol style="font-size: 0.9em">
-              <li style="margin-bottom: 20px">
-                <strong>Project Overview</strong><br /><span
-                  style="color: #666; font-size: 0.8em"
-                  >주제 설명 및 선정 이유</span
-                >
-              </li>
-              <li style="margin-bottom: 20px">
-                <strong>Review & Strategy</strong><br /><span
-                  style="color: #666; font-size: 0.8em"
-                  >시니어 피드백 및 이번 주 목표</span
-                >
-              </li>
-              <li style="margin-bottom: 20px">
-                <strong>Implementation Detail</strong><br /><span
-                  style="color: #666; font-size: 0.8em"
-                  >SDK / RTB / Backend / Frontend 상세 구현</span
-                >
-              </li>
-              <li>
-                <strong>Demo & Conclusion</strong><br /><span
-                  style="color: #666; font-size: 0.8em"
-                  >시연 시나리오 요약</span
-                >
-              </li>
-            </ol>
-            <div
-              class="card"
-              style="
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                background: #000;
-                color: #fff;
-              "
-            >
-              <p
-                style="font-size: 1.5em; text-align: center; font-weight: bold"
-              >
-                "광고가<br />정보가 되는 경험"
-              </p>
-            </div>
-          </div>
-        </section>
+      <div class="content">
+        <p>
+          최근 백엔드 개발에서 <strong>TypeScript</strong>의 인기가 급증하고
+          있습니다. 특히 <strong>NestJS</strong> 프레임워크는 Angular에서 영감을
+          받은 구조로 대규모 애플리케이션을 체계적으로 개발할 수 있게 해줍니다.
+        </p>
 
-        <section>
-          <h2>1. What is BoostAD?</h2>
-          <p style="margin-bottom: 30px">
-            퍼블리셔와 광고주를 위한
-            <strong>투명한 입찰 기반 통합 광고 플랫폼</strong>
-          </p>
+        <!-- h2 -->
+        <h2></h2>
+        <p>
+          NestJS는 Express 또는 Fastify 위에서 동작하며,
+          <code>@Injectable()</code> 데코레이터를 통한 의존성 주입(DI)을
+          기본적으로 지원합니다. 이를 통해 테스트하기 쉽고 유지보수가 용이한
+          코드를 작성할 수 있습니다.
+        </p>
 
-          <div class="grid-3">
-            <div class="card">
-              <h4>1️⃣ Context Matching</h4>
-              <p style="font-size: 0.8em">
-                과거 쿠키 ❌ → <strong>현재 맥락</strong> ⭕
-              </p>
-              <hr style="border-color: #ddd" />
-              <p style="font-size: 0.7em; color: #555">
-                "React 튜토리얼을 읽는 순간,<br />React 강의 광고가 노출됩니다."
-              </p>
-            </div>
-            <div class="card">
-              <h4>2️⃣ Transparent Bidding</h4>
-              <p style="font-size: 0.8em">
-                블랙박스 ❌ → <strong>로그 공개</strong> ⭕
-              </p>
-              <hr style="border-color: #ddd" />
-              <p style="font-size: 0.7em; color: #555">
-                "600원 입찰 → 650원에 패배"<br />모든 과정이 데이터로
-                제공됩니다.
-              </p>
-            </div>
-            <div class="card">
-              <h4>3️⃣ Learning Behavior</h4>
-              <p style="font-size: 0.8em">
-                단순 노출 ❌ → <strong>학습 의도</strong> ⭕
-              </p>
-              <hr style="border-color: #ddd" />
-              <p style="font-size: 0.7em; color: #555">
-                코드 복사, 정독(체류시간),<br />스크롤 깊이를 점수화합니다.
-              </p>
-            </div>
-          </div>
-          <div
-            class="fragment"
-            style="
-              margin-top: 30px;
-              border: 1px dashed #000;
-              padding: 15px;
-              font-size: 0.8em;
-            "
-          >
-            <strong>🔭 Vision:</strong> 독자는 다음 단계 학습을 추천받고,
-            광고주는 고효율 타겟팅을 확보하는 선순환 생태계
-          </div>
-        </section>
+        <!-- DevAd 광고 영역 -->
+        <div data-devad-zone class="ad-zone">
+          📢 DevAd 광고가 여기에 표시됩니다
+        </div>
 
-        <section>
-          <h2>2. Why BoostAD?</h2>
-          <div class="grid-2">
-            <div>
-              <h3>Developer's Pain Point</h3>
-              <ul class="detail-list">
-                <li>
-                  <strong>Publisher (블로그 운영자)</strong>
-                  <ul>
-                    <li>Django 글에 다이어트 광고? (맥락 불일치)</li>
-                    <li>월 방문자 수천 명인데 수익은 커피 한 잔</li>
-                    <li>전문성을 해치지 않는 수익화 모델 부재</li>
-                  </ul>
-                </li>
-                <li style="margin-top: 15px">
-                  <strong>Reader (독자)</strong>
-                  <ul>
-                    <li>React 글 읽는데 자동차 보험 광고 노출</li>
-                    <li>광고가 정보가 아닌 '공해'로 인식됨</li>
-                  </ul>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3>Advertiser's Needs</h3>
-              <ul class="detail-list">
-                <li>
-                  <strong>Instructor (강의 제작자)</strong>
-                  <ul>
-                    <li>"지금 NestJS 공부하는 사람에게만 보여주고 싶다"</li>
-                    <li>Google Ads: "프로그래밍" 타겟팅은 너무 광범위</li>
-                    <li>단순 클릭보다 '진짜 수강할 사람' 전환율 중요</li>
-                  </ul>
-                </li>
-              </ul>
-              <div
-                class="card"
-                style="margin-top: 20px; background: #000; color: white"
-              >
-                <strong>💡 Solution</strong><br />
-                "콘텐츠의 맥락" + "실제 학습 의도"<br />동시 타겟팅
-              </div>
-            </div>
-          </div>
-        </section>
+        <!-- h2 -->
+        <h2></h2>
+        <p>
+          TypeScript는 정적 타입 검사를 통해 런타임 오류를 컴파일 타임에 잡아낼
+          수 있습니다. 특히 대규모 프로젝트에서는 코드의 안정성과 가독성을 크게
+          향상시킵니다.
+        </p>
 
-        <section>
-          <h2>3. Review & Feedback Strategy</h2>
-          <p style="font-size: 0.9em; margin-bottom: 30px">
-            <span class="tag tag-black">Feedback</span>
-            "완성해서 합치지 말고, 합쳐놓고 개선해라. 데모는 실제
-            환경(Tistory)이어야 한다."
-          </p>
+        <p>
+          NestJS와 TypeScript를 함께 사용하면 엔터프라이즈급 백엔드
+          애플리케이션을 효율적으로 개발할 수 있습니다.
+        </p>
 
-          <div class="grid-2">
-            <div class="card">
-              <h4>🚧 Development Strategy</h4>
-              <ul class="detail-list" style="font-size: 0.8em">
-                <li>
-                  <strong>Mock First:</strong> 완벽한 로직보다 전체 플로우(Flow)
-                  연결 우선
-                </li>
-                <li>
-                  <strong>RnR Clarification:</strong>
-                  <ul>
-                    <li>SDK: 데이터 수집 및 렌더링</li>
-                    <li>RTB: 매칭 엔진 및 입찰 로직</li>
-                    <li>BE: API 통신 및 로그 적재</li>
-                    <li>FE: 대시보드 시각화</li>
-                  </ul>
-                </li>
-              </ul>
-            </div>
-            <div class="card" style="border-left: 4px solid #444">
-              <h4>🎯 Week 3 Demo Goal</h4>
-              <ul class="detail-list" style="font-size: 0.8em">
-                <li>
-                  <strong>Scenario:</strong> 블로그 글 작성 → SDK 감지 → 광고
-                  매칭 → 노출
-                </li>
-                <li>
-                  <strong>Proof Points:</strong>
-                  <ul>
-                    <li>✅ 실제 티스토리 블로그 동작 (Localhost X)</li>
-                    <li>✅ 콘텐츠 변경 시 광고 자동 변경 (Context)</li>
-                    <li>✅ 행동 점수 달성 시 고의도 광고 교체</li>
-                  </ul>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        <section>
-          <h2>4-1. Implementation: SDK Team</h2>
-          <p style="font-size: 0.8em; color: #555">
-            "블로그의 맥락을 읽고, 사용자의 학습 의도를 추적하는 눈"
-          </p>
-
-          <div class="grid-2">
-            <div>
-              <h3>🏷️ Context Tag Extractor</h3>
-              <ul class="detail-list" style="font-size: 0.75em">
-                <li>
-                  <strong>File:</strong>
-                  <code>sdk/src/features/TagExtractor.ts</code>
-                </li>
-                <li>
-                  <strong>Logic:</strong>
-                  <ul>
-                    <li>
-                      DOM 스캔: <code>h1</code>, <code>h2</code>, Tistory Tag
-                      Area
-                    </li>
-                    <li>Filtering: 미리 정의된 115개 기술 키워드 매칭</li>
-                    <li>
-                      Normalization: 대소문자 무시(LowerCase) 및 중복 제거(Set)
-                    </li>
-                  </ul>
-                </li>
-              </ul>
-
-              <h3 style="margin-top: 20px">🕵️ Behavior Tracker (Scoring)</h3>
-              <ul class="detail-list" style="font-size: 0.75em">
-                <li>
-                  <strong>File:</strong>
-                  <code>sdk/src/features/BehaviorTracker.ts</code>
-                </li>
-                <li>
-                  <strong>Scoring Model:</strong>
-                  <ul>
-                    <li>
-                      스크롤 50% 이상: <span class="highlight">+20점</span>
-                    </li>
-                    <li>
-                      체류 시간 60초: <span class="highlight">+30점</span> (최대
-                      40점)
-                    </li>
-                    <li>
-                      코드 복사 이벤트: <span class="highlight">+5점</span>/회
-                    </li>
-                  </ul>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3>🔄 High-Intent Retargeting</h3>
-              <div class="code-box">
-                // Logic Flow 1. 초기 로드: BehaviorScore 0 (일반 광고) 2.
-                Tracker: 점수 누적 모니터링 3. Threshold: 점수 >= 70점 도달 감지
-                4. Action: - 5초 대기 (추가 행동 수집) - Decision API 재요청
-                (isHighIntent: true) - DOM 광고 영역 교체 (고의도 광고)
-              </div>
-              <h3 style="margin-top: 15px">📡 Logger Integration</h3>
-              <ul class="detail-list" style="font-size: 0.75em">
-                <li>
-                  <strong>ViewLog:</strong> 렌더링 성공 시 자동 전송
-                  (`currentViewId` 저장)
-                </li>
-                <li>
-                  <strong>ClickLog:</strong> 클릭 시 `viewId` 기반 로깅 후
-                  `window.open`
-                </li>
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        <section>
-          <h2>4-2. Implementation: RTB Engine</h2>
-          <p style="font-size: 0.8em; color: #555">
-            "콘텐츠와 광고의 유사도를 계산하고 최적의 입찰가를 선정하는 뇌"
-          </p>
-
-          <div class="grid-2">
-            <div class="card">
-              <h4>🧠 ML-based Vector Matching</h4>
-              <ul class="detail-list" style="font-size: 0.75em">
-                <li>
-                  <strong>Library:</strong> <code>Transformer.js</code> (JS 기반
-                  임베딩)
-                </li>
-                <li>
-                  <strong>Process:</strong>
-                  <ol>
-                    <li>Context Tags + Campaign Tags → Single Text 변환</li>
-                    <li>Vector Embedding 생성</li>
-                    <li>Cosine Similarity 측정</li>
-                  </ol>
-                </li>
-              </ul>
-            </div>
-            <div class="card">
-              <h4>⚖️ Final Scoring Logic</h4>
-              <div class="code-box">
-                // Weighted Sum Formula FinalScore = (CPC * 0.3) + (Similarity *
-                0.7) * 맥락 유사도(Similarity)에 70% 가중치 부여 * 단순
-                입찰가보다 '연관성'을 우선시하는 설계
-              </div>
-            </div>
-          </div>
-
-          <h3 style="margin-top: 20px">📊 BidLog & Mocking Strategy</h3>
-          <ul class="detail-list" style="font-size: 0.8em">
-            <li>
-              <strong>Debug API:</strong>
-              <code>GET /api/sdk/debug/bidlogs</code> (인메모리 데이터 확인)
-            </li>
-            <li>
-              <strong>UUID Compatibility:</strong> Mock Data ID를 UUID 포맷으로
-              전면 수정 (DB Schema 일치)
-            </li>
-            <li>
-              <strong>Campaign Filtering:</strong> 1차(일반) / 2차(고의도)
-              요청에 따라 후보군 사전 필터링
-            </li>
-          </ul>
-        </section>
-
-        <section>
-          <h2>4-3. Implementation: Backend API</h2>
-          <p style="font-size: 0.8em; color: #555">
-            "데이터의 흐름을 제어하고 무결성을 보장하는 척추"
-          </p>
-
-          <div class="grid-3">
-            <div class="card">
-              <h4>📦 AuctionStore</h4>
-              <p style="font-size: 0.7em">
-                <code>backend/src/rtb/rtb.service.ts</code>
-              </p>
-              <hr />
-              <ul class="detail-list" style="font-size: 0.65em">
-                <li><strong>Role:</strong> 경매 결과 캐싱 (Redis 전단계)</li>
-                <li><strong>Key:</strong> `auctionId` (UUID)</li>
-                <li><strong>Value:</strong> `{ blogId, cost, winner }`</li>
-                <li>View/Click 로그 기록 시 데이터 무결성 검증에 사용</li>
-              </ul>
-            </div>
-            <div class="card">
-              <h4>📝 Log Architecture</h4>
-              <p style="font-size: 0.7em">
-                <code>backend/src/log/repository</code>
-              </p>
-              <hr />
-              <ul class="detail-list" style="font-size: 0.65em">
-                <li>
-                  <strong>BidLog:</strong> 모든 입찰 내역(Win/Loss) 저장
-                  (대시보드 분석용)
-                </li>
-                <li>
-                  <strong>ViewLog:</strong> 노출 성공 시 저장 (`viewId` 생성)
-                </li>
-                <li>
-                  <strong>ClickLog:</strong> `viewId`를 FK로 참조하여 저장 (부정
-                  클릭 방지 초석)
-                </li>
-              </ul>
-            </div>
-            <div class="card">
-              <h4>🔌 API Design</h4>
-              <p style="font-size: 0.7em">Dashboard & SDK Support</p>
-              <hr />
-              <ul class="detail-list" style="font-size: 0.65em">
-                <li><code>POST /sdk/campaign-view</code></li>
-                <li><code>POST /sdk/campaign-click</code></li>
-                <li><code>GET /api/advertiser/dashboard/stats</code></li>
-                <li><code>GET /api/advertiser/bids/realtime</code></li>
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        <section>
-          <h2>4-4. Implementation: Frontend</h2>
-          <p style="font-size: 0.8em; color: #555">
-            "투명한 입찰 과정과 성과를 시각화하는 얼굴"
-          </p>
-
-          <div class="grid-2">
-            <div>
-              <h3>🏗️ FSD Architecture & Stack</h3>
-              <ul class="detail-list" style="font-size: 0.75em">
-                <li>
-                  <strong>Tech:</strong> React, TailwindCSS, shadcn/ui, Recharts
-                </li>
-                <li>
-                  <strong>Structure:</strong>
-                  <ul>
-                    <li><code>app/</code>: Routing, Layout</li>
-                    <li>
-                      <code>features/</code>: dashboardStats, realtimeBids (기능
-                      단위)
-                    </li>
-                    <li><code>shared/</code>: API Client, UI Components</li>
-                  </ul>
-                </li>
-              </ul>
-
-              <h3 style="margin-top: 20px">⚡ Real-time Bid Table</h3>
-              <p style="font-size: 0.7em">
-                <code>features/realtimeBids/ui/RealtimeBidsTable.tsx</code>
-              </p>
-              <ul class="detail-list" style="font-size: 0.75em">
-                <li>
-                  <strong>Win/Loss Visual:</strong>
-                  <ul>
-                    <li>
-                      낙찰(Win):
-                      <span
-                        style="
-                          background: #d4edda;
-                          color: #155724;
-                          padding: 2px 4px;
-                        "
-                        >Light Green Row</span
-                      >
-                      + 강조 텍스트
-                    </li>
-                    <li>패찰(Loss): Gray Background</li>
-                  </ul>
-                </li>
-                <li>
-                  <strong>Target Info:</strong> "고의도 학습자(80점)" vs "모든
-                  학습자" 구분 표시
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3>📊 Dashboard & Hooks</h3>
-              <div class="card">
-                <p style="font-size: 0.7em; font-weight: bold">
-                  Custom Hooks for Data Fetching
-                </p>
-                <div class="code-box">
-                  // features/dashboardStats/lib/useStats.ts const { data,
-                  error, isLoading } = useStats(); // API Client Abstraction //
-                  응답의 data 필드 자동 추출 및 에러 핸들링 const rawData =
-                  await apiClient('/api/...'); return rawData.data;
-                </div>
-              </div>
-              <ul
-                class="detail-list"
-                style="font-size: 0.75em; margin-top: 15px"
-              >
-                <li>
-                  <strong>Stats Cards:</strong> 클릭, 노출, CTR, 지출액 (전일
-                  대비 증감 표시)
-                </li>
-                <li>
-                  <strong>Optimization:</strong> SVG 아이콘 속성 최적화로
-                  Console Warning 제거
-                </li>
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        <section>
-          <h2>5. Demo & Conclusion</h2>
-
-          <div
-            class="card"
-            style="background: #000; color: #fff; margin-bottom: 30px"
-          >
-            <h3 style="color: #fff; border-bottom: 1px solid #555">
-              🚀 Week 3 Verification Checklist
-            </h3>
-            <div class="grid-2">
-              <ul class="detail-list" style="font-size: 0.8em">
-                <li>
-                  ✅ <strong>Real Tistory Blog:</strong> 실제 환경 스크립트 로드
-                  성공
-                </li>
-                <li>
-                  ✅ <strong>Context Awareness:</strong> 글 주제 변경 → 광고
-                  즉시 변경
-                </li>
-              </ul>
-              <ul class="detail-list" style="font-size: 0.8em">
-                <li>
-                  ✅ <strong>Full Flow:</strong> SDK 요청 ↔ RTB 매칭 ↔ BE 로그
-                </li>
-                <li>
-                  ✅ <strong>Transparency:</strong> 입찰/낙찰 로그 대시보드
-                  실시간 확인
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div class="grid-3" style="font-size: 0.7em">
-            <div class="card">
-              <strong>🔜 Next: Infrastructure</strong>
-              <br />Mock DB → Actual RDBMS Migration<br />Redis Integration
-            </div>
-            <div class="card">
-              <strong>🔜 Next: RTB</strong>
-              <br />Performance Tuning<br />Multi-Candidate Logic
-            </div>
-            <div class="card">
-              <strong>🔜 Next: Frontend</strong>
-              <br />Campaign Registration Flow<br />Visual Charts
-            </div>
-          </div>
-
-          <h3 style="margin-top: 50px; text-align: center">Q & A</h3>
-        </section>
+        <!-- 티스토리 스타일 태그 영역 -->
+        <div class="tags">
+          <h2>태그</h2>
+          <div class="items"></div>
+        </div>
       </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
-    <script>
-      Reveal.initialize({
-        hash: true,
-        transition: 'fade',
-        backgroundTransition: 'fade',
-        controls: true,
-        progress: true,
-        center: true,
-        slideNumber: 'c/t',
-      });
-    </script>
+    <!-- DevAd SDK 로드 -->
+    <!-- 로컬: http://localhost:3000/sdk.js -->
+    <!-- 배포: https://boostad-sdk.kr.object.ncloudstorage.com/sdk/sdk.js -->
+    <script
+      src="http://localhost:3000/sdk.js"
+      data-blog-key="test-blog"
+      async
+    ></script>
+
+    <!-- SDK는 자동으로 초기화되므로 별도 체크 불필요 -->
   </body>
 </html>
