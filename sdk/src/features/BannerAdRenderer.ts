@@ -85,7 +85,9 @@ export class BannerAdRenderer implements AdRenderer {
 
   private async handleAdClick(): Promise<void> {
     if (this.currentViewId === null) {
-      console.warn('[DevAd SDK] ViewLog가 아직 기록되지 않았습니다. ClickLog를 기록하지 않습니다.');
+      console.warn(
+        '[DevAd SDK] ViewLog가 아직 기록되지 않았습니다. ClickLog를 기록하지 않습니다.'
+      );
       return;
     }
 
@@ -94,11 +96,14 @@ export class BannerAdRenderer implements AdRenderer {
         viewId: this.currentViewId,
       };
 
-      const response = await fetch(`${this.config.apiBase}/sdk/campaign-click`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody),
-      });
+      const response = await fetch(
+        `${this.config.apiBase}/sdk/campaign-click`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(requestBody),
+        }
+      );
 
       if (response.ok) {
         const data: ClickLogResponse = await response.json();

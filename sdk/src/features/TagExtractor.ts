@@ -27,16 +27,12 @@ export class TagExtractor implements TagExtractorInterface {
     const h1 = Array.from(document.querySelectorAll('h1'));
     const h2 = Array.from(document.querySelectorAll('h2'));
 
-    return [...h1, ...h2]
-      .map(el => el.textContent || '')
-      .join(' ');
+    return [...h1, ...h2].map((el) => el.textContent || '').join(' ');
   }
 
   private extractTagsText(): string {
     // 티스토리 .tags .items a 태그들에서 추출
     const tagLinks = Array.from(document.querySelectorAll('.tags .items a'));
-    return tagLinks
-      .map(el => el.textContent || '')
-      .join(' ');
+    return tagLinks.map((el) => el.textContent || '').join(' ');
   }
 }
