@@ -26,13 +26,13 @@ class CampaignDto {
 
   @Expose()
   @Type(() => TagDto)
-  tags?: TagDto[]; // 추후에 추가될 수도 있으므로 optional
+  tags?: TagDto[]; // 추후에 추가 가능성
 
   @Expose()
-  explain?: string; // 추후에 추가될 수도 있으므로 optional
+  explain?: string; // 추후에 추가 가능성
 
   @Expose()
-  score?: number; // 추후에 추가될 수도 있으므로 optional
+  score?: number; // 추후에 추가 가능성
 }
 
 class RTBDataDto {

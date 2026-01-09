@@ -13,7 +13,7 @@ export class XenovaMLEngine extends MLEngine implements OnModuleInit {
   private static readonly TASK = 'feature-extraction';
   private static readonly MODEL = 'Xenova/all-MiniLM-L6-v2';
 
-  // 서버 시작 시 모델 로딩
+  // 모듈 초기화 시 모델을 로드합니다.
   async onModuleInit() {
     this.logger.log('🔄 Transformer 모델 로딩 중');
     try {
@@ -28,10 +28,12 @@ export class XenovaMLEngine extends MLEngine implements OnModuleInit {
     }
   }
 
+  // 모델 로딩 완료 여부를 반환합니다.
   isReady(): boolean {
     return this.modelReady;
   }
 
+  // 입력된 텍스트의 임베딩 벡터를 생성합니다.
   async getEmbedding(text: string): Promise<number[]> {
     if (!this.embedder) {
       throw new Error('모델이 아직 로드되지 않았습니다.');
@@ -51,6 +53,7 @@ export class XenovaMLEngine extends MLEngine implements OnModuleInit {
     return embeddings?.[0]; // Tensor객체의 값을 배열로 변환 (2차원 배열이므로 첫 번째 요소 추출)
   }
 
+  // 두 벡터 간의 코사인 유사도를 계산합니다.
   calculateSimilarity(vecA: number[], vecB: number[]): number {
     if (vecA.length !== vecB.length) {
       throw new Error(
@@ -62,6 +65,7 @@ export class XenovaMLEngine extends MLEngine implements OnModuleInit {
     return Math.max(0, Math.min(1, dotProduct));
   }
 
+  // 두 텍스트 간의 유사도를 계산합니다.
   async computeTextSimilarity(textA: string, textB: string): Promise<number> {
     const [embA, embB] = await Promise.all([
       this.getEmbedding(textA),
@@ -70,8 +74,8 @@ export class XenovaMLEngine extends MLEngine implements OnModuleInit {
     return this.calculateSimilarity(embA, embB);
   }
 
+  // Xenova Transformer 모델을 pipleline으로 로드합니다.
   private async loadModel() {
-    // 이제 pipeline으로 모델 로드
     this.embedder = await pipeline(XenovaMLEngine.TASK, XenovaMLEngine.MODEL);
   }
 }
