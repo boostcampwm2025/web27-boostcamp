@@ -19,7 +19,7 @@ services:
     environment:
       PORT: "3000"
       # 배포 시 Object Storage(정적 호스팅) 도메인으로 교체
-      CORS_ORIGIN: "http://localhost:5173"
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
       NODE_ENV: "production"
     expose:
       - "3000"
