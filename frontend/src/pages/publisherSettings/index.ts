@@ -1,1 +1,1 @@
-export { PublisherSettingsPage } from "./ui/PublisherSettingsPage";
+export { PublisherSettingsPage } from './ui/PublisherSettingsPage';

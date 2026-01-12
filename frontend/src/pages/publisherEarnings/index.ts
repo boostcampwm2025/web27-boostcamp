@@ -1,1 +1,1 @@
-export { PublisherEarningsPage } from "./ui/PublisherEarningsPage";
+export { PublisherEarningsPage } from './ui/PublisherEarningsPage';

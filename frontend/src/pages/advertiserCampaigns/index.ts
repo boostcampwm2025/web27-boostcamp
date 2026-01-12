@@ -1,1 +1,1 @@
-export { AdvertiserCampaignsPage } from "./ui/AdvertiserCampaignsPage";
+export { AdvertiserCampaignsPage } from './ui/AdvertiserCampaignsPage';
