@@ -3,7 +3,7 @@ import { OnboardingHeader } from '@shared/ui/Header';
 
 export function OnboardingLayout() {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen min-w-fit">
       <OnboardingHeader />
 
       <main className="flex-1 bg-gray-50">
