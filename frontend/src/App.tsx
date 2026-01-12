@@ -1,5 +1,10 @@
 import { RouterProvider } from '@app/providers';
+import { ToastProvider } from '@shared/ui/Toast';
 
 export default function App() {
-  return <RouterProvider />;
+  return (
+    <ToastProvider>
+      <RouterProvider />
+    </ToastProvider>
+  );
 }

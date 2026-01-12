@@ -54,4 +54,26 @@
   --font-size-2xl: 1.5rem;
   --font-size-3xl: 1.875rem;
   --font-size-4xl: 2.25rem;
+
+  /* Custom animations */
+  --animate-toast: toast-fade 3s ease-in-out forwards;
+
+  @keyframes toast-fade {
+    0% {
+      opacity: 0;
+      transform: scale(0.7);
+    }
+    10% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    90% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+  }
 }
