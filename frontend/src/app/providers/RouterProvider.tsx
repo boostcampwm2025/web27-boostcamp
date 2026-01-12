@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { DashboardLayout } from '@app/layouts';
+import { DashboardLayout, OnboardingLayout } from '@app/layouts';
 import { AdvertiserDashboardPage } from '@pages/advertiserDashboard';
 import { AdvertiserCampaignsPage } from '@pages/advertiserCampaigns';
 import { AdvertiserBudgetPage } from '@pages/advertiserBudget';
@@ -7,6 +7,7 @@ import { NotFoundPage } from '@pages/notFound';
 import { PublisherDashboardPage } from '@pages/publisherDashboard';
 import { PublisherEarningsPage } from '@pages/publisherEarnings';
 import { PublisherSettingsPage } from '@pages/publisherSettings';
+import { OnboardingSdkGuidePage } from '@pages/onboardingSdkGuide';
 
 export function RouterProvider() {
   return (
@@ -16,6 +17,13 @@ export function RouterProvider() {
           path="/"
           element={<Navigate to="/publisher/dashboard" replace />}
         />
+
+        <Route element={<OnboardingLayout />}>
+          <Route
+            path="/publisher/onboarding/sdk-guide"
+            element={<OnboardingSdkGuidePage />}
+          />
+        </Route>
 
         <Route element={<DashboardLayout />}>
           <Route
