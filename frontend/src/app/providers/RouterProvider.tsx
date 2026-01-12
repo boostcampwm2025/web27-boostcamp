@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { DashboardLayout, OnboardingLayout } from '@app/layouts';
 import { AdvertiserDashboardPage } from '@pages/advertiserDashboard';
@@ -7,7 +8,13 @@ import { NotFoundPage } from '@pages/notFound';
 import { PublisherDashboardPage } from '@pages/publisherDashboard';
 import { PublisherEarningsPage } from '@pages/publisherEarnings';
 import { PublisherSettingsPage } from '@pages/publisherSettings';
-import { OnboardingSdkGuidePage } from '@pages/onboardingSdkGuide';
+import { OnboardingSdkGuidePageSkeleton } from '@pages/onboardingSdkGuide';
+
+const OnboardingSdkGuidePage = lazy(() =>
+  import('@pages/onboardingSdkGuide').then((m) => ({
+    default: m.OnboardingSdkGuidePage,
+  }))
+);
 
 export function RouterProvider() {
   return (
@@ -21,7 +28,11 @@ export function RouterProvider() {
         <Route element={<OnboardingLayout />}>
           <Route
             path="/publisher/onboarding/sdk-guide"
-            element={<OnboardingSdkGuidePage />}
+            element={
+              <Suspense fallback={<OnboardingSdkGuidePageSkeleton />}>
+                <OnboardingSdkGuidePage />
+              </Suspense>
+            }
           />
         </Route>
 
