@@ -18,7 +18,7 @@ export function OnboardingSdkGuidePage() {
   };
 
   return (
-    <div className="flex flex-col items-center gap-6 px-8 py-6 bg-gray-50">
+    <div className="flex flex-col items-center gap-8 px-8 py-6 bg-gray-50">
       <SdkSuccessHeader />
       <SdkCodeSnippet blogKey={MOCK_BLOG_KEY} />
       <SdkInfoBox />

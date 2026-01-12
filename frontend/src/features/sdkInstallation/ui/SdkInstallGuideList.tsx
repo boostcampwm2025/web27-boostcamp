@@ -25,10 +25,10 @@ export function SdkInstallGuideList() {
   ];
 
   return (
-    <div className="flex flex-col min-w-150 gap-2">
+    <div className="flex flex-col min-w-150 gap-4">
       <h2 className="font-bold text-xl text-gray-900">설치 가이드</h2>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-4">
         {steps.map((step) => (
           <SdkInstallStepCard
             key={step.stepNumber}
