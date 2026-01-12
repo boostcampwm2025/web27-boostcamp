@@ -58,7 +58,7 @@ export function Sidebar() {
 
   return (
     <aside
-      className="flex flex-col w-64 bg-white border-r border-gray-200"
+      className="flex flex-col w-64 shrink-0 bg-white border-r border-gray-200"
       role="navigation"
       aria-label="Main navigation"
     >
