@@ -1,3 +1,4 @@
+import { Icon } from '@/4_shared/ui/Icon';
 import { TextField } from '@shared/ui/TextField/TextField';
 
 export function LoginForm() {
@@ -11,11 +12,8 @@ export function LoginForm() {
       </div>
       <a
         className="flex h-11 items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white text-base font-semibold text-[#111318] hover:bg-gray-50"
-        aria-label="Google로 계속하기"
       >
-        <span className="flex h-5 w-5 items-center justify-center rounded-full border border-gray-200 text-xs font-extrabold text-[#111318]">
-          G
-        </span>
+        <Icon.Google/>
         <span>Google로 계속하기</span>
       </a>
       <div className="flex items-center gap-3">
