@@ -5,6 +5,7 @@ import { CampaignsPage } from '@pages/campaigns';
 import { BudgetPage } from '@pages/budget';
 import { NotFoundPage } from '@pages/notFound';
 import { RegisterPage } from '@/2_pages/auth/ui/RegisterPage';
+import { LoginPage } from '@/2_pages/auth/ui/LoginPage';
 
 export function RouterProvider() {
   return (
@@ -18,6 +19,7 @@ export function RouterProvider() {
           <Route path="/budget" element={<BudgetPage />} />
         </Route>
         <Route path="/auth/register" element={<RegisterPage />} />
+        <Route path="/auth/login" element={<LoginPage/>} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
