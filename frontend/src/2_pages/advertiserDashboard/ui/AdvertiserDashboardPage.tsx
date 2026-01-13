@@ -1,5 +1,5 @@
-import { StatsCardList } from '@/features/dashboardStats/ui/StatsCardList';
-import { RealtimeBidsTable } from '@/features/realtimeBids';
+import { StatsCardList } from '@features/dashboardStats/ui/StatsCardList';
+import { RealtimeBidsTable } from '@features/realtimeBids';
 
 export function AdvertiserDashboardPage() {
   return (

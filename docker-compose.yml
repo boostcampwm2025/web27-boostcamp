@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: nginx/Dockerfile
     ports:
-      - "80:80"
+      - '80:80'
     depends_on:
       - backend
     restart: unless-stopped
@@ -17,10 +17,10 @@ services:
       dockerfile: backend/dockerfile
       target: runner
     environment:
-      PORT: "3000"
+      PORT: '3000'
       # 배포 시 Object Storage(정적 호스팅) 도메인으로 교체
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
-      NODE_ENV: "production"
+      NODE_ENV: 'production'
     expose:
-      - "3000"
+      - '3000'
     restart: unless-stopped
