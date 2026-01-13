@@ -14,6 +14,7 @@ import Profile from '@shared/ui/Icon/icons/profile.svg?react';
 import Report from '@shared/ui/Icon/icons/report.svg?react';
 import Stop from '@shared/ui/Icon/icons/stop.svg?react';
 import Wallet from '@shared/ui/Icon/icons/wallet.svg?react';
+import Google from '@shared/ui/Icon/icons/google.svg?react';
 
 export const Icon = {
   ArrowRight,
@@ -32,4 +33,5 @@ export const Icon = {
   Report,
   Stop,
   Wallet,
+  Google
 };
