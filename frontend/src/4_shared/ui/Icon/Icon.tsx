@@ -21,6 +21,7 @@ import Info from '@shared/ui/Icon/icons/info.svg?react';
 import Settings from '@shared/ui/Icon/icons/settings.svg?react';
 import Terminal from '@shared/ui/Icon/icons/terminal.svg?react';
 import ImageArea from '@shared/ui/Icon/icons/imageArea.svg?react';
+import ArrowLeft from '@shared/ui/Icon/icons/arrowLeft.svg?react';
 
 export const Icon = {
   ArrowRight,
@@ -46,4 +47,5 @@ export const Icon = {
   Settings,
   Terminal,
   ImageArea,
+  ArrowLeft,
 };
