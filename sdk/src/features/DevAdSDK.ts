@@ -18,15 +18,8 @@ export class DevAdSDK {
   ) {}
 
   async init(): Promise<void> {
-    // 태그 추출
     const tags = this.tagExtractor.extract();
     console.log('[DevAd SDK] 추출된 태그:', tags);
-
-    if (tags.length === 0) {
-      console.warn(
-        '[DevAd SDK] 태그를 추출하지 못했습니다. 광고 매칭이 잘 되지 않을 수 있습니다.'
-      );
-    }
 
     const postUrl = window.location.href;
 
@@ -52,13 +45,10 @@ export class DevAdSDK {
           0,
           false
         );
-      } catch (error) {
-        console.error('[DevAd SDK] 1차 광고 렌더링 실패:', error);
+      } catch {
         firstAdContainer.innerHTML =
-          '<div style="color: red; font-size: 14px; padding: 20px;">광고 로드 실패</div>';
+          '<div style="color: #999; font-size: 14px; padding: 20px; text-align: center;">광고를 불러올 수 없습니다</div>';
       }
-    } else {
-      console.warn('[DevAd SDK] 본문 컨텐츠를 찾을 수 없습니다.');
     }
 
     // 행동 추적 시작 + 70점 도달 시 2차 광고 요청
@@ -89,10 +79,8 @@ export class DevAdSDK {
     for (const selector of CONTENT_SELECTORS) {
       const contentArea = document.querySelector(selector);
       if (contentArea) {
-        // 본문 내 첫 번째 <p> 또는 <h2> 태그 찾기
         const firstElement = contentArea.querySelector('p, h2');
         if (firstElement) {
-          console.log('[DevAd SDK] 1차 광고 삽입 위치 찾음:', selector);
           return firstElement;
         }
       }
@@ -121,13 +109,6 @@ export class DevAdSDK {
         closestParagraph = p;
       }
     });
-
-    if (closestParagraph) {
-      console.log(
-        '[DevAd SDK] 2차 광고 삽입 위치 찾음 (스크롤 기반)',
-        closestParagraph
-      );
-    }
 
     return closestParagraph;
   }
