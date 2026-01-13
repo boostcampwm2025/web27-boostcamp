@@ -15,7 +15,7 @@ export function RegisterForm() {
         </p>
       </div>
       <div className="flex flex-col gap-6">
-        <fieldset className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3">
           <p
             id="accountTypeLabel"
             className="text-sm font-semibold text-[#111318]"
@@ -61,7 +61,7 @@ export function RegisterForm() {
               </div>
             </label>
           </div>
-        </fieldset>
+        </div>
 
         <TextField
           name="email"
