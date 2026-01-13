@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import type { ReactNode } from 'react';
-import { Toast } from './Toast';
-import type { ToastType } from './Toast';
+import { Toast } from '@shared/ui/Toast';
+import type { ToastType } from '@shared/ui/Toast';
 import { ToastContext } from '@shared/lib/toast';
 
 export function ToastProvider({ children }: { children: ReactNode }) {
