@@ -18,15 +18,6 @@ export class DevAdSDK {
   ) {}
 
   async init(): Promise<void> {
-    const zones = document.querySelectorAll('[data-devad-zone]');
-
-    if (zones.length === 0) {
-      console.warn(
-        '[DevAd SDK] 광고 존을 찾을 수 없습니다. <div data-devad-zone></div>를 추가해주세요.'
-      );
-      return;
-    }
-
     // 태그 추출
     const tags = this.tagExtractor.extract();
     console.log('[DevAd SDK] 추출된 태그:', tags);
@@ -39,8 +30,13 @@ export class DevAdSDK {
 
     const postUrl = window.location.href;
 
-    // 1차 광고 요청 (behaviorScore=0, isHighIntent=false)
-    zones.forEach(async (zone, index) => {
+    // 1차 광고: 본문 상단에 삽입
+    const firstAdContainer = this.createAdContainer('devad-first-ad');
+    const insertionPoint = this.findContentTop();
+
+    if (insertionPoint) {
+      insertionPoint.before(firstAdContainer);
+
       try {
         const data = await this.apiClient.fetchDecision(
           tags,
@@ -50,31 +46,93 @@ export class DevAdSDK {
         );
         this.adRenderer.render(
           data.data.campaign,
-          zone as HTMLElement,
+          firstAdContainer,
           data.data.auctionId,
           postUrl,
           0,
           false
         );
       } catch (error) {
-        console.error(`[DevAd SDK] Zone ${index + 1} 렌더링 실패:`, error);
-        (zone as HTMLElement).innerHTML =
-          '<div style="color: red;">광고 로드 실패</div>';
+        console.error('[DevAd SDK] 1차 광고 렌더링 실패:', error);
+        firstAdContainer.innerHTML =
+          '<div style="color: red; font-size: 14px; padding: 20px;">광고 로드 실패</div>';
       }
-    });
+    } else {
+      console.warn('[DevAd SDK] 본문 컨텐츠를 찾을 수 없습니다.');
+    }
 
     // 행동 추적 시작 + 70점 도달 시 2차 광고 요청
     this.behaviorTracker.onThresholdReached(() => {
-      this.requestSecondAd(tags, postUrl, zones);
+      this.requestSecondAd(tags, postUrl);
     });
     this.behaviorTracker.start();
   }
 
-  private async requestSecondAd(
-    tags: Tag[],
-    postUrl: string,
-    zones: NodeListOf<Element>
-  ): Promise<void> {
+  private createAdContainer(id: string): HTMLElement {
+    const container = document.createElement('div');
+    container.id = id;
+    container.style.margin = '30px 0';
+    return container;
+  }
+
+  private findContentTop(): Element | null {
+    // 티스토리 블로그 본문 영역 찾기 (다양한 스킨 대응)
+    const CONTENT_SELECTORS = [
+      '.content',
+      '.post-content',
+      '.entry-content',
+      'article',
+      '.article-content',
+      '[class*="content"]',
+    ];
+
+    for (const selector of CONTENT_SELECTORS) {
+      const contentArea = document.querySelector(selector);
+      if (contentArea) {
+        // 본문 내 첫 번째 <p> 또는 <h2> 태그 찾기
+        const firstElement = contentArea.querySelector('p, h2');
+        if (firstElement) {
+          console.log('[DevAd SDK] 1차 광고 삽입 위치 찾음:', selector);
+          return firstElement;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  private findScrollBasedInsertionPoint(): Element | null {
+    // 현재 스크롤 위치 기준으로 가장 가까운 <p> 태그 찾기
+    const scrollY = window.scrollY;
+    const viewportHeight = window.innerHeight;
+    const targetY = scrollY + viewportHeight;
+
+    const paragraphs = document.querySelectorAll('p');
+    let closestParagraph: Element | null = null;
+    let minDistance = Infinity;
+
+    paragraphs.forEach((p) => {
+      const rect = p.getBoundingClientRect();
+      const pTop = rect.top + scrollY;
+      const distance = Math.abs(pTop - targetY);
+
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestParagraph = p;
+      }
+    });
+
+    if (closestParagraph) {
+      console.log(
+        '[DevAd SDK] 2차 광고 삽입 위치 찾음 (스크롤 기반)',
+        closestParagraph
+      );
+    }
+
+    return closestParagraph;
+  }
+
+  private async requestSecondAd(tags: Tag[], postUrl: string): Promise<void> {
     if (this.hasRequestedSecondAd) {
       console.log('[DevAd SDK] 2차 광고 이미 요청됨, 스킵');
       return;
@@ -92,8 +150,13 @@ export class DevAdSDK {
       isHighIntent
     );
 
-    // 2차 광고 요청 (실제 behaviorScore, isHighIntent=true)
-    zones.forEach(async (zone, index) => {
+    // 2차 광고 컨테이너 생성 및 현재 스크롤 위치에 삽입
+    const secondAdContainer = this.createAdContainer('devad-second-ad');
+    const insertionPoint = this.findScrollBasedInsertionPoint();
+
+    if (insertionPoint) {
+      insertionPoint.after(secondAdContainer);
+
       try {
         const data = await this.apiClient.fetchDecision(
           tags,
@@ -103,18 +166,19 @@ export class DevAdSDK {
         );
         this.adRenderer.render(
           data.data.campaign,
-          zone as HTMLElement,
+          secondAdContainer,
           data.data.auctionId,
           postUrl,
           score,
           isHighIntent
         );
       } catch (error) {
-        console.error(
-          `[DevAd SDK] Zone ${index + 1} 2차 광고 렌더링 실패:`,
-          error
-        );
+        console.error('[DevAd SDK] 2차 광고 렌더링 실패:', error);
+        secondAdContainer.innerHTML =
+          '<div style="color: red; font-size: 14px; padding: 20px;">2차 광고 로드 실패</div>';
       }
-    });
+    } else {
+      console.warn('[DevAd SDK] 2차 광고 삽입 위치를 찾을 수 없습니다.');
+    }
   }
 }
