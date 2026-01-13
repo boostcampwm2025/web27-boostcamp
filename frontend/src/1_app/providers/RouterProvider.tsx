@@ -4,6 +4,7 @@ import { AdvertiserDashboardPage } from '@pages/advertiserDashboard';
 import { CampaignsPage } from '@pages/campaigns';
 import { BudgetPage } from '@pages/budget';
 import { NotFoundPage } from '@pages/notFound';
+import { RegisterPage } from '@/2_pages/auth/ui/RegisterPage';
 
 export function RouterProvider() {
   return (
@@ -16,7 +17,7 @@ export function RouterProvider() {
           <Route path="/campaigns" element={<CampaignsPage />} />
           <Route path="/budget" element={<BudgetPage />} />
         </Route>
-
+        <Route path="/auth/register" element={<RegisterPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
