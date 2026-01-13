@@ -23,6 +23,9 @@ export class BannerAdRenderer implements AdRenderer {
     behaviorScore?: number,
     isHighIntent?: boolean
   ): void {
+    // 우측 윙배너 전용 스타일 적용 (position: fixed)
+    this.applyWingBannerStyle(container);
+
     container.innerHTML = campaign
       ? this.renderAdWidget(campaign)
       : this.renderEmptyState();
@@ -46,6 +49,24 @@ export class BannerAdRenderer implements AdRenderer {
         isHighIntent || false
       );
     }
+  }
+
+  private applyWingBannerStyle(container: HTMLElement): void {
+    // position: fixed로 우측 중앙에 고정
+    container.style.position = 'fixed';
+    container.style.right = '20px';
+    container.style.top = '50%';
+    container.style.transform = 'translateY(-50%)';
+    container.style.zIndex = '9999';
+    container.style.width = '160px';
+
+    // 반응형: 화면이 1280px 미만이면 숨김
+    const mediaQuery = window.matchMedia('(min-width: 1280px)');
+    container.style.display = mediaQuery.matches ? 'block' : 'none';
+
+    mediaQuery.addEventListener('change', (e) => {
+      container.style.display = e.matches ? 'block' : 'none';
+    });
   }
 
   private async trackCampaignView(
@@ -128,16 +149,16 @@ export class BannerAdRenderer implements AdRenderer {
   private renderEmptyState(): string {
     return `
       <div style="
-        padding: 20px;
+        padding: 10px;
         text-align: center;
         color: #999;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        font-size: 14px;
+        font-size: 12px;
         border: 1px dashed #ddd;
         border-radius: 8px;
         background: #fafafa;
       ">
-        매칭되는 광고가 없습니다
+        광고 없음
       </div>
     `;
   }
@@ -146,19 +167,19 @@ export class BannerAdRenderer implements AdRenderer {
     return `
       <div class="devad-widget" style="
         border: 1px solid #e0e0e0;
-        border-radius: 12px;
-        padding: 20px;
-        max-width: 400px;
+        border-radius: 8px;
+        padding: 12px;
+        width: 160px;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         background: #ffffff;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         transition: transform 0.2s, box-shadow 0.2s;
-      " onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 4px 16px rgba(0,0,0,0.15)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)';">
+      " onmouseover="this.style.transform='scale(1.03)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.2)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)';">
 
         <div style="
-          font-size: 11px;
+          font-size: 9px;
           color: #999;
-          margin-bottom: 12px;
+          margin-bottom: 8px;
           text-transform: uppercase;
           letter-spacing: 0.5px;
         ">
@@ -167,50 +188,62 @@ export class BannerAdRenderer implements AdRenderer {
 
         <img src="${campaign.image}" alt="${campaign.title}" style="
           width: 100%;
-          border-radius: 8px;
-          margin-bottom: 16px;
+          border-radius: 6px;
+          margin-bottom: 10px;
           object-fit: cover;
-          height: 200px;
+          height: 120px;
         " onerror="this.style.display='none';" />
 
         <h3 style="
-          margin: 0 0 12px;
-          font-size: 20px;
+          margin: 0 0 8px;
+          font-size: 13px;
           font-weight: 600;
           color: #333;
-          line-height: 1.4;
+          line-height: 1.3;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
         ">${campaign.title}</h3>
 
         <p style="
-          margin: 0 0 16px;
+          margin: 0 0 10px;
           color: #666;
-          font-size: 14px;
-          line-height: 1.6;
+          font-size: 11px;
+          line-height: 1.4;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
         ">${campaign.content}</p>
 
         <a href="${campaign.url}" class="devad-link" target="_blank" style="
-          display: inline-block;
-          padding: 10px 20px;
+          display: block;
+          padding: 8px 12px;
           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
           color: white;
           text-decoration: none;
           border-radius: 6px;
-          font-size: 14px;
+          font-size: 12px;
           font-weight: 600;
+          text-align: center;
           transition: opacity 0.2s;
           cursor: pointer;
         " onmouseover="this.style.opacity='0.9';" onmouseout="this.style.opacity='1';">
-          자세히 보기 →
+          자세히 →
         </a>
 
         <div style="
-          margin-top: 16px;
-          padding-top: 16px;
+          margin-top: 10px;
+          padding-top: 10px;
           border-top: 1px solid #f0f0f0;
-          font-size: 11px;
+          font-size: 9px;
           color: #aaa;
+          text-align: center;
         ">
-          Powered by <strong>DevAd</strong>
+          by <strong>BoostAD</strong>
         </div>
       </div>
     `;
