@@ -8,9 +8,9 @@ type Props = InputHTMLAttributes<HTMLInputElement> & {
 export function TextField({ label, error, id, className, ...rest }: Props) {
   const inputId = id ?? rest.name;
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-3">
       {label ? (
-        <label htmlFor={inputId} className="text-sm font-normal text-[#111318]">
+        <label htmlFor={inputId} className="text-sm font-bold text-[#111318]">
           {label}
         </label>
       ) : null}
