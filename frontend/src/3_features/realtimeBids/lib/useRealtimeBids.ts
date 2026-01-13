@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { apiClient } from '@/shared/lib/api';
+import { apiClient } from '@shared/lib/api';
 import type { RealtimeBidsResponse, BidLog } from './types';
 
 interface UseRealtimeBidsParams {

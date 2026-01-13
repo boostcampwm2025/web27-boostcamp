@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { apiClient } from '@/shared/lib/api';
+import { apiClient } from '@shared/lib/api';
 
 // 서버에서 받는 응답 형태
 interface DashboardStatsResponse {

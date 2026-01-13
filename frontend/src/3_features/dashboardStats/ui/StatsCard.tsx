@@ -1,4 +1,4 @@
-import { Icon } from '@/shared/ui/Icon';
+import { Icon } from '@shared/ui/Icon';
 
 interface StatsCardProps {
   title: string;

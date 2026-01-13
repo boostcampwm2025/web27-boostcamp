@@ -1,5 +1,5 @@
-import { Icon } from '@/shared/ui/Icon';
-import { useToast } from '@/shared/lib/toast';
+import { Icon } from '@shared/ui/Icon';
+import { useToast } from '@shared/lib/toast';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
