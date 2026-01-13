@@ -1,5 +1,5 @@
 import type { BidLog } from '../lib/types';
-import { Icon } from '@/shared/ui/Icon';
+import { Icon } from '@shared/ui/Icon';
 
 interface RealtimeBidsTableRowProps {
   bid: BidLog;

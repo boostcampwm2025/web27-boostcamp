@@ -27,10 +27,10 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@app/*": ["src/app/*"],
-      "@features/*": ["src/features/*"],
-      "@pages/*": ["src/pages/*"],
-      "@shared/*": ["src/shared/*"]
+      "@app/*": ["src/1_app/*"],
+      "@features/*": ["src/3_features/*"],
+      "@pages/*": ["src/2_pages/*"],
+      "@shared/*": ["src/4_shared/*"]
     }
   },
   "include": ["src"]
