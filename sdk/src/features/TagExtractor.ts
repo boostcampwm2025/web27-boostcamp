@@ -47,6 +47,27 @@ export class TagExtractor implements TagExtractorInterface {
       if (text) tagTexts.add(text);
     });
 
+    // 방법 3: 일반적인 티스토리 태그 영역 셀렉터들 시도
+    const TAG_CONTAINER_SELECTORS = [
+      '.box-tag', // 기본 스킨
+      '.article-tag', // article 기반 스킨
+      '.tags', // 구형 스킨
+      '.tag-list', // 일부 커스텀 스킨
+      '.entry-tags', // entry 기반 스킨
+      '[class*="tag"]', // tag가 포함된 모든 클래스
+    ];
+
+    for (const selector of TAG_CONTAINER_SELECTORS) {
+      const containers = document.querySelectorAll(selector);
+      containers.forEach((container) => {
+        const links = container.querySelectorAll('a');
+        links.forEach((link) => {
+          const text = link.textContent?.trim();
+          if (text) tagTexts.add(text);
+        });
+      });
+    }
+
     const result = Array.from(tagTexts).join(' ');
 
     return result;
