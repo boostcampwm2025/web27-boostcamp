@@ -125,6 +125,12 @@ export class BannerAdRenderer implements AdRenderer {
     }
   }
 
+  private escapeHtml(text: string): string {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
   private renderEmptyState(): string {
     return `
       <div style="
@@ -143,6 +149,12 @@ export class BannerAdRenderer implements AdRenderer {
   }
 
   private renderAdWidget(campaign: Campaign): string {
+    // XSS 방지: 모든 사용자 입력 데이터 이스케이프
+    const safeTitle = this.escapeHtml(campaign.title);
+    const safeContent = this.escapeHtml(campaign.content);
+    const safeUrl = this.escapeHtml(campaign.url);
+    const safeImage = this.escapeHtml(campaign.image);
+
     return `
       <div class="devad-widget" style="
         border: 1px solid #e0e0e0;
@@ -166,10 +178,11 @@ export class BannerAdRenderer implements AdRenderer {
           Sponsored
         </div>
 
-        <div style="display: flex; gap: 20px; align-items: start;">
-          <img src="${campaign.image}" alt="${campaign.title}" style="
-            width: 200px;
-            height: 200px;
+        <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: start;">
+          <img src="${safeImage}" alt="${safeTitle}" style="
+            max-width: 200px;
+            width: 100%;
+            aspect-ratio: 1/1;
             border-radius: 8px;
             object-fit: cover;
             flex-shrink: 0;
@@ -182,16 +195,16 @@ export class BannerAdRenderer implements AdRenderer {
               font-weight: 600;
               color: #333;
               line-height: 1.4;
-            ">${campaign.title}</h3>
+            ">${safeTitle}</h3>
 
             <p style="
               margin: 0 0 16px;
               color: #666;
               font-size: 15px;
               line-height: 1.6;
-            ">${campaign.content}</p>
+            ">${safeContent}</p>
 
-            <a href="${campaign.url}" class="devad-link" target="_blank" style="
+            <a href="${safeUrl}" class="devad-link" target="_blank" rel="noopener noreferrer" style="
               display: inline-block;
               padding: 12px 24px;
               background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
