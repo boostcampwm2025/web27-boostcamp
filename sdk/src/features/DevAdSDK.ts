@@ -142,7 +142,6 @@ export class DevAdSDK {
 
   private async requestSecondAd(tags: Tag[], postUrl: string): Promise<void> {
     if (this.hasRequestedSecondAd) {
-      console.log('[DevAd SDK] 2차 광고 이미 요청됨, 스킵');
       return;
     }
 
@@ -157,6 +156,12 @@ export class DevAdSDK {
       'HighIntent:',
       isHighIntent
     );
+
+    // 1차 광고 제거
+    const firstAdContainer = document.getElementById('devad-first-ad');
+    if (firstAdContainer) {
+      firstAdContainer.remove();
+    }
 
     // 2차 광고 컨테이너 생성 및 현재 스크롤 위치에 삽입
     const secondAdContainer = this.createAdContainer('devad-second-ad');
@@ -180,13 +185,10 @@ export class DevAdSDK {
           score,
           isHighIntent
         );
-      } catch (error) {
-        console.error('[DevAd SDK] 2차 광고 렌더링 실패:', error);
+      } catch {
         secondAdContainer.innerHTML =
-          '<div style="color: red; font-size: 14px; padding: 20px;">2차 광고 로드 실패</div>';
+          '<div style="color: #999; font-size: 14px; padding: 20px; text-align: center;">광고를 불러올 수 없습니다</div>';
       }
-    } else {
-      console.warn('[DevAd SDK] 2차 광고 삽입 위치를 찾을 수 없습니다.');
     }
   }
 }
