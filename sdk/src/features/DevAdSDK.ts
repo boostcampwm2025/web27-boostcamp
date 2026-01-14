@@ -90,12 +90,39 @@ export class DevAdSDK {
   }
 
   private findScrollBasedInsertionPoint(): Element | null {
-    // 현재 스크롤 위치 기준으로 가장 가까운 <p> 태그 찾기
+    const CONTENT_SELECTORS = [
+      '.content',
+      '.post-content',
+      '.entry-content',
+      'article',
+      '.article-content',
+      '[class*="content"]',
+    ];
+
+    let contentArea: Element | null = null;
+    for (const selector of CONTENT_SELECTORS) {
+      contentArea = document.querySelector(selector);
+      if (contentArea) break;
+    }
+
+    if (!contentArea) return null;
+
+    const paragraphs = contentArea.querySelectorAll('p');
+    if (paragraphs.length === 0) return null;
+
     const scrollY = window.scrollY;
     const viewportHeight = window.innerHeight;
     const targetY = scrollY + viewportHeight;
 
-    const paragraphs = document.querySelectorAll('p');
+    const contentRect = contentArea.getBoundingClientRect();
+    const contentBottom = contentRect.bottom + scrollY;
+
+    // 스크롤이 본문을 넘어섰다면 본문의 마지막 <p> 태그 반환
+    if (targetY > contentBottom) {
+      return paragraphs[paragraphs.length - 1];
+    }
+
+    // 본문 내에서 스크롤 위치에 가장 가까운 <p> 태그 찾기
     let closestParagraph: Element | null = null;
     let minDistance = Infinity;
 
