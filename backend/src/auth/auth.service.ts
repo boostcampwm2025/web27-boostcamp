@@ -7,6 +7,7 @@ import {
 import axios from 'axios';
 import { randomUUID } from 'crypto';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
+import { UserRepository } from 'src/user/repository/user/user.repository';
 
 export type GoogleTokenResponse = {
   access_token: string;
@@ -40,6 +41,8 @@ const googleJWKS = createRemoteJWKSet(
 
 @Injectable()
 export class OAuthService {
+  constructor(private readonly userRepository: UserRepository) {}
+
   private readonly stateStore = new Map<string, number>(); // 추후에 Redis로 이동
 
   getGoogleAuthUrl(): string {
@@ -77,7 +80,19 @@ export class OAuthService {
     this.stateStore.delete(state);
   }
 
-  async getTokensFromGoogle(code: string): Promise<GoogleTokenResponse> {
+  async verifyGoogleIdToken(
+    idToken: string,
+    clientId: string
+  ): Promise<GoogleIdTokenPayload> {
+    const { payload } = await jwtVerify(idToken, googleJWKS, {
+      issuer: ['https://accounts.google.com', 'accounts.google.com'],
+      audience: clientId,
+    });
+
+    return payload as unknown as GoogleIdTokenPayload;
+  }
+
+  async getTokensFromGoogle(code: string): Promise<void> {
     const {
       GOOGLE_CLIENT_ID: client_id,
       GOOGLE_CLIENT_SECRET: client_secret,
@@ -105,14 +120,15 @@ export class OAuthService {
       );
 
       if (data.id_token) {
-        await this.verifyGoogleIdToken(data.id_token, client_id);
+        const jwtTokenPayload = await this.verifyGoogleIdToken(
+          data.id_token,
+          client_id
+        );
       } else {
         throw new BadGatewayException(
           'Google 서버의 응답에 id 토큰이 존재하지 않습니다.'
         );
       }
-
-      return data;
     } catch (error) {
       if (axios.isAxiosError(error)) {
         const status = error.response?.status;
@@ -135,15 +151,14 @@ export class OAuthService {
     }
   }
 
-  async verifyGoogleIdToken(
-    idToken: string,
-    clientId: string
-  ): Promise<GoogleIdTokenPayload> {
-    const { payload } = await jwtVerify(idToken, googleJWKS, {
-      issuer: ['https://accounts.google.com', 'accounts.google.com'],
-      audience: clientId,
-    });
+  // async authorizeUserByToken(payload: GoogleIdTokenPayload): number {
+  //   const { sub, email } = payload;
+  //   const provider = 'GOOGLE';
 
-    return payload as unknown as GoogleIdTokenPayload;
-  }
+  //   if (this.userRepository.getByEmail()) {
+  //     //로그인
+  //   } else {
+  //     //회원가입
+  //   }
+  // }
 }
