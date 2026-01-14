@@ -5,8 +5,8 @@ import { OAuthService } from './auth.service';
 export class AuthController {
   constructor(private readonly oauthService: OAuthService) {}
 
-  @Get('oauth')
-  startGoogleOAuth() {
-    this.oauthService.startGoogleOAuth();
+  @Get('google')
+  redirectToGoogleAuth() {
+    this.oauthService.getGoogleAuthUrl();
   }
 }
