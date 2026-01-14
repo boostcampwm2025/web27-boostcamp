@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import type {
   CampaignFormData,
   FormStep,
-  AdContent,
+  CampaignContent,
   BudgetSettings,
   FormErrors,
 } from './types';
@@ -13,14 +13,14 @@ interface CampaignFormState {
   errors: FormErrors;
 
   setStep: (step: FormStep) => void;
-  updateAdContent: (data: Partial<AdContent>) => void;
+  updateCampaignContent: (data: Partial<CampaignContent>) => void;
   updateBudgetSettings: (data: Partial<BudgetSettings>) => void;
   setErrors: (errors: FormErrors) => void;
   resetForm: () => void;
 }
 
 const initialFormData: CampaignFormData = {
-  adContent: {
+  campaignContent: {
     title: '',
     url: '',
     tags: [],
@@ -40,12 +40,12 @@ export const useCampaignForm = create<CampaignFormState>((set) => ({
 
   setStep: (step) => set({ currentStep: step }),
 
-  updateAdContent: (data) =>
+  updateCampaignContent: (data) =>
     set((state) => ({
       formData: {
         ...state.formData,
-        adContent: {
-          ...state.formData.adContent,
+        campaignContent: {
+          ...state.formData.campaignContent,
           ...data,
         },
       },
