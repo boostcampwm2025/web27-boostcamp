@@ -11,15 +11,13 @@ export function LoginForm() {
           광고주 또는 퍼블리셔 계정으로 로그인하세요.
         </p>
       </div>
-      <a
-        className="flex h-11 items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white text-base font-semibold text-[#111318] hover:bg-gray-50"
-      >
-        <Icon.Google/>
-        <span>Google로 계속하기</span>
-      </a>
+      <button type='button' className="flex h-11 items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white text-base font-semibold text-[#111318] hover:bg-gray-50">
+        <Icon.Google />
+        <span className="cursor-default">Google로 계속하기</span>
+      </button>
 
-      <FormDivider/>
-      
+      <FormDivider />
+
       <TextField
         name="email"
         type="email"
