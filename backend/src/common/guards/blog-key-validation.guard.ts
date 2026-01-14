@@ -6,15 +6,21 @@ import {
   BadRequestException,
   Logger,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { getBlogByKey } from '../utils/blog.utils';
+import type { MockBlog } from '../constants';
+
+interface RequestWithBlog extends Request {
+  blog?: MockBlog;
+}
 
 @Injectable()
 export class BlogKeyValidationGuard implements CanActivate {
   private readonly logger = new Logger(BlogKeyValidationGuard.name);
 
   canActivate(context: ExecutionContext): boolean {
-    const request = context.switchToHttp().getRequest();
-    const { blogKey } = request.body;
+    const request = context.switchToHttp().getRequest<RequestWithBlog>();
+    const { blogKey } = request.body as { blogKey?: string };
 
     // blogKey 누락 체크
     if (!blogKey) {
