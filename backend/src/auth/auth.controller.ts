@@ -37,6 +37,6 @@ export class AuthController {
     }
     this.oauthService.validateState(state);
 
-    await this.oauthService.getTokenFromGoogle(code);
+    await this.oauthService.getTokensFromGoogle(code);
   }
 }

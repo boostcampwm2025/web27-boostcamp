@@ -1,10 +1,12 @@
 import {
+  BadGatewayException,
   BadRequestException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import axios from 'axios';
 import { randomUUID } from 'crypto';
+import { createRemoteJWKSet, jwtVerify } from 'jose';
 
 export type GoogleTokenResponse = {
   access_token: string;
@@ -15,10 +17,26 @@ export type GoogleTokenResponse = {
   refresh_token?: string;
 };
 
-type GoogleTokenErrorResponse = {
+export type GoogleTokenErrorResponse = {
   error?: string;
   error_description?: string;
 };
+
+export type GoogleIdTokenPayload = {
+  iss: string;
+  aud: string;
+  sub: string;
+  exp: number;
+  iat: number;
+  email?: string;
+  email_verified?: 'true' | 'false' | boolean;
+  name?: string;
+  picture?: string;
+};
+
+const googleJWKS = createRemoteJWKSet(
+  new URL('https://www.googleapis.com/oauth2/v3/certs')
+);
 
 @Injectable()
 export class OAuthService {
@@ -59,7 +77,7 @@ export class OAuthService {
     this.stateStore.delete(state);
   }
 
-  async getTokenFromGoogle(code: string): Promise<GoogleTokenResponse> {
+  async getTokensFromGoogle(code: string): Promise<GoogleTokenResponse> {
     const {
       GOOGLE_CLIENT_ID: client_id,
       GOOGLE_CLIENT_SECRET: client_secret,
@@ -85,6 +103,15 @@ export class OAuthService {
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         }
       );
+
+      if (data.id_token) {
+        await this.verifyGoogleIdToken(data.id_token, client_id);
+      } else {
+        throw new BadGatewayException(
+          'Google 서버의 응답에 id 토큰이 존재하지 않습니다.'
+        );
+      }
+
       return data;
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -106,5 +133,17 @@ export class OAuthService {
       }
       throw error;
     }
+  }
+
+  async verifyGoogleIdToken(
+    idToken: string,
+    clientId: string
+  ): Promise<GoogleIdTokenPayload> {
+    const { payload } = await jwtVerify(idToken, googleJWKS, {
+      issuer: ['https://accounts.google.com', 'accounts.google.com'],
+      audience: clientId,
+    });
+
+    return payload as unknown as GoogleIdTokenPayload;
   }
 }
