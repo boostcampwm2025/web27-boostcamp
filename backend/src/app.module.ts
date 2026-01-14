@@ -8,6 +8,7 @@ import { LogModule } from './log/log.module';
 import { CacheModule } from './cache/cache.module';
 import { CampaignModule } from './campaign/campaign.module';
 import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { UserModule } from './user/user.module';
     CacheModule,
     CampaignModule,
     UserModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],
