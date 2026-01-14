@@ -17,7 +17,9 @@ export function LoginForm() {
         <Icon.Google/>
         <span>Google로 계속하기</span>
       </a>
+
       <FormDivider/>
+      
       <TextField
         name="email"
         type="email"

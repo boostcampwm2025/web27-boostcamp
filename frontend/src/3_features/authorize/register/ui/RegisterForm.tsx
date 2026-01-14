@@ -1,13 +1,14 @@
 import { TextField } from '@shared/ui/TextField';
-import { useState } from 'react';
 import { Icon } from '@/4_shared/ui/Icon';
-import { UserTypeSelector } from './UserTypeSelector';
 import { FormDivider } from '@/4_shared/ui/Divider';
+
+// import { useState } from 'react';
+// import { UserTypeSelector } from './UserTypeSelector';
 
 export type AccountType = 'advertiser' | 'publisher';
 
 export function RegisterForm() {
-  const [accountType, setAccountType] = useState<AccountType>('advertiser');
+  // const [accountType, setAccountType] = useState<AccountType>('advertiser');
 
   return (
     <form className="flex flex-col gap-6 mt-15 mx-10">
@@ -18,13 +19,15 @@ export function RegisterForm() {
         </p>
       </div>
       <div className="flex flex-col gap-6">
-        <UserTypeSelector value={accountType} onChange={setAccountType} />
+        {/* <UserTypeSelector value={accountType} onChange={setAccountType} /> */}
 
         <a className="flex h-11 items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white text-base font-semibold text-[#111318] hover:bg-gray-50">
           <Icon.Google />
           <span>Google로 계속하기</span>
         </a>
-        <FormDivider/>
+
+        <FormDivider />
+
         <TextField
           name="email"
           type="email"
