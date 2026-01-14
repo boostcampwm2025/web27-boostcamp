@@ -34,30 +34,36 @@ export function FormNavigation({
   };
 
   return (
-    <div>
-      {currentStep > 1 && (
+    <div className="flex flex-col gap-2">
+      <div className="flex flex-row items-center justify-between">
+        <div>
+          {currentStep > 1 && (
+            <Button
+              variant="white"
+              icon={<Icon.ArrowLeft className="w-3" />}
+              iconPosition="left"
+              onClick={onPrev}
+              disabled={disablePrev}
+            >
+              {prevButtonText}
+            </Button>
+          )}
+        </div>
+
         <Button
-          variant="white"
-          icon={<Icon.ArrowLeft className="w-3" />}
-          iconPosition="left"
-          onClick={onPrev}
-          disabled={disablePrev}
+          variant="blue"
+          icon={<Icon.ArrowRight className="w-3" />}
+          iconPosition="right"
+          onClick={onNext}
+          disabled={disableNext}
         >
-          {prevButtonText}
+          {nextText()}
         </Button>
-      )}
+      </div>
 
-      <Button
-        variant="blue"
-        icon={<Icon.ArrowRight className="w-3" />}
-        iconPosition="right"
-        onClick={onNext}
-        disabled={disableNext}
-      >
-        {nextText()}
-      </Button>
-
-      <p>광고 시작 전 언제든 수정 가능합니다</p>
+      <p className="text-right text-xs text-gray-500">
+        광고 시작 전 언제든 수정 가능합니다
+      </p>
     </div>
   );
 }

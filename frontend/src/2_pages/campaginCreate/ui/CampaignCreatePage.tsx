@@ -14,7 +14,7 @@ export function CampaignCreatePage() {
   };
 
   return (
-    <div>
+    <div className="flex min-h-screen w-full items-start justify-center bg-gray-100 pt-16">
       <CampaignCreationForm onSubmit={handleSubmit}>
         {currentStep === 1 && <Step1Content />}
         {currentStep === 2 && <Step2Content />}

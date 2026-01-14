@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Modal } from '@shared/ui/Modal';
 import { useCampaignForm } from '../lib/useCampaignForm';
 import { StepIndicator } from './StepIndicator';
 import { FormNavigation } from './FormNavigation';
@@ -33,9 +34,11 @@ export function CampaignCreationForm({
   };
 
   return (
-    <div>
+    <div className="flex w-150 flex-col gap-4">
       <StepIndicator currentStep={currentStep} />
-      <div>{children}</div>
+      <Modal showHeader={false}>
+        <div className="p-6">{children}</div>
+      </Modal>
       <FormNavigation
         currentStep={currentStep}
         onPrev={handlePrev}
