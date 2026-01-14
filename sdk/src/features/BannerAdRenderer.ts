@@ -178,7 +178,7 @@ export class BannerAdRenderer implements AdRenderer {
           Sponsored
         </div>
 
-        <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: start;">
+        <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: stretch;">
           <img src="${safeImage}" alt="${safeTitle}" style="
             max-width: 200px;
             width: 100%;
@@ -188,7 +188,7 @@ export class BannerAdRenderer implements AdRenderer {
             flex-shrink: 0;
           " onerror="this.style.display='none';" />
 
-          <div style="flex: 1; min-width: 0;">
+          <div style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
             <h3 style="
               margin: 0 0 12px;
               font-size: 20px;
@@ -204,7 +204,7 @@ export class BannerAdRenderer implements AdRenderer {
               line-height: 1.6;
             ">${safeContent}</p>
 
-            <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto;">
               <a href="${safeUrl}" class="devad-link" target="_blank" rel="noopener noreferrer" style="
                 display: inline-block;
                 padding: 12px 24px;
