@@ -1,5 +1,5 @@
 import { Icon } from '@shared/ui/Icon';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 
 interface MenuItem {
   id: string;
@@ -9,30 +9,56 @@ interface MenuItem {
 }
 
 export function Sidebar() {
-  const menuItems: MenuItem[] = [
+  const location = useLocation();
+  const isAdvertiser = location.pathname.startsWith('/advertiser');
+
+  const advertiserMenuItems: MenuItem[] = [
     {
       id: '1',
-      to: '/dashboard',
+      to: '/advertiser/dashboard',
       icon: 'Dashboard',
       label: '대시보드',
     },
     {
       id: '2',
-      to: '/campaigns',
+      to: '/advertiser/campaigns',
       icon: 'LoudSpeaker',
       label: '캠페인 관리',
     },
     {
       id: '3',
-      to: '/budget',
+      to: '/advertiser/budget',
       icon: 'Wallet',
       label: '예산 관리',
     },
   ];
 
+  const publisherMenuItems: MenuItem[] = [
+    {
+      id: '1',
+      to: '/publisher/dashboard',
+      icon: 'Dashboard',
+      label: '대시보드',
+    },
+    {
+      id: '2',
+      to: '/publisher/earnings',
+      icon: 'Wallet',
+      label: '수익 관리',
+    },
+    {
+      id: '3',
+      to: '/publisher/settings',
+      icon: 'Dashboard',
+      label: '광고 설정',
+    },
+  ];
+
+  const menuItems = isAdvertiser ? advertiserMenuItems : publisherMenuItems;
+
   return (
     <aside
-      className="flex flex-col w-64 bg-white border-r border-gray-200"
+      className="flex flex-col w-64 shrink-0 bg-white border-r border-gray-200"
       role="navigation"
       aria-label="Main navigation"
     >
