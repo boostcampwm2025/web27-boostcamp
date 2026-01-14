@@ -36,12 +36,14 @@ export class JsonCampaignRepository extends CampaignRepository {
     this.campaignsById = new Map(campaigns.map((c) => [c.id, c]));
   }
 
-  listByUserId(userId: number): Campaign[] {
-    return [...this.campaignsById.values()].filter((c) => c.userId === userId);
+  listByUserId(userId: number): Promise<Campaign[]> {
+    return Promise.resolve(
+      [...this.campaignsById.values()].filter((c) => c.userId === userId)
+    );
   }
 
-  getById(campaignId: string): Campaign | undefined {
-    return this.campaignsById.get(campaignId);
+  getById(campaignId: string): Promise<Campaign | undefined> {
+    return Promise.resolve(this.campaignsById.get(campaignId));
   }
 }
 
