@@ -1,5 +1,5 @@
 import { Modal } from '@shared/ui/Modal';
-import { RegisterForm } from '../../../3_features/authorize/register/ui/RegisterForm';
+import { RegisterForm } from '@features/authorize/register/ui/RegisterForm';
 import { Link } from 'react-router-dom';
 
 export function RegisterPage() {

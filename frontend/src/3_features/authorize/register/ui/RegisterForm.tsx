@@ -1,8 +1,10 @@
-import { TextField } from '@shared/ui/TextField/TextField';
+import { TextField } from '@shared/ui/TextField';
 import { useState } from 'react';
 import { Icon } from '@/4_shared/ui/Icon';
+import { UserTypeSelector } from './UserTypeSelector';
+import { FormDivider } from '@/4_shared/ui/Divider';
 
-type AccountType = 'advertiser' | 'publisher';
+export type AccountType = 'advertiser' | 'publisher';
 
 export function RegisterForm() {
   const [accountType, setAccountType] = useState<AccountType>('advertiser');
@@ -16,63 +18,13 @@ export function RegisterForm() {
         </p>
       </div>
       <div className="flex flex-col gap-6">
-        <div className="flex flex-col gap-3">
-          <p
-            id="accountTypeLabel"
-            className="text-sm font-semibold text-[#111318]"
-          >
-            계정 유형
-          </p>
-          <div className="grid grid-cols-2 gap-4">
-            <label className="cursor-pointer">
-              <input
-                type="radio"
-                name="accountType"
-                value="advertiser"
-                checked={accountType === 'advertiser'}
-                onChange={() => setAccountType('advertiser')}
-                className="sr-only peer"
-              />
-              <div className="flex flex-col items-center justify-center rounded-xl border border-gray-200 px-4 py-5 text-center peer-checked:border-blue-600 peer-checked:ring-2 peer-checked:ring-blue-200">
-                <div className="text-xl font-extrabold text-gray-900">
-                  광고주
-                </div>
-                <div className="mt-2 text-sm font-normal text-[#616E89]">
-                  광고를 게시하고 싶어요
-                </div>
-              </div>
-            </label>
-
-            <label className="cursor-pointer">
-              <input
-                type="radio"
-                name="accountType"
-                value="publisher"
-                checked={accountType === 'publisher'}
-                onChange={() => setAccountType('publisher')}
-                className="sr-only peer"
-              />
-              <div className="flex flex-col items-center justify-center rounded-xl border border-gray-200 px-4 py-5 text-center peer-checked:border-blue-600 peer-checked:ring-2 peer-checked:ring-blue-200">
-                <div className="text-xl font-extrabold text-gray-900">
-                  퍼블리셔
-                </div>
-                <div className="mt-2 text-sm font-normal text-[#616E89]">
-                  블로그로 수익을 창출하고 싶어요
-                </div>
-              </div>
-            </label>
-          </div>
-        </div>
+        <UserTypeSelector value={accountType} onChange={setAccountType} />
 
         <a className="flex h-11 items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white text-base font-semibold text-[#111318] hover:bg-gray-50">
           <Icon.Google />
           <span>Google로 계속하기</span>
         </a>
-        <div className="flex items-center gap-3">
-          <div className="h-px flex-1 bg-gray-200" />
-          <span className="text-xs text-[#616E89]">또는</span>
-          <div className="h-px flex-1 bg-gray-200" />
-        </div>
+        <FormDivider/>
         <TextField
           name="email"
           type="email"

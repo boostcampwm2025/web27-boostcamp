@@ -1,5 +1,6 @@
+import { FormDivider } from '@/4_shared/ui/Divider';
 import { Icon } from '@/4_shared/ui/Icon';
-import { TextField } from '@shared/ui/TextField/TextField';
+import { TextField } from '@shared/ui/TextField';
 
 export function LoginForm() {
   return (
@@ -16,11 +17,7 @@ export function LoginForm() {
         <Icon.Google/>
         <span>Google로 계속하기</span>
       </a>
-      <div className="flex items-center gap-3">
-        <div className="h-px flex-1 bg-gray-200" />
-        <span className="text-xs text-[#616E89]">또는</span>
-        <div className="h-px flex-1 bg-gray-200" />
-      </div>
+      <FormDivider/>
       <TextField
         name="email"
         type="email"

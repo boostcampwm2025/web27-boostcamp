@@ -1,5 +1,5 @@
-import { Modal } from '@/4_shared/ui/Modal';
-import { LoginForm } from '../../../3_features/authorize/login/ui/LoginForm';
+import { Modal } from '@shared/ui/Modal';
+import { LoginForm } from '@features/authorize/login/ui/LoginForm';
 import { Link } from 'react-router-dom';
 
 export function LoginPage() {
