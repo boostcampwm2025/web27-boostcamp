@@ -22,19 +22,23 @@ export function StepIndicator({
   };
 
   return (
-    <div>
-      <div>
-        <span>
+    <div className="flex flex-col gap-2">
+      <div className="flex flex-row items-center justify-between">
+        <span className="text-sm font-medium text-gray-900">
           STEP {currentStep} OF {totalSteps}
+          <span className="pl-2 text-gray-500">{getStepTitle(currentStep)}</span>
         </span>
-        <span>{Math.round(progressPercentage)}% Completed</span>
+        <span className="text-sm font-medium text-blue-500">
+          {Math.round(progressPercentage)}%
+        </span>
       </div>
 
-      <div>
-        <div style={{ width: `${progressPercentage}%` }} />
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-200">
+        <div
+          className="h-full rounded-full bg-blue-500 transition-all duration-300"
+          style={{ width: `${progressPercentage}%` }}
+        />
       </div>
-
-      <h2>{getStepTitle(currentStep)}</h2>
     </div>
   );
 }
