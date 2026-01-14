@@ -11,7 +11,7 @@ export function SdkCodeSnippet({ blogKey }: SdkCodeSnippetProps) {
   const { showToast } = useToast();
 
   const codeSnippet = `<script
-  src="https://boostad-sdk.kr.object.ncloudstorage.com/sdk/sdk.js"
+  src="https://kr.object.ncloudstorage.com/boostad-sdk-dev/sdk/sdk.js"
   data-blog-key=${blogKey}
   async
 ></script>;`;
