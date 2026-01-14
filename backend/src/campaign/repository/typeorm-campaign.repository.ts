@@ -6,7 +6,7 @@ import { Campaign as CampaignType } from '../types/campaign.types';
 import { Campaign } from '../entities/campaign.entity';
 
 @Injectable()
-export class TypeOrmCampaignModuleRepository extends CampaignRepository {
+export class TypeOrmCampaignRepository extends CampaignRepository {
   constructor(
     @InjectRepository(Campaign)
     private readonly campaignRepository: Repository<Campaign>
