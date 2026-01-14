@@ -5,7 +5,6 @@ export type CampaignCategory =
   | 'BE'
   | 'DB'
   | '클라우드'
-
   | '모바일'
   | '기타';
 
