@@ -10,10 +10,11 @@ interface SdkCodeSnippetProps {
 export function SdkCodeSnippet({ blogKey }: SdkCodeSnippetProps) {
   const { showToast } = useToast();
 
-  const codeSnippet = `<head>
-  <script src="https://cdn.devad.com/sdk.js"
-    blog-key="${blogKey}"></script>
-</head>`;
+  const codeSnippet = `<script
+  src="https://kr.object.ncloudstorage.com/boostad-sdk-dev/sdk/sdk.js"
+  data-blog-key=${blogKey}
+  async
+></script>;`;
 
   const handleCopy = async () => {
     try {

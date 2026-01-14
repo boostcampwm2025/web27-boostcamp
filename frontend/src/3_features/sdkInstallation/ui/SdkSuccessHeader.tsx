@@ -2,7 +2,7 @@ import { Icon } from '@shared/ui/Icon';
 
 export function SdkSuccessHeader() {
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center gap-2">
       <Icon.Check className="w-12 h-12" />
       <h2 className="text-3xl font-extrabold whitespace-nowrap text-gray-900">
         블로그 등록 완료!
