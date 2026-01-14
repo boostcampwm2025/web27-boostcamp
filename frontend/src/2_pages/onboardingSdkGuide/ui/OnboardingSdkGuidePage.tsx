@@ -8,7 +8,7 @@ import {
 } from '@features/sdkInstallation';
 
 // TODO: API 응답 or 로그인 시 받아온 실제 blogKey로 교체 필요!
-const MOCK_BLOG_KEY = 'blog-123';
+const MOCK_BLOG_KEY = 'tech-blog-1';
 
 export function OnboardingSdkGuidePage() {
   const navigate = useNavigate();
