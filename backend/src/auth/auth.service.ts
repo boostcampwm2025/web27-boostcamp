@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class OAuthService {
-  getGoogleAuthUrl() {
+  getGoogleAuthUrl(): string {
     const { GOOGLE_CLIENT_ID: clientId, GOOGLE_REDIRECT_URI: redirectUri } =
       process.env;
 
@@ -10,7 +11,7 @@ export class OAuthService {
       throw new Error('Google OAuth env가 누락되었습니다.');
     }
 
-    const state = crypto.randomUUID();
+    const state = randomUUID();
 
     const params = new URLSearchParams({
       client_id: clientId,

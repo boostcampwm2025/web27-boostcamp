@@ -1,12 +1,15 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Res } from '@nestjs/common';
 import { OAuthService } from './auth.service';
+import { type Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly oauthService: OAuthService) {}
 
+  // 구글 로그인 페이지로 리다이렉트 하기 위한 요청 받음
   @Get('google')
-  redirectToGoogleAuth() {
-    this.oauthService.getGoogleAuthUrl();
+  redirectToGoogleAuth(@Res() res: Response): void {
+    const url = this.oauthService.getGoogleAuthUrl();
+    return res.redirect(url);
   }
 }
