@@ -1,5 +1,5 @@
 import { Modal } from '@shared/ui/Modal';
-import { RegisterForm } from './RegisterForm';
+import { RegisterForm } from '../../../3_features/authorize/register/ui/RegisterForm';
 
 export function RegisterPage() {
   return (

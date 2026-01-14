@@ -1,5 +1,5 @@
 import { Modal } from "@/4_shared/ui/Modal";
-import { LoginForm } from "./LoginForm";
+import { LoginForm } from "../../../3_features/authorize/login/ui/LoginForm";
 
 export function LoginPage() {
   return (
