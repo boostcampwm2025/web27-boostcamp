@@ -1,0 +1,79 @@
+@theme {
+  /* Red */
+  --color-red-100: #fef2f2;
+  --color-red-300: #fee2e2;
+  --color-red-500: #fecaca;
+  --color-red-700: #ef4444;
+
+  /* Yellow */
+  --color-yellow-100: #fffbeb;
+  --color-yellow-300: #fde68a;
+  --color-yellow-500: #facc15;
+  --color-yellow-700: #f59e0b;
+
+  /* Green */
+  --color-green-100: #f0fdf4;
+  --color-green-300: #dcfce7;
+  --color-green-500: #10b981;
+  --color-green-700: #15803d;
+
+  /* Blue */
+  --color-blue-100: #eff6ff;
+  --color-blue-300: #dbeafe;
+  --color-blue-500: #2563eb;
+  --color-blue-700: #1e40af;
+
+  /* Purple */
+  --color-purple-100: #faf5ff;
+  --color-purple-300: #f3e8ff;
+  --color-purple-500: #d1b7e9;
+  --color-purple-700: #9333ea;
+
+  /* Gray */
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f6f6f8;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+
+  /* Base colors */
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  /* Font sizes (rem) */
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --font-size-4xl: 2.25rem;
+
+  /* Custom animations */
+  --animate-toast: toast-fade 3s ease-in-out forwards;
+
+  @keyframes toast-fade {
+    0% {
+      opacity: 0;
+      transform: scale(0.7);
+    }
+    10% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    90% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+  }
+}

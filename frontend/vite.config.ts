@@ -16,19 +16,19 @@ export default defineConfig({
       },
       {
         find: '@app',
-        replacement: path.resolve(__dirname, 'src/app'),
+        replacement: path.resolve(__dirname, 'src/1_app'),
       },
       {
         find: '@features',
-        replacement: path.resolve(__dirname, 'src/features'),
+        replacement: path.resolve(__dirname, 'src/3_features'),
       },
       {
         find: '@pages',
-        replacement: path.resolve(__dirname, 'src/pages'),
+        replacement: path.resolve(__dirname, 'src/2_pages'),
       },
       {
         find: '@shared',
-        replacement: path.resolve(__dirname, 'src/shared'),
+        replacement: path.resolve(__dirname, 'src/4_shared'),
       },
     ],
   },
