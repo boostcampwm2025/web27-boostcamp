@@ -9,6 +9,16 @@ import type {
 // DevAd SDK 메인 클래스 (전략 패턴)
 export class DevAdSDK {
   private hasRequestedSecondAd = false;
+  private readonly CONTENT_SELECTORS = [
+    '.article-view',
+    '.article-content',
+    '.post-content',
+    '.entry-content',
+    '.content',
+    'article',
+    '[class*="content"]',
+    '[class*="article"]',
+  ];
 
   constructor(
     public tagExtractor: TagExtractor,
@@ -66,17 +76,7 @@ export class DevAdSDK {
   }
 
   private findContentTop(): Element | null {
-    // 티스토리 블로그 본문 영역 찾기 (다양한 스킨 대응)
-    const CONTENT_SELECTORS = [
-      '.content',
-      '.post-content',
-      '.entry-content',
-      'article',
-      '.article-content',
-      '[class*="content"]',
-    ];
-
-    for (const selector of CONTENT_SELECTORS) {
+    for (const selector of this.CONTENT_SELECTORS) {
       const contentArea = document.querySelector(selector);
       if (contentArea) {
         const firstElement = contentArea.querySelector('p, h2');
@@ -90,17 +90,8 @@ export class DevAdSDK {
   }
 
   private findScrollBasedInsertionPoint(): Element | null {
-    const CONTENT_SELECTORS = [
-      '.content',
-      '.post-content',
-      '.entry-content',
-      'article',
-      '.article-content',
-      '[class*="content"]',
-    ];
-
     let contentArea: Element | null = null;
-    for (const selector of CONTENT_SELECTORS) {
+    for (const selector of this.CONTENT_SELECTORS) {
       contentArea = document.querySelector(selector);
       if (contentArea) break;
     }
