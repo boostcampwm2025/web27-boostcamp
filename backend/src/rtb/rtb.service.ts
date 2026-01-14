@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Matcher } from './matchers/matcher.interface';
 import { Scorer } from './scorers/scorer.interface';
 import { CampaignSelector } from './selectors/selector.interface';
@@ -29,13 +29,8 @@ export class RTBService {
     try {
       const auctionId = randomUUID();
 
-      // 0. blogKey → blogId 변환
-      const blogId = getBlogIdByKey(context.blogKey);
-      if (blogId === null) {
-        throw new NotFoundException(
-          `블로그 키 '${context.blogKey}'에 해당하는 블로그를 찾을 수 없습니다.`
-        );
-      }
+      // 0. blogKey → blogId 변환 (Guard에서 이미 검증됨)
+      const blogId = getBlogIdByKey(context.blogKey)!;
 
       // 1. 후보 필터링
       let candidates: Candidate[] =
