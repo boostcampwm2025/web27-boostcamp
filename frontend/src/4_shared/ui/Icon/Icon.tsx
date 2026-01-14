@@ -20,6 +20,7 @@ import Edit from '@shared/ui/Icon/icons/edit.svg?react';
 import Info from '@shared/ui/Icon/icons/info.svg?react';
 import Settings from '@shared/ui/Icon/icons/settings.svg?react';
 import Terminal from '@shared/ui/Icon/icons/terminal.svg?react';
+import ImageArea from '@shared/ui/Icon/icons/imageArea.svg?react';
 
 export const Icon = {
   ArrowRight,
@@ -44,4 +45,5 @@ export const Icon = {
   Info,
   Settings,
   Terminal,
+  ImageArea,
 };
