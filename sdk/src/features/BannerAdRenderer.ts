@@ -204,32 +204,27 @@ export class BannerAdRenderer implements AdRenderer {
               line-height: 1.6;
             ">${safeContent}</p>
 
-            <a href="${safeUrl}" class="devad-link" target="_blank" rel="noopener noreferrer" style="
-              display: inline-block;
-              padding: 12px 24px;
-              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-              color: white;
-              text-decoration: none;
-              border-radius: 8px;
-              font-size: 14px;
-              font-weight: 600;
-              transition: opacity 0.2s;
-              cursor: pointer;
-            " onmouseover="this.style.opacity='0.9';" onmouseout="this.style.opacity='1';">
-              자세히 보기 →
-            </a>
-          </div>
-        </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <a href="${safeUrl}" class="devad-link" target="_blank" rel="noopener noreferrer" style="
+                display: inline-block;
+                padding: 12px 24px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                text-decoration: none;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: 600;
+                transition: opacity 0.2s;
+                cursor: pointer;
+              " onmouseover="this.style.opacity='0.9';" onmouseout="this.style.opacity='1';">
+                자세히 보기 →
+              </a>
 
-        <div style="
-          margin-top: 16px;
-          padding-top: 16px;
-          border-top: 1px solid #f0f0f0;
-          font-size: 11px;
-          color: #aaa;
-          text-align: right;
-        ">
-          by <strong>BoostAD</strong>
+              <span style="font-size: 11px; color: #aaa;">
+                by <strong>BoostAD</strong>
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     `;
