@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import axios from 'axios';
 import { randomUUID } from 'crypto';
 
@@ -9,6 +13,11 @@ export type GoogleTokenResponse = {
   token_type: string;
   id_token?: string;
   refresh_token?: string;
+};
+
+type GoogleTokenErrorResponse = {
+  error?: string;
+  error_description?: string;
 };
 
 @Injectable()
@@ -68,13 +77,34 @@ export class OAuthService {
       grant_type: 'authorization_code',
     });
 
-    const { data } = await axios.post<GoogleTokenResponse>(
-      'https://oauth2.googleapis.com/token',
-      body,
-      {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    try {
+      const { data } = await axios.post<GoogleTokenResponse>(
+        'https://oauth2.googleapis.com/token',
+        body,
+        {
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        }
+      );
+      return data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const status = error.response?.status;
+        const data = error.response?.data as
+          | GoogleTokenErrorResponse
+          | undefined;
+        const message =
+          data?.error && data?.error_description
+            ? `${data.error}: ${data.error_description}`
+            : (data?.error ??
+              data?.error_description ??
+              'Google로부터 토큰을 받아오지 못했습니다.');
+
+        if (status === 401) {
+          throw new UnauthorizedException(message);
+        }
+        throw new BadRequestException(message);
       }
-    );
-    return data;
+      throw error;
+    }
   }
 }
