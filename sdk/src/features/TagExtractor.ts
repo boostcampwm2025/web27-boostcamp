@@ -18,7 +18,7 @@ export class TagExtractor implements TagExtractorInterface {
       allText.includes(tag.name.toLowerCase())
     );
 
-    console.log('[DevAd SDK] 추출된 태그:', extractedTags);
+    console.log('[BoostAD SDK] 추출된 태그:', extractedTags);
 
     return extractedTags;
   }

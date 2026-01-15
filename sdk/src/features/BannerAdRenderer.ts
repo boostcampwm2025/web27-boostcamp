@@ -31,7 +31,7 @@ export class BannerAdRenderer implements AdRenderer {
       // 광고 URL 저장 (클릭 시 사용)
       this.currentAdUrl = campaign.url;
 
-      const link = container.querySelector('.devad-link');
+      const link = container.querySelector('.boostad-link');
       link?.addEventListener('click', (e) => {
         e.preventDefault();
         this.handleAdClick();
@@ -74,19 +74,19 @@ export class BannerAdRenderer implements AdRenderer {
       if (response.ok) {
         const data: ViewLogResponse = await response.json();
         this.currentViewId = data.data.viewId;
-        console.log('[DevAd SDK] ViewLog 기록 성공:', data.data.viewId);
+        console.log('[BoostAD SDK] ViewLog 기록 성공:', data.data.viewId);
       } else {
-        console.warn('[DevAd SDK] ViewLog 기록 실패:', response.status);
+        console.warn('[BoostAD SDK] ViewLog 기록 실패:', response.status);
       }
     } catch (error) {
-      console.error('[DevAd SDK] ViewLog API 호출 실패:', error);
+      console.error('[BoostAD SDK] ViewLog API 호출 실패:', error);
     }
   }
 
   private async handleAdClick(): Promise<void> {
     if (this.currentViewId === null) {
       console.warn(
-        '[DevAd SDK] ViewLog가 아직 기록되지 않았습니다. ClickLog를 기록하지 않습니다.'
+        '[BoostAD SDK] ViewLog가 아직 기록되지 않았습니다. ClickLog를 기록하지 않습니다.'
       );
       return;
     }
@@ -107,9 +107,9 @@ export class BannerAdRenderer implements AdRenderer {
 
       if (response.ok) {
         const data: ClickLogResponse = await response.json();
-        console.log('[DevAd SDK] ClickLog 기록 성공:', data.data.clickId);
+        console.log('[BoostAD SDK] ClickLog 기록 성공:', data.data.clickId);
       } else {
-        console.warn('[DevAd SDK] ClickLog 기록 실패:', response.status);
+        console.warn('[BoostAD SDK] ClickLog 기록 실패:', response.status);
       }
 
       // 클릭 로그 성공/실패 여부와 관계없이 광고 페이지 열기
@@ -117,7 +117,7 @@ export class BannerAdRenderer implements AdRenderer {
         window.open(this.currentAdUrl, '_blank');
       }
     } catch (error) {
-      console.error('[DevAd SDK] ClickLog API 호출 실패:', error);
+      console.error('[BoostAD SDK] ClickLog API 호출 실패:', error);
       // API 실패 시에도 광고 페이지는 열기
       if (this.currentAdUrl) {
         window.open(this.currentAdUrl, '_blank');
@@ -156,7 +156,7 @@ export class BannerAdRenderer implements AdRenderer {
     const safeImage = this.escapeHtml(campaign.image);
 
     return `
-      <div class="devad-widget" style="
+      <div class="boostad-widget" style="
         border: 1px solid #e0e0e0;
         border-radius: 12px;
         padding: 20px;
@@ -213,7 +213,7 @@ export class BannerAdRenderer implements AdRenderer {
               padding-top: 16px;
               gap: 12px;
             ">
-              <a href="${safeUrl}" class="devad-link" target="_blank" rel="noopener noreferrer" style="
+              <a href="${safeUrl}" class="boostad-link" target="_blank" rel="noopener noreferrer" style="
                 display: inline-block;
                 padding: 12px 24px;
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

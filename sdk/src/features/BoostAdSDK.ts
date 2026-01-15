@@ -6,8 +6,8 @@ import type {
   Tag,
 } from '@/shared/types';
 
-// DevAd SDK 메인 클래스 (전략 패턴)
-export class DevAdSDK {
+// BoostAD SDK 메인 클래스 (전략 패턴)
+export class BoostAdSDK {
   private hasRequestedSecondAd = false;
   private readonly CONTENT_SELECTORS = [
     '.article-view',
@@ -29,12 +29,12 @@ export class DevAdSDK {
 
   async init(): Promise<void> {
     const tags = this.tagExtractor.extract();
-    console.log('[DevAd SDK] 추출된 태그:', tags);
+    console.log('[BoostAD SDK] 추출된 태그:', tags);
 
     const postUrl = window.location.href;
 
     // 1차 광고: 본문 상단에 삽입
-    const firstAdContainer = this.createAdContainer('devad-first-ad');
+    const firstAdContainer = this.createAdContainer('boostad-first-ad');
     const insertionPoint = this.findContentTop();
 
     if (insertionPoint) {
@@ -142,20 +142,20 @@ export class DevAdSDK {
     const isHighIntent = this.behaviorTracker.isHighIntent();
 
     console.log(
-      '[DevAd SDK] 2차 광고 요청 - Score:',
+      '[BoostAD SDK] 2차 광고 요청 - Score:',
       score,
       'HighIntent:',
       isHighIntent
     );
 
     // 1차 광고 제거
-    const firstAdContainer = document.getElementById('devad-first-ad');
+    const firstAdContainer = document.getElementById('boostad-first-ad');
     if (firstAdContainer) {
       firstAdContainer.remove();
     }
 
     // 2차 광고 컨테이너 생성 및 현재 스크롤 위치에 삽입
-    const secondAdContainer = this.createAdContainer('devad-second-ad');
+    const secondAdContainer = this.createAdContainer('boostad-second-ad');
     const insertionPoint = this.findScrollBasedInsertionPoint();
 
     if (insertionPoint) {
