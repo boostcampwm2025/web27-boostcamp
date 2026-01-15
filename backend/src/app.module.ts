@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { getTypeOrmConfig } from './config/typeorm.config';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { RTBModule } from './rtb/rtb.module';
@@ -22,6 +24,14 @@ import { AuthModule } from './auth/auth.module';
       },
     ]),
     RTBModule,
+
+    // 팩토리 함수 사용해서 typeORM 설정 비동기 로드
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) =>
+        getTypeOrmConfig(configService),
+    }),
+
     BidLogModule,
     SdkModule,
     AdvertiserModule,
