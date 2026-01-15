@@ -1,52 +1,64 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CampaignRepository } from './campaign.repository';
-import { Campaign as CampaignType } from '../types/campaign.types';
-import { Campaign } from '../entities/campaign.entity';
+import { CampaignRepository as RTBCampaignRepository } from '../../rtb/repositories/campaign.repository.interface';
+import { Campaign as RTBCampaign, Tag } from '../../rtb/types/decision.types';
+import { Campaign, CampaignStatus } from '../entities/campaign.entity';
 
 @Injectable()
-export class TypeOrmCampaignModuleRepository extends CampaignRepository {
+export class TypeOrmCampaignRepository implements RTBCampaignRepository {
   constructor(
     @InjectRepository(Campaign)
     private readonly campaignRepository: Repository<Campaign>
-  ) {
-    super();
+  ) {}
+
+  async findByTags(tags: Tag[]): Promise<RTBCampaign[]> {
+    const tagIds = tags.map((t) => t.id);
+
+    // Tag ID로 Campaign 조회
+    const campaigns = await this.campaignRepository
+      .createQueryBuilder('campaign')
+      .leftJoinAndSelect('campaign.tags', 'tag')
+      .where('tag.id IN (:...tagIds)', { tagIds })
+      .getMany();
+
+    return campaigns.map((campaign) => this.toRTBCampaign(campaign));
   }
 
-  async listByUserId(userId: number): Promise<CampaignType[]> {
-    const campaigns = await this.campaignRepository.find({
-      where: { userId },
-      relations: ['tags'],
-    });
-    return campaigns.map((campaign) => this.toType(campaign));
-  }
-
-  async getById(campaignId: string): Promise<CampaignType | undefined> {
+  async findById(id: string): Promise<RTBCampaign | null> {
     const campaign = await this.campaignRepository.findOne({
-      where: { id: campaignId },
+      where: { id },
       relations: ['tags'],
     });
-    return campaign ? this.toType(campaign) : undefined;
+    return campaign ? this.toRTBCampaign(campaign) : null;
   }
 
-  private toType(entity: Campaign): CampaignType {
+  async findAll(): Promise<RTBCampaign[]> {
+    const campaigns = await this.campaignRepository.find({
+      relations: ['tags'],
+      where: { status: CampaignStatus.ACTIVE },
+    });
+    return campaigns.map((campaign) => this.toRTBCampaign(campaign));
+  }
+
+  private toRTBCampaign(entity: Campaign): RTBCampaign {
     return {
       id: entity.id,
-      userId: entity.userId,
+      user_id: entity.userId,
       title: entity.title,
       content: entity.content,
       image: entity.image,
       url: entity.url,
-      maxCpc: entity.maxCpc,
-      dailyBudget: entity.dailyBudget,
-      totalBudget: entity.totalBudget,
-      isHighIntent: entity.isHighIntent,
+      tags: entity.tags.map((t) => ({ id: t.id, name: t.name })),
+      max_cpc: entity.maxCpc,
+      daily_budget: entity.dailyBudget,
+      total_budget: entity.totalBudget,
+      is_high_intent: entity.isHighIntent,
       status: entity.status,
-      startDate: entity.startDate,
-      endDate: entity.endDate,
-      createdAt: entity.createdAt,
-      deletedAt: entity.deletedAt,
+      start_date: entity.startDate.toISOString(),
+      end_date: entity.endDate.toISOString(),
+      created_at: entity.createdAt.toISOString(),
+      deleted_at: entity.deletedAt?.toISOString() ?? null,
     };
   }
 }
