@@ -1,6 +1,29 @@
-import type { Campaign } from '../rtb/types/decision.types';
+import type {
+  CampaignStatus,
+  CampaignWithTags,
+  Tag,
+} from 'src/campaign/types/campaign.types';
 
-export const CAMPAIGNS_MOCK: Campaign[] = [
+type RawCampaign = {
+  id: string;
+  user_id: number;
+  title: string;
+  content: string;
+  image: string;
+  url: string;
+  tags: Tag[];
+  max_cpc: number;
+  daily_budget: number;
+  total_budget: number | null;
+  is_high_intent: boolean;
+  status: CampaignStatus;
+  start_date: string;
+  end_date: string;
+  created_at: string;
+  deleted_at: string | null;
+};
+
+const RAW_CAMPAIGNS_MOCK: RawCampaign[] = [
   {
     id: '550e8400-e29b-41d4-a716-446655440000',
     user_id: 1,
@@ -535,3 +558,24 @@ export const CAMPAIGNS_MOCK: Campaign[] = [
     deleted_at: null,
   },
 ];
+
+export const CAMPAIGNS_MOCK: CampaignWithTags[] = RAW_CAMPAIGNS_MOCK.map(
+  (c) => ({
+    id: c.id,
+    userId: c.user_id,
+    title: c.title,
+    content: c.content,
+    image: c.image,
+    url: c.url,
+    tags: c.tags,
+    maxCpc: c.max_cpc,
+    dailyBudget: c.daily_budget,
+    totalBudget: c.total_budget,
+    isHighIntent: c.is_high_intent,
+    status: c.status,
+    startDate: new Date(c.start_date),
+    endDate: new Date(c.end_date),
+    createdAt: new Date(c.created_at),
+    deletedAt: c.deleted_at ? new Date(c.deleted_at) : null,
+  })
+);

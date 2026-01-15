@@ -1,4 +1,4 @@
-import { Campaign, Tag } from 'src/campaign/types/campaign.types';
+import type { CampaignWithTags, Tag } from 'src/campaign/types/campaign.types';
 
 // export interface Campaign {
 //   id: string;
@@ -32,11 +32,11 @@ export interface DecisionContext {
 // }
 
 export interface Candidate {
-  campaign: Campaign;
+  campaign: CampaignWithTags;
   similarity: number;
 }
 
-export interface ScoredCandidate extends Campaign {
+export interface ScoredCandidate extends CampaignWithTags {
   score: number;
 }
 

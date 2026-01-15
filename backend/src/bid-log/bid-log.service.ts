@@ -22,7 +22,7 @@ export class BidLogService {
     const allCampaigns = await this.campaignRepository.findAll();
 
     // 3. userId=1인 캠페인만 필터링
-    const userCampaigns = allCampaigns.filter((c) => c.user_id === 1);
+    const userCampaigns = allCampaigns.filter((c) => c.userId === 1);
     const userCampaignIds = new Set(userCampaigns.map((c) => c.id));
 
     // 4. userId=1의 캠페인에 해당하는 BidLog만 필터링
