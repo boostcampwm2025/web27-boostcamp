@@ -25,6 +25,7 @@ import ArrowLeft from '@shared/ui/Icon/icons/arrowLeft.svg?react';
 import Cloud from '@shared/ui/Icon/icons/cloud.svg?react';
 import Close from '@shared/ui/Icon/icons/close.svg?react';
 import ClickLine from '@shared/ui/Icon/icons/clickLine.svg?react';
+import Pen from '@shared/ui/Icon/icons/pen.svg?react';
 
 export const Icon = {
   ArrowRight,
@@ -54,4 +55,5 @@ export const Icon = {
   Cloud,
   Close,
   ClickLine,
+  Pen,
 };
