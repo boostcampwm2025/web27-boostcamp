@@ -125,92 +125,106 @@ export class BannerAdRenderer implements AdRenderer {
     }
   }
 
+  private escapeHtml(text: string): string {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
   private renderEmptyState(): string {
     return `
       <div style="
-        padding: 20px;
+        padding: 10px;
         text-align: center;
         color: #999;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        font-size: 14px;
+        font-size: 12px;
         border: 1px dashed #ddd;
         border-radius: 8px;
         background: #fafafa;
       ">
-        매칭되는 광고가 없습니다
+        광고 없음
       </div>
     `;
   }
 
   private renderAdWidget(campaign: Campaign): string {
+    // XSS 방지: 모든 사용자 입력 데이터 이스케이프
+    const safeTitle = this.escapeHtml(campaign.title);
+    const safeContent = this.escapeHtml(campaign.content);
+    const safeUrl = this.escapeHtml(campaign.url);
+    const safeImage = this.escapeHtml(campaign.image);
+
     return `
       <div class="devad-widget" style="
         border: 1px solid #e0e0e0;
         border-radius: 12px;
         padding: 20px;
-        max-width: 400px;
+        margin: 30px 0;
+        max-width: 100%;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         background: #ffffff;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         transition: transform 0.2s, box-shadow 0.2s;
-      " onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 4px 16px rgba(0,0,0,0.15)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)';">
+      " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 16px rgba(0,0,0,0.15)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)';">
 
         <div style="
-          font-size: 11px;
+          font-size: 10px;
           color: #999;
-          margin-bottom: 12px;
+          margin-bottom: 16px;
           text-transform: uppercase;
           letter-spacing: 0.5px;
         ">
           Sponsored
         </div>
 
-        <img src="${campaign.image}" alt="${campaign.title}" style="
-          width: 100%;
-          border-radius: 8px;
-          margin-bottom: 16px;
-          object-fit: cover;
-          height: 200px;
-        " onerror="this.style.display='none';" />
+        <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: stretch;">
+          <img src="${safeImage}" alt="${safeTitle}" style="
+            max-width: 200px;
+            width: 100%;
+            aspect-ratio: 1/1;
+            border-radius: 8px;
+            object-fit: cover;
+            flex-shrink: 0;
+          " onerror="this.style.display='none';" />
 
-        <h3 style="
-          margin: 0 0 12px;
-          font-size: 20px;
-          font-weight: 600;
-          color: #333;
-          line-height: 1.4;
-        ">${campaign.title}</h3>
+          <div style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+            <h3 style="
+              margin: 0 0 12px;
+              font-size: 20px;
+              font-weight: 600;
+              color: #333;
+              line-height: 1.4;
+            ">${safeTitle}</h3>
 
-        <p style="
-          margin: 0 0 16px;
-          color: #666;
-          font-size: 14px;
-          line-height: 1.6;
-        ">${campaign.content}</p>
+            <p style="
+              margin: 0 0 16px;
+              color: #666;
+              font-size: 15px;
+              line-height: 1.6;
+            ">${safeContent}</p>
 
-        <a href="${campaign.url}" class="devad-link" target="_blank" style="
-          display: inline-block;
-          padding: 10px 20px;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          color: white;
-          text-decoration: none;
-          border-radius: 6px;
-          font-size: 14px;
-          font-weight: 600;
-          transition: opacity 0.2s;
-          cursor: pointer;
-        " onmouseover="this.style.opacity='0.9';" onmouseout="this.style.opacity='1';">
-          자세히 보기 →
-        </a>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto;">
+              <a href="${safeUrl}" class="devad-link" target="_blank" rel="noopener noreferrer" style="
+                display: inline-block;
+                padding: 12px 24px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                text-decoration: none;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: 600;
+                transition: opacity 0.2s;
+                cursor: pointer;
+              " onmouseover="this.style.opacity='0.9';" onmouseout="this.style.opacity='1';">
+                자세히 보기 →
+              </a>
 
-        <div style="
-          margin-top: 16px;
-          padding-top: 16px;
-          border-top: 1px solid #f0f0f0;
-          font-size: 11px;
-          color: #aaa;
-        ">
-          Powered by <strong>DevAd</strong>
+              <span style="font-size: 11px; color: #aaa;">
+                by <strong>BoostAD</strong>
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     `;

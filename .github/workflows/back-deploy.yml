@@ -73,6 +73,9 @@ jobs:
             export IMAGE_TAG="${{ github.sha }}"
             export NCR_ENDPOINT="${{ secrets.NCR_ENDPOINT }}"
             export CORS_ORIGIN="${{ vars.CORS_ORIGIN || 'http://localhost:5173' }}"
+            export GOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}"
+            export GOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}"
+            export GOOGLE_REDIRECT_URI="${{ secrets.GOOGLE_REDIRECT_URI }}"
 
             echo "${{ secrets.NCP_SECRET_KEY }}" | docker login \
               -u "${{ secrets.NCP_ACCESS_KEY }}" \

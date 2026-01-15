@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards } from '@nestjs/common';
 import { RTBService } from './rtb.service';
 import { plainToInstance } from 'class-transformer';
 
@@ -7,8 +7,10 @@ import { RTBResponseDto } from './dto/rtb-response.dto';
 import type { DecisionContext } from './types/decision.types';
 
 import { Logger } from '@nestjs/common';
+import { BlogKeyValidationGuard } from '../common/guards/blog-key-validation.guard';
 
 @Controller('sdk')
+@UseGuards(BlogKeyValidationGuard)
 export class RTBController {
   private readonly logger = new Logger(RTBController.name);
 
