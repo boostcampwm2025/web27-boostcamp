@@ -1,4 +1,3 @@
-// 광고 카테고리 (백엔드 AVAILABLE_TAGS 주석 참고해서 만들었어요!)
 export type CampaignCategory =
   | '언어'
   | 'FE'
@@ -11,6 +10,7 @@ export type CampaignCategory =
 export interface Tag {
   id: number;
   name: string;
+  category: CampaignCategory;
 }
 
 export type FormStep = 1 | 2 | 3;
@@ -20,6 +20,7 @@ export interface CampaignContent {
   url: string;
   tags: Tag[];
   isHighIntent: boolean;
+  imageFile: File | null;
 }
 
 export interface BudgetSettings {
