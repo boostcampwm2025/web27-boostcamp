@@ -118,12 +118,9 @@ export class OAuthService {
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         }
       );
-
+      // todo: verifyGoogleIdToken으로 받은 idToken Payload를 기반으로 OauthAccount 과 User 테이블에 사용자 정보를 저장하거나 로그인 처리하는 로직필요
       if (data.id_token) {
-        const jwtTokenPayload = await this.verifyGoogleIdToken(
-          data.id_token,
-          client_id
-        );
+        await this.verifyGoogleIdToken(data.id_token, client_id);
       } else {
         throw new BadGatewayException(
           'Google 서버의 응답에 id 토큰이 존재하지 않습니다.'
