@@ -5,7 +5,7 @@ import { TagExtractor } from './features/TagExtractor';
 import { DecisionAPIClient } from './features/DecisionAPIClient';
 import { BannerAdRenderer } from './features/BannerAdRenderer';
 import { BehaviorTracker } from './features/BehaviorTracker';
-import { DevAdSDK } from './features/DevAdSDK';
+import { BoostAdSDK } from './features/BoostAdSDK';
 
 (function () {
   'use strict';
@@ -15,7 +15,7 @@ import { DevAdSDK } from './features/DevAdSDK';
   const apiClient = new DecisionAPIClient(config);
   const adRenderer = new BannerAdRenderer(config);
   const behaviorTracker = new BehaviorTracker();
-  const sdk = new DevAdSDK(
+  const sdk = new BoostAdSDK(
     tagExtractor,
     apiClient,
     adRenderer,

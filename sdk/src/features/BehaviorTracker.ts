@@ -6,6 +6,7 @@ export class BehaviorTracker implements BehaviorTrackerInterface {
     scrollDepth: 0,
     timeOnPage: 0,
     copyEvents: 0,
+    codeBlockCopies: 0,
     score: 0,
   };
 
@@ -31,7 +32,7 @@ export class BehaviorTracker implements BehaviorTrackerInterface {
       this.checkThreshold();
     }, 1000);
 
-    console.log('[DevAd SDK] 행동 추적 시작');
+    console.log('[BoostAD SDK] 행동 추적 시작');
   }
 
   stop(): void {
@@ -45,7 +46,7 @@ export class BehaviorTracker implements BehaviorTrackerInterface {
       this.timerInterval = null;
     }
 
-    console.log('[DevAd SDK] 행동 추적 중지');
+    console.log('[BoostAD SDK] 행동 추적 중지');
   }
 
   getCurrentScore(): number {
@@ -79,21 +80,67 @@ export class BehaviorTracker implements BehaviorTrackerInterface {
 
     // 스크롤 임계값 통과 시 로그
     if (prevDepth < 50 && this.metrics.scrollDepth >= 50) {
-      console.log('[DevAd SDK] 스크롤 50% 달성 → +20점');
+      console.log('[BoostAD SDK] 스크롤 50% 달성 → +20점');
     } else if (prevDepth < 80 && this.metrics.scrollDepth >= 80) {
-      console.log('[DevAd SDK] 스크롤 80% 달성 → +30점 (총합)');
+      console.log('[BoostAD SDK] 스크롤 80% 달성 → +30점 (총합)');
     }
 
     this.checkThreshold();
   };
 
   private handleCopy = (): void => {
-    this.metrics.copyEvents++;
-    console.log(
-      `[DevAd SDK] 복사 이벤트 감지 (${this.metrics.copyEvents}회) → +${this.metrics.copyEvents * 5}점`
-    );
+    const selection = window.getSelection();
+    const isCodeBlock = this.isSelectionInCodeBlock(selection);
+
+    if (isCodeBlock) {
+      this.metrics.codeBlockCopies++;
+      console.log(
+        `[BoostAD SDK] 코드 블록 복사 감지 (${this.metrics.codeBlockCopies}회) → +${this.metrics.codeBlockCopies * 15}점`
+      );
+    } else {
+      this.metrics.copyEvents++;
+      console.log(
+        `[BoostAD SDK] 일반 복사 이벤트 감지 (${this.metrics.copyEvents}회) → +${this.metrics.copyEvents * 5}점`
+      );
+    }
+
     this.checkThreshold();
   };
+
+  private isSelectionInCodeBlock(selection: Selection | null): boolean {
+    if (!selection || selection.rangeCount === 0) {
+      return false;
+    }
+
+    let node: Node | null = selection.getRangeAt(0).commonAncestorContainer;
+
+    // DOM 트리를 거슬러 올라가면서 <pre>, <code> 태그 찾기
+    while (node && node !== document.body) {
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        const element = node as Element;
+        const tagName = element.tagName.toUpperCase();
+
+        // <pre> 또는 <code> 태그 발견
+        if (tagName === 'PRE' || tagName === 'CODE') {
+          return true;
+        }
+
+        // 티스토리, 벨로그 등 코드 블록 클래스 감지
+        const className = element.className || '';
+        if (
+          className.includes('code') ||
+          className.includes('hljs') ||
+          className.includes('language-') ||
+          className.includes('highlight')
+        ) {
+          return true;
+        }
+      }
+      node = node.parentNode;
+    }
+
+    return false;
+  }
 
   private calculateScore(): void {
     let score = 0;
@@ -109,8 +156,11 @@ export class BehaviorTracker implements BehaviorTrackerInterface {
     const minutes = this.metrics.timeOnPage / 60;
     score += Math.min(40, Math.floor(minutes * 30));
 
-    // 복사 점수 (1회 = 5점)
+    // 일반 복사 점수 (1회 = 5점)
     score += this.metrics.copyEvents * 5;
+
+    // 코드 블록 복사 점수 (1회 = 15점) - 높은 가중치
+    score += this.metrics.codeBlockCopies * 15;
 
     this.metrics.score = score;
   }
@@ -122,7 +172,7 @@ export class BehaviorTracker implements BehaviorTrackerInterface {
     if (!this.thresholdReached && this.metrics.score >= 70) {
       this.thresholdReached = true;
       console.log(
-        '[DevAd SDK] 70점 도달! 5초 후 2차 광고 요청... (현재:',
+        '[BoostAD SDK] 70점 도달! 5초 후 2차 광고 요청... (현재:',
         this.metrics.score,
         '점)'
       );
@@ -130,7 +180,7 @@ export class BehaviorTracker implements BehaviorTrackerInterface {
       // 5초 후 콜백 실행 (전부 70점으로만 몰리지 않도록 하기 위해서)
       setTimeout(() => {
         console.log(
-          '[DevAd SDK] 2차 광고 요청 실행 (최종 점수:',
+          '[BoostAD SDK] 2차 광고 요청 실행 (최종 점수:',
           this.metrics.score,
           '점)'
         );

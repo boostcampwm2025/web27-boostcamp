@@ -39,7 +39,7 @@ export class DecisionAPIClient implements APIClient {
 
       return await response.json();
     } catch (error) {
-      console.error('[DevAd SDK] API 호출 실패:', error);
+      console.error('[BoostAD SDK] API 호출 실패:', error);
       // API 실패 시 빈 응답 반환 (광고 없음 상태)
       return {
         status: 'error',
