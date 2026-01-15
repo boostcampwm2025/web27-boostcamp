@@ -5,6 +5,8 @@ import { AdvertiserDashboardPage } from '@pages/advertiserDashboard';
 import { AdvertiserCampaignsPage } from '@pages/advertiserCampaigns';
 import { AdvertiserBudgetPage } from '@pages/advertiserBudget';
 import { NotFoundPage } from '@pages/notFound';
+import { RegisterPage } from '@/2_pages/auth/ui/RegisterPage';
+import { LoginPage } from '@/2_pages/auth/ui/LoginPage';
 import { PublisherDashboardPage } from '@pages/publisherDashboard';
 import { PublisherEarningsPage } from '@pages/publisherEarnings';
 import { PublisherSettingsPage } from '@pages/publisherSettings';
@@ -64,7 +66,8 @@ export function RouterProvider() {
             element={<PublisherSettingsPage />}
           />
         </Route>
-
+        <Route path="/auth/register" element={<RegisterPage />} />
+        <Route path="/auth/login" element={<LoginPage/>} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
