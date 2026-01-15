@@ -198,13 +198,21 @@ export class BannerAdRenderer implements AdRenderer {
             ">${safeTitle}</h3>
 
             <p style="
-              margin: 0 0 16px;
+              margin: 0 0 24px;
               color: #666;
               font-size: 15px;
               line-height: 1.6;
+              flex-grow: 1;
             ">${safeContent}</p>
 
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto;">
+            <div style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-top: auto;
+              padding-top: 16px;
+              gap: 12px;
+            ">
               <a href="${safeUrl}" class="devad-link" target="_blank" rel="noopener noreferrer" style="
                 display: inline-block;
                 padding: 12px 24px;
@@ -216,11 +224,12 @@ export class BannerAdRenderer implements AdRenderer {
                 font-weight: 600;
                 transition: opacity 0.2s;
                 cursor: pointer;
+                white-space: nowrap;
               " onmouseover="this.style.opacity='0.9';" onmouseout="this.style.opacity='1';">
                 자세히 보기 →
               </a>
 
-              <span style="font-size: 11px; color: #aaa;">
+              <span style="font-size: 11px; color: #aaa; white-space: nowrap;">
                 by <strong>BoostAD</strong>
               </span>
             </div>
