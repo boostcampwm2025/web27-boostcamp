@@ -17,6 +17,7 @@ export type FormStep = 1 | 2 | 3;
 
 export interface CampaignContent {
   title: string;
+  content: string;
   url: string;
   tags: Tag[];
   isHighIntent: boolean;
