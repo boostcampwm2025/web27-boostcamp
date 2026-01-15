@@ -107,6 +107,41 @@ export class BehaviorTracker implements BehaviorTrackerInterface {
     this.checkThreshold();
   };
 
+  private isSelectionInCodeBlock(selection: Selection | null): boolean {
+    if (!selection || selection.rangeCount === 0) {
+      return false;
+    }
+
+    let node: Node | null = selection.getRangeAt(0).commonAncestorContainer;
+
+    // DOM 트리를 거슬러 올라가면서 <pre>, <code> 태그 찾기
+    while (node && node !== document.body) {
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        const element = node as Element;
+        const tagName = element.tagName.toUpperCase();
+
+        // <pre> 또는 <code> 태그 발견
+        if (tagName === 'PRE' || tagName === 'CODE') {
+          return true;
+        }
+
+        // 티스토리, 벨로그 등 코드 블록 클래스 감지
+        const className = element.className || '';
+        if (
+          className.includes('code') ||
+          className.includes('hljs') ||
+          className.includes('language-') ||
+          className.includes('highlight')
+        ) {
+          return true;
+        }
+      }
+      node = node.parentNode;
+    }
+
+    return false;
+  }
+
   private calculateScore(): void {
     let score = 0;
 
@@ -121,8 +156,11 @@ export class BehaviorTracker implements BehaviorTrackerInterface {
     const minutes = this.metrics.timeOnPage / 60;
     score += Math.min(40, Math.floor(minutes * 30));
 
-    // 복사 점수 (1회 = 5점)
+    // 일반 복사 점수 (1회 = 5점)
     score += this.metrics.copyEvents * 5;
+
+    // 코드 블록 복사 점수 (1회 = 15점) - 높은 가중치
+    score += this.metrics.codeBlockCopies * 15;
 
     this.metrics.score = score;
   }
