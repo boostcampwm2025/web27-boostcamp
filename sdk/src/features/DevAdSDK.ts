@@ -9,6 +9,16 @@ import type {
 // DevAd SDK 메인 클래스 (전략 패턴)
 export class DevAdSDK {
   private hasRequestedSecondAd = false;
+  private readonly CONTENT_SELECTORS = [
+    '.article-view',
+    '.article-content',
+    '.post-content',
+    '.entry-content',
+    '.content',
+    'article',
+    '[class*="content"]',
+    '[class*="article"]',
+  ];
 
   constructor(
     public tagExtractor: TagExtractor,
@@ -18,29 +28,18 @@ export class DevAdSDK {
   ) {}
 
   async init(): Promise<void> {
-    const zones = document.querySelectorAll('[data-devad-zone]');
-
-    if (zones.length === 0) {
-      console.warn(
-        '[DevAd SDK] 광고 존을 찾을 수 없습니다. <div data-devad-zone></div>를 추가해주세요.'
-      );
-      return;
-    }
-
-    // 태그 추출
     const tags = this.tagExtractor.extract();
     console.log('[DevAd SDK] 추출된 태그:', tags);
 
-    if (tags.length === 0) {
-      console.warn(
-        '[DevAd SDK] 태그를 추출하지 못했습니다. 광고 매칭이 잘 되지 않을 수 있습니다.'
-      );
-    }
-
     const postUrl = window.location.href;
 
-    // 1차 광고 요청 (behaviorScore=0, isHighIntent=false)
-    zones.forEach(async (zone, index) => {
+    // 1차 광고: 본문 상단에 삽입
+    const firstAdContainer = this.createAdContainer('devad-first-ad');
+    const insertionPoint = this.findContentTop();
+
+    if (insertionPoint) {
+      insertionPoint.before(firstAdContainer);
+
       try {
         const data = await this.apiClient.fetchDecision(
           tags,
@@ -50,33 +49,90 @@ export class DevAdSDK {
         );
         this.adRenderer.render(
           data.data.campaign,
-          zone as HTMLElement,
+          firstAdContainer,
           data.data.auctionId,
           postUrl,
           0,
           false
         );
-      } catch (error) {
-        console.error(`[DevAd SDK] Zone ${index + 1} 렌더링 실패:`, error);
-        (zone as HTMLElement).innerHTML =
-          '<div style="color: red;">광고 로드 실패</div>';
+      } catch {
+        firstAdContainer.innerHTML =
+          '<div style="color: #999; font-size: 14px; padding: 20px; text-align: center;">광고를 불러올 수 없습니다</div>';
       }
-    });
+    }
 
     // 행동 추적 시작 + 70점 도달 시 2차 광고 요청
     this.behaviorTracker.onThresholdReached(() => {
-      this.requestSecondAd(tags, postUrl, zones);
+      this.requestSecondAd(tags, postUrl);
     });
     this.behaviorTracker.start();
   }
 
-  private async requestSecondAd(
-    tags: Tag[],
-    postUrl: string,
-    zones: NodeListOf<Element>
-  ): Promise<void> {
+  private createAdContainer(id: string): HTMLElement {
+    const container = document.createElement('div');
+    container.id = id;
+    container.style.margin = '30px 0';
+    return container;
+  }
+
+  private findContentTop(): Element | null {
+    for (const selector of this.CONTENT_SELECTORS) {
+      const contentArea = document.querySelector(selector);
+      if (contentArea) {
+        const firstElement = contentArea.querySelector('p, h2');
+        if (firstElement) {
+          return firstElement;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  private findScrollBasedInsertionPoint(): Element | null {
+    let contentArea: Element | null = null;
+    for (const selector of this.CONTENT_SELECTORS) {
+      contentArea = document.querySelector(selector);
+      if (contentArea) break;
+    }
+
+    if (!contentArea) return null;
+
+    const paragraphs = contentArea.querySelectorAll('p');
+    if (paragraphs.length === 0) return null;
+
+    const scrollY = window.scrollY;
+    const viewportHeight = window.innerHeight;
+    const targetY = scrollY + viewportHeight;
+
+    const contentRect = contentArea.getBoundingClientRect();
+    const contentBottom = contentRect.bottom + scrollY;
+
+    // 스크롤이 본문을 넘어섰다면 본문의 마지막 <p> 태그 반환
+    if (targetY > contentBottom) {
+      return paragraphs[paragraphs.length - 1];
+    }
+
+    // 본문 내에서 스크롤 위치에 가장 가까운 <p> 태그 찾기
+    let closestParagraph: Element | null = null;
+    let minDistance = Infinity;
+
+    paragraphs.forEach((p) => {
+      const rect = p.getBoundingClientRect();
+      const pTop = rect.top + scrollY;
+      const distance = Math.abs(pTop - targetY);
+
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestParagraph = p;
+      }
+    });
+
+    return closestParagraph;
+  }
+
+  private async requestSecondAd(tags: Tag[], postUrl: string): Promise<void> {
     if (this.hasRequestedSecondAd) {
-      console.log('[DevAd SDK] 2차 광고 이미 요청됨, 스킵');
       return;
     }
 
@@ -92,8 +148,19 @@ export class DevAdSDK {
       isHighIntent
     );
 
-    // 2차 광고 요청 (실제 behaviorScore, isHighIntent=true)
-    zones.forEach(async (zone, index) => {
+    // 1차 광고 제거
+    const firstAdContainer = document.getElementById('devad-first-ad');
+    if (firstAdContainer) {
+      firstAdContainer.remove();
+    }
+
+    // 2차 광고 컨테이너 생성 및 현재 스크롤 위치에 삽입
+    const secondAdContainer = this.createAdContainer('devad-second-ad');
+    const insertionPoint = this.findScrollBasedInsertionPoint();
+
+    if (insertionPoint) {
+      insertionPoint.after(secondAdContainer);
+
       try {
         const data = await this.apiClient.fetchDecision(
           tags,
@@ -103,18 +170,16 @@ export class DevAdSDK {
         );
         this.adRenderer.render(
           data.data.campaign,
-          zone as HTMLElement,
+          secondAdContainer,
           data.data.auctionId,
           postUrl,
           score,
           isHighIntent
         );
-      } catch (error) {
-        console.error(
-          `[DevAd SDK] Zone ${index + 1} 2차 광고 렌더링 실패:`,
-          error
-        );
+      } catch {
+        secondAdContainer.innerHTML =
+          '<div style="color: #999; font-size: 14px; padding: 20px; text-align: center;">광고를 불러올 수 없습니다</div>';
       }
-    });
+    }
   }
 }

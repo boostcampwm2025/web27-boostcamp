@@ -2,7 +2,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { getTypeOrmConfig } from './config/typeorm.config';
-
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 import { RTBModule } from './rtb/rtb.module';
 import { BidLogModule } from './bid-log/bid-log.module';
 import { SdkModule } from './sdk/sdk.module';
@@ -11,10 +12,17 @@ import { LogModule } from './log/log.module';
 import { CacheModule } from './cache/cache.module';
 import { CampaignModule } from './campaign/campaign.module';
 import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }), // .env 파일을 전역 설정으로 사용
+    ConfigModule.forRoot({ isGlobal: true }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000, // 60초
+        limit: 100, // IP당 100회
+      },
+    ]),
     RTBModule,
 
     // 팩토리 함수 사용해서 typeORM 설정 비동기 로드
@@ -31,8 +39,14 @@ import { UserModule } from './user/user.module';
     CacheModule,
     CampaignModule,
     UserModule,
+    AuthModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}
