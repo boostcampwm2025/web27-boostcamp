@@ -89,10 +89,21 @@ export class BehaviorTracker implements BehaviorTrackerInterface {
   };
 
   private handleCopy = (): void => {
-    this.metrics.copyEvents++;
-    console.log(
-      `[DevAd SDK] 복사 이벤트 감지 (${this.metrics.copyEvents}회) → +${this.metrics.copyEvents * 5}점`
-    );
+    const selection = window.getSelection();
+    const isCodeBlock = this.isSelectionInCodeBlock(selection);
+
+    if (isCodeBlock) {
+      this.metrics.codeBlockCopies++;
+      console.log(
+        `[DevAd SDK] 코드 블록 복사 감지 (${this.metrics.codeBlockCopies}회) → +${this.metrics.codeBlockCopies * 15}점`
+      );
+    } else {
+      this.metrics.copyEvents++;
+      console.log(
+        `[DevAd SDK] 일반 복사 이벤트 감지 (${this.metrics.copyEvents}회) → +${this.metrics.copyEvents * 5}점`
+      );
+    }
+
     this.checkThreshold();
   };
 
