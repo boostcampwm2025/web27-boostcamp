@@ -1,5 +1,9 @@
-import { RouterProvider } from '@app/providers';
+import { RouterProvider, ToastProvider } from '@app/providers';
 
 export default function App() {
-  return <RouterProvider />;
+  return (
+    <ToastProvider>
+      <RouterProvider />
+    </ToastProvider>
+  );
 }
