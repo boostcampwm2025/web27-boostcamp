@@ -40,12 +40,12 @@ export class RTBService {
       if (context.isHighIntent) {
         // 고의도 요청: is_high_intent=true 광고만
         candidates = candidates.filter(
-          (c) => c.campaign.is_high_intent === true
+          (c) => c.campaign.isHighIntent === true
         );
       } else {
         // 일반 요청: is_high_intent=false 광고만
         candidates = candidates.filter(
-          (c) => c.campaign.is_high_intent === false
+          (c) => c.campaign.isHighIntent === false
         );
       }
 
@@ -65,7 +65,7 @@ export class RTBService {
       // 4. AuctionStore에 경매 데이터 저장 (ViewLog에서 조회용)
       this.auctionStore.set(auctionId, {
         blogId: blogId,
-        cost: result.winner.max_cpc,
+        cost: result.winner.maxCpc,
       });
 
       // 5. BidLog 저장 (모든 참여 캠페인의 입찰 기록)
@@ -75,7 +75,7 @@ export class RTBService {
         campaignId: candidate.id,
         blogId: context.blogKey,
         status: candidate.id === result.winner.id ? 'WIN' : 'LOSS',
-        bidPrice: candidate.max_cpc,
+        bidPrice: candidate.maxCpc,
         isHighIntent: context.isHighIntent,
         behaviorScore: context.behaviorScore,
         timestamp,

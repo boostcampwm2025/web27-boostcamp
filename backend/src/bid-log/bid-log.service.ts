@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { BidLogRepository } from './repositories/bid-log.repository';
-import { CampaignRepository } from '../rtb/repositories/campaign.repository.interface';
+import { CampaignRepository } from 'src/campaign/repository/campaign.repository';
 import { BidLogResponseDto, BidLogItemDto } from './dto/bid-log-response.dto';
 import { MOCK_BLOGS } from '../common/constants';
 
@@ -19,10 +19,10 @@ export class BidLogService {
     const allBidLogs = this.bidLogRepository.getAll();
 
     // 2. 모든 Campaign 가져오기
-    const allCampaigns = await this.campaignRepository.findAll();
+    const allCampaigns = await this.campaignRepository.getAll();
 
     // 3. userId=1인 캠페인만 필터링
-    const userCampaigns = allCampaigns.filter((c) => c.user_id === 1);
+    const userCampaigns = allCampaigns.filter((c) => c.userId === 1);
     const userCampaignIds = new Set(userCampaigns.map((c) => c.id));
 
     // 4. userId=1의 캠페인에 해당하는 BidLog만 필터링
