@@ -5,8 +5,8 @@ import { RTBService } from './rtb.service';
 
 // Repository
 import { CampaignRepository } from './repositories/campaign.repository.interface';
-import { PrototypeCampaignRepository } from './repositories/prototype-campaign.repository';
-// import { TypeOrmRTBCampaignRepository } from './repositories/typeorm-rtb-campaign.repository';
+// import { PrototypeCampaignRepository } from './repositories/prototype-campaign.repository';
+import { TypeOrmRTBCampaignRepository } from './repositories/typeorm-rtb-campaign.repository';
 
 // MLEngine
 import { MLEngine } from './ml/mlEngine.interface';
@@ -44,7 +44,7 @@ import { BidLogModule } from '../bid-log/bid-log.module';
     // Repository
     {
       provide: CampaignRepository,
-      useClass: PrototypeCampaignRepository,
+      useClass: TypeOrmRTBCampaignRepository,
     },
 
     // Matcher
