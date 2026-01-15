@@ -59,7 +59,7 @@ const getFixturePath = () => {
     return process.env.ERD_FIXTURE_PATH;
   }
 
-  const moduleRelative = resolve(__dirname, '../../mock/erd-fixture.json');
+  const moduleRelative = resolve(__dirname, '../../../mock/erd-fixture.json');
   if (existsSync(moduleRelative)) {
     return moduleRelative;
   }
