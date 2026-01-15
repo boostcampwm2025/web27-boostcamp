@@ -57,4 +57,4 @@ jobs:
           "$AWS" --endpoint-url "$ENDPOINT" s3 ls "s3://$BUCKET"
 
           # sdk/dist -> s3://bucket/sdk/
-          "$AWS" --endpoint-url "$ENDPOINT" s3 sync sdk/dist "s3://$BUCKET/$SDK_S3_PREFIX/" --delete
+          "$AWS" --endpoint-url "$ENDPOINT" s3 sync sdk/dist "s3://$BUCKET/$SDK_S3_PREFIX/" --delete --acl public-read

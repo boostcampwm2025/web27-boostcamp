@@ -63,4 +63,4 @@ jobs:
           "$AWS" --endpoint-url "$ENDPOINT" s3 ls "s3://$BUCKET"
 
           # 1) 업로드(동기화)
-          "$AWS" --endpoint-url "$ENDPOINT" s3 sync frontend/dist "s3://$BUCKET" --delete
+          "$AWS" --endpoint-url "$ENDPOINT" s3 sync frontend/dist "s3://$BUCKET" --delete --acl public-read
