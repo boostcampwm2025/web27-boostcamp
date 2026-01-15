@@ -11,6 +11,7 @@ import { PublisherDashboardPage } from '@pages/publisherDashboard';
 import { PublisherEarningsPage } from '@pages/publisherEarnings';
 import { PublisherSettingsPage } from '@pages/publisherSettings';
 import { OnboardingSdkGuidePageSkeleton } from '@pages/onboardingSdkGuide';
+import { CampaignCreatePage } from '@pages/campaginCreate';
 
 const OnboardingSdkGuidePage = lazy(() =>
   import('@pages/onboardingSdkGuide').then((m) => ({
@@ -35,6 +36,10 @@ export function RouterProvider() {
                 <OnboardingSdkGuidePage />
               </Suspense>
             }
+          />
+          <Route
+            path="/advertiser/campaign-create"
+            element={<CampaignCreatePage />}
           />
         </Route>
 
