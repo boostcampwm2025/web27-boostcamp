@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 import { RTBModule } from './rtb/rtb.module';
 import { BidLogModule } from './bid-log/bid-log.module';
 import { SdkModule } from './sdk/sdk.module';
@@ -13,6 +15,12 @@ import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000, // 60초
+        limit: 100, // IP당 100회
+      },
+    ]),
     RTBModule,
     BidLogModule,
     SdkModule,
@@ -24,6 +32,11 @@ import { AuthModule } from './auth/auth.module';
     AuthModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}
