@@ -1,12 +1,12 @@
-import { Module, forwardRef } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { BidLogController } from './bid-log.controller';
 import { BidLogService } from './bid-log.service';
 import { BidLogRepository } from './repositories/bid-log.repository';
 import { InMemoryBidLogRepository } from './repositories/in-memory-bid-log.repository';
-import { RTBModule } from '../rtb/rtb.module';
+import { CampaignModule } from 'src/campaign/campaign.module';
 
 @Module({
-  imports: [forwardRef(() => RTBModule)], // 순환 의존성 해결
+  imports: [CampaignModule],
   controllers: [BidLogController],
   providers: [
     BidLogService,

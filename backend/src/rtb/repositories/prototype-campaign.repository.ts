@@ -1,14 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import type { CampaignRepository } from './campaign.repository.interface';
 import type { CampaignWithTags, Tag } from 'src/campaign/types/campaign.types';
+import { CampaignRepository } from 'src/campaign/repository/campaign.repository';
 
 import { CAMPAIGNS_MOCK } from '../../data/campaign.mock';
 
 @Injectable()
-export class PrototypeCampaignRepository implements CampaignRepository {
+export class PrototypeCampaignRepository extends CampaignRepository {
   private campaigns: CampaignWithTags[] = CAMPAIGNS_MOCK;
 
-  findByTags(tags: Tag[]): Promise<CampaignWithTags[]> {
+  constructor() {
+    super();
+  }
+
+  getByTags(tags: Tag[]): Promise<CampaignWithTags[]> {
     const tagNames = tags.map((tag) => tag.name);
     return Promise.resolve(
       this.campaigns.filter((campaign) =>
@@ -17,11 +21,15 @@ export class PrototypeCampaignRepository implements CampaignRepository {
     );
   }
 
-  findById(id: string): Promise<CampaignWithTags | null> {
+  getById(id: string): Promise<CampaignWithTags | null> {
     return Promise.resolve(this.campaigns.find((c) => c.id === id) || null);
   }
 
-  findAll(): Promise<CampaignWithTags[]> {
+  getAll(): Promise<CampaignWithTags[]> {
     return Promise.resolve(this.campaigns);
+  }
+
+  listByUserId(userId: number): Promise<CampaignWithTags[]> {
+    return Promise.resolve(this.campaigns.filter((c) => c.userId === userId));
   }
 }

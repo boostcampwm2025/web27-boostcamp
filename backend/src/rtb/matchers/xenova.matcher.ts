@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Matcher } from './matcher.interface';
-import { CampaignRepository } from '../repositories/campaign.repository.interface';
+import { CampaignRepository } from 'src/campaign/repository/campaign.repository';
 import { MLEngine } from '../ml/mlEngine.interface';
 import type { Candidate, DecisionContext } from '../types/decision.types';
 import type { CampaignWithTags } from 'src/campaign/types/campaign.types';
@@ -27,7 +27,7 @@ export class TransformerMatcher extends Matcher {
     }
 
     const requestText = this.buildRequestText(context.tags);
-    const allCampaigns = await this.campaignRepo.findAll();
+    const allCampaigns = await this.campaignRepo.getAll();
 
     // 모든 캠페인과 유사도 계산
     const withSimilarity = await Promise.all(
