@@ -6,6 +6,7 @@ export class BehaviorTracker implements BehaviorTrackerInterface {
     scrollDepth: 0,
     timeOnPage: 0,
     copyEvents: 0,
+    codeBlockCopies: 0,
     score: 0,
   };
 
