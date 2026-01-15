@@ -40,7 +40,7 @@ export const Icon = {
   Report,
   Stop,
   Wallet,
-  Google
+  Google,
   Check,
   Copy,
   Edit,
