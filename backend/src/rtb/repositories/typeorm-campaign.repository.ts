@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CampaignRepository as RTBCampaignRepository } from './campaign.repository.interface';
-import { Campaign as RTBCampaign, Tag } from '../types/decision.types';
+import { CampaignRepository as RTBCampaignRepository } from '../../rtb/repositories/campaign.repository.interface';
+import { Campaign as RTBCampaign, Tag } from '../../rtb/types/decision.types';
 import {
   Campaign,
   CampaignStatus,
 } from '../../campaign/entities/campaign.entity';
 
 @Injectable()
-export class TypeOrmRTBCampaignRepository implements RTBCampaignRepository {
+export class TypeOrmCampaignRepository implements RTBCampaignRepository {
   constructor(
     @InjectRepository(Campaign)
     private readonly campaignRepository: Repository<Campaign>
