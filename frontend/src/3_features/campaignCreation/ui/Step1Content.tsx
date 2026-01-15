@@ -8,7 +8,7 @@ import type { Tag } from '../lib/types';
 
 export function Step1Content() {
   const { formData, updateCampaignContent } = useCampaignForm();
-  const { title, url, tags, isHighIntent, imageFile } =
+  const { title, content, url, tags, isHighIntent, imageFile } =
     formData.campaignContent;
 
   const handleImageChange = (file: File | null) => {
@@ -17,6 +17,10 @@ export function Step1Content() {
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     updateCampaignContent({ title: e.target.value });
+  };
+
+  const handleContentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    updateCampaignContent({ content: e.target.value });
   };
 
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,6 +47,12 @@ export function Step1Content() {
         placeholder="Next로 배우는 프론트"
         value={title}
         onChange={handleTitleChange}
+      />
+      <TextField
+        label="광고 내용"
+        placeholder="Next로 프론트를 배워보고 싶다면 꼭 들어보세요!"
+        value={content}
+        onChange={handleContentChange}
       />
       <TextField
         label="광고 URL"
