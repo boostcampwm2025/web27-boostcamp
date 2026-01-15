@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -9,10 +7,15 @@ import {
   ManyToOne,
   JoinColumn,
   OneToMany,
+  type Relation,
 } from 'typeorm';
-import { User } from '../../user/entities/user.entity';
-import { BidLog } from '../../bid-log/entities/bid-log.entity';
-import { ViewLog } from '../../log/entities/view-log.entity';
+import type { User } from '../../user/entities/user.entity';
+import type { BidLog } from '../../bid-log/entities/bid-log.entity';
+import type { ViewLog } from '../../log/entities/view-log.entity';
+
+import * as UserEntity from '../../user/entities/user.entity';
+import * as BidLogEntity from '../../bid-log/entities/bid-log.entity';
+import * as ViewLogEntity from '../../log/entities/view-log.entity';
 
 @Entity('Blog')
 export class Blog {
@@ -47,13 +50,13 @@ export class Blog {
   deletedAt: Date | null;
 
   // Relations
-  @ManyToOne(() => User, (user) => user.blogs)
+  @ManyToOne(() => UserEntity.User, (user: User) => user.blogs)
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: Relation<User>;
 
-  @OneToMany(() => BidLog, (bidLog) => bidLog.blog)
-  bidLogs: BidLog[];
+  @OneToMany(() => BidLogEntity.BidLog, (bidLog: BidLog) => bidLog.blog)
+  bidLogs: Relation<BidLog>[];
 
-  @OneToMany(() => ViewLog, (viewLog) => viewLog.blog)
-  viewLogs: ViewLog[];
+  @OneToMany(() => ViewLogEntity.ViewLog, (viewLog: ViewLog) => viewLog.blog)
+  viewLogs: Relation<ViewLog>[];
 }

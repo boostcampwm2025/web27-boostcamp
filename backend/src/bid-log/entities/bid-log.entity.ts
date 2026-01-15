@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -7,9 +5,12 @@ import {
   CreateDateColumn,
   ManyToOne,
   JoinColumn,
+  type Relation,
 } from 'typeorm';
-import { Campaign } from '../../campaign/entities/campaign.entity';
-import { Blog } from '../../blog/entities/blog.entity';
+import type { Campaign } from '../../campaign/entities/campaign.entity';
+import type { Blog } from '../../blog/entities/blog.entity';
+import * as CampaignEntity from '../../campaign/entities/campaign.entity';
+import * as BlogEntity from '../../blog/entities/blog.entity';
 
 export enum BidStatus {
   WIN = 'WIN',
@@ -69,11 +70,14 @@ export class BidLog {
   createdAt: Date;
 
   // Relations
-  @ManyToOne(() => Campaign, (campaign) => campaign.bidLogs)
+  @ManyToOne(
+    () => CampaignEntity.Campaign,
+    (campaign: Campaign) => campaign.bidLogs
+  )
   @JoinColumn({ name: 'campaign_id' })
-  campaign: Campaign;
+  campaign: Relation<Campaign>;
 
-  @ManyToOne(() => Blog, (blog) => blog.bidLogs)
+  @ManyToOne(() => BlogEntity.Blog, (blog: Blog) => blog.bidLogs)
   @JoinColumn({ name: 'blog_id' })
-  blog: Blog;
+  blog: Relation<Blog>;
 }

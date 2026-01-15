@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-
 import {
   Entity,
   Column,
@@ -11,11 +9,16 @@ import {
   JoinTable,
   PrimaryColumn,
   OneToMany,
+  type Relation,
 } from 'typeorm';
-import { User } from '../../user/entities/user.entity';
-import { Tag } from '../../tag/entities/tag.entity';
-import { BidLog } from '../../bid-log/entities/bid-log.entity';
-import { ViewLog } from '../../log/entities/view-log.entity';
+import type { User } from '../../user/entities/user.entity';
+import type { Tag } from '../../tag/entities/tag.entity';
+import type { BidLog } from '../../bid-log/entities/bid-log.entity';
+import type { ViewLog } from '../../log/entities/view-log.entity';
+import * as UserEntity from '../../user/entities/user.entity';
+import * as TagEntity from '../../tag/entities/tag.entity';
+import * as BidLogEntity from '../../bid-log/entities/bid-log.entity';
+import * as ViewLogEntity from '../../log/entities/view-log.entity';
 
 export enum CampaignStatus {
   PENDING = 'PENDING',
@@ -86,21 +89,24 @@ export class Campaign {
   deletedAt: Date | null;
 
   // Relations
-  @ManyToOne(() => User, (user) => user.campaigns)
+  @ManyToOne(() => UserEntity.User, (user: User) => user.campaigns)
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: Relation<User>;
 
-  @ManyToMany(() => Tag, (tag) => tag.campaigns)
+  @ManyToMany(() => TagEntity.Tag, (tag: Tag) => tag.campaigns)
   @JoinTable({
     name: 'CampaignTag',
     joinColumn: { name: 'campaign_id', referencedColumnName: 'id' },
     inverseJoinColumn: { name: 'tag_id', referencedColumnName: 'id' },
   })
-  tags: Tag[];
+  tags: Relation<Tag[]>;
 
-  @OneToMany(() => BidLog, (bidLog) => bidLog.campaign)
-  bidLogs: BidLog[];
+  @OneToMany(() => BidLogEntity.BidLog, (bidLog: BidLog) => bidLog.campaign)
+  bidLogs: Relation<BidLog[]>;
 
-  @OneToMany(() => ViewLog, (viewLog) => viewLog.campaign)
-  viewLogs: ViewLog[];
+  @OneToMany(
+    () => ViewLogEntity.ViewLog,
+    (viewLog: ViewLog) => viewLog.campaign
+  )
+  viewLogs: Relation<ViewLog[]>;
 }
