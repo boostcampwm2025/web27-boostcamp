@@ -23,15 +23,9 @@ import { DevAdSDK } from './features/DevAdSDK';
   );
 
   // DOM 로드 완료 후 SDK 자동 초기화
-  const autoRenderZone = document.querySelector('[data-devad-zone]');
-
-  if (autoRenderZone) {
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => sdk.init());
-    } else {
-      sdk.init();
-    }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => sdk.init());
   } else {
-    console.warn('[DevAd SDK] data-devad-zone 요소를 찾을 수 없습니다.');
+    sdk.init();
   }
 })();
