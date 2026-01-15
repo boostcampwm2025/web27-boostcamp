@@ -78,6 +78,41 @@
       .tags .items a:hover {
         background: #d0d0d0;
       }
+      /* 티스토리 스타일 태그 영역 */
+      .article-footer {
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid #e0e0e0;
+      }
+      .article-tag {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .article-tag h3 {
+        font-size: 14px;
+        color: #999;
+        margin: 0;
+      }
+      .box-tag {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .box-tag a {
+        display: inline-block;
+        padding: 6px 12px;
+        background: #f5f5f5;
+        color: #666;
+        text-decoration: none;
+        border-radius: 4px;
+        font-size: 13px;
+        transition: all 0.2s;
+      }
+      .box-tag a:hover {
+        background: #667eea;
+        color: white;
+      }
     </style>
   </head>
   <body>
@@ -116,13 +151,16 @@
           NestJS와 TypeScript를 함께 사용하면 엔터프라이즈급 백엔드
           애플리케이션을 효율적으로 개발할 수 있습니다.
         </p>
+      </div>
 
-        <!-- 티스토리 스타일 태그 영역 -->
-        <div class="tags">
-          <h2>태그</h2>
-          <div class="items">
-            <a href="/tag/React" rel="tag">React</a>
-            <a href="/tag/TypeScript" rel="tag">TypeScript</a>
+      <!-- 티스토리 스타일 태그 영역 (article-footer > article-tag > box-tag) -->
+      <div class="article-footer">
+        <!-- article-tag -->
+        <div class="article-tag">
+          <h3 class="title-footer">Tag</h3>
+          <div class="box-tag">
+            <a href="/tag/typescript" rel="tag">TypeScript</a>
+            <a href="/tag/react" rel="tag">React</a>
           </div>
         </div>
       </div>
@@ -130,9 +168,9 @@
 
     <!-- DevAd SDK 로드 -->
     <!-- 로컬: http://localhost:3000/sdk.js -->
-    <!-- 배포: https://boostad-sdk.kr.object.ncloudstorage.com/sdk/sdk.js -->
+    <!-- 배포: https://kr.object.ncloudstorage.com/boostad-sdk-dev/sdk/sdk.js -->
     <script
-      src="http://localhost:3000/sdk.js"
+      src="https://kr.object.ncloudstorage.com/boostad-sdk-dev/sdk/sdk.js"
       data-blog-key="test-blog"
       async
     ></script>
