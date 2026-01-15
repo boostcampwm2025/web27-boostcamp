@@ -22,9 +22,11 @@ interface CampaignFormState {
 const initialFormData: CampaignFormData = {
   campaignContent: {
     title: '',
+    content: '',
     url: '',
     tags: [],
     isHighIntent: false,
+    imageFile: null,
   },
   budgetSettings: {
     dailyBudget: 0,
