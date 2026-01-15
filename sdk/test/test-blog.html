@@ -113,6 +113,43 @@
         background: #667eea;
         color: white;
       }
+      /* 티스토리 코드 블록 스타일 */
+      pre[id^='code_'] {
+        background: #282c34;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+        overflow-x: auto;
+        font-family: 'Courier New', monospace;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+      pre[id^='code_'] code.hljs {
+        background: transparent;
+        color: #abb2bf;
+        display: block;
+        padding: 0;
+      }
+      .hljs-keyword {
+        color: #c678dd;
+        font-weight: bold;
+      }
+      .hljs-string {
+        color: #98c379;
+      }
+      .hljs-function {
+        color: #61afef;
+      }
+      .hljs-comment {
+        color: #5c6370;
+        font-style: italic;
+      }
+      .hljs-number {
+        color: #d19a66;
+      }
+      .hljs-title {
+        color: #e5c07b;
+      }
     </style>
   </head>
   <body>
@@ -170,6 +207,34 @@
           <code>@Post()</code> 등의 데코레이터를 통해 라우팅을 명시적으로 정의할
           수 있어, 코드만 보고도 API 구조를 쉽게 파악할 수 있습니다.
         </p>
+
+        <p>간단한 컨트롤러 예제를 살펴보겠습니다:</p>
+
+        <!-- 티스토리 스타일 코드 블록 #1 (Kotlin 예제) -->
+        <pre
+          id="code_1687849651218"
+          class="kotlin"
+          data-ke-language="kotlin"
+          data-ke-type="codeblock"
+        ><code class="hljs"><span class="hljs-keyword">fun</span> <span class="hljs-function">main</span>() {
+    <span class="hljs-keyword">val</span> message = <span class="hljs-string">"Hello, Kotlin!"</span>
+    println(message)
+
+    <span class="hljs-comment">// 코드블럭 사용</span>
+    <span class="hljs-keyword">val</span> numbers = listOf(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>)
+}</code></pre>
+
+        <!-- 티스토리 스타일 코드 블록 #2 (HTML 예제) -->
+        <pre
+          id="code_1697901963751"
+          class="html"
+          style="background-color: #1f1f1f; color: #353638; text-align: left"
+          data-ke-type="codeblock"
+          data-ke-language="html"
+        ><code class="hljs">&lt;<span class="hljs-keyword">div</span>&gt;
+    &lt;<span class="hljs-keyword">h1</span>&gt;<span class="hljs-string">Title</span>&lt;/<span class="hljs-keyword">h1</span>&gt;
+    &lt;<span class="hljs-keyword">p</span>&gt;<span class="hljs-string">Content</span>&lt;/<span class="hljs-keyword">p</span>&gt;
+&lt;/<span class="hljs-keyword">div</span>&gt;</code></pre>
 
         <h2>미들웨어와 가드</h2>
         <p>
@@ -246,7 +311,6 @@
       data-blog-key="test-blog"
       async
     ></script>
-
     <!-- SDK는 자동으로 초기화되므로 별도 체크 불필요 -->
   </body>
 </html>
