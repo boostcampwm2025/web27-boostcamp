@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useMemo } from 'react';
 import { Icon } from '@shared/ui/Icon';
 
 interface ImageUploadProps {
@@ -9,22 +9,19 @@ interface ImageUploadProps {
 export function ImageUpload({ value, onChange }: ImageUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  const previewUrl = useMemo(() => {
+    if (!value) return null;
+    return URL.createObjectURL(value);
+  }, [value]);
 
   useEffect(() => {
-    if (!value) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setPreviewUrl(null);
-      return;
-    }
-
-    const url = URL.createObjectURL(value);
-    setPreviewUrl(url);
-
     return () => {
-      URL.revokeObjectURL(url);
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
     };
-  }, [value]);
+  }, [previewUrl]);
 
   const handleFileChange = (file: File | null) => {
     onChange(file);
