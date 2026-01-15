@@ -11,9 +11,9 @@ export const getTypeOrmConfig = (
   password: configService.get<string>('DB_PASSWORD', ''),
   database: configService.get<string>('DB_DATABASE', 'database'),
   entities: [__dirname + '/**/*.entity{.ts,.js}'],
-  // synchronize: configService.get<string>('NODE_ENV') !== 'production', // 개발 시에만 자동 동기화
+  synchronize: configService.get<string>('NODE_ENV') !== 'production', // 개발 시에만 자동 동기화
   // synchronize: true, // 개발 시에만 자동 동기화
-  synchronize: false,
+  // synchronize: false,
   logging: configService.get<string>('NODE_ENV') === 'development',
   timezone: '+09:00', // KST
 });
