@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+
 import { UserRepository } from './user.repository';
-import { Role, User } from '../types/user.types';
+import { Role, User } from 'src/user/types/user.types';
 
 type FixtureUser = {
   id: number;
@@ -58,7 +59,7 @@ const getFixturePath = () => {
     return process.env.ERD_FIXTURE_PATH;
   }
 
-  const moduleRelative = resolve(__dirname, '../../mock/erd-fixture.json');
+  const moduleRelative = resolve(__dirname, '../../../mock/erd-fixture.json');
   if (existsSync(moduleRelative)) {
     return moduleRelative;
   }

@@ -1,7 +1,7 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { CampaignRepository } from 'src/campaign/repository/campaign.repository';
 import { LogRepository } from 'src/log/repository/log.repository';
-import { UserRepository } from 'src/user/repository/user.repository';
+import { UserRepository } from 'src/user/repository/user/user.repository';
 
 type Snapshot = {
   endMsExclusive: number;
@@ -15,7 +15,7 @@ export class AdvertiserService {
     private readonly logRepository: LogRepository
   ) {}
   // todo: 추후 DB에 데이터를 넣게되면 로직 수정
-  getDashboardStats(userId: number) {
+  async getDashboardStats(userId: number) {
     const isAdvertiser = this.userRepository.verifyRole(userId, 'ADVERTISER');
 
     if (!isAdvertiser) {
@@ -23,9 +23,9 @@ export class AdvertiserService {
     }
 
     const campaignIdSet = new Set(
-      this.campaignRepository
-        .listByUserId(userId)
-        .map((campaign) => campaign.id)
+      (await this.campaignRepository.listByUserId(userId)).map(
+        (campaign) => campaign.id
+      )
     );
 
     const now = new Date();

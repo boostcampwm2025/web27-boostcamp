@@ -73,6 +73,16 @@ jobs:
             export IMAGE_TAG="${{ github.sha }}"
             export NCR_ENDPOINT="${{ secrets.NCR_ENDPOINT }}"
             export CORS_ORIGIN="${{ vars.CORS_ORIGIN || 'http://localhost:5173' }}"
+            export GOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}"
+            export GOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}"
+            export GOOGLE_REDIRECT_URI="${{ secrets.GOOGLE_REDIRECT_URI }}"
+
+            export NODE_ENV="${{secrets.NODE_ENV}}"
+            export DB_HOST="${{secrets.DB_HOST}}"
+            export DB_PORT="${{secrets.DB_PORT}}"
+            export DB_USERNAME="${{secrets.DB_USERNAME}}"
+            export DB_PASSWORD="${{secrets.DB_PASSWORD}}"
+            export DB_DATABASE="${{secrets.DB_DATABASE}}"
 
             echo "${{ secrets.NCP_SECRET_KEY }}" | docker login \
               -u "${{ secrets.NCP_ACCESS_KEY }}" \

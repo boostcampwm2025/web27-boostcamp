@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { CampaignRepository } from './campaign.repository';
-import { Campaign, CampaignStatus } from '../types/campaign.types';
+import { CampaignStatus, CampaignWithTags, Tag } from '../types/campaign.types';
 
 type FixtureCampaign = {
   id: string;
@@ -11,6 +11,7 @@ type FixtureCampaign = {
   content: string;
   image: string;
   url: string;
+  tags?: Tag[];
   max_cpc: number;
   daily_budget: number;
   total_budget: number | null;
@@ -28,24 +29,39 @@ type Fixture = {
 
 @Injectable()
 export class JsonCampaignRepository extends CampaignRepository {
-  private readonly campaignsById: Map<string, Campaign>;
+  private readonly campaignsById: Map<string, CampaignWithTags>;
+  private readonly campaigns: CampaignWithTags[];
 
   constructor() {
     super();
-    const campaigns = loadFixture().campaigns.map(toCampaign);
+    const campaigns = loadFixture().campaigns.map(toCampaignWithTags);
+    this.campaigns = campaigns;
     this.campaignsById = new Map(campaigns.map((c) => [c.id, c]));
   }
 
-  listByUserId(userId: number): Campaign[] {
-    return [...this.campaignsById.values()].filter((c) => c.userId === userId);
+  getAll(): Promise<CampaignWithTags[]> {
+    return Promise.resolve([...this.campaigns]);
   }
 
-  getById(campaignId: string): Campaign | undefined {
-    return this.campaignsById.get(campaignId);
+  getById(campaignId: string): Promise<CampaignWithTags | null> {
+    return Promise.resolve(this.campaignsById.get(campaignId) ?? null);
+  }
+
+  getByTags(tags: Tag[]): Promise<CampaignWithTags[]> {
+    const tagNameSet = new Set(tags.map((t) => t.name));
+    return Promise.resolve(
+      this.campaigns.filter((campaign) =>
+        (campaign.tags ?? []).some((tag) => tagNameSet.has(tag.name))
+      )
+    );
+  }
+
+  listByUserId(userId: number): Promise<CampaignWithTags[]> {
+    return Promise.resolve(this.campaigns.filter((c) => c.userId === userId));
   }
 }
 
-const toCampaign = (c: FixtureCampaign): Campaign => {
+const toCampaignWithTags = (c: FixtureCampaign): CampaignWithTags => {
   return {
     id: c.id,
     userId: c.user_id,
@@ -53,6 +69,7 @@ const toCampaign = (c: FixtureCampaign): Campaign => {
     content: c.content,
     image: c.image,
     url: c.url,
+    tags: c.tags ?? [],
     maxCpc: c.max_cpc,
     dailyBudget: c.daily_budget,
     totalBudget: c.total_budget,

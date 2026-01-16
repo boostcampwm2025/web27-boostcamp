@@ -1,13 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Matcher } from './matcher.interface';
-import { CampaignRepository } from '../repositories/campaign.repository.interface';
+import { CampaignRepository } from 'src/campaign/repository/campaign.repository';
 import { MLEngine } from '../ml/mlEngine.interface';
-import type {
-  Campaign,
-  Candidate,
-  DecisionContext,
-} from '../types/decision.types';
-
+import type { Candidate, DecisionContext } from '../types/decision.types';
+import type { CampaignWithTags } from 'src/campaign/types/campaign.types';
 @Injectable()
 export class TransformerMatcher extends Matcher {
   private readonly logger = new Logger(TransformerMatcher.name);
@@ -31,7 +27,7 @@ export class TransformerMatcher extends Matcher {
     }
 
     const requestText = this.buildRequestText(context.tags);
-    const allCampaigns = await this.campaignRepo.findAll();
+    const allCampaigns = await this.campaignRepo.getAll();
 
     // 모든 캠페인과 유사도 계산
     const withSimilarity = await Promise.all(
@@ -64,8 +60,8 @@ export class TransformerMatcher extends Matcher {
   }
 
   //  캠페인 정보를 임베딩을 위한 단일 텍스트로 변환합니다.
-  private buildCampaignText(campaign: Campaign): string {
-    const tagNames = campaign.tags.map((t) => t.name).join(' ');
+  private buildCampaignText(campaign: CampaignWithTags): string {
+    const tagNames = (campaign.tags ?? []).map((t) => t.name).join(' ');
 
     // return `${campaign.title} ${campaign.content} ${tagNames}`; // 더 풍부한 문맥은 추후에 고려
 
