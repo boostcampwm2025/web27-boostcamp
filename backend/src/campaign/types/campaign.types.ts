@@ -23,10 +23,6 @@ export type Tag = {
   name: string;
 };
 
-export type CampaignWithTags = Campaign & {
-  tags: Tag[];
-};
-
 export type CampaignTag = {
   campaignId: string;
   tagId: number;

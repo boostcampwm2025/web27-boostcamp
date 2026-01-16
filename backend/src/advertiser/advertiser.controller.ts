@@ -7,11 +7,11 @@ export class AdvertiserController {
   constructor(private readonly advertiserService: AdvertiserService) {}
 
   @Get('dashboard/stats')
-  async getDashboardStats() {
+  getDashboardStats() {
     const MOCK_USER_ID = 1;
     const userId = MOCK_USER_ID;
 
-    const stats = await this.advertiserService.getDashboardStats(userId);
+    const stats = this.advertiserService.getDashboardStats(userId);
     return successResponse(stats, '광고주 대시보드 통계입니다.');
   }
 }
