@@ -96,10 +96,20 @@ export class BoostAdSDK {
       if (contentArea) break;
     }
 
-    if (!contentArea) return null;
+    console.log('[BoostAD SDK] 본문 영역 찾기:', contentArea);
+
+    if (!contentArea) {
+      console.warn('[BoostAD SDK] 본문 영역을 찾을 수 없습니다');
+      return null;
+    }
 
     const paragraphs = contentArea.querySelectorAll('p');
-    if (paragraphs.length === 0) return null;
+    console.log('[BoostAD SDK] <p> 태그 개수:', paragraphs.length);
+
+    if (paragraphs.length === 0) {
+      console.warn('[BoostAD SDK] <p> 태그를 찾을 수 없습니다');
+      return null;
+    }
 
     const scrollY = window.scrollY;
     const viewportHeight = window.innerHeight;
@@ -157,6 +167,8 @@ export class BoostAdSDK {
     // 2차 광고 컨테이너 생성 및 현재 스크롤 위치에 삽입
     const secondAdContainer = this.createAdContainer('boostad-second-ad');
     const insertionPoint = this.findScrollBasedInsertionPoint();
+
+    console.log('[BoostAD SDK] 2차 광고 삽입 위치:', insertionPoint);
 
     if (insertionPoint) {
       insertionPoint.after(secondAdContainer);
