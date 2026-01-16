@@ -292,11 +292,12 @@ export const CAMPAIGNS_MOCK: Campaign[] = [
   {
     id: '54e92912-e23d-471f-b700-81caf834da51',
     user_id: 1,
-    title: '[Bootcamp] 풀스택 취업 패키지',
+    title: '[Boostcamp] 풀스택 취업 패키지',
     content:
       '프론트엔드부터 백엔드까지, 풀스택 개발자로 거듭나는 6개월 과정. 실전 프로젝트 중심의 커리큘럼.',
-    image: 'https://cdn.example.com/campaigns/12.png',
-    url: 'https://advertiser.example.com/landing/12',
+    image:
+      'https://lucas-image.codesquad.kr/1764901738786_bstwm-me-groupproject-thumbnail-web.png',
+    url: 'https://boostcamp.connect.or.kr',
     tags: [
       { id: 1, name: 'JavaScript' },
       { id: 13, name: 'React' },
