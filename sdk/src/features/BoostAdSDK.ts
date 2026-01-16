@@ -10,6 +10,9 @@ import type {
 export class BoostAdSDK {
   private hasRequestedSecondAd = false;
   private readonly CONTENT_SELECTORS = [
+    '#area_view',
+    '#article-view',
+    '#mArticle',
     '.article-view',
     '.article-content',
     '.post-content',
