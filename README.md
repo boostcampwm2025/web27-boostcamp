@@ -4,6 +4,9 @@
 > 개발자 기술 블로그의 **맥락(Context)** + **학습 의도(Intent)** 를 기반으로, 크리에이터가 **입찰(RTB)** 해 노출되는 투명한 광고·추천 플랫폼  
 > **Google Ads/Meta 같은 메인 광고 플랫폼을 대체하기보다**, 메인 채널이 놓치기 쉬운 **고의도·콘텐츠 맥락 구간**을 위한 *추가 채널*을 지향합니다.
 
+
+
+
 ## 🧐 문제 인식 (Why)
 
 1. **맥락 없는 광고 노출**
@@ -14,7 +17,8 @@
 3. **너무 넓은 타겟팅 → 예산 낭비**
    - 노출(PV) 중심 최적화로 “진짜로 배우는 사람”을 선별하기 어려움
 
----
+
+
 
 ## ✅ 우리가 제안하는 해결 (What)
 
@@ -28,7 +32,8 @@
    - “왜 노출이 안 되었는지 / 얼마 차이로 졌는지”를 광고주가 이해할 수 있도록 로그를 보여줍니다.
    - 광고주 대시보드에서 제공되는 정보를 바탕으로 광고주 자신이 수익을 최대화할 수 있는 전략을 짤 수 있습니다.
 
----
+
+
 
 ## 🧑‍💻 포지셔닝 
 
@@ -42,7 +47,8 @@
 
 - “NestJS 입문” 글을 **80% 이상 읽고 코드 블록을 복사**한 독자에게 → NestJS 강의 캠페인을 입찰로 노출
 
----
+
+
 
 ## 👥 주요 사용자
 
@@ -50,7 +56,8 @@
 - **Advertiser (광고주)**: 개발 강의 제작자, 개발 유튜버, 교육 서비스 운영자
 - **Reader (독자)**: 기술 글을 읽고 따라 해보거나 더 깊이 공부해보고 싶은 개발자/학습자
 
----
+
+
 
 ## 🛠️ 핵심 기능
 
@@ -72,7 +79,8 @@
 - “광고”가 아니라 “다음 단계 학습 추천 카드”처럼 자연스럽게 노출
 - 프라이버시 부담이 큰 쿠키 추적 중심이 아닌, **현재 페이지 맥락/행동 신호** 중심
 
----
+
+
 
 ## 동작 흐름 (How)
 
@@ -117,7 +125,7 @@ ___
 | 구분 | 기술 |
 | --- | --- |
 | Frontend | ![React](https://img.shields.io/badge/React-000000?logo=react&logoColor=61DAFB) ![Vite](https://img.shields.io/badge/Vite-000000?logo=vite&logoColor=646CFF) ![TypeScript](https://img.shields.io/badge/TypeScript-000000?logo=typescript&logoColor=3178C6) ![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-000000?logo=tailwindcss&logoColor=06B6D4) ![React Router](https://img.shields.io/badge/React_Router-000000?logo=reactrouter&logoColor=CA4245) ![Zustand](https://img.shields.io/badge/Zustand-000000?logo=zustand&logoColor=FFFFFF) |
-| Backend | ![NestJS](https://img.shields.io/badge/NestJS-000000?logo=nestjs&logoColor=E0234E) ![TypeORM](https://img.shields.io/badge/TypeORM-000000?logo=typeorm&logoColor=FE0902) ![MySQL](https://img.shields.io/badge/MySQL-000000?logo=mysql&logoColor=4479A1) ![Rate Limit](https://img.shields.io/badge/Rate_Limit-000000?logo=shield&logoColor=FFFFFF) |
+| Backend | ![NestJS](https://img.shields.io/badge/NestJS-000000?logo=nestjs&logoColor=E0234E) ![TypeORM](https://img.shields.io/badge/TypeORM-000000?logo=typeorm&logoColor=FE0902) ![MySQL](https://img.shields.io/badge/MySQL-000000?logo=mysql&logoColor=4479A1) |
 | SDK | ![TypeScript](https://img.shields.io/badge/TypeScript-000000?logo=typescript&logoColor=3178C6) ![Vite](https://img.shields.io/badge/Vite_Bundling-000000?logo=vite&logoColor=646CFF) ![IIFE](https://img.shields.io/badge/IIFE-000000?logo=javascript&logoColor=F7DF1E) ![DOM](https://img.shields.io/badge/DOM_Tracking-000000?logo=html5&logoColor=E34F26) |
 | Infra/Deploy | ![Docker](https://img.shields.io/badge/Docker-000000?logo=docker&logoColor=2496ED) ![Nginx](https://img.shields.io/badge/Nginx-000000?logo=nginx&logoColor=009639) ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-000000?logo=githubactions&logoColor=2088FF) ![Naver Cloud](https://img.shields.io/badge/Naver_Cloud_Platform-000000?logo=naver&logoColor=03C75A) |
 | Matching (실험) | ![Transformers](https://img.shields.io/badge/Transformers-000000?logo=huggingface&logoColor=FFD21E) ![Embeddings](https://img.shields.io/badge/Embeddings-000000?logo=openai&logoColor=FFFFFF) ![Similarity](https://img.shields.io/badge/Similarity-000000?logo=databricks&logoColor=FFFFFF) |
