@@ -3,10 +3,10 @@
 > **"광고가 정보가 되는 경험"**  
 > 개발자 기술 블로그의 **맥락(Context)** + **학습 의도(Intent)** 를 기반으로, 크리에이터가 **입찰(RTB)** 해 노출되는 투명한 광고·추천 플랫폼  
 > **Google Ads/Meta 같은 메인 광고 플랫폼을 대체하기보다**, 메인 채널이 놓치기 쉬운 **고의도·콘텐츠 맥락 구간**을 위한 *추가 채널*을 지향합니다.
-
-
-
-
+<br/>
+<br/>
+<br/>
+<br/>
 ## 🧐 문제 인식 (Why)
 
 1. **맥락 없는 광고 노출**
@@ -17,6 +17,10 @@
 3. **너무 넓은 타겟팅 → 예산 낭비**
    - 노출(PV) 중심 최적화로 “진짜로 배우는 사람”을 선별하기 어려움
 
+<br/>
+<br/>
+<br/>
+<br/>
 
 
 
@@ -32,6 +36,10 @@
    - “왜 노출이 안 되었는지 / 얼마 차이로 졌는지”를 광고주가 이해할 수 있도록 로그를 보여줍니다.
    - 광고주 대시보드에서 제공되는 정보를 바탕으로 광고주 자신이 수익을 최대화할 수 있는 전략을 짤 수 있습니다.
 
+<br/>
+<br/>
+<br/>
+<br/>
 
 
 
@@ -47,6 +55,10 @@
 
 - “NestJS 입문” 글을 **80% 이상 읽고 코드 블록을 복사**한 독자에게 → NestJS 강의 캠페인을 입찰로 노출
 
+<br/>
+<br/>
+<br/>
+<br/>
 
 
 
@@ -57,6 +69,10 @@
 - **Reader (독자)**: 기술 글을 읽고 따라 해보거나 더 깊이 공부해보고 싶은 개발자/학습자
 
 
+<br/>
+<br/>
+<br/>
+<br/>
 
 
 ## 🛠️ 핵심 기능
@@ -79,6 +95,10 @@
 - “광고”가 아니라 “다음 단계 학습 추천 카드”처럼 자연스럽게 노출
 - 프라이버시 부담이 큰 쿠키 추적 중심이 아닌, **현재 페이지 맥락/행동 신호** 중심
 
+<br/>
+<br/>
+<br/>
+<br/>
 
 
 
@@ -112,10 +132,18 @@ sequenceDiagram
 ## ERD
 <img width="1233" height="1286" alt="boostad_erd" src="https://github.com/user-attachments/assets/99481ab9-88b3-4f23-bb1b-61f0c76db22c" />
 
+<br/>
+<br/>
+<br/>
+<br/>
 
 ___
 ## 아키텍처
 
+<br/>
+<br/>
+<br/>
+<br/>
 
 
 ---
@@ -130,6 +158,10 @@ ___
 | Infra/Deploy | ![Docker](https://img.shields.io/badge/Docker-000000?logo=docker&logoColor=2496ED) ![Nginx](https://img.shields.io/badge/Nginx-000000?logo=nginx&logoColor=009639) ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-000000?logo=githubactions&logoColor=2088FF) ![Naver Cloud](https://img.shields.io/badge/Naver_Cloud_Platform-000000?logo=naver&logoColor=03C75A) |
 | Matching (실험) | ![Transformers](https://img.shields.io/badge/Transformers-000000?logo=huggingface&logoColor=FFD21E) ![Embeddings](https://img.shields.io/badge/Embeddings-000000?logo=openai&logoColor=FFFFFF) ![Similarity](https://img.shields.io/badge/Similarity-000000?logo=databricks&logoColor=FFFFFF) |
 
+<br/>
+<br/>
+<br/>
+<br/>
 
 ## CI/CD (GitHub Actions / NCP)
 ### 목차
