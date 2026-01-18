@@ -4,7 +4,7 @@
 > 개발자 기술 블로그의 **맥락(Context)** + **학습 의도(Intent)** 를 기반으로, 크리에이터가 **입찰(RTB)** 해 노출되는 투명한 광고·추천 플랫폼  
 > **Google Ads/Meta 같은 메인 광고 플랫폼을 대체하기보다**, 메인 채널이 놓치기 쉬운 **고의도·콘텐츠 맥락 구간**을 위한 *추가 채널*을 지향합니다.
 
-## 문제 인식 (Why)
+## 🧐 문제 인식 (Why)
 
 1. **맥락 없는 광고 노출**
    - “React 글”을 읽는데 “자동차 보험” 같은 무관한 광고가 뜨는 경험
@@ -16,7 +16,7 @@
 
 ---
 
-## 우리가 제안하는 해결 (What)
+## ✅ 우리가 제안하는 해결 (What)
 
 저희 프로젝트는 아래 3가지를 한 번에 만족하는 것을 목표로 합니다.
 
@@ -30,7 +30,7 @@
 
 ---
 
-## 포지셔닝 
+## 🧑‍💻 포지셔닝 
 
 저희 서비스는 Google Ads/Meta 같은 **메인 광고 플랫폼과 직접 경쟁(대체)** 하기보다, 메인 채널이 놓치기 쉬운 **고의도·콘텐츠 맥락 구간**을 위한 *추가 채널*을 지향합니다.
 
@@ -44,7 +44,7 @@
 
 ---
 
-## 주요 사용자
+## 👥 주요 사용자
 
 - **Publisher (퍼블리셔)**: 개발자 블로그/뉴스레터 운영자
 - **Advertiser (광고주)**: 개발 강의 제작자, 개발 유튜버, 교육 서비스 운영자
@@ -52,7 +52,7 @@
 
 ---
 
-## 핵심 기능
+## 🛠️ 핵심 기능
 
 ### 1) 퍼블리셔 경험
 
@@ -100,25 +100,6 @@ sequenceDiagram
   S->>B: POST /api/sdk/campaign-click (클릭 로그)
   S->>R: 광고주 랜딩 URL 오픈
 ```
-
----
-
-## 학습 의도 점수화
-
-SDK는 브라우저에서 아래 신호를 수집해 독자의 **Behavior Score**를 계산합니다.
-
-- **스크롤 깊이**
-  - 50% 이상 / 80% 이상 구간을 점수화
-- **체류 시간**
-  - 일정 시간 이상 “정독”을 점수화
-- **복사 이벤트**
-  - 일반 복사 vs **코드 블록(pre/code) 복사**를 구분해서 가중치 부여
-
-점수가 특정 임계치(예: **70점**)를 넘으면 **High Intent**로 판단해, 고의도 사용자를 타겟팅한 추가 광고 요청(2차 광고)를 수행합니다.
-
-스크롤/복사/체류 시간 같은 **사용자의 직접적인 행동 데이터는 서버로 전송하지 않습니다.**  
-클라이언트(브라우저)에서만 점수화하고, 서버에는 `behaviorScore`·`isHighIntent` 같은 **파생 지표(요약값)** 만 전송·저장합니다. 
-
 ---
 ## ERD
 <img width="1233" height="1286" alt="boostad_erd" src="https://github.com/user-attachments/assets/99481ab9-88b3-4f23-bb1b-61f0c76db22c" />
@@ -133,13 +114,13 @@ ___
 
 ## 기술 스택
 
-| 구분            | 기술                                                             |
-| ------------- | -------------------------------------------------------------- |
-| Frontend      | React + Vite + TypeScript, Tailwind CSS, React Router, Zustand |
-| Backend       | NestJS, TypeORM, MySQL, Throttler(rate limit)                  |
-| SDK           | TypeScript, Vite 번들링 (IIFE), DOM 기반 태그/행동 추적                   |
-| Infra/Deploy  | Docker, Nginx, GitHub Actions, NCP(Object Storage/NCR)         |
-| Matching (실험) | Transformers 기반 임베딩/유사도 계산(프로토타입)                              |
+| 구분 | 기술 |
+| --- | --- |
+| Frontend | ![React](https://img.shields.io/badge/React-000000?logo=react&logoColor=61DAFB) ![Vite](https://img.shields.io/badge/Vite-000000?logo=vite&logoColor=646CFF) ![TypeScript](https://img.shields.io/badge/TypeScript-000000?logo=typescript&logoColor=3178C6) ![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-000000?logo=tailwindcss&logoColor=06B6D4) ![React Router](https://img.shields.io/badge/React_Router-000000?logo=reactrouter&logoColor=CA4245) ![Zustand](https://img.shields.io/badge/Zustand-000000?logo=zustand&logoColor=FFFFFF) |
+| Backend | ![NestJS](https://img.shields.io/badge/NestJS-000000?logo=nestjs&logoColor=E0234E) ![TypeORM](https://img.shields.io/badge/TypeORM-000000?logo=typeorm&logoColor=FE0902) ![MySQL](https://img.shields.io/badge/MySQL-000000?logo=mysql&logoColor=4479A1) ![Rate Limit](https://img.shields.io/badge/Rate_Limit-000000?logo=shield&logoColor=FFFFFF) |
+| SDK | ![TypeScript](https://img.shields.io/badge/TypeScript-000000?logo=typescript&logoColor=3178C6) ![Vite](https://img.shields.io/badge/Vite_Bundling-000000?logo=vite&logoColor=646CFF) ![IIFE](https://img.shields.io/badge/IIFE-000000?logo=javascript&logoColor=F7DF1E) ![DOM](https://img.shields.io/badge/DOM_Tracking-000000?logo=html5&logoColor=E34F26) |
+| Infra/Deploy | ![Docker](https://img.shields.io/badge/Docker-000000?logo=docker&logoColor=2496ED) ![Nginx](https://img.shields.io/badge/Nginx-000000?logo=nginx&logoColor=009639) ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-000000?logo=githubactions&logoColor=2088FF) ![Naver Cloud](https://img.shields.io/badge/Naver_Cloud_Platform-000000?logo=naver&logoColor=03C75A) |
+| Matching (실험) | ![Transformers](https://img.shields.io/badge/Transformers-000000?logo=huggingface&logoColor=FFD21E) ![Embeddings](https://img.shields.io/badge/Embeddings-000000?logo=openai&logoColor=FFFFFF) ![Similarity](https://img.shields.io/badge/Similarity-000000?logo=databricks&logoColor=FFFFFF) |
 
 
 ## CI/CD (GitHub Actions / NCP)
