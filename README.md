@@ -132,7 +132,11 @@ sequenceDiagram
 
 
 ___
-## 아키텍처
+## 아키텍처 (초안)
+
+<img width="981" height="741" alt="Curent_architecture drawio (2)" src="https://github.com/user-attachments/assets/522e35b1-1c05-4e79-b818-008192db2e5e" />
+
+
 
 <br/>
 <br/>
