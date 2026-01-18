@@ -140,6 +140,11 @@ ___
 
 
 ---
+## CI/CD 파이프라인
+https://github.com/boostcampwm2025/web27-BoostAD/wiki/CICD-%ED%8C%8C%EC%9D%B4%ED%94%84%EB%9D%BC%EC%9D%B8
+
+<br/>
+<br/>
 
 ## 기술 스택
 
