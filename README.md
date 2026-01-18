@@ -121,6 +121,7 @@ SDK는 브라우저에서 아래 신호를 수집해 독자의 **Behavior Score*
 
 ---
 ## ERD
+<img width="1233" height="1286" alt="boostad_erd" src="https://github.com/user-attachments/assets/99481ab9-88b3-4f23-bb1b-61f0c76db22c" />
 
 
 ___
