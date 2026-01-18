@@ -143,10 +143,6 @@ ___
 
 
 ## CI/CD (GitHub Actions / NCP)
-
-> 아래 내용은 **워크플로우(yml) 기준**으로 “언제 / 어떤 작업을 / 어디로 배포하는지”만 설명합니다.  
-> 애플리케이션 내부 코드(구현/로직) 레벨 설명은 포함하지 않습니다.
-
 ### 목차
 
 - CI (PR 검증): `web27-boostcamp/.github/workflows/pr-ci.yml`
