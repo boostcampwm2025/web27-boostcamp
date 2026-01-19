@@ -2,10 +2,11 @@ export interface BidLog {
   id?: number;
   auctionId: string;
   campaignId: string;
-  blogId: string;
+  blogId: number;
   status: 'WIN' | 'LOSS';
   bidPrice: number;
   isHighIntent: boolean;
-  behaviorScore: number;
-  timestamp: string;
+  behaviorScore: number | null;
+  timestamp?: string;
+  createdAt?: Date;
 }
