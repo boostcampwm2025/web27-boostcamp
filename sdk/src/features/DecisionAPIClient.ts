@@ -5,6 +5,7 @@ import type {
   SDKConfig,
   Tag,
 } from '@/shared/types';
+import { API_BASE_URL } from '@/shared/config/constants';
 
 // Decision API 클라이언트 (광고 가져오기)
 export class DecisionAPIClient implements APIClient {
@@ -25,7 +26,7 @@ export class DecisionAPIClient implements APIClient {
     };
 
     try {
-      const response = await fetch(`${this.config.apiBase}/sdk/decision`, {
+      const response = await fetch(`${API_BASE_URL}/sdk/decision`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
