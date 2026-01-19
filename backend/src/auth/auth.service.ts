@@ -43,7 +43,13 @@ const googleJWKS = createRemoteJWKSet(
   new URL('https://www.googleapis.com/oauth2/v3/certs')
 );
 
-const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+const getJwtSecret = () => {
+  const value = process.env.JWT_SECRET;
+  if (!value) {
+    throw new Error('JWT_SECRET가 존재하지 않습니다.');
+  }
+  return new TextEncoder().encode(value);
+};
 
 @Injectable()
 export class OAuthService {
@@ -218,7 +224,7 @@ export class OAuthService {
       .setSubject(String(payload.userId))
       .setIssuedAt()
       .setExpirationTime('15m')
-      .sign(secret);
+      .sign(getJwtSecret());
 
     return jwt;
   }

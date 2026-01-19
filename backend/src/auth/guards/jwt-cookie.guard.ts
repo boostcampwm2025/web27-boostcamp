@@ -9,7 +9,13 @@ import { jwtVerify } from 'jose';
 import { type Request } from 'express';
 import { UserRole } from 'src/user/entities/user.entity';
 
-const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+const getJwtSecret = () => {
+  const value = process.env.JWT_SECRET;
+  if (!value) {
+    throw new Error('JWT_SECRET is missing');
+  }
+  return new TextEncoder().encode(value);
+};
 type AuthenticatedRequest = Request & {
   user?: { userId: number; role: UserRole; email?: string };
 };
@@ -34,7 +40,7 @@ export class JwtCookieGuard implements CanActivate {
     }
 
     try {
-      const { payload } = await jwtVerify(token, secret);
+      const { payload } = await jwtVerify(token, getJwtSecret());
       req.user = {
         userId: Number(payload.sub),
         role: payload.role as UserRole,
