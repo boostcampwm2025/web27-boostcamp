@@ -10,12 +10,12 @@ import {
   type Relation,
 } from 'typeorm';
 import type { User } from '../../user/entities/user.entity';
-import type { BidLog } from '../../bid-log/entities/bid-log.entity';
-import type { ViewLog } from '../../log/entities/view-log.entity';
+import type { BidLogEntity } from '../../bid-log/entities/bid-log.entity';
+import type { ViewLogEntity } from '../../log/entities/view-log.entity';
 
 import * as UserEntity from '../../user/entities/user.entity';
-import * as BidLogEntity from '../../bid-log/entities/bid-log.entity';
-import * as ViewLogEntity from '../../log/entities/view-log.entity';
+import * as BidLogEntityModule from '../../bid-log/entities/bid-log.entity';
+import * as ViewLogEntityModule from '../../log/entities/view-log.entity';
 
 @Entity('Blog')
 export class Blog {
@@ -54,9 +54,15 @@ export class Blog {
   @JoinColumn({ name: 'user_id' })
   user: Relation<User>;
 
-  @OneToMany(() => BidLogEntity.BidLog, (bidLog: BidLog) => bidLog.blog)
-  bidLogs: Relation<BidLog>[];
+  @OneToMany(
+    () => BidLogEntityModule.BidLogEntity,
+    (bidLog: BidLogEntity) => bidLog.blog
+  )
+  bidLogs: Relation<BidLogEntity>[];
 
-  @OneToMany(() => ViewLogEntity.ViewLog, (viewLog: ViewLog) => viewLog.blog)
-  viewLogs: Relation<ViewLog>[];
+  @OneToMany(
+    () => ViewLogEntityModule.ViewLogEntity,
+    (viewLog: ViewLogEntity) => viewLog.blog
+  )
+  viewLogs: Relation<ViewLogEntity>[];
 }
