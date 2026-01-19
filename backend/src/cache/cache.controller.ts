@@ -10,7 +10,7 @@ import { resolve } from 'node:path';
 import { AuctionStore } from './auction/auction.store';
 import { SeedAuctionDto } from './dto/seed-auction.dto';
 import { successResponse } from 'src/common/response/success-response';
-import { LogRepository } from 'src/log/repository/log.repository';
+import { LogRepository } from 'src/log/repository/log.repository.interface';
 import { SaveViewLog } from 'src/log/types/save-view-log.type';
 
 @Controller('cache')

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateViewLogDto } from './dto/create-view-log.dto';
-import { LogRepository } from 'src/log/repository/log.repository';
+import { LogRepository } from 'src/log/repository/log.repository.interface';
 import { AuctionStore } from 'src/cache/auction/auction.store';
 import { CreateClickLogDto } from './dto/create-click-log.dto';
 

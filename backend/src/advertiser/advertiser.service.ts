@@ -1,6 +1,6 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { CampaignRepository } from 'src/campaign/repository/campaign.repository';
-import { LogRepository } from 'src/log/repository/log.repository';
+import { LogRepository } from 'src/log/repository/log.repository.interface';
 import { UserRepository } from 'src/user/repository/user/user.repository';
 
 type Snapshot = {
