@@ -37,6 +37,7 @@ export class AuthController {
     }
     this.oauthService.validateState(state);
 
-    await this.oauthService.getTokensFromGoogle(code);
+    const payload = await this.oauthService.getTokensFromGoogle(code);
+    await this.oauthService.authorizeUserByToken(payload);
   }
 }

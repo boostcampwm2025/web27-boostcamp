@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { OAuthAccountRepository } from './oauthaccount.repository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { OAuthAccount } from '../entities/oauth-account.entity';
+import { OAuthAccount, OAuthProvider } from '../entities/oauth-account.entity';
 
 @Injectable()
 export class TypeOrmOAuthAccountRepository extends OAuthAccountRepository {
@@ -28,5 +28,21 @@ export class TypeOrmOAuthAccountRepository extends OAuthAccountRepository {
     }
 
     return data.userId;
+  }
+
+  async createOAuthAccount(
+    provider: OAuthProvider,
+    sub: string,
+    email: string,
+    isEmailVerified: boolean,
+    id: number
+  ): Promise<void> {
+    await this.oauthAccountRepo.save({
+      provider,
+      providerSubject: sub,
+      email,
+      emailVerified: isEmailVerified,
+      userId: id,
+    });
   }
 }

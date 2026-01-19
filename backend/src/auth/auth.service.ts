@@ -1,6 +1,7 @@
 import {
   BadGatewayException,
   BadRequestException,
+  ConflictException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -9,6 +10,7 @@ import { randomUUID } from 'crypto';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { UserRepository } from 'src/user/repository/user.repository';
 import { OAuthAccountRepository } from './repository/oauthaccount.repository';
+import { OAuthProvider } from './entities/oauth-account.entity';
 
 export type GoogleTokenResponse = {
   access_token: string;
@@ -96,7 +98,7 @@ export class OAuthService {
     return payload as unknown as GoogleIdTokenPayload;
   }
 
-  async getTokensFromGoogle(code: string): Promise<void> {
+  async getTokensFromGoogle(code: string): Promise<GoogleIdTokenPayload> {
     const {
       GOOGLE_CLIENT_ID: client_id,
       GOOGLE_CLIENT_SECRET: client_secret,
@@ -124,7 +126,11 @@ export class OAuthService {
       );
       // todo: verifyGoogleIdToken으로 받은 idToken Payload를 기반으로 OauthAccount 과 User 테이블에 사용자 정보를 저장하거나 로그인 처리하는 로직필요
       if (data.id_token) {
-        await this.verifyGoogleIdToken(data.id_token, client_id);
+        const payload = await this.verifyGoogleIdToken(
+          data.id_token,
+          client_id
+        );
+        return payload;
       } else {
         throw new BadGatewayException(
           'Google 서버의 응답에 id 토큰이 존재하지 않습니다.'
@@ -152,9 +158,9 @@ export class OAuthService {
     }
   }
 
-  async authorizeUserByToken(payload: GoogleIdTokenPayload): number {
+  async authorizeUserByToken(payload: GoogleIdTokenPayload): Promise<void> {
     const { sub, email, email_verified } = payload;
-    const provider = 'GOOGLE';
+    const provider = OAuthProvider.GOOGLE;
     const userId = await this.oauthAccountRepository.findUserIdByProviderSub(
       provider,
       sub
@@ -162,8 +168,21 @@ export class OAuthService {
     const isEmailVerified =
       email_verified === true || email_verified === 'true';
     // 회원가입
-    if (!userId && email && isEmailVerified) {
-      const userId = await this.userRepository.createUser(email);
+    if (!userId) {
+      if (!email || !isEmailVerified) {
+        throw new UnauthorizedException('이메일 검증이 필요합니다.');
+      }
+      if (await this.userRepository.findByEmail(email)) {
+        throw new ConflictException('이미 존재하는 이메일입니다.');
+      }
+      const id = await this.userRepository.createUser(email);
+      await this.oauthAccountRepository.createOAuthAccount(
+        provider,
+        sub,
+        email,
+        isEmailVerified,
+        id
+      );
     }
   }
 }

@@ -1,14 +1,16 @@
+import { OAuthProvider } from '../entities/oauth-account.entity';
+
 export abstract class OAuthAccountRepository {
   abstract findUserIdByProviderSub(
     provider: string,
     sub: string
   ): Promise<number | null>;
 
-  //   abstract createOAuthAccount(
-  //     provider: string,
-  //     sub: string,
-  //     email: string,
-  //     email_verified: boolean,
-  //     userId: number
-  //   ): Promise<void>;
+  abstract createOAuthAccount(
+    provider: OAuthProvider,
+    sub: string,
+    email: string,
+    isEmailVerified: boolean,
+    id: number
+  ): Promise<void>;
 }

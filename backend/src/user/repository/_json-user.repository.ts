@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 // import { UserRepository } from './user.repository';
-import { Role, User } from 'src/user/types/user.types';
+import { Role, User } from 'src/user/types/_user.types';
 
 type FixtureUser = {
   id: number;
