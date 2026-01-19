@@ -2,10 +2,18 @@ import { SaveClickLog } from '../types/save-click-log.type';
 import { SaveViewLog } from '../types/save-view-log.type';
 
 export abstract class LogRepository {
-  abstract saveViewLog(dto: SaveViewLog): number;
-  abstract saveClickLog(dto: SaveClickLog): number;
+  // 뷰 로그 저장
+  abstract saveViewLog(dto: SaveViewLog): Promise<number>;
 
-  abstract getViewLog(viewId: number): SaveViewLog | undefined;
-  abstract listViewLogs(): Iterable<SaveViewLog>;
-  abstract listClickLogs(): Iterable<SaveClickLog>;
+  // 클릭 로그 저장
+  abstract saveClickLog(dto: SaveClickLog): Promise<number>;
+
+  // 뷰 ID로 뷰 로그 조회
+  abstract getViewLog(viewId: number): Promise<SaveViewLog | undefined>;
+
+  // 전체 뷰 로그 목록 조회
+  abstract listViewLogs(): Promise<SaveViewLog[]>;
+
+  // 전체 클릭 로그 목록 조회
+  abstract listClickLogs(): Promise<SaveClickLog[]>;
 }
