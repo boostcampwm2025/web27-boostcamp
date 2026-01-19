@@ -7,7 +7,6 @@ import {
 import { Reflector } from '@nestjs/core';
 import { jwtVerify } from 'jose';
 import { type Request } from 'express';
-import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { UserRole } from 'src/user/entities/user.entity';
 
 const secret = new TextEncoder().encode(process.env.JWT_SECRET);
@@ -18,8 +17,9 @@ type AuthenticatedRequest = Request & {
 @Injectable()
 export class JwtCookieGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
+
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+    const isPublic = this.reflector.getAllAndOverride<boolean>('isPublic', [
       context.getHandler(),
       context.getClass(),
     ]);

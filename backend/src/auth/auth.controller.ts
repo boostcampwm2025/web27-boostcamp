@@ -54,6 +54,7 @@ export class AuthController {
     const redirectUrl = jwt
       ? `${clientUrl}/auth/login`
       : `${clientUrl}/auth/register`;
+
     return res.redirect(redirectUrl);
   }
 }

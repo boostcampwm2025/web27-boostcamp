@@ -13,6 +13,7 @@ import { CacheModule } from './cache/cache.module';
 import { CampaignModule } from './campaign/campaign.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { JwtCookieGuard } from './auth/guards/jwt-cookie.guard';
 
 @Module({
   imports: [
@@ -46,6 +47,10 @@ import { AuthModule } from './auth/auth.module';
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: JwtCookieGuard,
     },
   ],
 })
