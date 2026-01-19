@@ -12,13 +12,10 @@ import type { Blog } from '../../blog/entities/blog.entity';
 import * as CampaignEntity from '../../campaign/entities/campaign.entity';
 import * as BlogEntity from '../../blog/entities/blog.entity';
 
-export enum BidStatus {
-  WIN = 'WIN',
-  LOSS = 'LOSS',
-}
+import { BidStatus } from '../bid-log.types';
 
 @Entity('BidLog')
-export class BidLog {
+export class BidLogEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
