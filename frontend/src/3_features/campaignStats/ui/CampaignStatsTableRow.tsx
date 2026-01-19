@@ -45,7 +45,7 @@ export function CampaignStatsTableRow({
   };
 
   return (
-    <tr className="text-base border-b border-gray-100">
+    <tr className="text-sm border-b border-gray-100">
       <td className="px-5 py-4 text-gray-900 font-semibold">
         {campaign.title}
       </td>
@@ -57,8 +57,8 @@ export function CampaignStatsTableRow({
         <BudgetProgressBar percentage={campaign.dailySpentPercent} />
       </td>
       <td className="px-5 py-4 text-gray-900">{campaign.totalSpentPercent}%</td>
-      <td className="px-5 py-4 text-gray-600 text-sm">
-        {campaign.isHighIntent ? '고의도 학습자 대상' : '모든 학습자 대상'}
+      <td className="px-5 py-4 text-gray-900 text-sm">
+        {campaign.isHighIntent ? '고의도 학습자' : '모든 학습자'}
       </td>
     </tr>
   );

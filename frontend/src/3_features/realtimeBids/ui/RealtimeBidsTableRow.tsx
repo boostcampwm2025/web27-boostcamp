@@ -21,9 +21,9 @@ export function RealtimeBidsTableRow({ bid }: RealtimeBidsTableRowProps) {
 
   return (
     <tr
-      className={`text-base border-b border-gray-100 ${bid.isWon ? 'bg-green-100/30' : ''}`}
+      className={`text-sm border-b border-gray-100 ${bid.isWon ? 'bg-green-100/30' : ''}`}
     >
-      <td className="px-5 py-4 text-gray-600">{formatTime(bid.timestamp)}</td>
+      <td className="px-5 py-4 text-gray-900">{formatTime(bid.timestamp)}</td>
       <td className="px-5 py-4 text-gray-900 font-semibold">
         {bid.campaignTitle}
       </td>
@@ -52,10 +52,10 @@ export function RealtimeBidsTableRow({ bid }: RealtimeBidsTableRowProps) {
         {formatAmount(bid.winAmount)}
       </td>
       <td className="px-5 py-4">
-        <div className="text-gray-600 text-sm">
+        <div className="text-gray-900 text-sm">
           {bid.isHighIntent
-            ? `고의도 학습자 대상 - ${bid.behaviorScore}점 학습자`
-            : '모든 학습자 대상'}
+            ? `고의도 학습자 - ${bid.behaviorScore}점 학습자`
+            : '모든 학습자'}
         </div>
       </td>
       <td className="px-5 py-4">
