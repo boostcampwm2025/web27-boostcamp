@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { apiClient } from '@shared/lib/api';
 
 // 서버에서 받는 응답 형태
-interface DashboardStatsResponse {
+interface AccountSummaryResponse {
   performance: {
     totalClicks: number; // 총 클릭 수
     clicksChange: number; // 클릭 수 변화량
@@ -23,16 +23,16 @@ interface DashboardStatsResponse {
     }>;
   };
 }
-interface UseStatsReturn {
-  data: DashboardStatsResponse['performance'] | null;
+interface UseAccountSummaryReturn {
+  data: AccountSummaryResponse['performance'] | null;
   isLoading: boolean;
   error: string | null;
 }
 
 // 이 훅이 반환하는 것들
-export function useStats(): UseStatsReturn {
+export function useAccountSummary(): UseAccountSummaryReturn {
   const [data, setData] = useState<
-    DashboardStatsResponse['performance'] | null
+    AccountSummaryResponse['performance'] | null
   >(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +43,7 @@ export function useStats(): UseStatsReturn {
         setIsLoading(true);
         setError(null);
 
-        const response = await apiClient<DashboardStatsResponse>(
+        const response = await apiClient<AccountSummaryResponse>(
           '/api/advertiser/dashboard/stats'
         );
 
