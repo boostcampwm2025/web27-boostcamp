@@ -152,10 +152,5 @@ export class OAuthService {
   //   const { sub, email } = payload;
   //   const provider = 'GOOGLE';
 
-  //   if (this.userRepository.getByEmail()) {
-  //     //로그인
-  //   } else {
-  //     //회원가입
-  //   }
   // }
 }

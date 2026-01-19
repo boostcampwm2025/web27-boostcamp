@@ -14,18 +14,16 @@ export class TypeOrmUserRepository extends UserRepository {
 
   async getById(userId: number): Promise<User | null> {
     const qb = this.userRepo.createQueryBuilder('u');
-
     const user = await qb.where('u.id = :id', { id: userId }).getOne();
     return user;
   }
+
   async verifyRole(userId: number, role: UserRole): Promise<boolean> {
     const qb = this.userRepo.createQueryBuilder('u');
-
     const user = await qb.where('u.id = :id', { id: userId }).getOne();
     if (user && user.role == role) {
       return true;
     }
-
     return false;
   }
 }
