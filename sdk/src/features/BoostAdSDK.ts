@@ -31,6 +31,14 @@ export class BoostAdSDK {
   ) {}
 
   async init(): Promise<void> {
+    // 개별 포스트 페이지인지 확인
+    if (!this.isPostPage()) {
+      console.log(
+        '[BoostAD SDK] 포스트 페이지가 아니므로 광고를 표시하지 않습니다.'
+      );
+      return;
+    }
+
     const tags = this.tagExtractor.extract();
     console.log('[BoostAD SDK] 추출된 태그:', tags);
 
@@ -69,6 +77,12 @@ export class BoostAdSDK {
       this.requestSecondAd(tags, postUrl);
     });
     this.behaviorTracker.start();
+  }
+
+  private isPostPage(): boolean {
+    // 대표 도메인(메인 페이지)이면 광고 표시 안 함
+    const pathname = window.location.pathname;
+    return pathname !== '/' && pathname !== '';
   }
 
   private createAdContainer(id: string): HTMLElement {
