@@ -47,22 +47,6 @@ export class BidLogEntity {
   })
   reason: string | null;
 
-  @Column({
-    name: 'is_high_intent',
-    type: 'boolean',
-    default: false,
-    comment: '고의도 여부',
-  })
-  isHighIntent: boolean;
-
-  @Column({
-    name: 'behavior_score',
-    type: 'float',
-    nullable: true,
-    comment: '행동 점수 (0~100)',
-  })
-  behaviorScore: number | null;
-
   @CreateDateColumn({ name: 'created_at', comment: 'TTL 적용' })
   createdAt: Date;
 

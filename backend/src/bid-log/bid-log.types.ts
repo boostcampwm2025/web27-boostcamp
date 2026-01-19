@@ -10,8 +10,6 @@ export interface BidLog {
   blogId: number;
   status: BidStatus;
   bidPrice: number;
-  isHighIntent: boolean;
-  behaviorScore: number | null;
-  timestamp?: string;
+  reason: string | null;
   createdAt?: Date;
 }
