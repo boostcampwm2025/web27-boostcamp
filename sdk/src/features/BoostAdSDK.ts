@@ -27,10 +27,25 @@ export class BoostAdSDK {
     public tagExtractor: TagExtractor,
     public apiClient: APIClient,
     public adRenderer: AdRenderer,
-    public behaviorTracker: BehaviorTracker
+    public behaviorTracker: BehaviorTracker,
+    private readonly isAutoMode: boolean
   ) {}
 
   async init(): Promise<void> {
+    if (this.isAutoMode) {
+      // 자동 모드: 블로그 포스트에 광고 자동 삽입
+      await this.initAutoMode();
+    } else {
+      // 수동 모드: data-boostad-zone이 있는 곳에 광고 삽입
+      await this.initManualMode();
+    }
+  }
+
+  // ========================================
+  // 자동 모드 (블로그)
+  // ========================================
+
+  private async initAutoMode(): Promise<void> {
     // 개별 포스트 페이지인지 확인
     if (!this.isPostPage()) {
       console.log(
@@ -51,45 +66,67 @@ export class BoostAdSDK {
     if (insertionPoint) {
       insertionPoint.before(firstAdContainer);
 
-      try {
-        const data = await this.apiClient.fetchDecision(
-          tags,
-          postUrl,
-          0,
-          false
-        );
-        this.adRenderer.render(
-          data.data.campaign,
-          firstAdContainer,
-          data.data.auctionId,
-          postUrl,
-          0,
-          false
-        );
-      } catch {
-        firstAdContainer.innerHTML =
-          '<div style="color: #999; font-size: 14px; padding: 20px; text-align: center;">광고를 불러올 수 없습니다</div>';
-      }
+      await this.fetchAndRenderAd(firstAdContainer, tags, postUrl, 0, false);
     }
 
-    // 행동 추적 시작 + 70점 도달 시 2차 광고 요청
+    // 행동 추적 시작 + 70점 도달 시 2차 광고 요청 (스크롤 위치에 삽입)
     this.behaviorTracker.onThresholdReached(() => {
-      this.requestSecondAd(tags, postUrl);
+      this.requestSecondAdAutoMode(tags, postUrl);
     });
     this.behaviorTracker.start();
   }
 
-  private isPostPage(): boolean {
-    // 대표 도메인(메인 페이지)이면 광고 표시 안 함
-    const pathname = window.location.pathname;
-    return pathname !== '/' && pathname !== '';
+  private async requestSecondAdAutoMode(
+    tags: Tag[],
+    postUrl: string
+  ): Promise<void> {
+    if (this.hasRequestedSecondAd) {
+      return;
+    }
+
+    this.hasRequestedSecondAd = true;
+
+    const score = this.behaviorTracker.getCurrentScore();
+    const isHighIntent = this.behaviorTracker.isHighIntent();
+
+    console.log(
+      '[BoostAD SDK] 2차 광고 요청 - Score:',
+      score,
+      'HighIntent:',
+      isHighIntent
+    );
+
+    // 1차 광고 제거
+    const firstAdContainer = document.getElementById('boostad-first-ad');
+    if (firstAdContainer) {
+      firstAdContainer.remove();
+    }
+
+    // 2차 광고 컨테이너 생성 및 현재 스크롤 위치에 삽입
+    const secondAdContainer = this.createAdContainer('boostad-second-ad');
+    const insertionPoint = this.findScrollBasedInsertionPoint();
+
+    console.log('[BoostAD SDK] 2차 광고 삽입 위치:', insertionPoint);
+
+    if (insertionPoint) {
+      insertionPoint.after(secondAdContainer);
+
+      await this.fetchAndRenderAd(
+        secondAdContainer,
+        tags,
+        postUrl,
+        score,
+        isHighIntent
+      );
+    }
   }
 
-  private createAdContainer(id: string): HTMLElement {
-    const container = document.createElement('div');
-    container.id = id;
-    container.style.margin = '30px 0';
-    return container;
+  private isPostPage(): boolean {
+    // 대표 도메인(메인 페이지)이면 광고 표시 안 함
+    // 예: https://chazy.tistory.com/ → false
+    // 예: https://chazy.tistory.com/123 → true
+    const pathname = window.location.pathname;
+    return pathname !== '/' && pathname !== '';
   }
 
   private findContentTop(): Element | null {
@@ -157,58 +194,3 @@ export class BoostAdSDK {
 
     return closestParagraph;
   }
-
-  private async requestSecondAd(tags: Tag[], postUrl: string): Promise<void> {
-    if (this.hasRequestedSecondAd) {
-      return;
-    }
-
-    this.hasRequestedSecondAd = true;
-
-    const score = this.behaviorTracker.getCurrentScore();
-    const isHighIntent = this.behaviorTracker.isHighIntent();
-
-    console.log(
-      '[BoostAD SDK] 2차 광고 요청 - Score:',
-      score,
-      'HighIntent:',
-      isHighIntent
-    );
-
-    // 1차 광고 제거
-    const firstAdContainer = document.getElementById('boostad-first-ad');
-    if (firstAdContainer) {
-      firstAdContainer.remove();
-    }
-
-    // 2차 광고 컨테이너 생성 및 현재 스크롤 위치에 삽입
-    const secondAdContainer = this.createAdContainer('boostad-second-ad');
-    const insertionPoint = this.findScrollBasedInsertionPoint();
-
-    console.log('[BoostAD SDK] 2차 광고 삽입 위치:', insertionPoint);
-
-    if (insertionPoint) {
-      insertionPoint.after(secondAdContainer);
-
-      try {
-        const data = await this.apiClient.fetchDecision(
-          tags,
-          postUrl,
-          score,
-          isHighIntent
-        );
-        this.adRenderer.render(
-          data.data.campaign,
-          secondAdContainer,
-          data.data.auctionId,
-          postUrl,
-          score,
-          isHighIntent
-        );
-      } catch {
-        secondAdContainer.innerHTML =
-          '<div style="color: #999; font-size: 14px; padding: 20px; text-align: center;">광고를 불러올 수 없습니다</div>';
-      }
-    }
-  }
-}
