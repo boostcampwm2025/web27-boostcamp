@@ -8,5 +8,5 @@ export type SaveViewLog = {
   positionRatio: number | null;
   isHighIntent: boolean;
   behaviorScore: number | null;
-  createdAt: Date;
+  createdAt?: Date;
 };
