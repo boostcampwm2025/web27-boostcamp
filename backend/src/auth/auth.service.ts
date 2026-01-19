@@ -148,14 +148,14 @@ export class OAuthService {
     }
   }
 
-  async authorizeUserByToken(payload: GoogleIdTokenPayload): number {
-    const { sub, email } = payload;
-    const provider = 'GOOGLE';
+  // async authorizeUserByToken(payload: GoogleIdTokenPayload): number {
+  //   const { sub, email } = payload;
+  //   const provider = 'GOOGLE';
 
-    if (this.userRepository.getByEmail()) {
-      //로그인
-    } else {
-      //회원가입
-    }
-  }
+  //   if (this.userRepository.getByEmail()) {
+  //     //로그인
+  //   } else {
+  //     //회원가입
+  //   }
+  // }
 }
