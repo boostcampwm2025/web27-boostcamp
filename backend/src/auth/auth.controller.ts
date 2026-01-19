@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { OAuthService } from './auth.service';
 import { type Response } from 'express';
+import { Public } from './decorators/public.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -14,12 +15,14 @@ export class AuthController {
 
   // 구글 로그인 페이지로 리다이렉트 하기 위한 요청 받음
   @Get('google')
+  @Public()
   redirectToGoogleAuth(@Res() res: Response): void {
     const url = this.oauthService.getGoogleAuthUrl();
     return res.redirect(url);
   }
 
   @Get('google/callback')
+  @Public()
   async handleRedirectCallback(
     @Res() res: Response,
     @Query('state') state: string,
