@@ -85,6 +85,7 @@ jobs:
             export DB_USERNAME="${{secrets.DB_USERNAME}}"
             export DB_PASSWORD="${{secrets.DB_PASSWORD}}"
             export DB_DATABASE="${{secrets.DB_DATABASE}}"
+            export JWT_SECRET="${{secrets.JWT_SECRET}}"
 
             echo "${{ secrets.NCP_SECRET_KEY }}" | docker login \
               -u "${{ secrets.NCP_ACCESS_KEY }}" \
