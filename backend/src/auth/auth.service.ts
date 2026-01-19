@@ -153,15 +153,17 @@ export class OAuthService {
   }
 
   async authorizeUserByToken(payload: GoogleIdTokenPayload): number {
-    const { sub, email } = payload;
+    const { sub, email, email_verified } = payload;
     const provider = 'GOOGLE';
     const userId = await this.oauthAccountRepository.findUserIdByProviderSub(
       provider,
       sub
     );
+    const isEmailVerified =
+      email_verified === true || email_verified === 'true';
     // 회원가입
-    if (!userId) {
-
+    if (!userId && email && isEmailVerified) {
+      const userId = await this.userRepository.createUser(email);
     }
   }
 }

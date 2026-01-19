@@ -26,4 +26,8 @@ export class TypeOrmUserRepository extends UserRepository {
     }
     return false;
   }
+  async createUser(email: string): Promise<number> {
+    const user = await this.userRepo.save({ email });
+    return user.id;
+  }
 }
