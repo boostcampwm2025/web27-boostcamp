@@ -7,8 +7,6 @@ import { handleOauth } from '../../lib/handleOauth';
 // import { useState } from 'react';
 // import { UserTypeSelector } from './UserTypeSelector';
 
-export type AccountType = 'advertiser' | 'publisher';
-
 export function RegisterForm() {
   // const [accountType, setAccountType] = useState<AccountType>('advertiser');
 
