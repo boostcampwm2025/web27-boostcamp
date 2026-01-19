@@ -119,10 +119,7 @@ export class BoostAdSDK {
     tags: Tag[],
     postUrl: string
   ): Promise<void> {
-    if (this.hasRequestedSecondAd) {
-      return;
-    }
-
+    if (this.hasRequestedSecondAd) return;
     this.hasRequestedSecondAd = true;
 
     const score = this.behaviorTracker.getCurrentScore();
@@ -136,16 +133,11 @@ export class BoostAdSDK {
     );
 
     // 1차 광고 제거
-    const firstAdContainer = document.getElementById('boostad-first-ad');
-    if (firstAdContainer) {
-      firstAdContainer.remove();
-    }
+    document.getElementById('boostad-first-ad')?.remove();
 
-    // 2차 광고 컨테이너 생성 및 현재 스크롤 위치에 삽입
+    // 2차 광고: 현재 스크롤 위치에 삽입
     const secondAdContainer = this.createAdContainer('boostad-second-ad');
     const insertionPoint = this.findScrollBasedInsertionPoint();
-
-    console.log('[BoostAD SDK] 2차 광고 삽입 위치:', insertionPoint);
 
     if (insertionPoint) {
       insertionPoint.after(secondAdContainer);
@@ -161,9 +153,7 @@ export class BoostAdSDK {
   }
 
   private isPostPage(): boolean {
-    // 대표 도메인(메인 페이지)이면 광고 표시 안 함
-    // 예: https://chazy.tistory.com/ → false
-    // 예: https://chazy.tistory.com/123 → true
+    // 메인 페이지(/)가 아니면 포스트 페이지로 간주
     const pathname = window.location.pathname;
     return pathname !== '/' && pathname !== '';
   }
@@ -173,23 +163,19 @@ export class BoostAdSDK {
       const contentArea = document.querySelector(selector);
       if (contentArea) {
         const firstElement = contentArea.querySelector('p, h2');
-        if (firstElement) {
-          return firstElement;
-        }
+        if (firstElement) return firstElement;
       }
     }
-
     return null;
   }
 
   private findScrollBasedInsertionPoint(): Element | null {
+    // 본문 영역 찾기
     let contentArea: Element | null = null;
     for (const selector of this.CONTENT_SELECTORS) {
       contentArea = document.querySelector(selector);
       if (contentArea) break;
     }
-
-    console.log('[BoostAD SDK] 본문 영역 찾기:', contentArea);
 
     if (!contentArea) {
       console.warn('[BoostAD SDK] 본문 영역을 찾을 수 없습니다');
@@ -197,8 +183,6 @@ export class BoostAdSDK {
     }
 
     const paragraphs = contentArea.querySelectorAll('p');
-    console.log('[BoostAD SDK] <p> 태그 개수:', paragraphs.length);
-
     if (paragraphs.length === 0) {
       console.warn('[BoostAD SDK] <p> 태그를 찾을 수 없습니다');
       return null;
@@ -211,12 +195,12 @@ export class BoostAdSDK {
     const contentRect = contentArea.getBoundingClientRect();
     const contentBottom = contentRect.bottom + scrollY;
 
-    // 스크롤이 본문을 넘어섰다면 본문의 마지막 <p> 태그 반환
+    // 스크롤이 본문 끝을 넘어섰다면 마지막 <p> 반환
     if (targetY > contentBottom) {
       return paragraphs[paragraphs.length - 1];
     }
 
-    // 본문 내에서 스크롤 위치에 가장 가까운 <p> 태그 찾기
+    // 본문 내에서 스크롤 위치에 가장 가까운 <p> 찾기
     let closestParagraph: Element | null = null;
     let minDistance = Infinity;
 
@@ -292,8 +276,7 @@ export class BoostAdSDK {
     // 모든 광고존의 광고를 2차 광고로 교체
     zones.forEach(async (zone) => {
       const container = zone as HTMLElement;
-      container.innerHTML = ''; // 기존 광고 제거
-
+      container.innerHTML = '';
       await this.fetchAndRenderAd(
         container,
         tags,
