@@ -21,4 +21,4 @@ npm-debug.log*
 *.swo
 
 # 개인폴더
-docs-personal/
+docs_personal/
