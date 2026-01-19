@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { BidLogRepository } from './repositories/bid-log.repository';
+import { BidLogRepository } from './repositories/bid-log.repository.interface';
 import { CampaignRepository } from 'src/campaign/repository/campaign.repository';
 import { BidLogResponseDto, BidLogItemDto } from './dto/bid-log-response.dto';
 import { MOCK_BLOGS } from '../common/constants';
@@ -40,10 +40,10 @@ export class BidLogService {
     const paginatedBidLogs = sortedBidLogs.slice(offset, offset + limit);
 
     // 7. DTO로 변환 (Campaign, Blog 조인)
-    const data: BidLogItemDto[] = paginatedBidLogs.map((log) => {
+    const data: BidLogItemDto[] = paginatedBidLogs.map(async (log) => {
       const campaign = userCampaigns.find((c) => c.id === log.campaignId);
       const blog = MOCK_BLOGS.find((b) => b.blog_key === log.blogId);
-      const winAmount = this.bidLogRepository.findWinAmountByAuctionId(
+      const winAmount = await this.bidLogRepository.findWinAmountByAuctionId(
         log.auctionId
       );
 

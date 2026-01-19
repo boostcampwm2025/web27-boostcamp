@@ -8,7 +8,7 @@ import type {
   ScoredCandidate,
 } from './types/decision.types';
 import { randomUUID } from 'crypto';
-import { BidLogRepository } from '../bid-log/repositories/bid-log.repository';
+import { BidLogRepository } from '../bid-log/repositories/bid-log.repository.interface';
 import { AuctionStore } from '../cache/auction/auction.store';
 import { BidLog } from '../bid-log/bid-log.types';
 import { getBlogIdByKey } from '../common/utils/blog.utils';
@@ -39,9 +39,7 @@ export class RTBService {
       // 2. 고의도 필터링 (isHighIntent에 따라 광고 분리)
       if (context.isHighIntent) {
         // 고의도 요청: is_high_intent=true 광고만
-        candidates = candidates.filter(
-          (c) => c.campaign.isHighIntent === true
-        );
+        candidates = candidates.filter((c) => c.campaign.isHighIntent === true);
       } else {
         // 일반 요청: is_high_intent=false 광고만
         candidates = candidates.filter(
