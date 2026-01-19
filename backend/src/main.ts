@@ -8,7 +8,7 @@ import cookieParser from 'cookie-parser';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  app.use(cookieParser);
+  app.use(cookieParser());
   // Static 파일 서빙 (SDK)
   app.useStaticAssets(join(__dirname, '..', 'public'));
 
