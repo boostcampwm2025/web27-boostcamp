@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { BidLogRepository } from './bid-log.repository';
-import { BidLog } from '../bid-log.types';
+import { BidLogRepository } from './bid-log.repository.interface';
+import { BidLog, BidStatus } from '../bid-log.types';
 
 @Injectable()
 export class InMemoryBidLogRepository extends BidLogRepository {
@@ -36,7 +36,7 @@ export class InMemoryBidLogRepository extends BidLogRepository {
 
   findWinAmountByAuctionId(auctionId: string): Promise<number | null> {
     const winLog = this.bidLogs.find(
-      (log) => log.auctionId === auctionId && log.status === 'WIN'
+      (log) => log.auctionId === auctionId && log.status === BidStatus.WIN
     );
     return Promise.resolve(winLog ? winLog.bidPrice : null);
   }
