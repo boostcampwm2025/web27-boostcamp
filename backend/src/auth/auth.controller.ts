@@ -55,7 +55,7 @@ export class AuthController {
 
     const clientUrl = process.env.CLIENT_URL ?? 'http://localhost:5173';
     const redirectUrl = jwt
-      ? `${clientUrl}/auth/login`
+      ? `${clientUrl}/advertiser/dashboard`
       : `${clientUrl}/auth/register`;
 
     return res.redirect(redirectUrl);
