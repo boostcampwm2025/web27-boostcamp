@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Query,
+  Redirect,
   Res,
 } from '@nestjs/common';
 import { OAuthService } from './auth.service';
@@ -20,6 +21,7 @@ export class AuthController {
   }
 
   @Get('google/callback')
+  @Redirect()
   async handleRedirectCallback(
     @Query('state') state: string,
     @Query('code') code: string,
@@ -39,5 +41,7 @@ export class AuthController {
 
     const payload = await this.oauthService.getTokensFromGoogle(code);
     await this.oauthService.authorizeUserByToken(payload);
+
+    return { url: `${process.env.CLIENT_URL}/auth/login` };
   }
 }
