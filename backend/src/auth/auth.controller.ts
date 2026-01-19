@@ -3,7 +3,6 @@ import {
   Controller,
   Get,
   Query,
-  Redirect,
   Res,
 } from '@nestjs/common';
 import { OAuthService } from './auth.service';
@@ -21,8 +20,8 @@ export class AuthController {
   }
 
   @Get('google/callback')
-  @Redirect()
   async handleRedirectCallback(
+    @Res() res: Response,
     @Query('state') state: string,
     @Query('code') code: string,
     @Query('error') error?: string,
@@ -42,8 +41,19 @@ export class AuthController {
     const payload = await this.oauthService.getTokensFromGoogle(code);
     const jwt = await this.oauthService.authorizeUserByToken(payload);
 
-    if (!jwt) {
-      return { url: `${process.env.CLIENT_URL}/auth/login` };
+    if (jwt) {
+      res.cookie('access_token', jwt, {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 15 * 60 * 1000,
+      });
     }
+
+    const clientUrl = process.env.CLIENT_URL ?? 'http://localhost:5173';
+    const redirectUrl = jwt
+      ? `${clientUrl}/auth/login`
+      : `${clientUrl}/auth/register`;
+    return res.redirect(redirectUrl);
   }
 }
