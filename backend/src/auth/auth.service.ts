@@ -8,6 +8,7 @@ import axios from 'axios';
 import { randomUUID } from 'crypto';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { UserRepository } from 'src/user/repository/user.repository';
+import { OAuthAccountRepository } from './repository/oauthaccount.repository';
 
 export type GoogleTokenResponse = {
   access_token: string;
@@ -41,7 +42,10 @@ const googleJWKS = createRemoteJWKSet(
 
 @Injectable()
 export class OAuthService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly oauthAccountRepository: OAuthAccountRepository
+  ) {}
 
   private readonly stateStore = new Map<string, number>(); // 추후에 Redis로 이동
 
@@ -148,9 +152,16 @@ export class OAuthService {
     }
   }
 
-  // async authorizeUserByToken(payload: GoogleIdTokenPayload): number {
-  //   const { sub, email } = payload;
-  //   const provider = 'GOOGLE';
+  async authorizeUserByToken(payload: GoogleIdTokenPayload): number {
+    const { sub, email } = payload;
+    const provider = 'GOOGLE';
+    const userId = await this.oauthAccountRepository.findUserIdByProviderSub(
+      provider,
+      sub
+    );
+    // 회원가입
+    if (!userId) {
 
-  // }
+    }
+  }
 }

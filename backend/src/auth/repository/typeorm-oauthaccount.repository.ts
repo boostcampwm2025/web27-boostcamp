@@ -13,7 +13,7 @@ export class TypeOrmOAuthAccountRepository extends OAuthAccountRepository {
     super();
   }
 
-  async getUserIdByProviderSub(
+  async findUserIdByProviderSub(
     provider: string,
     sub: string
   ): Promise<number | null> {

@@ -1,5 +1,5 @@
 export abstract class OAuthAccountRepository {
-  abstract getUserIdByProviderSub(
+  abstract findUserIdByProviderSub(
     provider: string,
     sub: string
   ): Promise<number | null>;
