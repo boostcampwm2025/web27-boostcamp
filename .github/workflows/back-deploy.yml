@@ -11,6 +11,7 @@ on:
 env:
   DEPLOY_BRANCH: ${{ vars.DEPLOY_BRANCH || 'feature/deploy' }}
   CORS_ORIGIN: ${{ vars.CORS_ORIGIN || 'http://localhost:5173' }}
+  CLIENT_URL: ${{ vars.CLIENT_URL || 'http://localhost:3000' }}
 
 jobs:
   build-push:
@@ -73,6 +74,7 @@ jobs:
             export IMAGE_TAG="${{ github.sha }}"
             export NCR_ENDPOINT="${{ secrets.NCR_ENDPOINT }}"
             export CORS_ORIGIN="${{ vars.CORS_ORIGIN || 'http://localhost:5173' }}"
+            export CLIENT_URL="${{ vars.CLIENT_URL || 'http://localhost:3000' }}"
             export GOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}"
             export GOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}"
             export GOOGLE_REDIRECT_URI="${{ secrets.GOOGLE_REDIRECT_URI }}"
