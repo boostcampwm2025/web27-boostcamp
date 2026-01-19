@@ -24,21 +24,60 @@ export class BoostAdSDK {
   ];
 
   constructor(
-    public tagExtractor: TagExtractor,
-    public apiClient: APIClient,
-    public adRenderer: AdRenderer,
-    public behaviorTracker: BehaviorTracker,
+    private readonly tagExtractor: TagExtractor,
+    private readonly apiClient: APIClient,
+    private readonly adRenderer: AdRenderer,
+    private readonly behaviorTracker: BehaviorTracker,
     private readonly isAutoMode: boolean
   ) {}
 
   async init(): Promise<void> {
     if (this.isAutoMode) {
-      // 자동 모드: 블로그 포스트에 광고 자동 삽입
       await this.initAutoMode();
     } else {
-      // 수동 모드: data-boostad-zone이 있는 곳에 광고 삽입
       await this.initManualMode();
     }
+  }
+
+  // ========================================
+  // 공통 메서드
+  // ========================================
+
+  private async fetchAndRenderAd(
+    container: HTMLElement,
+    tags: Tag[],
+    postUrl: string,
+    behaviorScore: number,
+    isHighIntent: boolean
+  ): Promise<void> {
+    try {
+      const data = await this.apiClient.fetchDecision(
+        tags,
+        postUrl,
+        behaviorScore,
+        isHighIntent
+      );
+
+      this.adRenderer.render(
+        data.data.campaign,
+        container,
+        data.data.auctionId,
+        postUrl,
+        behaviorScore,
+        isHighIntent
+      );
+    } catch (error) {
+      console.error('[BoostAD SDK] 광고 로드 실패:', error);
+      container.innerHTML =
+        '<div style="color: #999; font-size: 14px; padding: 20px; text-align: center;">광고를 불러올 수 없습니다</div>';
+    }
+  }
+
+  private createAdContainer(id: string): HTMLElement {
+    const container = document.createElement('div');
+    container.id = id;
+    container.style.margin = '30px 0';
+    return container;
   }
 
   // ========================================
@@ -263,46 +302,5 @@ export class BoostAdSDK {
         isHighIntent
       );
     });
-  }
-
-  // ========================================
-  // 공통 메서드
-  // ========================================
-
-  private async fetchAndRenderAd(
-    container: HTMLElement,
-    tags: Tag[],
-    postUrl: string,
-    behaviorScore: number,
-    isHighIntent: boolean
-  ): Promise<void> {
-    try {
-      const data = await this.apiClient.fetchDecision(
-        tags,
-        postUrl,
-        behaviorScore,
-        isHighIntent
-      );
-
-      this.adRenderer.render(
-        data.data.campaign,
-        container,
-        data.data.auctionId,
-        postUrl,
-        behaviorScore,
-        isHighIntent
-      );
-    } catch (error) {
-      console.error('[BoostAD SDK] 광고 로드 실패:', error);
-      container.innerHTML =
-        '<div style="color: #999; font-size: 14px; padding: 20px; text-align: center;">광고를 불러올 수 없습니다</div>';
-    }
-  }
-
-  private createAdContainer(id: string): HTMLElement {
-    const container = document.createElement('div');
-    container.id = id;
-    container.style.margin = '30px 0';
-    return container;
   }
 }
