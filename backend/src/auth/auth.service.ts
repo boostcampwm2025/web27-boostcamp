@@ -7,7 +7,8 @@ import {
 } from '@nestjs/common';
 import axios from 'axios';
 import { randomUUID } from 'crypto';
-import { createRemoteJWKSet, jwtVerify } from 'jose';
+import { createRemoteJWKSet, jwtVerify, SignJWT } from 'jose';
+import { UserRole } from 'src/user/entities/user.entity';
 import { UserRepository } from 'src/user/repository/user.repository';
 import { OAuthAccountRepository } from './repository/oauthaccount.repository';
 import { OAuthProvider } from './entities/oauth-account.entity';
@@ -41,6 +42,8 @@ export type GoogleIdTokenPayload = {
 const googleJWKS = createRemoteJWKSet(
   new URL('https://www.googleapis.com/oauth2/v3/certs')
 );
+
+const secret = new TextEncoder().encode(process.env.JWT_SECRET);
 
 @Injectable()
 export class OAuthService {
@@ -158,7 +161,9 @@ export class OAuthService {
     }
   }
 
-  async authorizeUserByToken(payload: GoogleIdTokenPayload): Promise<void> {
+  async authorizeUserByToken(
+    payload: GoogleIdTokenPayload
+  ): Promise<void | string> {
     const { sub, email, email_verified } = payload;
     const provider = OAuthProvider.GOOGLE;
     const userId = await this.oauthAccountRepository.findUserIdByProviderSub(
@@ -183,6 +188,38 @@ export class OAuthService {
         isEmailVerified,
         id
       );
+
+      return;
     }
+    // 로그인
+    const user = await this.userRepository.getById(userId);
+    if (!user) {
+      throw new UnauthorizedException('사용자를 찾을 수 없습니다.');
+    }
+
+    const jwt = await this.issueAccessToken({
+      userId,
+      email: user.email,
+      role: user.role,
+    });
+    return jwt;
+  }
+
+  async issueAccessToken(payload: {
+    userId: number;
+    role: UserRole;
+    email?: string;
+  }): Promise<string> {
+    const jwt = await new SignJWT({
+      role: payload.role,
+      email: payload.email,
+    })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setSubject(String(payload.userId))
+      .setIssuedAt()
+      .setExpirationTime('15m')
+      .sign(secret);
+
+    return jwt;
   }
 }

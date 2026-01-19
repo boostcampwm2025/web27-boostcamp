@@ -40,8 +40,10 @@ export class AuthController {
     this.oauthService.validateState(state);
 
     const payload = await this.oauthService.getTokensFromGoogle(code);
-    await this.oauthService.authorizeUserByToken(payload);
+    const jwt = await this.oauthService.authorizeUserByToken(payload);
 
-    return { url: `${process.env.CLIENT_URL}/auth/login` };
+    if (!jwt) {
+      return { url: `${process.env.CLIENT_URL}/auth/login` };
+    }
   }
 }
