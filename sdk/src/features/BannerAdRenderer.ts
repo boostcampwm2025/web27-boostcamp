@@ -1,19 +1,17 @@
 import type {
   AdRenderer,
   Campaign,
-  SDKConfig,
   ViewLogRequest,
   ViewLogResponse,
   ClickLogRequest,
   ClickLogResponse,
 } from '@/shared/types';
+import { API_BASE_URL } from '@/shared/config/constants';
 
 // 배너 광고 렌더러
 export class BannerAdRenderer implements AdRenderer {
   private currentViewId: number | null = null;
   private currentAdUrl: string | null = null;
-
-  constructor(private readonly config: SDKConfig) {}
 
   render(
     campaign: Campaign | null,
@@ -65,7 +63,7 @@ export class BannerAdRenderer implements AdRenderer {
         positionRatio: null, // 일단 null로 전송
       };
 
-      const response = await fetch(`${this.config.apiBase}/sdk/campaign-view`, {
+      const response = await fetch(`${API_BASE_URL}/sdk/campaign-view`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody),
@@ -97,7 +95,7 @@ export class BannerAdRenderer implements AdRenderer {
       };
 
       const response = await fetch(
-        `${this.config.apiBase}/sdk/campaign-click`,
+        `${API_BASE_URL}/sdk/campaign-click`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
