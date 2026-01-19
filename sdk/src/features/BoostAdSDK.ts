@@ -194,3 +194,115 @@ export class BoostAdSDK {
 
     return closestParagraph;
   }
+
+  // ========================================
+  // 수동 모드 (일반 웹페이지)
+  // ========================================
+
+  private async initManualMode(): Promise<void> {
+    const zones = document.querySelectorAll('[data-boostad-zone]');
+
+    if (zones.length === 0) {
+      console.warn(
+        '[BoostAD SDK] data-boostad-zone 요소를 찾을 수 없습니다. 광고를 표시하지 않습니다.'
+      );
+      return;
+    }
+
+    console.log(`[BoostAD SDK] 수동 모드: ${zones.length}개의 광고존 발견`);
+
+    const tags = this.tagExtractor.extract();
+    const postUrl = window.location.href;
+
+    // 각 광고존에 1차 광고 삽입
+    zones.forEach(async (zone) => {
+      const container = zone as HTMLElement;
+      container.style.margin = '30px 0';
+
+      await this.fetchAndRenderAd(container, tags, postUrl, 0, false);
+    });
+
+    // 행동 추적 시작 + 70점 도달 시 2차 광고로 교체 (같은 위치)
+    this.behaviorTracker.onThresholdReached(() => {
+      this.requestSecondAdManualMode(tags, postUrl, zones);
+    });
+    this.behaviorTracker.start();
+  }
+
+  private async requestSecondAdManualMode(
+    tags: Tag[],
+    postUrl: string,
+    zones: NodeListOf<Element>
+  ): Promise<void> {
+    if (this.hasRequestedSecondAd) {
+      return;
+    }
+
+    this.hasRequestedSecondAd = true;
+
+    const score = this.behaviorTracker.getCurrentScore();
+    const isHighIntent = this.behaviorTracker.isHighIntent();
+
+    console.log(
+      '[BoostAD SDK] 2차 광고 요청 - Score:',
+      score,
+      'HighIntent:',
+      isHighIntent
+    );
+
+    // 모든 광고존의 광고를 2차 광고로 교체
+    zones.forEach(async (zone) => {
+      const container = zone as HTMLElement;
+      container.innerHTML = ''; // 기존 광고 제거
+
+      await this.fetchAndRenderAd(
+        container,
+        tags,
+        postUrl,
+        score,
+        isHighIntent
+      );
+    });
+  }
+
+  // ========================================
+  // 공통 메서드
+  // ========================================
+
+  private async fetchAndRenderAd(
+    container: HTMLElement,
+    tags: Tag[],
+    postUrl: string,
+    behaviorScore: number,
+    isHighIntent: boolean
+  ): Promise<void> {
+    try {
+      const data = await this.apiClient.fetchDecision(
+        tags,
+        postUrl,
+        behaviorScore,
+        isHighIntent
+      );
+
+      this.adRenderer.render(
+        data.data.campaign,
+        container,
+        data.data.auctionId,
+        postUrl,
+        behaviorScore,
+        isHighIntent
+      );
+    } catch (error) {
+      console.error('[BoostAD SDK] 광고 로드 실패:', error);
+      container.innerHTML =
+        '<div style="color: #999; font-size: 14px; padding: 20px; text-align: center;">광고를 불러올 수 없습니다</div>';
+    }
+  }
+
+  private createAdContainer(id: string): HTMLElement {
+    const container = document.createElement('div');
+    container.id = id;
+    container.style.margin = '30px 0';
+    return container;
+  }
+}
