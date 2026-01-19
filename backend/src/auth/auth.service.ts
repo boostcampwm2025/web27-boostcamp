@@ -7,7 +7,7 @@ import {
 import axios from 'axios';
 import { randomUUID } from 'crypto';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
-import { UserRepository } from 'src/user/repository/user/user.repository';
+import { UserRepository } from 'src/user/repository/user.repository';
 
 export type GoogleTokenResponse = {
   access_token: string;

@@ -2,7 +2,7 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { CampaignRepository } from 'src/campaign/repository/campaign.repository';
 import { LogRepository } from 'src/log/repository/log.repository';
 import { UserRole } from 'src/user/entities/user.entity';
-import { UserRepository } from 'src/user/repository/user/user.repository';
+import { UserRepository } from 'src/user/repository/user.repository';
 
 type Snapshot = {
   endMsExclusive: number;
