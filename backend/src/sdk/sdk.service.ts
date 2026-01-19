@@ -36,15 +36,11 @@ export class SdkService {
       positionRatio: positionRatio ?? null,
       isHighIntent,
       behaviorScore,
-      createdAt: new Date(),
     });
   }
 
   async recordClick(dto: CreateClickLogDto) {
     const { viewId } = dto;
-    return await this.logRepository.saveClickLog({
-      viewId,
-      createdAt: new Date(),
-    });
+    return await this.logRepository.saveClickLog({ viewId });
   }
 }

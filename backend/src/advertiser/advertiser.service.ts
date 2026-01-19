@@ -31,12 +31,15 @@ export class AdvertiserService {
     const now = new Date();
     const startOfTodayMs = getKstStartOfDayMs(now);
 
-    const totalPerf = this.getPerformanceSnapshot(campaignIdSet, {
+    const totalPerf = await this.getPerformanceSnapshot(campaignIdSet, {
       endMsExclusive: now.getTime(),
     });
-    const yesterdayTotalPerf = this.getPerformanceSnapshot(campaignIdSet, {
-      endMsExclusive: startOfTodayMs,
-    });
+    const yesterdayTotalPerf = await this.getPerformanceSnapshot(
+      campaignIdSet,
+      {
+        endMsExclusive: startOfTodayMs,
+      }
+    );
 
     return {
       performance: {
@@ -54,14 +57,15 @@ export class AdvertiserService {
     };
   }
 
-  private getPerformanceSnapshot(
+  private async getPerformanceSnapshot(
     campaignIdSet: Set<string>,
     snapshot: Snapshot
   ) {
     let totalImpressions = 0;
     const impressionsByCampaign = new Map<string, number>();
-    for (const viewLog of this.logRepository.listViewLogs()) {
-      if (!isBefore(viewLog.createdAt, snapshot.endMsExclusive)) {
+    const viewLogs = await this.logRepository.listViewLogs();
+    for (const viewLog of viewLogs) {
+      if (!isBefore(viewLog.createdAt!, snapshot.endMsExclusive)) {
         continue;
       }
       if (!campaignIdSet.has(viewLog.campaignId)) {
@@ -77,11 +81,12 @@ export class AdvertiserService {
     let totalClicks = 0;
     let totalSpent = 0;
     const clicksByCampaign = new Map<string, number>();
-    for (const clickLog of this.logRepository.listClickLogs()) {
-      if (!isBefore(clickLog.createdAt, snapshot.endMsExclusive)) {
+    const clickLogs = await this.logRepository.listClickLogs();
+    for (const clickLog of clickLogs) {
+      if (!isBefore(clickLog.createdAt!, snapshot.endMsExclusive)) {
         continue;
       }
-      const viewLog = this.logRepository.getViewLog(clickLog.viewId);
+      const viewLog = await this.logRepository.getViewLog(clickLog.viewId);
       if (!viewLog) {
         continue;
       }
