@@ -11,7 +11,7 @@ export class SdkService {
     private readonly auctionStore: AuctionStore
   ) {}
 
-  recordView(dto: CreateViewLogDto) {
+  async recordView(dto: CreateViewLogDto) {
     const {
       auctionId,
       campaignId,
@@ -27,22 +27,22 @@ export class SdkService {
     }
 
     const { blogId, cost } = auctionData;
-    return this.logRepository.saveViewLog({
+    return await this.logRepository.saveViewLog({
       auctionId,
       campaignId,
       blogId,
       postUrl,
       cost,
-      positionRatio,
+      positionRatio: positionRatio ?? null,
       isHighIntent,
       behaviorScore,
       createdAt: new Date(),
     });
   }
 
-  recordClick(dto: CreateClickLogDto) {
+  async recordClick(dto: CreateClickLogDto) {
     const { viewId } = dto;
-    return this.logRepository.saveClickLog({
+    return await this.logRepository.saveClickLog({
       viewId,
       createdAt: new Date(),
     });
