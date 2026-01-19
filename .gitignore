@@ -19,3 +19,6 @@ npm-debug.log*
 .idea/
 *.swp
 *.swo
+
+# 개인폴더
+docs-personal/
