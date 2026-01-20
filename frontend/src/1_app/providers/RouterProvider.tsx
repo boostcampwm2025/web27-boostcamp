@@ -12,6 +12,7 @@ import { PublisherEarningsPage } from '@pages/publisherEarnings';
 import { PublisherSettingsPage } from '@pages/publisherSettings';
 import { OnboardingSdkGuidePageSkeleton } from '@pages/onboardingSdkGuide';
 import { CampaignCreatePage } from '@pages/campaginCreate';
+import { BlogAdmissionPage } from '@/2_pages/onboardingBlogAdmission/ui/BlogAdmissionPage';
 // import { RoleSelectPage } from '@/2_pages/onboardingRoleSelect/ui/_RoleSelectPage';
 
 const OnboardingSdkGuidePage = lazy(() =>
@@ -38,6 +39,9 @@ export function RouterProvider() {
               </Suspense>
             }
           />
+          <Route path="/auth/register" element={<RegisterPage />} />
+          <Route path="/auth/login" element={<LoginPage />} />
+          <Route path="/publisher/onboarding/blog-admission" element={<BlogAdmissionPage/>} />
           <Route
             path="/advertiser/campaign-create"
             element={<CampaignCreatePage />}
@@ -67,8 +71,6 @@ export function RouterProvider() {
             element={<PublisherSettingsPage />}
           />
         </Route>
-        <Route path="/auth/register" element={<RegisterPage />} />
-        <Route path="/auth/login" element={<LoginPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
