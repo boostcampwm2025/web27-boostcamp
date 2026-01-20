@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   SdkSuccessHeader,
@@ -5,13 +6,16 @@ import {
   SdkInfoBox,
   SdkInstallGuideList,
   SdkInstallFooter,
+  SdkModeToggle,
 } from '@features/sdkInstallation';
+import type { SdkMode } from '@features/sdkInstallation';
 
 // TODO: API 응답 or 로그인 시 받아온 실제 blogKey로 교체 필요!
 const MOCK_BLOG_KEY = 'tech-blog-1';
 
 export function OnboardingSdkGuidePage() {
   const navigate = useNavigate();
+  const [mode, setMode] = useState<SdkMode>('auto');
 
   const handleNavigateToDashboard = () => {
     navigate('/publisher/dashboard');
@@ -19,10 +23,11 @@ export function OnboardingSdkGuidePage() {
 
   return (
     <div className="flex flex-col items-center gap-8 px-8 py-6 bg-gray-50">
-      <SdkSuccessHeader />
-      <SdkCodeSnippet blogKey={MOCK_BLOG_KEY} />
-      <SdkInfoBox />
-      <SdkInstallGuideList />
+      <SdkSuccessHeader mode={mode} />
+      <SdkModeToggle mode={mode} onModeChange={setMode} />
+      <SdkCodeSnippet blogKey={MOCK_BLOG_KEY} mode={mode} />
+      <SdkInfoBox mode={mode} />
+      <SdkInstallGuideList mode={mode} />
       <SdkInstallFooter onNavigateToDashboard={handleNavigateToDashboard} />
     </div>
   );

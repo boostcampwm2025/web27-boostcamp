@@ -2,19 +2,33 @@ import { Icon } from '@shared/ui/Icon';
 import { useToast } from '@shared/lib/toast';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import type { SdkMode } from './SdkModeToggle';
 
 interface SdkCodeSnippetProps {
   blogKey: string;
+  mode: SdkMode;
 }
 
-export function SdkCodeSnippet({ blogKey }: SdkCodeSnippetProps) {
+export function SdkCodeSnippet({ blogKey, mode }: SdkCodeSnippetProps) {
   const { showToast } = useToast();
 
-  const codeSnippet = `<script
-  src="https://kr.object.ncloudstorage.com/boostad-sdk-dev/sdk/sdk.js"
-  data-blog-key=${blogKey}
-  async
-></script>;`;
+  const autoModeSnippet = `<head>
+  <script src="https://cdn.devad.com/sdk.js"
+          blog-key="${blogKey}"
+  ></script>
+</head>`;
+
+  const manualModeSnippet = `<head>
+  <script src="https://cdn.devad.com/sdk.js"
+          blog-key="${blogKey}"
+          data-auto="false"
+  ></script>
+</head>
+
+// 광고를 노출할 위치에 추가하세요
+<div data-boostad-zone></div>`;
+
+  const codeSnippet = mode === 'auto' ? autoModeSnippet : manualModeSnippet;
 
   const handleCopy = async () => {
     try {
@@ -26,8 +40,8 @@ export function SdkCodeSnippet({ blogKey }: SdkCodeSnippetProps) {
   };
 
   return (
-    <div className="flex flex-col items-center gap-2">
-      <div className="flex flex-col gap-1 p-4 rounded-xl min-w-150 bg-gray-800 text-white">
+    <div className="flex flex-col w-150 items-center gap-2">
+      <div className="flex flex-col w-full gap-1 p-4 rounded-xl bg-gray-800 text-white">
         <div className="flex flex-row justify-between">
           <span className="flex items-center text-xs text-gray-400">
             index.html (head)
@@ -61,7 +75,7 @@ export function SdkCodeSnippet({ blogKey }: SdkCodeSnippetProps) {
         </div>
       </div>
       <p className="text-xs font-normal whitespace-nowrap text-gray-500">
-        SDK가 자동으로 행동 추적 시작
+        SDK가 자동으로 행동 추적 시작 (쿠키 미사용)
       </p>
     </div>
   );
