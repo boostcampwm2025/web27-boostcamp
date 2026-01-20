@@ -3,12 +3,12 @@ import { Icon } from '@/4_shared/ui/Icon';
 import { FormDivider } from '@/4_shared/ui/Divider';
 import { useCallback } from 'react';
 import { handleRegister } from '../../lib/handleOauth';
-
-// import { useState } from 'react';
-// import { UserTypeSelector } from './UserTypeSelector';
+import { UserTypeSelector } from '@/3_features/authorize/register/ui/UserTypeSelector';
+import { useState } from 'react';
+import type { AccountType } from '../model/types';
 
 export function RegisterForm() {
-  // const [accountType, setAccountType] = useState<AccountType>('advertiser');
+  const [accountType, setAccountType] = useState<AccountType>('advertiser');
 
   const onClick = useCallback(() => {
     handleRegister();
@@ -22,6 +22,7 @@ export function RegisterForm() {
           광고주 또는 퍼블리셔로 가입하세요.
         </p>
       </div>
+      <UserTypeSelector value={accountType} onChange={setAccountType} />{' '}
       <div className="flex flex-col gap-6">
         {/* <UserTypeSelector value={accountType} onChange={setAccountType} /> */}
 
