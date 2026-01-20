@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-import { UserRepository } from './user.repository';
-import { Role, User } from 'src/user/types/user.types';
+// import { UserRepository } from './user.repository';
+import { Role, User } from 'src/user/types/_user.types';
 
 type FixtureUser = {
   id: number;
@@ -19,11 +19,11 @@ type Fixture = {
 };
 
 @Injectable()
-export class JsonUserRepository extends UserRepository {
+export class JsonUserRepository {
   private readonly usersById: Map<number, User>;
 
   constructor() {
-    super();
+    // super();
     this.usersById = new Map(loadFixture().users.map((u) => [u.id, toUser(u)]));
   }
 
