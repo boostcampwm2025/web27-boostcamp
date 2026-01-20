@@ -5,7 +5,7 @@ import {
   Query,
   Res,
 } from '@nestjs/common';
-import { OAuthService } from './auth.service';
+import { type AuthIntent, OAuthService } from './auth.service';
 import { type Response } from 'express';
 import { Public } from './decorators/public.decorator';
 
@@ -16,8 +16,11 @@ export class AuthController {
   // 구글 로그인 페이지로 리다이렉트 하기 위한 요청 받음
   @Get('google')
   @Public()
-  redirectToGoogleAuth(@Res() res: Response): void {
-    const url = this.oauthService.getGoogleAuthUrl();
+  redirectToGoogleAuth(
+    @Res() res: Response,
+    @Query('intent') intent: AuthIntent
+  ): void {
+    const url = this.oauthService.getGoogleAuthUrl(intent);
     return res.redirect(url);
   }
 
@@ -39,7 +42,7 @@ export class AuthController {
     if (!state) {
       throw new BadRequestException('state가 없습니다.');
     }
-    this.oauthService.validateState(state);
+    const intent = this.oauthService.validateState(state);
 
     const payload = await this.oauthService.getTokensFromGoogle(code);
     const jwt = await this.oauthService.authorizeUserByToken(payload);

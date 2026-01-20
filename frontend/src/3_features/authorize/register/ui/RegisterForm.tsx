@@ -2,7 +2,7 @@ import { TextField } from '@shared/ui/TextField';
 import { Icon } from '@/4_shared/ui/Icon';
 import { FormDivider } from '@/4_shared/ui/Divider';
 import { useCallback } from 'react';
-import { handleOauth } from '../../lib/handleOauth';
+import { handleRegister } from '../../lib/handleOauth';
 
 // import { useState } from 'react';
 // import { UserTypeSelector } from './UserTypeSelector';
@@ -11,7 +11,7 @@ export function RegisterForm() {
   // const [accountType, setAccountType] = useState<AccountType>('advertiser');
 
   const onClick = useCallback(() => {
-    handleOauth()
+    handleRegister();
   }, []);
 
   return (
@@ -26,7 +26,7 @@ export function RegisterForm() {
         {/* <UserTypeSelector value={accountType} onChange={setAccountType} /> */}
 
         <button
-          onClick={()=>onClick()}
+          onClick={() => onClick()}
           type="button"
           className="flex h-11 items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white text-base font-semibold text-[#111318] hover:bg-gray-50"
         >

@@ -2,11 +2,11 @@ import { FormDivider } from '@/4_shared/ui/Divider';
 import { Icon } from '@/4_shared/ui/Icon';
 import { TextField } from '@shared/ui/TextField';
 import { useCallback } from 'react';
-import { handleOauth } from '../../lib/handleOauth';
+import { handleLogin } from '../../lib/handleOauth';
 
 export function LoginForm() {
   const onClick = useCallback(() => {
-    handleOauth();
+    handleLogin();
   },[]);
 
   return (

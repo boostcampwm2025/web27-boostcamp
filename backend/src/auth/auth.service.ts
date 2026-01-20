@@ -39,6 +39,8 @@ export type GoogleIdTokenPayload = {
   picture?: string;
 };
 
+export type AuthIntent = 'login' | 'register';
+
 const googleJWKS = createRemoteJWKSet(
   new URL('https://www.googleapis.com/oauth2/v3/certs')
 );
@@ -58,9 +60,12 @@ export class OAuthService {
     private readonly oauthAccountRepository: OAuthAccountRepository
   ) {}
 
-  private readonly stateStore = new Map<string, number>(); // 추후에 Redis로 이동
+  private readonly stateStore = new Map<
+    string,
+    { expiresAt: number; intent: AuthIntent }
+  >(); // 추후에 Redis로 이동
 
-  getGoogleAuthUrl(): string {
+  getGoogleAuthUrl(intent: AuthIntent): string {
     const { GOOGLE_CLIENT_ID: clientId, GOOGLE_REDIRECT_URI: redirectUri } =
       process.env;
 
@@ -70,7 +75,10 @@ export class OAuthService {
 
     const state = randomUUID();
 
-    this.stateStore.set(state, Date.now() + 10 * 60 * 1000);
+    this.stateStore.set(state, {
+      expiresAt: Date.now() + 10 * 60 * 1000,
+      intent,
+    });
 
     const params = new URLSearchParams({
       client_id: clientId,
@@ -84,15 +92,16 @@ export class OAuthService {
   }
 
   validateState(state: string) {
-    const expiresAt = this.stateStore.get(state);
-    if (!expiresAt) throw new UnauthorizedException('잘못된 state입니다.');
+    const data = this.stateStore.get(state);
+    if (!data) throw new UnauthorizedException('잘못된 state입니다.');
 
-    if (expiresAt < Date.now()) {
+    if (data.expiresAt < Date.now()) {
       this.stateStore.delete(state);
       throw new UnauthorizedException('만료된 state입니다.');
     }
 
     this.stateStore.delete(state);
+    return data.intent;
   }
 
   async verifyGoogleIdToken(
