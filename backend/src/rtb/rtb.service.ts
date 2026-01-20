@@ -25,6 +25,35 @@ export class RTBService {
     private readonly auctionStore: AuctionStore
   ) {}
 
+  // 경매 참여 가능한 캠페인만 필터링
+  private filterEligibleCampaigns(candidates: Candidate[]): Candidate[] {
+    const now = new Date();
+
+    return candidates.filter((candidate) => {
+      const campaign = candidate.campaign;
+
+      // 삭제된 캠페인 제외
+      if (campaign.deletedAt) {
+        return false;
+      }
+
+      // ACTIVE 상태만 허용
+      if (campaign.status !== 'ACTIVE') {
+        return false;
+      }
+
+      // 날짜 범위 검증
+      const startDate = new Date(campaign.startDate);
+      const endDate = new Date(campaign.endDate);
+
+      if (now < startDate || now >= endDate) {
+        return false;
+      }
+
+      return true;
+    });
+  }
+
   async runAuction(context: DecisionContext) {
     try {
       const auctionId = randomUUID();
@@ -36,12 +65,13 @@ export class RTBService {
       let candidates: Candidate[] =
         await this.matcher.findCandidatesByTags(context);
 
-      // 2. 고의도 필터링 (isHighIntent에 따라 광고 분리)
+      // 2. 캠페인 상태 검증 (ACTIVE + 날짜 범위 + 삭제되지 않음)
+      candidates = this.filterEligibleCampaigns(candidates);
+
+      // 3. 고의도 필터링 (isHighIntent에 따라 광고 분리)
       if (context.isHighIntent) {
         // 고의도 요청: is_high_intent=true 광고만
-        candidates = candidates.filter(
-          (c) => c.campaign.isHighIntent === true
-        );
+        candidates = candidates.filter((c) => c.campaign.isHighIntent === true);
       } else {
         // 일반 요청: is_high_intent=false 광고만
         candidates = candidates.filter(
