@@ -220,18 +220,25 @@ export class BoostAdSDK {
   // ========================================
 
   private async initManualMode(): Promise<void> {
-    const zones = document.querySelectorAll('[data-boostad-zone]');
+    const allZones = document.querySelectorAll('[data-boostad-zone]');
 
-    if (zones.length === 0) {
+    if (allZones.length === 0) {
       console.warn(
         '[BoostAD SDK] data-boostad-zone 요소를 찾을 수 없습니다. 광고를 표시하지 않습니다.'
       );
       return;
     }
 
-    console.log(`[BoostAD SDK] 수동 모드: ${zones.length}개의 광고존 발견`);
+    const zones = Array.from(allZones).slice(0, 2);
+
+    if (allZones.length > 2) {
+      console.warn(
+        `[BoostAD SDK] 광고존은 최대 2개까지 허용됩니다. ${allZones.length}개 중 처음 2개만 사용합니다.`
+      );
+    }
 
     const tags = this.tagExtractor.extract();
+    console.log('[BoostAD SDK] 추출된 태그:', tags);
     const postUrl = window.location.href;
 
     // 각 광고존에 1차 광고 삽입
