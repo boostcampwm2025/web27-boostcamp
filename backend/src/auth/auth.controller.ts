@@ -65,21 +65,33 @@ export class AuthController {
     const payload = await this.oauthService.getTokensFromGoogle(code);
 
     const role = stateData.intent === 'register' ? stateData.role : undefined;
-    const jwt = await this.oauthService.authorizeUserByToken(payload, role);
-
-    if (jwt) {
-      res.cookie('access_token', jwt, {
-        httpOnly: true,
-        sameSite: 'lax',
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 15 * 60 * 1000,
-      });
-    }
+    const result = await this.oauthService.authorizeUserByToken(payload, role);
 
     const clientUrl = process.env.CLIENT_URL ?? 'http://localhost:5173';
-    const redirectUrl = jwt
-      ? `${clientUrl}/advertiser/dashboard`
-      : `${clientUrl}/auth/register`;
+    let redirectUrl = `${clientUrl}/auth/login`;
+
+    if (stateData.intent === 'login') {
+      if (result.isNew) {
+        redirectUrl = `${clientUrl}/auth/register?reason=not_found`;
+      } else {
+        if (result.jwt) {
+          res.cookie('access_token', result.jwt, {
+            httpOnly: true,
+            sameSite: 'lax',
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 15 * 60 * 1000,
+          });
+        }
+        redirectUrl =
+          result.role === UserRole.PUBLISHER
+            ? `${clientUrl}/publisher/dashboard`
+            : `${clientUrl}/advertiser/dashboard`;
+      }
+    } else {
+      redirectUrl = result.isNew
+        ? `${clientUrl}/auth/login?reason=registered`
+        : `${clientUrl}/auth/login?reason=already_exists`;
+    }
 
     return res.redirect(redirectUrl);
   }

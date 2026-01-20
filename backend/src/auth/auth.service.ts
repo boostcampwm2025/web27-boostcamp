@@ -46,6 +46,12 @@ export type OAuthState =
 
 type StoredOAuthState = OAuthState & { expiresAt: number };
 
+export type AuthorizeResult = {
+  isNew: boolean;
+  jwt?: string;
+  role?: UserRole;
+};
+
 const googleJWKS = createRemoteJWKSet(
   new URL('https://www.googleapis.com/oauth2/v3/certs')
 );
@@ -192,7 +198,7 @@ export class OAuthService {
   async authorizeUserByToken(
     payload: GoogleIdTokenPayload,
     role?: UserRole
-  ): Promise<void | string> {
+  ): Promise<AuthorizeResult> {
     const { sub, email, email_verified } = payload;
     const provider = OAuthProvider.GOOGLE;
     const userId = await this.oauthAccountRepository.findUserIdByProviderSub(
@@ -201,14 +207,12 @@ export class OAuthService {
     );
     const isEmailVerified =
       email_verified === true || email_verified === 'true';
-    // 회원가입
+
     if (!userId) {
       if (!email || !isEmailVerified) {
         throw new UnauthorizedException('이메일 검증이 필요합니다.');
       }
-      if (!role) {
-        throw new BadRequestException('Role이 없습니다.');
-      }
+      if (!role) return { isNew: true };
       if (await this.userRepository.findByEmail(email)) {
         throw new ConflictException('이미 존재하는 이메일입니다.');
       }
@@ -221,7 +225,7 @@ export class OAuthService {
         id
       );
 
-      return;
+      return { isNew: true };
     }
     // 로그인
     const user = await this.userRepository.getById(userId);
@@ -229,12 +233,16 @@ export class OAuthService {
       throw new UnauthorizedException('사용자를 찾을 수 없습니다.');
     }
 
+    if (role) {
+      return { isNew: false };
+    }
+
     const jwt = await this.issueAccessToken({
       userId,
       email: user.email,
       role: user.role,
     });
-    return jwt;
+    return { isNew: false, jwt, role: user.role };
   }
 
   async issueAccessToken(payload: {
