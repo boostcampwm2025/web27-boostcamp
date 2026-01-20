@@ -10,6 +10,18 @@ export class GetCampaignListDto {
   status?: CampaignStatus;
 
   @IsOptional()
+  @IsIn(['createdAt', 'startDate', 'endDate'], {
+    message: '정렬 기준은 createdAt, startDate, endDate 중 하나여야 합니다.',
+  })
+  sortBy?: 'createdAt' | 'startDate' | 'endDate' = 'createdAt';
+
+  @IsOptional()
+  @IsIn(['asc', 'desc'], {
+    message: '정렬 방향은 asc 또는 desc여야 합니다.',
+  })
+  order?: 'asc' | 'desc' = 'desc';
+
+  @IsOptional()
   @Type(() => Number)
   @IsInt({ message: 'limit은 정수여야 합니다.' })
   @Min(1, { message: 'limit은 1 이상이어야 합니다.' })
