@@ -19,8 +19,13 @@ export abstract class CampaignRepository {
     userId: number,
     status?: CampaignStatus,
     limit?: number,
-    offset?: number
-  ): Promise<{ campaigns: CampaignWithTags[]; total: number }>;
+    offset?: number,
+    sortBy?: 'createdAt' | 'startDate' | 'endDate',
+    order?: 'asc' | 'desc'
+  ): Promise<{
+    campaigns: CampaignWithTags[];
+    total: number;
+  }>;
 
   abstract findOne(
     campaignId: string,
