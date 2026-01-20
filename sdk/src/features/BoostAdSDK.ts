@@ -13,6 +13,7 @@ export class BoostAdSDK {
     '#area_view',
     '#article-view',
     '#mArticle',
+    '.blogview_content',
     '.article-view',
     '.article-content',
     '.post-content',
