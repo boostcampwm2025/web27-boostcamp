@@ -13,13 +13,18 @@ import { BoostAdSDK } from './features/BoostAdSDK';
   const config = getSDKConfig();
   const tagExtractor = new TagExtractor(TAGS);
   const apiClient = new DecisionAPIClient(config);
-  const adRenderer = new BannerAdRenderer(config);
+  const adRenderer = new BannerAdRenderer();
   const behaviorTracker = new BehaviorTracker();
   const sdk = new BoostAdSDK(
     tagExtractor,
     apiClient,
     adRenderer,
-    behaviorTracker
+    behaviorTracker,
+    config.auto // 자동/수동 모드 플래그
+  );
+
+  console.log(
+    `[BoostAD SDK] ${config.auto ? '자동' : '수동'} 모드로 초기화됩니다.`
   );
 
   // DOM 로드 완료 후 SDK 자동 초기화

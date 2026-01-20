@@ -1,7 +1,7 @@
 // SDK 설정 타입 (스크립트 태그의 data-* 속성)
 export interface SDKConfig {
   blogKey: string;
-  apiBase: string;
+  auto: boolean; // true: 자동 모드 (블로그), false: 수동 모드 (광고존 직접 지정)
 }
 
 // 태그 타입

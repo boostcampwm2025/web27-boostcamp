@@ -20,12 +20,14 @@ services:
       PORT: '3000'
       # 배포 시 Object Storage(정적 호스팅) 도메인으로 교체
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
+      CLIENT_URL: ${CLIENT_URL:-http://localhost:3000}
       NODE_ENV: ${NODE_ENV:-development}
       DB_HOST: ${DB_HOST:-localhost}
       DB_PORT: ${DB_PORT:-3306}
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_DATABASE: ${DB_DATABASE}
+      JWT_SECRET: ${JWT_SECRET}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
       GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI:-}

@@ -1,7 +1,8 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { CampaignRepository } from 'src/campaign/repository/campaign.repository';
 import { LogRepository } from 'src/log/repository/log.repository.interface';
-import { UserRepository } from 'src/user/repository/user/user.repository';
+import { UserRole } from 'src/user/entities/user.entity';
+import { UserRepository } from 'src/user/repository/user.repository';
 
 type Snapshot = {
   endMsExclusive: number;
@@ -16,7 +17,10 @@ export class AdvertiserService {
   ) {}
   // todo: 추후 DB에 데이터를 넣게되면 로직 수정
   async getDashboardStats(userId: number) {
-    const isAdvertiser = this.userRepository.verifyRole(userId, 'ADVERTISER');
+    const isAdvertiser = await this.userRepository.verifyRole(
+      userId,
+      UserRole.ADVERTISER
+    );
 
     if (!isAdvertiser) {
       throw new ForbiddenException();
