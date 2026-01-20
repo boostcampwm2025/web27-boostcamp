@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { UserRole } from 'src/user/entities/user.entity';
 import { UserRepository } from 'src/user/repository/user.repository';
@@ -36,8 +41,16 @@ export class BlogService {
     } catch {
       throw new BadRequestException('유효한 블로그 URL을 입력해주세요.');
     }
-
-    await this.blogRepository.createBlog(userId, domain, blogName, blogKey);
+    if (await this.blogRepository.existsBlogByDomain(domain)) {
+      throw new ConflictException('이미 등록된 도메인입니다.');
+    }
+    try {
+      await this.blogRepository.createBlog(userId, domain, blogName, blogKey);
+    } catch {
+      throw new InternalServerErrorException(
+        '블로그 생성중 문제가 발생했습니다.'
+      );
+    }
 
     return blogKey;
   }

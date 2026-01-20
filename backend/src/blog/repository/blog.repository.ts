@@ -5,4 +5,6 @@ export abstract class BlogRepository {
     name: string,
     blogKey: string
   ): Promise<number>;
+
+  abstract existsBlogByDomain(domain: string): Promise<boolean>;
 }

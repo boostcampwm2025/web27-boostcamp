@@ -20,4 +20,14 @@ export class TypeOrmBlogRepository extends BlogRepository {
     const saved = await this.blogRepo.save({ userId, domain, name, blogKey });
     return saved.id;
   }
+
+  async existsBlogByDomain(domain: string): Promise<boolean> {
+    const qb = this.blogRepo.createQueryBuilder('b');
+    const blog = await qb.where('b.domain = :domain', { domain }).getOne();
+    if (blog) {
+      return true;
+    }
+
+    return false;
+  }
 }
