@@ -36,6 +36,11 @@ export class UpdateCampaignDto {
 
   @IsOptional()
   @IsNumber()
+  @Min(0, { message: '최대 CPC는 0 이상이어야 합니다.' })
+  maxCpc?: number;
+
+  @IsOptional()
+  @IsNumber()
   @Min(0, { message: '일일 예산은 0 이상이어야 합니다.' })
   dailyBudget?: number;
 
