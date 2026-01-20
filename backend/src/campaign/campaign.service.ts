@@ -59,4 +59,27 @@ export class CampaignService {
         .length,
     };
   }
+
+  // 캠페인 목록 조회 (페이지네이션 + 상태별 통계)
+  async getCampaignList(userId: number, dto: GetCampaignListDto) {
+    const { campaigns, total } = await this.campaignRepository.findByUserId(
+      userId,
+      dto.status,
+      dto.limit,
+      dto.offset
+    );
+
+    const statusCounts = await this.getStatusCounts(userId);
+
+    return {
+      campaigns,
+      total,
+      statistics: {
+        pending: statusCounts.pending,
+        active: statusCounts.active,
+        paused: statusCounts.paused,
+        ended: statusCounts.ended,
+      },
+    };
+  }
 }
