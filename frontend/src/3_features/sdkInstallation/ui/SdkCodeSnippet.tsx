@@ -13,13 +13,13 @@ export function SdkCodeSnippet({ blogKey, mode }: SdkCodeSnippetProps) {
   const { showToast } = useToast();
 
   const autoModeSnippet = `<head>
-  <script src="https://cdn.devad.com/sdk.js"
+  <script src="https://kr.object.ncloudstorage.com/boostad-sdk-dev/sdk/sdk.js"
           blog-key="${blogKey}"
   ></script>
 </head>`;
 
   const manualModeSnippet = `<head>
-  <script src="https://cdn.devad.com/sdk.js"
+  <script src="https://kr.object.ncloudstorage.com/boostad-sdk-dev/sdk/sdk.js"
           blog-key="${blogKey}"
           data-auto="false"
   ></script>
