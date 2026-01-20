@@ -37,10 +37,10 @@ export function KeywordStatsItem({ keyword, rank }: KeywordStatsItemProps) {
             <span className="text-gray-900">{keyword.avgCtr.toFixed(1)}%</span>
           </span>
           <span className="text-gray-500">
-            노출 <span className="text-gray-900">{keyword.avgImpressions}</span>
+            노출 <span className="text-gray-900">{keyword.totalImpressions}</span>
           </span>
           <span className="text-gray-500">
-            클릭 <span className="text-gray-900">{keyword.avgClicks}</span>
+            클릭 <span className="text-gray-900">{keyword.totalClicks}</span>
           </span>
         </div>
       </div>

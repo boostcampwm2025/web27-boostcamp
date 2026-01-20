@@ -1,20 +1,20 @@
 import { useState, useRef, useEffect } from 'react';
-import type { SortKey } from '../lib/types';
+import type { SortBy } from '../lib/types';
 import { Icon } from '@shared/ui/Icon';
 
 interface KeywordStatsHeaderProps {
-  sortKey: SortKey;
-  onSortChange: (key: SortKey) => void;
+  sortBy: SortBy;
+  onSortChange: (key: SortBy) => void;
 }
 
-const SORT_OPTIONS: { key: SortKey; label: string }[] = [
+const SORT_OPTIONS: { key: SortBy; label: string }[] = [
   { key: 'avgCtr', label: 'CTR순' },
-  { key: 'avgClicks', label: '클릭수순' },
-  { key: 'avgImpressions', label: '노출수순' },
+  { key: 'totalClicks', label: '클릭수순' },
+  { key: 'totalImpressions', label: '노출수순' },
 ];
 
 export function KeywordStatsHeader({
-  sortKey,
+  sortBy,
   onSortChange,
 }: KeywordStatsHeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -32,7 +32,7 @@ export function KeywordStatsHeader({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleSortSelect = (key: SortKey) => {
+  const handleSortSelect = (key: SortBy) => {
     onSortChange(key);
     setIsMenuOpen(false);
   };
@@ -56,7 +56,7 @@ export function KeywordStatsHeader({
                 key={option.key}
                 onClick={() => handleSortSelect(option.key)}
                 className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg ${
-                  sortKey === option.key
+                  sortBy === option.key
                     ? 'text-blue-500 font-semibold'
                     : 'text-gray-700'
                 }`}

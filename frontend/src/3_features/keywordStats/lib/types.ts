@@ -1,11 +1,15 @@
 export interface KeywordStats {
   id: number;
   name: string;
-  avgImpressions: number;
-  avgClicks: number;
+  totalImpressions: number;
+  totalClicks: number;
   avgCtr: number;
 }
 
-export type SortKey = 'avgClicks' | 'avgImpressions' | 'avgCtr';
+export type SortBy = 'avgCtr' | 'totalImpressions' | 'totalClicks';
 
-export type KeywordStatsResponse = KeywordStats[];
+export interface KeywordStatsResponse {
+  total: number;
+  hasMore: boolean;
+  keywords: KeywordStats[];
+}
