@@ -1,1 +1,1 @@
-export type AccountType = 'advertiser' | 'publisher';
+export type AccountType = 'ADVERTISER' | 'PUBLISHER';

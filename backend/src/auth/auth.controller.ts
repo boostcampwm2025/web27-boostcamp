@@ -8,6 +8,7 @@ import {
 import { type AuthIntent, OAuthService } from './auth.service';
 import { type Response } from 'express';
 import { Public } from './decorators/public.decorator';
+import { UserRole } from 'src/user/entities/user.entity';
 
 @Controller('auth')
 export class AuthController {
@@ -18,9 +19,27 @@ export class AuthController {
   @Public()
   redirectToGoogleAuth(
     @Res() res: Response,
-    @Query('intent') intent: AuthIntent
+    @Query('intent') intent: AuthIntent,
+    @Query('role') role?: UserRole
   ): void {
-    const url = this.oauthService.getGoogleAuthUrl(intent);
+    if (intent !== 'login' && intent !== 'register') {
+      throw new BadRequestException('잘못된 접근입니다.');
+    }
+
+    if (intent === 'login' && role) {
+      throw new BadRequestException('login 요청에는 role을 보낼 수 없습니다.');
+    }
+
+    if (intent === 'register') {
+      if (role !== UserRole.ADVERTISER && role !== UserRole.PUBLISHER) {
+        throw new BadRequestException('role이 올바르지 않습니다.');
+      }
+    }
+
+    const url = this.oauthService.getGoogleAuthUrl(
+      intent,
+      intent === 'register' ? role : undefined
+    );
     return res.redirect(url);
   }
 
@@ -42,10 +61,11 @@ export class AuthController {
     if (!state) {
       throw new BadRequestException('state가 없습니다.');
     }
-    const intent = this.oauthService.validateState(state);
-
+    const stateData = this.oauthService.validateState(state);
     const payload = await this.oauthService.getTokensFromGoogle(code);
-    const jwt = await this.oauthService.authorizeUserByToken(payload);
+
+    const role = stateData.intent === 'register' ? stateData.role : undefined;
+    const jwt = await this.oauthService.authorizeUserByToken(payload, role);
 
     if (jwt) {
       res.cookie('access_token', jwt, {

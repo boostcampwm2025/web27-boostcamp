@@ -17,9 +17,9 @@ export function UserTypeSelector(props: UserTypeSelectorProps) {
           <input
             type="radio"
             name="accountType"
-            value="advertiser"
-            checked={value === 'advertiser'}
-            onChange={() => onChange('advertiser')}
+            value="ADVERTISER"
+            checked={value === 'ADVERTISER'}
+            onChange={() => onChange('ADVERTISER')}
             className="sr-only peer"
           />
           <div className="flex flex-col items-center justify-center rounded-xl border border-gray-200 px-4 py-5 text-center peer-checked:border-blue-600 peer-checked:ring-2 peer-checked:ring-blue-200">
@@ -34,9 +34,9 @@ export function UserTypeSelector(props: UserTypeSelectorProps) {
           <input
             type="radio"
             name="accountType"
-            value="publisher"
-            checked={value === 'publisher'}
-            onChange={() => onChange('publisher')}
+            value="PUBLISHER"
+            checked={value === 'PUBLISHER'}
+            onChange={() => onChange('PUBLISHER')}
             className="sr-only peer"
           />
           <div className="flex flex-col items-center justify-center rounded-xl border border-gray-200 px-4 py-5 text-center peer-checked:border-blue-600 peer-checked:ring-2 peer-checked:ring-blue-200">

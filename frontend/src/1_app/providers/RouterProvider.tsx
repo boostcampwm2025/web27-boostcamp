@@ -12,7 +12,7 @@ import { PublisherEarningsPage } from '@pages/publisherEarnings';
 import { PublisherSettingsPage } from '@pages/publisherSettings';
 import { OnboardingSdkGuidePageSkeleton } from '@pages/onboardingSdkGuide';
 import { CampaignCreatePage } from '@pages/campaginCreate';
-import { RoleSelectPage } from '@/2_pages/onboardingRoleSelect/ui/RoleSelectPage';
+// import { RoleSelectPage } from '@/2_pages/onboardingRoleSelect/ui/_RoleSelectPage';
 
 const OnboardingSdkGuidePage = lazy(() =>
   import('@pages/onboardingSdkGuide').then((m) => ({
@@ -69,7 +69,6 @@ export function RouterProvider() {
         </Route>
         <Route path="/auth/register" element={<RegisterPage />} />
         <Route path="/auth/login" element={<LoginPage />} />
-        <Route path="/auth/role" element={<RoleSelectPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>

@@ -40,6 +40,11 @@ export type GoogleIdTokenPayload = {
 };
 
 export type AuthIntent = 'login' | 'register';
+export type OAuthState =
+  | { intent: 'login' }
+  | { intent: 'register'; role: UserRole };
+
+type StoredOAuthState = OAuthState & { expiresAt: number };
 
 const googleJWKS = createRemoteJWKSet(
   new URL('https://www.googleapis.com/oauth2/v3/certs')
@@ -60,12 +65,9 @@ export class OAuthService {
     private readonly oauthAccountRepository: OAuthAccountRepository
   ) {}
 
-  private readonly stateStore = new Map<
-    string,
-    { expiresAt: number; intent: AuthIntent }
-  >(); // 추후에 Redis로 이동
+  private readonly stateStore = new Map<string, StoredOAuthState>(); // 추후에 Redis로 이동
 
-  getGoogleAuthUrl(intent: AuthIntent): string {
+  getGoogleAuthUrl(intent: AuthIntent, role?: UserRole): string {
     const { GOOGLE_CLIENT_ID: clientId, GOOGLE_REDIRECT_URI: redirectUri } =
       process.env;
 
@@ -75,10 +77,15 @@ export class OAuthService {
 
     const state = randomUUID();
 
-    this.stateStore.set(state, {
-      expiresAt: Date.now() + 10 * 60 * 1000,
-      intent,
-    });
+    const expiresAt = Date.now() + 10 * 60 * 1000;
+    if (intent === 'register') {
+      if (role !== UserRole.ADVERTISER && role !== UserRole.PUBLISHER) {
+        throw new BadRequestException('role이 올바르지 않습니다.');
+      }
+      this.stateStore.set(state, { expiresAt, intent, role });
+    } else {
+      this.stateStore.set(state, { expiresAt, intent });
+    }
 
     const params = new URLSearchParams({
       client_id: clientId,
@@ -91,7 +98,7 @@ export class OAuthService {
     return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
   }
 
-  validateState(state: string) {
+  validateState(state: string): OAuthState {
     const data = this.stateStore.get(state);
     if (!data) throw new UnauthorizedException('잘못된 state입니다.');
 
@@ -101,7 +108,14 @@ export class OAuthService {
     }
 
     this.stateStore.delete(state);
-    return data.intent;
+    if (data.intent === 'register') {
+      if (!data.role) {
+        throw new BadRequestException('role이 누락되었습니다.');
+      }
+      return { intent: 'register', role: data.role };
+    }
+
+    return { intent: 'login' };
   }
 
   async verifyGoogleIdToken(
@@ -176,7 +190,8 @@ export class OAuthService {
   }
 
   async authorizeUserByToken(
-    payload: GoogleIdTokenPayload
+    payload: GoogleIdTokenPayload,
+    role?: UserRole
   ): Promise<void | string> {
     const { sub, email, email_verified } = payload;
     const provider = OAuthProvider.GOOGLE;
@@ -191,10 +206,13 @@ export class OAuthService {
       if (!email || !isEmailVerified) {
         throw new UnauthorizedException('이메일 검증이 필요합니다.');
       }
+      if (!role) {
+        throw new BadRequestException('Role이 없습니다.');
+      }
       if (await this.userRepository.findByEmail(email)) {
         throw new ConflictException('이미 존재하는 이메일입니다.');
       }
-      const id = await this.userRepository.createUser(email);
+      const id = await this.userRepository.createUser(email, role);
       await this.oauthAccountRepository.createOAuthAccount(
         provider,
         sub,

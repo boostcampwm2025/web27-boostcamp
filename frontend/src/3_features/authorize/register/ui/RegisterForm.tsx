@@ -8,7 +8,7 @@ import { useState } from 'react';
 import type { AccountType } from '../model/types';
 
 export function RegisterForm() {
-  const [accountType, setAccountType] = useState<AccountType>('advertiser');
+  const [accountType, setAccountType] = useState<AccountType>('ADVERTISER');
 
   const onClick = useCallback(() => {
     handleRegister(accountType);

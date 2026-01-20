@@ -5,7 +5,7 @@ import { Icon } from '@shared/ui/Icon';
 import { Modal } from '@shared/ui/Modal';
 
 export function RoleSelectPage() {
-  const [accountType, setAccountType] = useState<AccountType>('advertiser');
+  const [accountType, setAccountType] = useState<AccountType>('ADVERTISER');
 
   const handleSubmit = useCallback(() => {}, []);
   return (
