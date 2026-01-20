@@ -39,6 +39,19 @@ export type GoogleIdTokenPayload = {
   picture?: string;
 };
 
+export type AuthIntent = 'login' | 'register';
+export type OAuthState =
+  | { intent: 'login' }
+  | { intent: 'register'; role: UserRole };
+
+type StoredOAuthState = OAuthState & { expiresAt: number };
+
+export type AuthorizeResult = {
+  isNew: boolean;
+  jwt?: string;
+  role?: UserRole;
+};
+
 const googleJWKS = createRemoteJWKSet(
   new URL('https://www.googleapis.com/oauth2/v3/certs')
 );
@@ -58,9 +71,9 @@ export class OAuthService {
     private readonly oauthAccountRepository: OAuthAccountRepository
   ) {}
 
-  private readonly stateStore = new Map<string, number>(); // 추후에 Redis로 이동
+  private readonly stateStore = new Map<string, StoredOAuthState>(); // 추후에 Redis로 이동
 
-  getGoogleAuthUrl(): string {
+  getGoogleAuthUrl(intent: AuthIntent, role?: UserRole): string {
     const { GOOGLE_CLIENT_ID: clientId, GOOGLE_REDIRECT_URI: redirectUri } =
       process.env;
 
@@ -70,7 +83,15 @@ export class OAuthService {
 
     const state = randomUUID();
 
-    this.stateStore.set(state, Date.now() + 10 * 60 * 1000);
+    const expiresAt = Date.now() + 10 * 60 * 1000;
+    if (intent === 'register') {
+      if (role !== UserRole.ADVERTISER && role !== UserRole.PUBLISHER) {
+        throw new BadRequestException('role이 올바르지 않습니다.');
+      }
+      this.stateStore.set(state, { expiresAt, intent, role });
+    } else {
+      this.stateStore.set(state, { expiresAt, intent });
+    }
 
     const params = new URLSearchParams({
       client_id: clientId,
@@ -83,16 +104,24 @@ export class OAuthService {
     return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
   }
 
-  validateState(state: string) {
-    const expiresAt = this.stateStore.get(state);
-    if (!expiresAt) throw new UnauthorizedException('잘못된 state입니다.');
+  validateState(state: string): OAuthState {
+    const data = this.stateStore.get(state);
+    if (!data) throw new UnauthorizedException('잘못된 state입니다.');
 
-    if (expiresAt < Date.now()) {
+    if (data.expiresAt < Date.now()) {
       this.stateStore.delete(state);
       throw new UnauthorizedException('만료된 state입니다.');
     }
 
     this.stateStore.delete(state);
+    if (data.intent === 'register') {
+      if (!data.role) {
+        throw new BadRequestException('role이 누락되었습니다.');
+      }
+      return { intent: 'register', role: data.role };
+    }
+
+    return { intent: 'login' };
   }
 
   async verifyGoogleIdToken(
@@ -133,7 +162,6 @@ export class OAuthService {
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         }
       );
-      // todo: verifyGoogleIdToken으로 받은 idToken Payload를 기반으로 OauthAccount 과 User 테이블에 사용자 정보를 저장하거나 로그인 처리하는 로직필요
       if (data.id_token) {
         const payload = await this.verifyGoogleIdToken(
           data.id_token,
@@ -168,25 +196,35 @@ export class OAuthService {
   }
 
   async authorizeUserByToken(
-    payload: GoogleIdTokenPayload
-  ): Promise<void | string> {
+    payload: GoogleIdTokenPayload,
+    state: OAuthState
+  ): Promise<AuthorizeResult> {
     const { sub, email, email_verified } = payload;
     const provider = OAuthProvider.GOOGLE;
     const userId = await this.oauthAccountRepository.findUserIdByProviderSub(
       provider,
       sub
     );
+    const role = state.intent === 'register' ? state.role : undefined;
     const isEmailVerified =
       email_verified === true || email_verified === 'true';
+
     // 회원가입
     if (!userId) {
       if (!email || !isEmailVerified) {
         throw new UnauthorizedException('이메일 검증이 필요합니다.');
       }
+
+      // login intent에서는 신규 생성하지 않음
+      if (state.intent === 'login') return { isNew: true };
+
       if (await this.userRepository.findByEmail(email)) {
         throw new ConflictException('이미 존재하는 이메일입니다.');
       }
-      const id = await this.userRepository.createUser(email);
+      if (!role) {
+        throw new BadRequestException('role이 올바르지 않습니다.');
+      }
+      const id = await this.userRepository.createUser(email, role);
       await this.oauthAccountRepository.createOAuthAccount(
         provider,
         sub,
@@ -195,7 +233,7 @@ export class OAuthService {
         id
       );
 
-      return;
+      return { isNew: true };
     }
     // 로그인
     const user = await this.userRepository.getById(userId);
@@ -203,12 +241,17 @@ export class OAuthService {
       throw new UnauthorizedException('사용자를 찾을 수 없습니다.');
     }
 
+    // register intent인데 기존 유저인 경우: 자동 로그인 금지
+    if (state.intent === 'register') {
+      return { isNew: false };
+    }
+
     const jwt = await this.issueAccessToken({
       userId,
       email: user.email,
       role: user.role,
     });
-    return jwt;
+    return { isNew: false, jwt, role: user.role };
   }
 
   async issueAccessToken(payload: {

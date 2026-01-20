@@ -5,6 +5,7 @@ export async function apiClient<T>(endpoint: string): Promise<T> {
 
   try {
     const response = await fetch(url, {
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },
