@@ -14,6 +14,7 @@ import { AVAILABLE_TAGS } from '../common/constants';
 export class CampaignService {
   constructor(private readonly campaignRepository: CampaignRepository) {}
 
+  // 캠페인 생성 (태그 검증 + 날짜 유효성 체크)
   async createCampaign(
     userId: number,
     dto: CreateCampaignDto
@@ -27,6 +28,7 @@ export class CampaignService {
     return this.campaignRepository.create(userId, dto, tagIds);
   }
 
+  // 태그 이름 배열을 태그 ID 배열로 변환
   private validateAndGetTagIds(tagNames: string[]): number[] {
     const tagIds: number[] = [];
 
@@ -39,5 +41,22 @@ export class CampaignService {
     }
 
     return tagIds;
+  }
+
+  // 사용자의 캠페인 상태별 개수 집계
+  private async getStatusCounts(userId: number) {
+    const allCampaigns = await this.campaignRepository.listByUserId(userId);
+
+    return {
+      pending: allCampaigns.filter(
+        (c) => c.status === 'PENDING' && !c.deletedAt
+      ).length,
+      active: allCampaigns.filter((c) => c.status === 'ACTIVE' && !c.deletedAt)
+        .length,
+      paused: allCampaigns.filter((c) => c.status === 'PAUSED' && !c.deletedAt)
+        .length,
+      ended: allCampaigns.filter((c) => c.status === 'ENDED' && !c.deletedAt)
+        .length,
+    };
   }
 }
