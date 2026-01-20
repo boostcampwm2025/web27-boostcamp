@@ -11,8 +11,8 @@ export function RegisterForm() {
   const [accountType, setAccountType] = useState<AccountType>('advertiser');
 
   const onClick = useCallback(() => {
-    handleRegister();
-  }, []);
+    handleRegister(accountType);
+  }, [accountType]);
 
   return (
     <form className="flex flex-col gap-6 mt-15 mx-10">
