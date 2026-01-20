@@ -82,4 +82,18 @@ export class CampaignService {
       },
     };
   }
+
+  // 특정 캠페인 조회 (소유권 검증)
+  async getCampaignById(
+    campaignId: string,
+    userId: number
+  ): Promise<CampaignWithTags> {
+    const campaign = await this.campaignRepository.findOne(campaignId, userId);
+
+    if (!campaign) {
+      throw new NotFoundException('캠페인을 찾을 수 없습니다.');
+    }
+
+    return campaign;
+  }
 }
