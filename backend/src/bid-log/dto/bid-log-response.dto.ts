@@ -3,7 +3,7 @@ export interface BidLogItemDto {
   createdAt: Date;
   campaignId: string;
   campaignTitle: string;
-  blogKey: number;
+  blogKey: string;
   blogName: string;
   blogDomain: string;
   bidAmount: number;

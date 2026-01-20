@@ -59,7 +59,7 @@ export class BidLogService {
         createdAt: log.createdAt!, // Entity에서 자동생성됨
         campaignId: log.campaignId,
         campaignTitle: campaign?.title || 'Unknown Campaign',
-        blogKey: log.blogId,
+        blogKey: blog?.blog_key || 'Unknown Blog Key',
         blogName: blog?.name || 'Unknown Blog',
         blogDomain: blog?.domain || 'unknown.com',
         bidAmount: log.bidPrice,
