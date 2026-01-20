@@ -5,8 +5,8 @@ import type {
   ViewLogResponse,
   ClickLogRequest,
   ClickLogResponse,
-} from '@/shared/types';
-import { API_BASE_URL } from '@/shared/config/constants';
+} from '@shared/types';
+import { API_BASE_URL } from '@shared/config/constants';
 
 // 배너 광고 렌더러
 export class BannerAdRenderer implements AdRenderer {
@@ -94,14 +94,11 @@ export class BannerAdRenderer implements AdRenderer {
         viewId: this.currentViewId,
       };
 
-      const response = await fetch(
-        `${API_BASE_URL}/sdk/campaign-click`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(requestBody),
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/sdk/campaign-click`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody),
+      });
 
       if (response.ok) {
         const data: ClickLogResponse = await response.json();
