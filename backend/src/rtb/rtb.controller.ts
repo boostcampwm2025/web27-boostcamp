@@ -8,8 +8,10 @@ import type { DecisionContext } from './types/decision.types';
 
 import { Logger } from '@nestjs/common';
 import { BlogKeyValidationGuard } from '../common/guards/blog-key-validation.guard';
+import { Public } from '../auth/decorators/public.decorator';
 
 @Controller('sdk')
+@Public()
 @UseGuards(BlogKeyValidationGuard)
 export class RTBController {
   private readonly logger = new Logger(RTBController.name);

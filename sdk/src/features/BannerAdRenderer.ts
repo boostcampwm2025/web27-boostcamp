@@ -178,9 +178,8 @@ export class BannerAdRenderer implements AdRenderer {
 
         <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: stretch;">
           <img src="${safeImage}" alt="${safeTitle}" style="
-            max-width: 200px;
-            width: 100%;
-            aspect-ratio: 1/1;
+            width: 200px;
+            height: 200px;
             border-radius: 8px;
             object-fit: cover;
             flex-shrink: 0;
