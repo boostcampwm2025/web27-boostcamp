@@ -19,9 +19,10 @@ export function AdmissionForm() {
         />
         <TextField
           name="blogUrl"
-          type="url"
+          type="text"
+          inputMode="url"
           label="블로그 URL"
-          placeholder="https://myblog.tistory.com"
+          placeholder="myblog.tistory.com"
         />
         <button
           type="submit"
