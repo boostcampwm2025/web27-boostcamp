@@ -2,19 +2,17 @@ import { TextField } from '@shared/ui/TextField';
 import { Icon } from '@/4_shared/ui/Icon';
 import { FormDivider } from '@/4_shared/ui/Divider';
 import { useCallback } from 'react';
-import { handleOauth } from '../../lib/handleOauth';
-
-// import { useState } from 'react';
-// import { UserTypeSelector } from './UserTypeSelector';
-
-export type AccountType = 'advertiser' | 'publisher';
+import { handleRegister } from '../../lib/handleOauth';
+import { UserTypeSelector } from '@/3_features/authorize/register/ui/UserTypeSelector';
+import { useState } from 'react';
+import type { AccountType } from '../model/types';
 
 export function RegisterForm() {
-  // const [accountType, setAccountType] = useState<AccountType>('advertiser');
+  const [accountType, setAccountType] = useState<AccountType>('ADVERTISER');
 
   const onClick = useCallback(() => {
-    handleOauth()
-  }, []);
+    handleRegister(accountType);
+  }, [accountType]);
 
   return (
     <form className="flex flex-col gap-6 mt-15 mx-10">
@@ -24,11 +22,12 @@ export function RegisterForm() {
           광고주 또는 퍼블리셔로 가입하세요.
         </p>
       </div>
+      <UserTypeSelector value={accountType} onChange={setAccountType} />{' '}
       <div className="flex flex-col gap-6">
         {/* <UserTypeSelector value={accountType} onChange={setAccountType} /> */}
 
         <button
-          onClick={()=>onClick()}
+          onClick={() => onClick()}
           type="button"
           className="flex h-11 items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white text-base font-semibold text-[#111318] hover:bg-gray-50"
         >
