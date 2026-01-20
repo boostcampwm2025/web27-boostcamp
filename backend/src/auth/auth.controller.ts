@@ -64,8 +64,10 @@ export class AuthController {
     const stateData = this.oauthService.validateState(state);
     const payload = await this.oauthService.getTokensFromGoogle(code);
 
-    const role = stateData.intent === 'register' ? stateData.role : undefined;
-    const result = await this.oauthService.authorizeUserByToken(payload, role);
+    const result = await this.oauthService.authorizeUserByToken(
+      payload,
+      stateData
+    );
 
     const clientUrl = process.env.CLIENT_URL ?? 'http://localhost:5173';
     let redirectUrl = `${clientUrl}/auth/login`;

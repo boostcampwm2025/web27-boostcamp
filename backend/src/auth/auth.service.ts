@@ -197,7 +197,7 @@ export class OAuthService {
 
   async authorizeUserByToken(
     payload: GoogleIdTokenPayload,
-    role?: UserRole
+    state: OAuthState
   ): Promise<AuthorizeResult> {
     const { sub, email, email_verified } = payload;
     const provider = OAuthProvider.GOOGLE;
@@ -205,16 +205,24 @@ export class OAuthService {
       provider,
       sub
     );
+    const role = state.intent === 'register' ? state.role : undefined;
     const isEmailVerified =
       email_verified === true || email_verified === 'true';
 
+    // 회원가입
     if (!userId) {
       if (!email || !isEmailVerified) {
         throw new UnauthorizedException('이메일 검증이 필요합니다.');
       }
-      if (!role) return { isNew: true };
+
+      // login intent에서는 신규 생성하지 않음
+      if (state.intent === 'login') return { isNew: true };
+
       if (await this.userRepository.findByEmail(email)) {
         throw new ConflictException('이미 존재하는 이메일입니다.');
+      }
+      if (!role) {
+        throw new BadRequestException('role이 올바르지 않습니다.');
       }
       const id = await this.userRepository.createUser(email, role);
       await this.oauthAccountRepository.createOAuthAccount(
@@ -233,7 +241,8 @@ export class OAuthService {
       throw new UnauthorizedException('사용자를 찾을 수 없습니다.');
     }
 
-    if (role) {
+    // register intent인데 기존 유저인 경우: 자동 로그인 금지
+    if (state.intent === 'register') {
       return { isNew: false };
     }
 

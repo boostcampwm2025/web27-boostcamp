@@ -3,7 +3,6 @@ import { OAuthAccountRepository } from './oauthaccount.repository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { OAuthAccount, OAuthProvider } from '../entities/oauth-account.entity';
-import { UserRole } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class TypeOrmOAuthAccountRepository extends OAuthAccountRepository {
