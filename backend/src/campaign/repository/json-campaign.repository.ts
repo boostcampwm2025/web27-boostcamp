@@ -99,15 +99,38 @@ export class JsonCampaignRepository extends CampaignRepository {
     userId: number,
     status?: CampaignStatus,
     limit: number = 10,
-    offset: number = 0
-  ): Promise<{ campaigns: CampaignWithTags[]; total: number }> {
+    offset: number = 0,
+    sortBy: 'createdAt' | 'startDate' | 'endDate' = 'createdAt',
+    order: 'asc' | 'desc' = 'desc'
+  ): Promise<{
+    campaigns: CampaignWithTags[];
+    total: number;
+  }> {
+    // 사용자의 삭제되지 않은 모든 캠페인
     let filtered = this.campaigns.filter(
       (c) => c.userId === userId && c.deletedAt === null
     );
 
+    // status 필터링 (선택적)
     if (status) {
-      filtered = filtered.filter((c) => c.status === status);
+      filtered = filtered.filter((c) => c.status === (status as string));
     }
+
+    // 정렬
+    filtered.sort((a, b) => {
+      const aValue = a[sortBy];
+      const bValue = b[sortBy];
+
+      // Date 객체 비교
+      const aTime = aValue instanceof Date ? aValue.getTime() : 0;
+      const bTime = bValue instanceof Date ? bValue.getTime() : 0;
+
+      if (order === 'asc') {
+        return aTime - bTime;
+      } else {
+        return bTime - aTime;
+      }
+    });
 
     const total = filtered.length;
     const campaigns = filtered.slice(offset, offset + limit);
