@@ -117,4 +117,15 @@ export class CampaignService {
 
     return this.campaignRepository.update(campaignId, dto, tagIds);
   }
+
+  // 캠페인 삭제 (소프트 삭제, 소유권 검증)
+  async deleteCampaign(campaignId: string, userId: number): Promise<void> {
+    const campaign = await this.campaignRepository.findOne(campaignId, userId);
+
+    if (!campaign) {
+      throw new NotFoundException('캠페인을 찾을 수 없습니다.');
+    }
+
+    await this.campaignRepository.delete(campaignId);
+  }
 }
