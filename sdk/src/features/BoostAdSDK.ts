@@ -259,7 +259,7 @@ export class BoostAdSDK {
   private async requestSecondAdManualMode(
     tags: Tag[],
     postUrl: string,
-    zones: NodeListOf<Element>
+    zones: Element[]
   ): Promise<void> {
     if (this.hasRequestedSecondAd) {
       return;
