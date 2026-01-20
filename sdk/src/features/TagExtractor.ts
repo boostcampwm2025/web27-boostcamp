@@ -1,7 +1,7 @@
 import type {
   TagExtractor as TagExtractorInterface,
   Tag,
-} from '@/shared/types';
+} from '@shared/types';
 
 // 페이지의 제목과 본문에서 태그를 추출
 export class TagExtractor implements TagExtractorInterface {
