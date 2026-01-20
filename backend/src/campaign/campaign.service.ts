@@ -96,4 +96,25 @@ export class CampaignService {
 
     return campaign;
   }
+
+  // 캠페인 수정 (소유권 + 날짜 + 태그 검증)
+  async updateCampaign(
+    campaignId: string,
+    userId: number,
+    dto: UpdateCampaignDto
+  ): Promise<CampaignWithTags> {
+    const campaign = await this.campaignRepository.findOne(campaignId, userId);
+
+    if (!campaign) {
+      throw new NotFoundException('캠페인을 찾을 수 없습니다.');
+    }
+
+    if (dto.endDate && new Date(dto.endDate) <= campaign.startDate) {
+      throw new BadRequestException('종료일은 시작일보다 이후여야 합니다.');
+    }
+
+    const tagIds = dto.tags ? this.validateAndGetTagIds(dto.tags) : undefined;
+
+    return this.campaignRepository.update(campaignId, dto, tagIds);
+  }
 }
