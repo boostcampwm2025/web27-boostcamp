@@ -47,7 +47,7 @@ export function UserTypeSelector(props: UserTypeSelectorProps) {
             onChange={() => handleChange('advertiser')}
             className="sr-only peer"
           />
-          <div className="relative flex h-full flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-slate-300 peer-checked:border-[var(--role-accent)]">
+          <div className="relative flex h-full flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-slate-300 peer-checked:border-[var(--role-accent)] peer-checked:hover:border-[var(--role-accent)]">
             <div className="flex items-center justify-between">
               <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-700 transition peer-checked:bg-[var(--role-accent)] peer-checked:text-white">
                 <Icon.LoudSpeaker className="h-5 w-5" aria-hidden />
@@ -70,8 +70,8 @@ export function UserTypeSelector(props: UserTypeSelectorProps) {
           className="group relative cursor-pointer"
           style={
             {
-              '--role-accent': '#059669',
-              '--role-accent-soft': 'rgba(5, 150, 105, 0.18)',
+              '--role-accent': '#2563EB',
+              '--role-accent-soft': 'rgba(37, 99, 235, 0.18)',
             } as CSSProperties
           }
         >
@@ -83,7 +83,7 @@ export function UserTypeSelector(props: UserTypeSelectorProps) {
             onChange={() => handleChange('publisher')}
             className="sr-only peer"
           />
-          <div className="relative flex h-full flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-slate-300 peer-checked:border-[var(--role-accent)]">
+          <div className="relative flex h-full flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-slate-300 peer-checked:border-[var(--role-accent)] peer-checked:hover:border-[var(--role-accent)]">
             <div className="flex items-center justify-between">
               <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-700 transition peer-checked:bg-[var(--role-accent)] peer-checked:text-white">
                 <Icon.Pen className="h-5 w-5" aria-hidden />
