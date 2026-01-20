@@ -12,4 +12,6 @@ export interface BidLog {
   bidPrice: number;
   reason: string | null;
   createdAt?: Date;
+  isHighIntent: boolean;
+  behaviorScore: number | null;
 }
