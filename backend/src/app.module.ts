@@ -14,6 +14,7 @@ import { CampaignModule } from './campaign/campaign.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtCookieGuard } from './auth/guards/jwt-cookie.guard';
+import { BlogModule } from './blog/blog.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { JwtCookieGuard } from './auth/guards/jwt-cookie.guard';
     CampaignModule,
     UserModule,
     AuthModule,
+    BlogModule,
   ],
   controllers: [],
   providers: [
