@@ -4,6 +4,7 @@ import { BidLogRepository } from './repositories/bid-log.repository.interface';
 import { BidLogResponseDto, BidLogItemDto } from './dto/bid-log-response.dto';
 import { CampaignRepository } from 'src/campaign/repository/campaign.repository';
 import { MOCK_BLOGS } from '../common/constants';
+import { getBlogIdByKey } from '../common/utils/blog.utils';
 
 @Injectable()
 export class BidLogService {
@@ -46,8 +47,8 @@ export class BidLogService {
     const dataPromises = paginatedBidLogs.map(async (log) => {
       const campaign = userCampaigns.find((c) => c.id === log.campaignId);
       const blog = MOCK_BLOGS.find(
-        // TODO: 이 부분도 추후 BlogRepository로 변경
-        (b) => b.blog_key === (log.blogId as unknown as string)
+        // TODO: 이 부분도 추후 BlogRepository로 변경 -> blog_key -> blog_id -> 매칭
+        (b) => getBlogIdByKey(b.blog_key) === log.blogId
       );
       const winAmount = await this.bidLogRepository.findWinAmountByAuctionId(
         log.auctionId
@@ -64,9 +65,8 @@ export class BidLogService {
         bidAmount: log.bidPrice,
         winAmount: winAmount,
         isWon: log.status === BidStatus.WIN,
-        // TODO: 밑의 속성들은 추후 ViewLog와의 Join을 통해 구현
-        isHighIntent: false,
-        behaviorScore: 0,
+        isHighIntent: log.isHighIntent,
+        behaviorScore: log.behaviorScore,
       };
     });
 

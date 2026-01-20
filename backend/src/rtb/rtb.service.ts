@@ -74,6 +74,8 @@ export class RTBService {
         status:
           candidate.id === result.winner.id ? BidStatus.WIN : BidStatus.LOSS,
         bidPrice: candidate.maxCpc,
+        isHighIntent: context.isHighIntent,
+        behaviorScore: context.behaviorScore,
         reason: '', // 추후에 수정 필요
       }));
       await this.bidLogRepository.saveMany(bidLogs);
