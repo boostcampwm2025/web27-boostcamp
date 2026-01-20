@@ -43,43 +43,20 @@ export class CampaignService {
     return tagIds;
   }
 
-  // 사용자의 캠페인 상태별 개수 집계
-  private async getStatusCounts(userId: number) {
-    const allCampaigns = await this.campaignRepository.listByUserId(userId);
-
-    return {
-      pending: allCampaigns.filter(
-        (c) => c.status === 'PENDING' && !c.deletedAt
-      ).length,
-      active: allCampaigns.filter((c) => c.status === 'ACTIVE' && !c.deletedAt)
-        .length,
-      paused: allCampaigns.filter((c) => c.status === 'PAUSED' && !c.deletedAt)
-        .length,
-      ended: allCampaigns.filter((c) => c.status === 'ENDED' && !c.deletedAt)
-        .length,
-    };
-  }
-
-  // 캠페인 목록 조회 (페이지네이션 + 상태별 통계)
+  // 캠페인 목록 조회 (페이지네이션 + 정렬)
   async getCampaignList(userId: number, dto: GetCampaignListDto) {
     const { campaigns, total } = await this.campaignRepository.findByUserId(
       userId,
       dto.status,
       dto.limit,
-      dto.offset
+      dto.offset,
+      dto.sortBy,
+      dto.order
     );
-
-    const statusCounts = await this.getStatusCounts(userId);
 
     return {
       campaigns,
       total,
-      statistics: {
-        pending: statusCounts.pending,
-        active: statusCounts.active,
-        paused: statusCounts.paused,
-        ended: statusCounts.ended,
-      },
     };
   }
 
