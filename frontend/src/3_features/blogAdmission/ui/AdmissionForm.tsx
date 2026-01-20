@@ -1,10 +1,30 @@
 import { TextField } from '@/4_shared/ui/TextField';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { handleSubmit } from '../lib/handleSubmit';
 
 export function AdmissionForm() {
+  const navigate = useNavigate();
+  const [error, setError] = useState<string | null>(null);
+
   return (
     <div>
-      <form onSubmit={(e)=>{handleSubmit(e)}} className="flex flex-col gap-6 mt-15 mx-10">
+      <form
+        onSubmit={async (e) => {
+          try {
+            await handleSubmit(e);
+            setError(null);
+            navigate('/publisher/onboarding/sdk-guide');
+          } catch (err) {
+            const message =
+              err instanceof Error
+                ? err.message
+                : '알 수 없는 오류가 발생했습니다.';
+            setError(message);
+          }
+        }}
+        className="flex flex-col gap-6 mt-15 mx-10"
+      >
         <div className="flex flex-col gap-1">
           <p className="text-4xl font-extrabold">블로그 등록</p>
           <p className="text-base text-[#616E89] font-normal">
@@ -30,6 +50,7 @@ export function AdmissionForm() {
         >
           시작하기
         </button>
+        {error ? <p className="text-sm text-red-500">{error}</p> : null}
       </form>
     </div>
   );

@@ -20,8 +20,15 @@ export const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     blogUrl,
   };
 
-  await axios.post(`${API_CONFIG.baseURL}/api/blogs`, body, {
+  const res = await axios.post(`${API_CONFIG.baseURL}/api/blogs`, body, {
     withCredentials: true,
     headers: { 'Content-Type': 'application/json' },
   });
+
+  const { blogKey } = res.data.data;
+
+  if (!blogKey) {
+    throw new Error('블로그 키가 반환되지 않았습니다.');
+  }
+  return blogKey;
 };
