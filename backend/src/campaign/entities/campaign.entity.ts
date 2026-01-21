@@ -28,7 +28,7 @@ export enum CampaignStatus {
 }
 
 @Entity('Campaign')
-export class Campaign {
+export class CampaignEntity {
   @PrimaryColumn({ type: 'varchar', length: 255, comment: 'UUID' })
   id: string;
 

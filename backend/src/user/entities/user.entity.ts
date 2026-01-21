@@ -8,7 +8,7 @@ import {
   OneToOne,
 } from 'typeorm';
 import { BlogEntity } from '../../blog/entities/blog.entity';
-import { Campaign } from '../../campaign/entities/campaign.entity';
+import { CampaignEntity } from '../../campaign/entities/campaign.entity';
 import { OAuthAccountEntity } from '../../auth/entities/oauth-account.entity';
 import { UserCredentialEntity } from '../../auth/entities/user-credential.entity';
 
@@ -46,8 +46,8 @@ export class UserEntity {
   @OneToMany(() => BlogEntity, (blog) => blog.user)
   blogs: BlogEntity[];
 
-  @OneToMany(() => Campaign, (campaign) => campaign.user)
-  campaigns: Campaign[];
+  @OneToMany(() => CampaignEntity, (campaign) => campaign.user)
+  campaigns: CampaignEntity[];
 
   @OneToMany(() => OAuthAccountEntity, (oauthAccount) => oauthAccount.user)
   oauthAccounts: OAuthAccountEntity[];

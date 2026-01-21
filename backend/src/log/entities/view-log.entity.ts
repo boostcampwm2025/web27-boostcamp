@@ -7,7 +7,7 @@ import {
   JoinColumn,
   OneToMany,
 } from 'typeorm';
-import { Campaign } from '../../campaign/entities/campaign.entity';
+import { CampaignEntity } from '../../campaign/entities/campaign.entity';
 import { BlogEntity } from '../../blog/entities/blog.entity';
 import { ClickLogEntity } from './click-log.entity';
 
@@ -65,9 +65,9 @@ export class ViewLogEntity {
   createdAt: Date;
 
   // Relations
-  @ManyToOne(() => Campaign, (campaign) => campaign.viewLogs)
+  @ManyToOne(() => CampaignEntity, (campaign) => campaign.viewLogs)
   @JoinColumn({ name: 'campaign_id' })
-  campaign: Campaign;
+  campaign: CampaignEntity;
 
   @ManyToOne(() => BlogEntity, (blog) => blog.viewLogs)
   @JoinColumn({ name: 'blog_id' })

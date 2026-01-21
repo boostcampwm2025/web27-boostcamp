@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToMany } from 'typeorm';
-import { Campaign } from '../../campaign/entities/campaign.entity';
+import { CampaignEntity } from '../../campaign/entities/campaign.entity';
 
 @Entity('Tag')
 export class TagEntity {
@@ -15,6 +15,6 @@ export class TagEntity {
   name: string;
 
   // Relations
-  @ManyToMany(() => Campaign, (campaign) => campaign.tags)
-  campaigns: Campaign[];
+  @ManyToMany(() => CampaignEntity, (campaign) => campaign.tags)
+  campaigns: CampaignEntity[];
 }
