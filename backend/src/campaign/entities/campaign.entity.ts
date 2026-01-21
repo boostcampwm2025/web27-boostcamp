@@ -12,11 +12,11 @@ import {
   type Relation,
 } from 'typeorm';
 import type { User } from '../../user/entities/user.entity';
-import type { Tag } from '../../tag/entities/tag.entity';
+import type { TagEntity } from '../../tag/entities/tag.entity';
 import type { BidLogEntity } from '../../bid-log/entities/bid-log.entity';
 import type { ViewLogEntity } from '../../log/entities/view-log.entity';
 import * as UserEntity from '../../user/entities/user.entity';
-import * as TagEntity from '../../tag/entities/tag.entity';
+import * as TagEntityModule from '../../tag/entities/tag.entity';
 import * as BidLogEntityModule from '../../bid-log/entities/bid-log.entity';
 import * as ViewLogEntityModule from '../../log/entities/view-log.entity';
 
@@ -93,13 +93,16 @@ export class Campaign {
   @JoinColumn({ name: 'user_id' })
   user: Relation<User>;
 
-  @ManyToMany(() => TagEntity.Tag, (tag: Tag) => tag.campaigns)
+  @ManyToMany(
+    () => TagEntityModule.TagEntity,
+    (tag: TagEntity) => tag.campaigns
+  )
   @JoinTable({
     name: 'CampaignTag',
     joinColumn: { name: 'campaign_id', referencedColumnName: 'id' },
     inverseJoinColumn: { name: 'tag_id', referencedColumnName: 'id' },
   })
-  tags: Relation<Tag[]>;
+  tags: Relation<TagEntity[]>;
 
   @OneToMany(
     () => BidLogEntityModule.BidLogEntity,
