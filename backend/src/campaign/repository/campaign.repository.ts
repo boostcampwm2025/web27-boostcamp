@@ -50,4 +50,13 @@ export abstract class CampaignRepository {
   abstract resetDailySpent(campaignId: string): Promise<void>;
 
   abstract resetAllDailySpent(): Promise<void>;
+
+  // 통계 집계 메서드
+  abstract getViewCountsByCampaignIds(
+    campaignIds: string[]
+  ): Promise<Map<string, number>>;
+
+  abstract getClickCountsByCampaignIds(
+    campaignIds: string[]
+  ): Promise<Map<string, number>>;
 }

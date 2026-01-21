@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
@@ -8,6 +8,7 @@ import { CampaignStatus } from '../entities/campaign.entity';
 import { CreateCampaignDto } from '../dto/create-campaign.dto';
 import { UpdateCampaignDto } from '../dto/update-campaign.dto';
 import { AVAILABLE_TAGS } from '../../common/constants';
+import { LogRepository } from '../../log/repository/log.repository.interface';
 
 type FixtureCampaign = {
   id: string;
@@ -40,7 +41,7 @@ export class JsonCampaignRepository extends CampaignRepository {
   private readonly campaignsById: Map<string, CampaignWithTags>;
   private readonly campaigns: CampaignWithTags[];
 
-  constructor() {
+  constructor(@Inject(LogRepository) private readonly logRepository: LogRepository) {
     super();
     const campaigns = loadFixture().campaigns.map(toCampaignWithTags);
     this.campaigns = campaigns;
@@ -237,6 +238,18 @@ export class JsonCampaignRepository extends CampaignRepository {
     });
 
     return Promise.resolve();
+  }
+
+  async getViewCountsByCampaignIds(
+    campaignIds: string[]
+  ): Promise<Map<string, number>> {
+    return this.logRepository.countViewLogsByCampaignIds(campaignIds);
+  }
+
+  async getClickCountsByCampaignIds(
+    campaignIds: string[]
+  ): Promise<Map<string, number>> {
+    return this.logRepository.countClickLogsByCampaignIds(campaignIds);
   }
 
   private getTagsByIds(tagIds: number[]): Tag[] {
