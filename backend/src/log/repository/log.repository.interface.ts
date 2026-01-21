@@ -16,4 +16,13 @@ export abstract class LogRepository {
 
   // 전체 클릭 로그 목록 조회
   abstract listClickLogs(): Promise<SaveClickLog[]>;
+
+  // 통계 집계 메서드
+  abstract countViewLogsByCampaignIds(
+    campaignIds: string[]
+  ): Promise<Map<string, number>>;
+
+  abstract countClickLogsByCampaignIds(
+    campaignIds: string[]
+  ): Promise<Map<string, number>>;
 }
