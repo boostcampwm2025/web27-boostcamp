@@ -48,3 +48,9 @@ export const publisherBlogRequiredLoader = async () => {
     throw error;
   }
 };
+
+export const publisherGateLoader = async () => {};
+
+export const advertiserGateLoader = async () => {};
+
+export const guestOnlyLoader = async () => {};
