@@ -62,6 +62,29 @@ export class Campaign {
   totalBudget: number | null;
 
   @Column({
+    name: 'daily_spent',
+    type: 'int',
+    default: 0,
+    comment: '오늘 소진 예산 (KRW)',
+  })
+  dailySpent: number;
+
+  @Column({
+    name: 'total_spent',
+    type: 'int',
+    default: 0,
+    comment: '총 소진 예산 (KRW)',
+  })
+  totalSpent: number;
+
+  @Column({
+    name: 'last_reset_date',
+    type: 'datetime',
+    comment: '일일 예산 마지막 리셋 날짜',
+  })
+  lastResetDate: Date;
+
+  @Column({
     name: 'is_high_intent',
     type: 'boolean',
     default: false,
