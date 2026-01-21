@@ -35,7 +35,7 @@ export class InMemoryLogRepository extends LogRepository {
     return Promise.resolve(Array.from(this.clickLog.values()));
   }
 
-  async countViewLogsByCampaignIds(
+  countViewLogsByCampaignIds(
     campaignIds: string[]
   ): Promise<Map<string, number>> {
     const counts = new Map<string, number>();
@@ -55,10 +55,10 @@ export class InMemoryLogRepository extends LogRepository {
       }
     });
 
-    return counts;
+    return Promise.resolve(counts);
   }
 
-  async countClickLogsByCampaignIds(
+  countClickLogsByCampaignIds(
     campaignIds: string[]
   ): Promise<Map<string, number>> {
     const counts = new Map<string, number>();
@@ -79,6 +79,6 @@ export class InMemoryLogRepository extends LogRepository {
       }
     });
 
-    return counts;
+    return Promise.resolve(counts);
   }
 }

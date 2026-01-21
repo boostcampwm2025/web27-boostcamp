@@ -41,7 +41,9 @@ export class JsonCampaignRepository extends CampaignRepository {
   private readonly campaignsById: Map<string, CampaignWithTags>;
   private readonly campaigns: CampaignWithTags[];
 
-  constructor(@Inject(LogRepository) private readonly logRepository: LogRepository) {
+  constructor(
+    @Inject(LogRepository) private readonly logRepository: LogRepository
+  ) {
     super();
     const campaigns = loadFixture().campaigns.map(toCampaignWithTags);
     this.campaigns = campaigns;

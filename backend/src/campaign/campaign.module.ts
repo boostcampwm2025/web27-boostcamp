@@ -4,8 +4,10 @@ import { JsonCampaignRepository } from './repository/json-campaign.repository';
 import { CampaignService } from './campaign.service';
 import { CampaignController } from './campaign.controller';
 import { CampaignCronService } from './campaign-cron.service';
+import { LogModule } from '../log/log.module';
 
 @Module({
+  imports: [LogModule],
   controllers: [CampaignController],
   providers: [
     CampaignService,
