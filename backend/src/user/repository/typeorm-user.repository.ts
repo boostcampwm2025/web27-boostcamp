@@ -1,18 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User, UserRole } from 'src/user/entities/user.entity';
+import { UserEntity, UserRole } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
 export class TypeOrmUserRepository extends UserRepository {
   constructor(
-    @InjectRepository(User) private readonly userRepo: Repository<User>
+    @InjectRepository(UserEntity)
+    private readonly userRepo: Repository<UserEntity>
   ) {
     super();
   }
 
-  async getById(userId: number): Promise<User | null> {
+  async getById(userId: number): Promise<UserEntity | null> {
     const qb = this.userRepo.createQueryBuilder('u');
     const user = await qb.where('u.id = :id', { id: userId }).getOne();
     return user;

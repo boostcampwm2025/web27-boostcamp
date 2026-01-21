@@ -7,10 +7,10 @@ import {
   JoinColumn,
   type Relation,
 } from 'typeorm';
-import type { Campaign } from '../../campaign/entities/campaign.entity';
-import type { Blog } from '../../blog/entities/blog.entity';
-import * as CampaignEntity from '../../campaign/entities/campaign.entity';
-import * as BlogEntity from '../../blog/entities/blog.entity';
+import type { CampaignEntity } from '../../campaign/entities/campaign.entity';
+import type { BlogEntity } from '../../blog/entities/blog.entity';
+import * as CampaignEntityModule from '../../campaign/entities/campaign.entity';
+import * as BlogEntityModule from '../../blog/entities/blog.entity';
 
 import { BidStatus } from '../bid-log.types';
 
@@ -68,13 +68,16 @@ export class BidLogEntity {
 
   // Relations
   @ManyToOne(
-    () => CampaignEntity.Campaign,
-    (campaign: Campaign) => campaign.bidLogs
+    () => CampaignEntityModule.CampaignEntity,
+    (campaign: CampaignEntity) => campaign.bidLogs
   )
   @JoinColumn({ name: 'campaign_id' })
-  campaign: Relation<Campaign>;
+  campaign: Relation<CampaignEntity>;
 
-  @ManyToOne(() => BlogEntity.Blog, (blog: Blog) => blog.bidLogs)
+  @ManyToOne(
+    () => BlogEntityModule.BlogEntity,
+    (blog: BlogEntity) => blog.bidLogs
+  )
   @JoinColumn({ name: 'blog_id' })
-  blog: Relation<Blog>;
+  blog: Relation<BlogEntity>;
 }
