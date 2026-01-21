@@ -10,7 +10,7 @@ import {
 import { BlogEntity } from '../../blog/entities/blog.entity';
 import { Campaign } from '../../campaign/entities/campaign.entity';
 import { OAuthAccountEntity } from '../../auth/entities/oauth-account.entity';
-import { UserCredential } from '../../auth/entities/user-credential.entity';
+import { UserCredentialEntity } from '../../auth/entities/user-credential.entity';
 
 export enum UserRole {
   PUBLISHER = 'PUBLISHER',
@@ -52,6 +52,6 @@ export class User {
   @OneToMany(() => OAuthAccountEntity, (oauthAccount) => oauthAccount.user)
   oauthAccounts: OAuthAccountEntity[];
 
-  @OneToOne(() => UserCredential, (credential) => credential.user)
-  credential: UserCredential;
+  @OneToOne(() => UserCredentialEntity, (credential) => credential.user)
+  credential: UserCredentialEntity;
 }

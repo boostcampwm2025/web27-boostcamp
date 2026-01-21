@@ -10,7 +10,7 @@ import {
 import { User } from '../../user/entities/user.entity';
 
 @Entity('UserCredential')
-export class UserCredential {
+export class UserCredentialEntity {
   @PrimaryColumn({ name: 'user_id' })
   userId: number;
 
