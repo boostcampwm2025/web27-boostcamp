@@ -1,13 +1,13 @@
 import { Icon } from '@shared/ui/Icon';
 
-interface StatsCardProps {
+interface AccountSummaryCardProps {
   title: string;
   value: string | number;
   change?: string;
   icon?: React.ReactNode;
 }
 
-export function StatsCard({ title, value, change, icon }: StatsCardProps) {
+export function AccountSummaryCard({ title, value, change, icon }: AccountSummaryCardProps) {
   return (
     <div className="flex-1 min-w-65 p-5 bg-white border border-gray-200 rounded-xl shadow">
       <div className="flex flex-row items-center justify-between text-gray-600">

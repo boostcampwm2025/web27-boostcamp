@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Modal } from '@shared/ui/Modal';
-import { useCampaignForm } from '../lib/useCampaignForm';
+import { useCampaignFormStore } from '../lib/campaignFormStore';
 import { StepIndicator } from './StepIndicator';
 import { FormNavigation } from './FormNavigation';
 
@@ -13,7 +13,7 @@ export function CampaignCreationForm({
   children,
   onSubmit,
 }: CampaignCreationFormProps) {
-  const { currentStep, setStep } = useCampaignForm();
+  const { currentStep, setStep } = useCampaignFormStore();
 
   const handlePrev = () => {
     if (currentStep === 2) {

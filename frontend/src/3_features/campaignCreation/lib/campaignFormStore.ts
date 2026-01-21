@@ -35,7 +35,7 @@ const initialFormData: CampaignFormData = {
   },
 };
 
-export const useCampaignForm = create<CampaignFormState>((set) => ({
+export const useCampaignFormStore = create<CampaignFormState>((set) => ({
   currentStep: 1,
   formData: initialFormData,
   errors: {},

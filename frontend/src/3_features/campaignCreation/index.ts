@@ -14,7 +14,7 @@ export {
   MAX_SELECTED_TAGS,
   DEFAULT_ENGAGEMENT_SCORE,
 } from './lib/constants';
-export { useCampaignForm } from './lib/useCampaignForm';
+export { useCampaignFormStore } from './lib/campaignFormStore';
 export { StepIndicator } from './ui/StepIndicator';
 export { FormNavigation } from './ui/FormNavigation';
 export { CampaignCreationForm } from './ui/CampaignCreationForm';

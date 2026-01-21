@@ -3,11 +3,11 @@ import {
   Step1Content,
   Step2Content,
   Step3Content,
-  useCampaignForm,
+  useCampaignFormStore,
 } from '@features/campaignCreation';
 
 export function CampaignCreatePage() {
-  const { currentStep } = useCampaignForm();
+  const { currentStep } = useCampaignFormStore();
 
   const handleSubmit = () => {
     // TODO: 실제 광고 생성 API 호출 및 페이지 이동 로직 구현 필요!
