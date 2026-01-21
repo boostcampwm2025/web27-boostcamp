@@ -11,6 +11,7 @@ export class RedisCacheRepository extends CacheRepository {
     super();
   }
 
+  // Auction 관련 메서드
   async setAuctionData(
     auctionId: string,
     auctionData: AuctionData,
@@ -52,7 +53,6 @@ export class RedisCacheRepository extends CacheRepository {
     await this.cacheManager.del(key);
   }
 
-  // Redis 키 생성 (네임스페이스 추가)
   private getAuctionKey(auctionId: string): string {
     return `auction:${auctionId}`;
   }
