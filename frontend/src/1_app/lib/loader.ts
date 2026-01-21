@@ -10,10 +10,9 @@ export const publisherEntryLoader = async () => {
   try {
     const res = await axios.post(
       `${API_CONFIG.baseURL}/api/users/me/first-login`,
-      null,
+      {},
       {
         withCredentials: true,
-        headers: { 'Content-Type': 'application/json' },
       }
     );
 
