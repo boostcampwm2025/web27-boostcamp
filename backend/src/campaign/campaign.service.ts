@@ -7,7 +7,11 @@ import { CampaignRepository } from './repository/campaign.repository';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { UpdateCampaignDto } from './dto/update-campaign.dto';
 import { GetCampaignListDto } from './dto/get-campaign-list.dto';
-import type { Campaign, CampaignWithTags } from './types/campaign.types';
+import type {
+  Campaign,
+  CampaignWithTags,
+  CampaignWithStats,
+} from './types/campaign.types';
 import { CampaignStatus } from './entities/campaign.entity';
 import { AVAILABLE_TAGS } from '../common/constants';
 
@@ -44,7 +48,9 @@ export class CampaignService {
     return tagIds;
   }
   // 단일 캠페인에 통계 필드 추가
-  private async addStatsToCampaign(campaign: CampaignWithTags) {
+  private async addStatsToCampaign(
+    campaign: CampaignWithTags
+  ): Promise<CampaignWithStats> {
     const viewCounts = await this.campaignRepository.getViewCountsByCampaignIds(
       [campaign.id]
     );
@@ -83,7 +89,9 @@ export class CampaignService {
   }
 
   // 여러 캠페인에 통계 필드 추가
-  private async addStatsToMultipleCampaigns(campaigns: CampaignWithTags[]) {
+  private async addStatsToMultipleCampaigns(
+    campaigns: CampaignWithTags[]
+  ): Promise<CampaignWithStats[]> {
     if (campaigns.length === 0) {
       return [];
     }
@@ -144,7 +152,10 @@ export class CampaignService {
   }
 
   // 특정 캠페인 조회 (소유권 검증 + 통계)
-  async getCampaignById(campaignId: string, userId: number): Promise<any> {
+  async getCampaignById(
+    campaignId: string,
+    userId: number
+  ): Promise<CampaignWithStats> {
     const campaign = await this.campaignRepository.findOne(campaignId, userId);
 
     if (!campaign) {

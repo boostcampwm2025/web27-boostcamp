@@ -30,6 +30,14 @@ export type CampaignWithTags = Campaign & {
   tags: Tag[];
 };
 
+export type CampaignWithStats = CampaignWithTags & {
+  impressions: number;
+  clicks: number;
+  ctr: number;
+  dailySpentPercent: number;
+  totalSpentPercent: number;
+};
+
 export type CampaignTag = {
   campaignId: string;
   tagId: number;
