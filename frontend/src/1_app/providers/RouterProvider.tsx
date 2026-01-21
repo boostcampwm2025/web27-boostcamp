@@ -27,77 +27,83 @@ const OnboardingSdkGuidePage = lazy(() =>
 );
 
 export const router = createBrowserRouter([
+  // 1. 공통 (로그인 등) - 여긴 역할 구분이 없으므로 최상위 유지
   {
     path: '/',
     element: <OnboardingLayout />,
     children: [
-      { index: true, element: <LoginPage /> }, // 추후에 메인페이지 넣으면 될듯합니다.
-      {
-        path: 'auth/login',
-        element: <LoginPage />,
-      },
-      {
-        path: 'auth/register',
-        element: <RegisterPage />,
-      },
-      {
-        path: 'publisher/onboarding/sdk-guide',
-        element: (
-          <Suspense fallback={<OnboardingSdkGuidePageSkeleton />}>
-            <OnboardingSdkGuidePage />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'publisher/onboarding/blog-admission',
-        element: <BlogAdmissionPage />,
-      },
-      {
-        path: 'advertiser/campaign-create',
-        element: <CampaignCreatePage />,
-      },
+      { index: true, element: <LoginPage /> },
+      { path: 'auth/login', element: <LoginPage /> },
+      { path: 'auth/register', element: <RegisterPage /> },
     ],
   },
+
+  // 2. 퍼블리셔 (Publisher) 그룹
   {
-    path: '/publisher',
-    element: <DashboardLayout />,
+    path: '/publisher', // 👈 URL 접두사 역할만 수행 (Layout 없음)
     children: [
+      // 2-1. 퍼블리셔 온보딩 (OnboardingLayout 사용)
+      {
+        path: 'onboarding',
+        element: <OnboardingLayout />, // 👈 여기서 레이아웃 지정
+        children: [
+          {
+            path: 'sdk-guide',
+            element: (
+              <Suspense fallback={<OnboardingSdkGuidePageSkeleton />}>
+                <OnboardingSdkGuidePage />
+              </Suspense>
+            ),
+          },
+          { path: 'blog-admission', element: <BlogAdmissionPage /> },
+        ],
+      },
+
+      // 2-2. 퍼블리셔 대시보드 (DashboardLayout 사용)
       {
         path: 'dashboard',
-        element: <PublisherDashboardPage />,
-      },
-      {
-        path: 'earnings',
-        element: <PublisherEarningsPage />,
-      },
-      {
-        path: 'settings',
-        element: <PublisherSettingsPage />,
+        element: <DashboardLayout />, // 👈 다른 레이아웃 지정
+        children: [
+          { path: 'main', element: <PublisherDashboardPage /> },
+          { path: 'earnings', element: <PublisherEarningsPage /> },
+          { path: 'settings', element: <PublisherSettingsPage /> },
+        ],
       },
     ],
   },
+
+  // 3. 광고주 (Advertiser) 그룹
   {
-    path: '/advertiser',
-    element: <DashboardLayout />,
+    path: '/advertiser', // 👈 URL 접두사 역할
     children: [
+      // 3-1. 광고주 온보딩 (OnboardingLayout 재사용)
+      {
+        path: 'onboarding', // URL: /advertiser/onboarding/...
+        element: <OnboardingLayout />,
+        children: [
+          // 필요하다면 광고주용 온보딩 페이지들 추가
+        ],
+      },
+      // 3-2. 광고주 캠페인 생성 (OnboardingLayout 사용한다고 가정)
+      {
+        path: 'campaign-create',
+        element: <OnboardingLayout />,
+        children: [{ index: true, element: <CampaignCreatePage /> }],
+      },
+      // 3-3. 광고주 대시보드 (DashboardLayout 사용)
       {
         path: 'dashboard',
-        element: <AdvertiserDashboardPage />,
-      },
-      {
-        path: 'campaigns',
-        element: <AdvertiserCampaignsPage />,
-      },
-      {
-        path: 'budget',
-        element: <AdvertiserBudgetPage />,
+        element: <DashboardLayout />,
+        children: [
+          { path: 'main', element: <AdvertiserDashboardPage /> },
+          { path: 'campaigns', element: <AdvertiserCampaignsPage /> },
+          { path: 'budget', element: <AdvertiserBudgetPage /> },
+        ],
       },
     ],
   },
-  {
-    path: '*',
-    element: <NotFoundPage />,
-  },
+
+  { path: '*', element: <NotFoundPage /> },
 ]);
 
 // export function RouterProvider() {
