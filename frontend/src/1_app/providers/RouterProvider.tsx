@@ -13,7 +13,7 @@ import { PublisherSettingsPage } from '@pages/publisherSettings';
 import { OnboardingSdkGuidePageSkeleton } from '@pages/onboardingSdkGuide';
 import { CampaignCreatePage } from '@pages/campaginCreate';
 import { BlogAdmissionPage } from '@pages/onboardingBlogAdmission/ui/BlogAdmissionPage';
-import { publisherEntryLoader, publisherGateLoader } from '../lib';
+import { publisherEntryLoader, publisherBlogRequiredLoader } from '../lib';
 
 const OnboardingSdkGuidePage = lazy(() =>
   import('@pages/onboardingSdkGuide').then((m) => ({
@@ -61,7 +61,7 @@ export const router = createBrowserRouter([
       // 2-2. 퍼블리셔 대시보드 (DashboardLayout 사용)
       {
         path: 'dashboard',
-        loader: publisherGateLoader,
+        loader: publisherBlogRequiredLoader,
         element: <DashboardLayout />, // 👈 다른 레이아웃 지정
         children: [
           { path: 'main', element: <PublisherDashboardPage /> },

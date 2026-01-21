@@ -1,1 +1,1 @@
-export { publisherEntryLoader, publisherGateLoader } from './loader';
+export { publisherEntryLoader, publisherBlogRequiredLoader } from './loader';

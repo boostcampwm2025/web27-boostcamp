@@ -21,14 +21,15 @@ export const publisherEntryLoader = async () => {
       isFirstLogin ? BLOG_ADMISSION_PATH : PUBLISHER_DASHBOARD_PATH
     );
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response?.status === 401) { // 로그인 만료 체크
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      // 로그인 만료 체크
       throw redirect(LOGIN_PATH);
     }
     throw error;
   }
 };
 
-export const publisherGateLoader = async () => {
+export const publisherBlogRequiredLoader = async () => {
   try {
     const res = await axios.get(`${API_CONFIG.baseURL}/api/blogs/me/exists`, {
       withCredentials: true,
@@ -41,7 +42,7 @@ export const publisherGateLoader = async () => {
 
     return null;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response?.status === 401) { 
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
       throw redirect(LOGIN_PATH);
     }
     throw error;
