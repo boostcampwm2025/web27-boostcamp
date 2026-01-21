@@ -82,6 +82,42 @@ export class CampaignService {
     return parseFloat(((spent / budget) * 100).toFixed(2));
   }
 
+  // 여러 캠페인에 통계 필드 추가
+  private async addStatsToMultipleCampaigns(campaigns: CampaignWithTags[]) {
+    if (campaigns.length === 0) {
+      return [];
+    }
+
+    const campaignIds = campaigns.map((c) => c.id);
+
+    // 일괄 집계
+    const viewCounts =
+      await this.campaignRepository.getViewCountsByCampaignIds(campaignIds);
+    const clickCounts =
+      await this.campaignRepository.getClickCountsByCampaignIds(campaignIds);
+
+    // 각 캠페인에 통계 추가
+    return campaigns.map((campaign) => {
+      const impressions = viewCounts.get(campaign.id) || 0;
+      const clicks = clickCounts.get(campaign.id) || 0;
+
+      return {
+        ...campaign,
+        impressions,
+        clicks,
+        ctr: this.calculateCTR(clicks, impressions),
+        dailySpentPercent: this.calculatePercent(
+          campaign.dailySpent,
+          campaign.dailyBudget
+        ),
+        totalSpentPercent: this.calculatePercent(
+          campaign.totalSpent,
+          campaign.totalBudget
+        ),
+      };
+    });
+  }
+
   // 캠페인 목록 조회 (페이지네이션 + 정렬 + 통계)
   async getCampaignList(userId: number, dto: GetCampaignListDto) {
     const { campaigns, total } = await this.campaignRepository.findByUserId(
