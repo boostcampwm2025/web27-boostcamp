@@ -38,7 +38,7 @@ export class TypeOrmBidLogRepository extends BidLogRepository {
 
   async findWinAmountByAuctionId(auctionId: string): Promise<number | null> {
     const winLog = await this.repository.findOne({
-      where: { auctionId, status: BidStatus.WIN },
+      where: { auctionId, status: BidStatus.WIN as BidStatus },
     });
     return winLog ? winLog.bidPrice : null;
   }

@@ -69,7 +69,10 @@ export class AdvertiserService {
     const impressionsByCampaign = new Map<string, number>();
     const viewLogs = await this.logRepository.listViewLogs();
     for (const viewLog of viewLogs) {
-      if (!isBefore(viewLog.createdAt!, snapshot.endMsExclusive)) {
+      if (!viewLog.createdAt) {
+        continue;
+      }
+      if (!isBefore(viewLog.createdAt, snapshot.endMsExclusive)) {
         continue;
       }
       if (!campaignIdSet.has(viewLog.campaignId)) {
@@ -87,7 +90,10 @@ export class AdvertiserService {
     const clicksByCampaign = new Map<string, number>();
     const clickLogs = await this.logRepository.listClickLogs();
     for (const clickLog of clickLogs) {
-      if (!isBefore(clickLog.createdAt!, snapshot.endMsExclusive)) {
+      if (!clickLog.createdAt) {
+        continue;
+      }
+      if (!isBefore(clickLog.createdAt, snapshot.endMsExclusive)) {
         continue;
       }
       const viewLog = await this.logRepository.getViewLog(clickLog.viewId);
