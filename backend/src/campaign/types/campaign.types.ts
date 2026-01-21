@@ -10,6 +10,9 @@ export type Campaign = {
   maxCpc: number;
   dailyBudget: number;
   totalBudget: number | null;
+  dailySpent: number;
+  totalSpent: number;
+  lastResetDate: Date;
   isHighIntent: boolean;
   status: CampaignStatus;
   startDate: Date;
