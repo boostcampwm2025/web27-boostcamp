@@ -1,33 +1,33 @@
-import { StatsCard } from './StatsCard';
+import { AccountSummaryCard } from './AccountSummaryCard';
 import { Icon } from '@shared/ui/Icon';
-import { useStats } from '../lib/useStats';
+import { useAccountSummary } from '../lib/useAccountSummary';
 
-export function StatsCardList() {
-  const { data, isLoading, error } = useStats();
+export function AccountSummaryCardList() {
+  const { data, isLoading, error } = useAccountSummary();
 
   // 에러가 있거나 로딩 중이거나 데이터가 없으면 0 값 표시
   if (error || isLoading || !data) {
     return (
       <div className="flex flex-row gap-4 min-w-fit">
-        <StatsCard
+        <AccountSummaryCard
           title="전체 광고 클릭 수"
           value="0"
           change="+0"
           icon={<Icon.Click className="w-8 h-8" />}
         />
-        <StatsCard
+        <AccountSummaryCard
           title="전체 광고 노출 수"
           value="0"
           change="+0"
           icon={<Icon.Eye className="w-8 h-8" />}
         />
-        <StatsCard
+        <AccountSummaryCard
           title="평균 노출당 클릭률 (CTR)"
           value="0.0%"
           change="0.00%"
           icon={<Icon.Percent className="w-8 h-8" />}
         />
-        <StatsCard
+        <AccountSummaryCard
           title="총 사용"
           value="0원"
           icon={<Icon.Dollar className="w-8 h-8" />}
@@ -38,7 +38,7 @@ export function StatsCardList() {
 
   return (
     <div className="flex flex-row gap-4 min-w-fit">
-      <StatsCard
+      <AccountSummaryCard
         title="전체 캠페인 클릭 수"
         value={data.totalClicks.toLocaleString()}
         change={
@@ -48,7 +48,7 @@ export function StatsCardList() {
         }
         icon={<Icon.Click className="w-8 h-8" />}
       />
-      <StatsCard
+      <AccountSummaryCard
         title="전체 캠페인 노출 수"
         value={data.totalImpressions.toLocaleString()}
         change={
@@ -58,7 +58,7 @@ export function StatsCardList() {
         }
         icon={<Icon.Eye className="w-8 h-8" />}
       />
-      <StatsCard
+      <AccountSummaryCard
         title="평균 노출당 클릭률 (CTR)"
         value={`${data.averageCtr}%`}
         change={
@@ -68,7 +68,7 @@ export function StatsCardList() {
         }
         icon={<Icon.Percent className="w-8 h-8" />}
       />
-      <StatsCard
+      <AccountSummaryCard
         title="총 사용"
         value={`${data.totalSpent.toLocaleString()}원`}
         icon={<Icon.Dollar className="w-8 h-8" />}

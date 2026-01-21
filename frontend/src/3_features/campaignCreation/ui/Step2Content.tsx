@@ -1,12 +1,12 @@
 import { ContentHeader } from './ContentHeader';
 import { CurrencyField } from './CurrencyField';
-import { useCampaignForm } from '../lib/useCampaignForm';
+import { useCampaignFormStore } from '../lib/campaignFormStore';
 
 const MIN_DAILY_BUDGET = 3000;
 
 export function Step2Content() {
   const { formData, updateBudgetSettings, errors, setErrors } =
-    useCampaignForm();
+    useCampaignFormStore();
   const { dailyBudget, totalBudget, maxCpc } = formData.budgetSettings;
 
   const handleDailyBudgetChange = (value: number) => {

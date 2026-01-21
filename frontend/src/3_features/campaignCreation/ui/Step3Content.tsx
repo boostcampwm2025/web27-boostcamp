@@ -2,12 +2,12 @@ import { useMemo } from 'react';
 import { ContentHeader } from './ContentHeader';
 import { ConfirmCard } from './ConfirmCard';
 import { ConfirmItem } from './ConfirmItem';
-import { useCampaignForm } from '../lib/useCampaignForm';
+import { useCampaignFormStore } from '../lib/campaignFormStore';
 import { formatWithComma } from '@shared/lib/format';
 import { DEFAULT_ENGAGEMENT_SCORE } from '../lib/constants';
 
 export function Step3Content() {
-  const { formData, setStep } = useCampaignForm();
+  const { formData, setStep } = useCampaignFormStore();
   const { title, content, url, tags, isHighIntent, imageFile } =
     formData.campaignContent;
   const { dailyBudget, totalBudget, maxCpc } = formData.budgetSettings;
