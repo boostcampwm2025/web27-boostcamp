@@ -25,7 +25,7 @@ export function RouterProvider() {
       <Routes>
         <Route
           path="/"
-          element={<Navigate to="/publisher/dashboard" replace />}
+          element={<Navigate to="/advertiser/dashboard" replace />}
         />
 
         <Route element={<OnboardingLayout />}>
@@ -67,7 +67,7 @@ export function RouterProvider() {
           />
         </Route>
         <Route path="/auth/register" element={<RegisterPage />} />
-        <Route path="/auth/login" element={<LoginPage/>} />
+        <Route path="/auth/login" element={<LoginPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>

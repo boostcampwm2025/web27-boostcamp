@@ -58,17 +58,15 @@ export function Sidebar() {
 
   return (
     <aside
-      className="flex flex-col w-64 shrink-0 bg-white border-r border-gray-200"
+      className="flex flex-col w-52 shrink-0 bg-white border-r border-gray-200"
       role="navigation"
       aria-label="Main navigation"
     >
-      {/* 로고 영역 */}
       <header className="flex flex-row h-16 items-center gap-3 py-4 px-6 border-b border-gray-200 text-gray-900 text-lg font-bold">
         <Icon.Logo className="w-8 h-8 text-blue-500" />
         BoostAD
       </header>
 
-      {/* 네비게이션 메뉴 */}
       <nav className="p-4">
         <ul className="flex flex-col gap-1">
           {menuItems.map((item) => {
