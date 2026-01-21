@@ -9,7 +9,7 @@ export class CampaignCronService {
 
   constructor(private readonly campaignRepository: CampaignRepository) {}
 
-  // 매일 자정(00:00)에 실행
+  // 매일 자정(00:00)에 상태 자동 업데이트
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async updateCampaignStatuses(): Promise<void> {
     this.logger.log('캠페인 상태 자동 업데이트 시작');
@@ -33,7 +33,7 @@ export class CampaignCronService {
 
         // PENDING -> ACTIVE: 시작일이 되었을 때
         if (
-          campaign.status === CampaignStatus.PENDING &&
+          campaign.status === 'PENDING' &&
           now >= startDate &&
           now < endDate
         ) {
@@ -46,7 +46,7 @@ export class CampaignCronService {
         }
 
         // ACTIVE -> ENDED: 종료일이 지났을 때
-        if (campaign.status === CampaignStatus.ACTIVE && now >= endDate) {
+        if (campaign.status === 'ACTIVE' && now >= endDate) {
           await this.campaignRepository.updateStatus(
             campaign.id,
             CampaignStatus.ENDED
@@ -56,7 +56,7 @@ export class CampaignCronService {
         }
 
         // PAUSED -> ENDED: 종료일이 지났을 때
-        if (campaign.status === CampaignStatus.PAUSED && now >= endDate) {
+        if (campaign.status === 'PAUSED' && now >= endDate) {
           await this.campaignRepository.updateStatus(
             campaign.id,
             CampaignStatus.ENDED
@@ -74,6 +74,19 @@ export class CampaignCronService {
       );
     } catch (error) {
       this.logger.error('캠페인 상태 업데이트 중 오류 발생', error);
+    }
+  }
+
+  // 매일 자정(00:00)에 일일 예산 리셋
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async resetDailyBudgets(): Promise<void> {
+    this.logger.log('일일 예산 리셋 시작');
+
+    try {
+      await this.campaignRepository.resetAllDailySpent();
+      this.logger.log('모든 캠페인의 일일 예산이 리셋되었습니다');
+    } catch (error) {
+      this.logger.error('일일 예산 리셋 중 오류 발생', error);
     }
   }
 }

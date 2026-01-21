@@ -44,4 +44,10 @@ export abstract class CampaignRepository {
     campaignId: string,
     status: CampaignStatus
   ): Promise<void>;
+
+  abstract incrementSpent(campaignId: string, amount: number): Promise<void>;
+
+  abstract resetDailySpent(campaignId: string): Promise<void>;
+
+  abstract resetAllDailySpent(): Promise<void>;
 }

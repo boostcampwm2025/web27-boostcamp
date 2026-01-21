@@ -7,7 +7,8 @@ import { CampaignRepository } from './repository/campaign.repository';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { UpdateCampaignDto } from './dto/update-campaign.dto';
 import { GetCampaignListDto } from './dto/get-campaign-list.dto';
-import { CampaignWithTags } from './types/campaign.types';
+import type { Campaign, CampaignWithTags } from './types/campaign.types';
+import { CampaignStatus } from './entities/campaign.entity';
 import { AVAILABLE_TAGS } from '../common/constants';
 
 @Injectable()
@@ -104,5 +105,37 @@ export class CampaignService {
     }
 
     await this.campaignRepository.delete(campaignId);
+  }
+
+  // Lazy Reset: 날짜가 바뀌었으면 dailySpent를 리셋
+  async checkAndResetIfNeeded(campaign: Campaign): Promise<boolean> {
+    const today = this.getDateString(new Date());
+    const lastReset = this.getDateString(campaign.lastResetDate);
+
+    if (today !== lastReset) {
+      await this.campaignRepository.resetDailySpent(campaign.id);
+
+      // 상태도 함께 체크
+      const now = new Date();
+      if (now > campaign.endDate && campaign.status !== 'ENDED') {
+        await this.campaignRepository.updateStatus(
+          campaign.id,
+          CampaignStatus.ENDED
+        );
+      } else if (now >= campaign.startDate && campaign.status === 'PENDING') {
+        await this.campaignRepository.updateStatus(
+          campaign.id,
+          CampaignStatus.ACTIVE
+        );
+      }
+
+      return true; // 리셋됨
+    }
+
+    return false; // 리셋 안 됨
+  }
+
+  private getDateString(date: Date): string {
+    return date.toISOString().split('T')[0]; // "2026-01-21"
   }
 }
