@@ -43,8 +43,46 @@ export class CampaignService {
 
     return tagIds;
   }
+  // 단일 캠페인에 통계 필드 추가
+  private async addStatsToCampaign(campaign: CampaignWithTags) {
+    const viewCounts = await this.campaignRepository.getViewCountsByCampaignIds(
+      [campaign.id]
+    );
+    const clickCounts =
+      await this.campaignRepository.getClickCountsByCampaignIds([campaign.id]);
 
-  // 캠페인 목록 조회 (페이지네이션 + 정렬)
+    const impressions = viewCounts.get(campaign.id) || 0;
+    const clicks = clickCounts.get(campaign.id) || 0;
+
+    return {
+      ...campaign,
+      impressions,
+      clicks,
+      ctr: this.calculateCTR(clicks, impressions),
+      dailySpentPercent: this.calculatePercent(
+        campaign.dailySpent,
+        campaign.dailyBudget
+      ),
+      totalSpentPercent: this.calculatePercent(
+        campaign.totalSpent,
+        campaign.totalBudget
+      ),
+    };
+  }
+
+  // CTR 계산 (소수점 2자리)
+  private calculateCTR(clicks: number, impressions: number): number {
+    if (impressions === 0) return 0;
+    return parseFloat(((clicks / impressions) * 100).toFixed(2));
+  }
+
+  // 퍼센트 계산 (소수점 2자리)
+  private calculatePercent(spent: number, budget: number | null): number {
+    if (budget === null || budget === 0) return 0;
+    return parseFloat(((spent / budget) * 100).toFixed(2));
+  }
+
+  // 캠페인 목록 조회 (페이지네이션 + 정렬 + 통계)
   async getCampaignList(userId: number, dto: GetCampaignListDto) {
     const { campaigns, total } = await this.campaignRepository.findByUserId(
       userId,
@@ -55,24 +93,30 @@ export class CampaignService {
       dto.order
     );
 
+    // 통계 필드 추가
+    const campaignsWithStats =
+      await this.addStatsToMultipleCampaigns(campaigns);
+
+    // hasMore 계산
+    const hasMore = (dto.offset || 0) + (dto.limit || 3) < total;
+
     return {
-      campaigns,
+      campaigns: campaignsWithStats,
       total,
+      hasMore,
     };
   }
 
-  // 특정 캠페인 조회 (소유권 검증)
-  async getCampaignById(
-    campaignId: string,
-    userId: number
-  ): Promise<CampaignWithTags> {
+  // 특정 캠페인 조회 (소유권 검증 + 통계)
+  async getCampaignById(campaignId: string, userId: number): Promise<any> {
     const campaign = await this.campaignRepository.findOne(campaignId, userId);
 
     if (!campaign) {
       throw new NotFoundException('캠페인을 찾을 수 없습니다.');
     }
 
-    return campaign;
+    // 통계 필드 추가
+    return this.addStatsToCampaign(campaign);
   }
 
   // 캠페인 수정 (소유권 + 날짜 + 태그 검증)
