@@ -95,4 +95,19 @@ export class ImageService {
 
     return `${this.endpoint}/${this.bucket}/${fileName}`;
   }
+
+  async deleteImage(imageUrl: string): Promise<void> {
+    const key = this.extractKeyFromUrl(imageUrl);
+
+    if (!key) {
+      throw new BadRequestException('유효하지 않은 이미지 URL입니다.');
+    }
+
+    const params: AWS.S3.DeleteObjectRequest = {
+      Bucket: this.bucket,
+      Key: key,
+    };
+
+    await this.s3.deleteObject(params).promise();
+  }
 }
