@@ -2,12 +2,9 @@ import {
   BadGatewayException,
   BadRequestException,
   ConflictException,
-  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import type { Cache } from 'cache-manager';
 import axios from 'axios';
 import { randomUUID } from 'crypto';
 import { createRemoteJWKSet, jwtVerify, SignJWT } from 'jose';
@@ -15,6 +12,7 @@ import { UserRole } from 'src/user/entities/user.entity';
 import { UserRepository } from 'src/user/repository/user.repository';
 import { OAuthAccountRepository } from './repository/oauthaccount.repository';
 import { OAuthProvider } from './entities/oauth-account.entity';
+import { CacheRepository } from 'src/cache/repository/cache.repository.interface';
 
 export type GoogleTokenResponse = {
   access_token: string;
@@ -47,7 +45,7 @@ export type OAuthState =
   | { intent: 'login' }
   | { intent: 'register'; role: UserRole };
 
-type StoredOAuthState = OAuthState & { expiresAt: number };
+export type StoredOAuthState = OAuthState & { expiresAt: number };
 
 export type AuthorizeResult = {
   isNew: boolean;
@@ -72,7 +70,7 @@ export class OAuthService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly oauthAccountRepository: OAuthAccountRepository,
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
+    private readonly cacheRepository: CacheRepository
   ) {}
 
   async getGoogleAuthUrl(intent: AuthIntent, role?: UserRole): Promise<string> {
@@ -99,8 +97,8 @@ export class OAuthService {
         role,
       };
 
-      await this.cacheManager.set(
-        `oauth:state:${state}`,
+      await this.cacheRepository.setOAuthState(
+        state,
         stateData,
         15 * 60 * 1000
       );
@@ -110,8 +108,8 @@ export class OAuthService {
         intent: 'login',
       };
 
-      await this.cacheManager.set(
-        `oauth:state:${state}`,
+      await this.cacheRepository.setOAuthState(
+        state,
         stateData,
         15 * 60 * 1000
       );
@@ -129,18 +127,16 @@ export class OAuthService {
   }
 
   async validateState(state: string): Promise<OAuthState> {
-    const data = await this.cacheManager.get<StoredOAuthState>(
-      `oauth:state:${state}`
-    );
+    const data = await this.cacheRepository.getOAuthState(state);
     if (!data) throw new UnauthorizedException('잘못된 state입니다.');
 
     if (data.expiresAt < Date.now()) {
-      await this.cacheManager.del(`oauth:state:${state}`);
+      await this.cacheRepository.deleteOAuthState(state);
       throw new UnauthorizedException('만료된 state입니다.');
     }
 
     // 사용 후 삭제 (일회용)
-    await this.cacheManager.del(`oauth:state:${state}`);
+    await this.cacheRepository.deleteOAuthState(state);
 
     if (data.intent === 'register') {
       if (!data.role) {
