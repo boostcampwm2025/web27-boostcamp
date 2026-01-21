@@ -1,4 +1,8 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Post, Req } from '@nestjs/common';
+import { type AuthenticatedRequest } from 'src/types/authenticated-request';
 
-@Controller('user')
-export class UserController {}
+@Controller('users')
+export class UserController {
+  @Post('me/first-login')
+  checkFirstLogin(@Req() req: AuthenticatedRequest) {}
+}
