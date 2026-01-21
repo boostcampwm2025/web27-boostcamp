@@ -2,9 +2,13 @@ import { API_CONFIG } from '@/4_shared/lib/api';
 import axios from 'axios';
 import { redirect } from 'react-router-dom';
 
+type Role = 'PUBLISHER' | 'ADVERTISER' | 'ADMIN';
+
 const LOGIN_PATH = '/auth/login';
 const BLOG_ADMISSION_PATH = '/publisher/onboarding/blog-admission';
 const PUBLISHER_DASHBOARD_PATH = '/publisher/dashboard/main';
+const ADVERTISER_DASHBOARD_PATH = '/advertiser/dashboard/main';
+const PUBLISHER_ENTRY = '/publisher/entry';
 
 export const publisherEntryLoader = async () => {
   try {
@@ -49,8 +53,42 @@ export const publisherBlogRequiredLoader = async () => {
   }
 };
 
-export const publisherGateLoader = async () => {};
+const createRoleGuardLoader = (required: Role) => async () => {
+  const res = await axios.get(`${API_CONFIG.baseURL}/api/users/me`, {
+    withCredentials: true,
+  });
 
-export const advertiserGateLoader = async () => {};
+  const { role } = res.data.data;
+  if (role !== required) {
+    if (role === 'PUBLISHER') return redirect(PUBLISHER_ENTRY);
+    if (role === 'ADVERTISER') return redirect(ADVERTISER_DASHBOARD_PATH);
+    return redirect('/');
+  }
+  return null;
+};
 
-export const guestOnlyLoader = async () => {};
+export const publisherGateLoader = createRoleGuardLoader('PUBLISHER');
+
+export const advertiserGateLoader = createRoleGuardLoader('ADVERTISER');
+
+// 로그인,회원가입 페이지에 걸어둘 예정, 일단 개발 편의성을 위해 뺌
+export const guestOnlyLoader = async () => {
+  try {
+    const res = await axios.get(`${API_CONFIG.baseURL}/api/users/me`, {
+      withCredentials: true,
+    });
+
+    const { role } = res.data.data;
+
+    if (role === 'PUBLISHER') {
+      return redirect(PUBLISHER_ENTRY);
+    } else if (role === 'ADVERTISER') {
+      return redirect(ADVERTISER_DASHBOARD_PATH);
+    }
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      throw redirect(LOGIN_PATH);
+    }
+    throw error;
+  }
+};
