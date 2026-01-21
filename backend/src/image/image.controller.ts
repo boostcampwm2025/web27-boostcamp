@@ -1,8 +1,6 @@
 import {
   Controller,
   Post,
-  Delete,
-  Query,
   UseGuards,
   UseInterceptors,
   UploadedFile,
@@ -46,12 +44,5 @@ export class ImageController {
     const imageUrl = await this.imageService.uploadImage(file, userId);
 
     return successResponse({ imageUrl }, '이미지가 업로드되었습니다.');
-  }
-
-  @Delete()
-  async deleteImage(@Query('url') url: string): Promise<SuccessResponse<null>> {
-    await this.imageService.deleteImage(url);
-
-    return successResponse(null, '이미지가 삭제되었습니다.');
   }
 }
