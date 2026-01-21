@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { AuctionStore } from './auction/auction.store';
+import { AuctionStore } from './auction/auction.store.interface';
 import { SeedAuctionDto } from './dto/seed-auction.dto';
 import { successResponse } from 'src/common/response/success-response';
 import { LogRepository } from 'src/log/repository/log.repository.interface';

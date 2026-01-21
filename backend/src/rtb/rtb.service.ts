@@ -9,7 +9,7 @@ import type {
 } from './types/decision.types';
 import { randomUUID } from 'crypto';
 import { BidLogRepository } from '../bid-log/repositories/bid-log.repository.interface';
-import { AuctionStore } from '../cache/auction/auction.store';
+import { AuctionStore } from '../cache/auction/auction.store.interface';
 import { BidLog, BidStatus } from '../bid-log/bid-log.types';
 import { getBlogIdByKey } from '../common/utils/blog.utils';
 
