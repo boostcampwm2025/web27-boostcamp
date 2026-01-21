@@ -8,9 +8,9 @@ import type {
   ScoredCandidate,
 } from './types/decision.types';
 import { randomUUID } from 'crypto';
-import { BidLogRepository } from '../bid-log/repositories/bid-log.repository';
+import { BidLogRepository } from '../bid-log/repositories/bid-log.repository.interface';
 import { AuctionStore } from '../cache/auction/auction.store';
-import { BidLog } from '../bid-log/bid-log.types';
+import { BidLog, BidStatus } from '../bid-log/bid-log.types';
 import { getBlogIdByKey } from '../common/utils/blog.utils';
 
 @Injectable()
@@ -39,9 +39,7 @@ export class RTBService {
       // 2. 고의도 필터링 (isHighIntent에 따라 광고 분리)
       if (context.isHighIntent) {
         // 고의도 요청: is_high_intent=true 광고만
-        candidates = candidates.filter(
-          (c) => c.campaign.isHighIntent === true
-        );
+        candidates = candidates.filter((c) => c.campaign.isHighIntent === true);
       } else {
         // 일반 요청: is_high_intent=false 광고만
         candidates = candidates.filter(
@@ -69,18 +67,18 @@ export class RTBService {
       });
 
       // 5. BidLog 저장 (모든 참여 캠페인의 입찰 기록)
-      const timestamp = new Date().toISOString();
       const bidLogs: BidLog[] = result.candidates.map((candidate) => ({
         auctionId,
         campaignId: candidate.id,
-        blogId: context.blogKey,
-        status: candidate.id === result.winner.id ? 'WIN' : 'LOSS',
+        blogId: blogId,
+        status:
+          candidate.id === result.winner.id ? BidStatus.WIN : BidStatus.LOSS,
         bidPrice: candidate.maxCpc,
         isHighIntent: context.isHighIntent,
         behaviorScore: context.behaviorScore,
-        timestamp,
+        reason: '', // 추후에 수정 필요
       }));
-      this.bidLogRepository.saveMany(bidLogs);
+      await this.bidLogRepository.saveMany(bidLogs);
 
       this.logger.log(
         `Auction ${auctionId}: ${bidLogs.length}개 BidLog 저장 완료 (WIN: ${result.winner.id})`

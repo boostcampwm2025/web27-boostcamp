@@ -13,12 +13,12 @@ import {
 } from 'typeorm';
 import type { User } from '../../user/entities/user.entity';
 import type { Tag } from '../../tag/entities/tag.entity';
-import type { BidLog } from '../../bid-log/entities/bid-log.entity';
-import type { ViewLog } from '../../log/entities/view-log.entity';
+import type { BidLogEntity } from '../../bid-log/entities/bid-log.entity';
+import type { ViewLogEntity } from '../../log/entities/view-log.entity';
 import * as UserEntity from '../../user/entities/user.entity';
 import * as TagEntity from '../../tag/entities/tag.entity';
-import * as BidLogEntity from '../../bid-log/entities/bid-log.entity';
-import * as ViewLogEntity from '../../log/entities/view-log.entity';
+import * as BidLogEntityModule from '../../bid-log/entities/bid-log.entity';
+import * as ViewLogEntityModule from '../../log/entities/view-log.entity';
 
 export enum CampaignStatus {
   PENDING = 'PENDING',
@@ -101,12 +101,15 @@ export class Campaign {
   })
   tags: Relation<Tag[]>;
 
-  @OneToMany(() => BidLogEntity.BidLog, (bidLog: BidLog) => bidLog.campaign)
-  bidLogs: Relation<BidLog[]>;
+  @OneToMany(
+    () => BidLogEntityModule.BidLogEntity,
+    (bidLog: BidLogEntity) => bidLog.campaign
+  )
+  bidLogs: Relation<BidLogEntity[]>;
 
   @OneToMany(
-    () => ViewLogEntity.ViewLog,
-    (viewLog: ViewLog) => viewLog.campaign
+    () => ViewLogEntityModule.ViewLogEntity,
+    (viewLog: ViewLogEntity) => viewLog.campaign
   )
-  viewLogs: Relation<ViewLog[]>;
+  viewLogs: Relation<ViewLogEntity[]>;
 }

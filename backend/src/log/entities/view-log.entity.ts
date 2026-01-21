@@ -9,10 +9,10 @@ import {
 } from 'typeorm';
 import { Campaign } from '../../campaign/entities/campaign.entity';
 import { Blog } from '../../blog/entities/blog.entity';
-import { ClickLog } from './click-log.entity';
+import { ClickLogEntity } from './click-log.entity';
 
 @Entity('ViewLog')
-export class ViewLog {
+export class ViewLogEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -73,6 +73,6 @@ export class ViewLog {
   @JoinColumn({ name: 'blog_id' })
   blog: Blog;
 
-  @OneToMany(() => ClickLog, (clickLog) => clickLog.viewLog)
-  clickLogs: ClickLog[];
+  @OneToMany(() => ClickLogEntity, (clickLog) => clickLog.viewLog)
+  clickLogs: ClickLogEntity[];
 }

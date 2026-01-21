@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SdkController } from './sdk.controller';
 import { SdkService } from './sdk.service';
-import { LogRepository } from 'src/log/repository/log.repository';
+import { LogRepository } from 'src/log/repository/log.repository.interface';
 import { AuctionStore } from 'src/cache/auction/auction.store';
 
 describe('SdkController', () => {
