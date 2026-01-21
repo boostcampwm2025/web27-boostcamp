@@ -7,7 +7,7 @@ import {
 import { randomUUID } from 'crypto';
 import { UserRole } from 'src/user/entities/user.entity';
 import { UserRepository } from 'src/user/repository/user.repository';
-import { BlogRepository } from './repository/blog.repository';
+import { BlogRepository } from './repository/blog.repository.interface';
 
 @Injectable()
 export class BlogService {
@@ -53,5 +53,13 @@ export class BlogService {
     }
 
     return blogKey;
+  }
+
+  async existsBlogByUserId(userId: number) {
+    if (await this.blogRepository.existsBlogByUserId(userId)) {
+      return true;
+    }
+
+    return false;
   }
 }
