@@ -18,7 +18,7 @@ import * as BidLogEntityModule from '../../bid-log/entities/bid-log.entity';
 import * as ViewLogEntityModule from '../../log/entities/view-log.entity';
 
 @Entity('Blog')
-export class Blog {
+export class BlogEntity {
   @PrimaryGeneratedColumn()
   id: number;
 

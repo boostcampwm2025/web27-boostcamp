@@ -7,7 +7,7 @@ import {
   OneToMany,
   OneToOne,
 } from 'typeorm';
-import { Blog } from '../../blog/entities/blog.entity';
+import { BlogEntity } from '../../blog/entities/blog.entity';
 import { Campaign } from '../../campaign/entities/campaign.entity';
 import { OAuthAccount } from '../../auth/entities/oauth-account.entity';
 import { UserCredential } from '../../auth/entities/user-credential.entity';
@@ -43,8 +43,8 @@ export class User {
   deletedAt: Date | null;
 
   // Relations
-  @OneToMany(() => Blog, (blog) => blog.user)
-  blogs: Blog[];
+  @OneToMany(() => BlogEntity, (blog) => blog.user)
+  blogs: BlogEntity[];
 
   @OneToMany(() => Campaign, (campaign) => campaign.user)
   campaigns: Campaign[];
