@@ -14,5 +14,6 @@ import { TypeOrmBlogRepository } from './repository/typeorm-blog.repository';
     BlogService,
     { provide: BlogRepository, useClass: TypeOrmBlogRepository },
   ],
+  exports: [BlogRepository],
 })
 export class BlogModule {}
