@@ -69,6 +69,14 @@ export class ImageService {
     return lastDot !== -1 ? filename.substring(lastDot) : '';
   }
 
+  private extractKeyFromUrl(url: string): string | null {
+    const prefix = `${this.endpoint}/${this.bucket}/`;
+    if (url.startsWith(prefix)) {
+      return url.substring(prefix.length);
+    }
+    return null;
+  }
+
   async uploadImage(file: UploadedFile, userId: number): Promise<string> {
     this.validateFile(file);
 
