@@ -11,6 +11,7 @@ import {
   Req,
 } from '@nestjs/common';
 import { CampaignService } from './campaign.service';
+import { CampaignCronService } from './campaign-cron.service';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { UpdateCampaignDto } from './dto/update-campaign.dto';
 import { GetCampaignListDto } from './dto/get-campaign-list.dto';
@@ -21,7 +22,10 @@ import { successResponse } from '../common/response/success-response';
 @Controller('campaigns')
 @UseGuards(JwtCookieGuard)
 export class CampaignController {
-  constructor(private readonly campaignService: CampaignService) {}
+  constructor(
+    private readonly campaignService: CampaignService,
+    private readonly campaignCronService: CampaignCronService
+  ) {}
 
   @Post()
   async createCampaign(
@@ -80,5 +84,14 @@ export class CampaignController {
   ) {
     await this.campaignService.deleteCampaign(id, req.user.userId);
     return successResponse(null, '캠페인이 삭제되었습니다.');
+  }
+
+  @Post('manual-reset')
+  async manualReset() {
+    const result = await this.campaignCronService.manualReset();
+    return successResponse(
+      result,
+      '캠페인 상태 및 일일 예산이 리셋되었습니다.'
+    );
   }
 }
