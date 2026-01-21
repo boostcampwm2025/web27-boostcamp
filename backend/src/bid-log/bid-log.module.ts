@@ -7,9 +7,14 @@ import { BidLogRepository } from './repositories/bid-log.repository.interface';
 import { TypeOrmBidLogRepository } from './repositories/typeorm-bid-log.repository';
 import { BidLogEntity } from './entities/bid-log.entity';
 import { CampaignModule } from 'src/campaign/campaign.module';
+import { BlogModule } from 'src/blog/blog.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([BidLogEntity]), CampaignModule],
+  imports: [
+    TypeOrmModule.forFeature([BidLogEntity]),
+    CampaignModule,
+    BlogModule,
+  ],
   controllers: [BidLogController],
   providers: [
     BidLogService,
