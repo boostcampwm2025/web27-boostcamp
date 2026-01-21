@@ -80,6 +80,7 @@ export class CampaignEntity {
   @Column({
     name: 'last_reset_date',
     type: 'datetime',
+    default: () => 'CURRENT_TIMESTAMP',
     comment: '일일 예산 마지막 리셋 날짜',
   })
   lastResetDate: Date;
