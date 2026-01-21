@@ -89,7 +89,7 @@ export class AuthController {
         redirectUrl =
           result.role === UserRole.PUBLISHER
             ? `${clientUrl}/publisher/entry`
-            : `${clientUrl}/advertiser/dashboard`;
+            : `${clientUrl}/advertiser/dashboard/main`;
       }
     } else {
       redirectUrl = result.isNew
