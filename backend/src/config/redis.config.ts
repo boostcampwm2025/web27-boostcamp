@@ -1,18 +1,22 @@
 import { CacheModuleOptions, CacheOptionsFactory } from '@nestjs/cache-manager';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as redisStore from 'cache-manager-redis-store';
+import KeyvRedis from '@keyv/redis';
 
 @Injectable()
 export class RedisCacheConfig implements CacheOptionsFactory {
+  private readonly logger = new Logger(RedisCacheConfig.name);
+
   constructor(private readonly configService: ConfigService) {}
 
   createCacheOptions(): CacheModuleOptions {
+    const host = this.configService.get<string>('REDIS_HOST', 'localhost');
+    const port = this.configService.get<number>('REDIS_PORT', 6379);
+
+    this.logger.log(`🔄 Redis 연결 시도: redis://${host}:${port}`);
+
     return {
-      store: redisStore,
-      host: this.configService.get<string>('REDIS_HOST', 'localhost'),
-      port: this.configService.get<number>('REDIS_PORT', 6379),
-      ttl: 24 * 60 * 60, // 24시간 (초 단위)
+      stores: [new KeyvRedis(`redis://${host}:${port}`)],
     };
   }
 }

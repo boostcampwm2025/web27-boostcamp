@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { Cache } from 'cache-manager';
 import { AuctionData } from '../types/auction-data.type';
@@ -6,18 +6,22 @@ import { AuctionStore } from './auction.store';
 
 @Injectable()
 export class RedisAuctionStore extends AuctionStore {
+  private readonly logger = new Logger(RedisAuctionStore.name);
+
   constructor(@Inject(CACHE_MANAGER) private readonly cacheManager: Cache) {
     super();
   }
 
   async set(auctionId: string, auctionData: AuctionData): Promise<void> {
     const key = this.getKey(auctionId);
-    await this.cacheManager.set(key, auctionData);
+    // TTL: 24시간 (밀리초 단위)
+    await this.cacheManager.set(key, auctionData, 24 * 60 * 60 * 1000);
   }
 
   async get(auctionId: string): Promise<AuctionData | undefined> {
     const key = this.getKey(auctionId);
-    return await this.cacheManager.get<AuctionData>(key);
+    const data = await this.cacheManager.get<AuctionData>(key);
+    return data;
   }
 
   async delete(auctionId: string): Promise<void> {
