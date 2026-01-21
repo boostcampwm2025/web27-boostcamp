@@ -86,7 +86,7 @@ export class AuthController {
         }
         redirectUrl =
           result.role === UserRole.PUBLISHER
-            ? `${clientUrl}/publisher/dashboard`
+            ? `${clientUrl}/publisher/entry`
             : `${clientUrl}/advertiser/dashboard`;
       }
     } else {
