@@ -3,8 +3,8 @@ import { CacheModule as NestCacheModule } from '@nestjs/cache-manager';
 import { CacheController } from './cache.controller';
 import { LogModule } from 'src/log/log.module';
 import { RedisCacheConfig } from 'src/config/redis.config';
-import { AuctionStore } from './auction/auction.store.interface';
-import { RedisAuctionStore } from './auction/redis-auction.store';
+import { AuctionStore } from './repository/cache.store.interface';
+import { RedisAuctionStore } from './repository/redis-cache.store';
 
 @Module({
   imports: [

@@ -1,5 +1,5 @@
 import { AuctionData } from '../types/auction-data.type';
-import { AuctionStore } from './auction.store';
+import { AuctionStore } from './cache.store.interface';
 
 export class InMemoryAuctionStore extends AuctionStore {
   private readonly auctionDataMap = new Map<string, AuctionData>();
