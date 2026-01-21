@@ -30,11 +30,11 @@ export class CreateCampaignDto {
   tags: string[];
 
   @IsNumber()
-  @Min(0, { message: '최대 CPC는 0 이상이어야 합니다.' })
+  @Min(100, { message: '최대 CPC는 100원 이상이어야 합니다.' })
   maxCpc: number;
 
   @IsNumber()
-  @Min(0, { message: '일일 예산은 0 이상이어야 합니다.' })
+  @Min(3000, { message: '일일 예산은 3,000원 이상이어야 합니다.' })
   dailyBudget: number;
 
   @IsOptional()

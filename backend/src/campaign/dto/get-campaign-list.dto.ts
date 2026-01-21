@@ -25,7 +25,7 @@ export class GetCampaignListDto {
   @Type(() => Number)
   @IsInt({ message: 'limit은 정수여야 합니다.' })
   @Min(1, { message: 'limit은 1 이상이어야 합니다.' })
-  limit?: number = 10;
+  limit?: number = 3;
 
   @IsOptional()
   @Type(() => Number)
