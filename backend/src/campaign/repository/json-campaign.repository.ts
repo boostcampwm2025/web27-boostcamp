@@ -20,6 +20,9 @@ type FixtureCampaign = {
   max_cpc: number;
   daily_budget: number;
   total_budget: number | null;
+  daily_spent?: number;
+  total_spent?: number;
+  last_reset_date?: string;
   is_high_intent: boolean;
   status: CampaignStatus;
   start_date: string;
@@ -70,6 +73,7 @@ export class JsonCampaignRepository extends CampaignRepository {
     dto: CreateCampaignDto,
     tagIds: number[]
   ): Promise<CampaignWithTags> {
+    const now = new Date();
     const campaign: CampaignWithTags = {
       id: randomUUID(),
       userId,
@@ -80,11 +84,14 @@ export class JsonCampaignRepository extends CampaignRepository {
       maxCpc: dto.maxCpc,
       dailyBudget: dto.dailyBudget,
       totalBudget: dto.totalBudget,
+      dailySpent: 0,
+      totalSpent: 0,
+      lastResetDate: now,
       isHighIntent: dto.isHighIntent,
       status: CampaignStatus.PENDING,
       startDate: new Date(dto.startDate),
       endDate: new Date(dto.endDate),
-      createdAt: new Date(),
+      createdAt: now,
       deletedAt: null,
       tags: this.getTagsByIds(tagIds),
     };
@@ -199,6 +206,39 @@ export class JsonCampaignRepository extends CampaignRepository {
     return Promise.resolve();
   }
 
+  incrementSpent(campaignId: string, amount: number): Promise<void> {
+    const campaign = this.campaignsById.get(campaignId);
+
+    if (campaign) {
+      campaign.dailySpent += amount;
+      campaign.totalSpent += amount;
+    }
+
+    return Promise.resolve();
+  }
+
+  resetDailySpent(campaignId: string): Promise<void> {
+    const campaign = this.campaignsById.get(campaignId);
+
+    if (campaign) {
+      campaign.dailySpent = 0;
+      campaign.lastResetDate = new Date();
+    }
+
+    return Promise.resolve();
+  }
+
+  resetAllDailySpent(): Promise<void> {
+    const now = new Date();
+
+    this.campaigns.forEach((campaign) => {
+      campaign.dailySpent = 0;
+      campaign.lastResetDate = now;
+    });
+
+    return Promise.resolve();
+  }
+
   private getTagsByIds(tagIds: number[]): Tag[] {
     return tagIds
       .map((id) => AVAILABLE_TAGS.find((t) => t.id === id))
@@ -207,6 +247,7 @@ export class JsonCampaignRepository extends CampaignRepository {
 }
 
 const toCampaignWithTags = (c: FixtureCampaign): CampaignWithTags => {
+  const now = new Date();
   return {
     id: c.id,
     userId: c.user_id,
@@ -218,6 +259,9 @@ const toCampaignWithTags = (c: FixtureCampaign): CampaignWithTags => {
     maxCpc: c.max_cpc,
     dailyBudget: c.daily_budget,
     totalBudget: c.total_budget,
+    dailySpent: c.daily_spent ?? 0,
+    totalSpent: c.total_spent ?? 0,
+    lastResetDate: c.last_reset_date ? new Date(c.last_reset_date) : now,
     isHighIntent: c.is_high_intent,
     status: c.status,
     startDate: new Date(c.start_date),
