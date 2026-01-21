@@ -6,9 +6,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { OAuthAccountEntity } from './entities/oauth-account.entity';
 import { OAuthAccountRepository } from './repository/oauthaccount.repository';
 import { TypeOrmOAuthAccountRepository } from './repository/typeorm-oauthaccount.repository';
+import { CacheModule } from 'src/cache/cache.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([OAuthAccountEntity]), UserModule],
+  imports: [
+    TypeOrmModule.forFeature([OAuthAccountEntity]),
+    UserModule,
+    CacheModule,
+  ],
   controllers: [AuthController],
   providers: [
     OAuthService,
