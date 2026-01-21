@@ -7,7 +7,7 @@ import {
   JoinColumn,
   Index,
 } from 'typeorm';
-import { User } from '../../user/entities/user.entity';
+import { UserEntity } from '../../user/entities/user.entity';
 
 export enum OAuthProvider {
   GOOGLE = 'GOOGLE',
@@ -59,7 +59,7 @@ export class OAuthAccountEntity {
   createdAt: Date;
 
   // Relations
-  @ManyToOne(() => User, (user) => user.oauthAccounts)
+  @ManyToOne(() => UserEntity, (user) => user.oauthAccounts)
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: UserEntity;
 }

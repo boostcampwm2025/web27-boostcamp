@@ -7,7 +7,7 @@ import {
   JoinColumn,
   PrimaryColumn,
 } from 'typeorm';
-import { User } from '../../user/entities/user.entity';
+import { UserEntity } from '../../user/entities/user.entity';
 
 @Entity('UserCredential')
 export class UserCredentialEntity {
@@ -28,7 +28,7 @@ export class UserCredentialEntity {
   deletedAt: Date | null;
 
   // Relations
-  @OneToOne(() => User, (user) => user.credential)
+  @OneToOne(() => UserEntity, (user) => user.credential)
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: UserEntity;
 }
