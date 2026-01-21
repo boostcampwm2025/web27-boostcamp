@@ -13,7 +13,13 @@ import { PublisherSettingsPage } from '@pages/publisherSettings';
 import { OnboardingSdkGuidePageSkeleton } from '@pages/onboardingSdkGuide';
 import { CampaignCreatePage } from '@pages/campaginCreate';
 import { BlogAdmissionPage } from '@pages/onboardingBlogAdmission/ui/BlogAdmissionPage';
-import { publisherEntryLoader, publisherBlogRequiredLoader } from '../lib';
+import {
+  publisherEntryLoader,
+  publisherBlogRequiredLoader,
+  guestOnlyLoader,
+  publisherGateLoader,
+  advertiserGateLoader,
+} from '../lib';
 
 const OnboardingSdkGuidePage = lazy(() =>
   import('@pages/onboardingSdkGuide').then((m) => ({
@@ -25,6 +31,7 @@ export const router = createBrowserRouter([
   // 1. 공통 (로그인 등) - 여긴 역할 구분이 없으므로 최상위 유지
   {
     path: '/',
+    loader: guestOnlyLoader,
     element: <OnboardingLayout />,
     children: [
       { index: true, element: <LoginPage /> },
@@ -36,6 +43,7 @@ export const router = createBrowserRouter([
   // 2. 퍼블리셔 (Publisher) 그룹
   {
     path: '/publisher', // 👈 URL 접두사 역할만 수행 (Layout 없음)
+    loader: publisherGateLoader,
     children: [
       {
         path: 'entry',
@@ -75,6 +83,7 @@ export const router = createBrowserRouter([
   // 3. 광고주 (Advertiser) 그룹
   {
     path: '/advertiser', // 👈 URL 접두사 역할
+    loader: advertiserGateLoader,
     children: [
       // 3-1. 광고주 온보딩 (OnboardingLayout 재사용)
       {

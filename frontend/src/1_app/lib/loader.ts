@@ -54,17 +54,24 @@ export const publisherBlogRequiredLoader = async () => {
 };
 
 const createRoleGuardLoader = (required: Role) => async () => {
-  const res = await axios.get(`${API_CONFIG.baseURL}/api/users/me`, {
-    withCredentials: true,
-  });
+  try {
+    const res = await axios.get(`${API_CONFIG.baseURL}/api/users/me`, {
+      withCredentials: true,
+    });
 
-  const { role } = res.data.data;
-  if (role !== required) {
-    if (role === 'PUBLISHER') return redirect(PUBLISHER_ENTRY);
-    if (role === 'ADVERTISER') return redirect(ADVERTISER_DASHBOARD_PATH);
-    return redirect('/');
+    const { role } = res.data.data;
+    if (role !== required) {
+      if (role === 'PUBLISHER') return redirect(PUBLISHER_ENTRY);
+      if (role === 'ADVERTISER') return redirect(ADVERTISER_DASHBOARD_PATH);
+      return redirect('/');
+    }
+    return null;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      throw redirect(LOGIN_PATH);
+    }
+    throw error;
   }
-  return null;
 };
 
 export const publisherGateLoader = createRoleGuardLoader('PUBLISHER');
@@ -85,9 +92,17 @@ export const guestOnlyLoader = async () => {
     } else if (role === 'ADVERTISER') {
       return redirect(ADVERTISER_DASHBOARD_PATH);
     }
+
+    return null;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response?.status === 401) {
-      throw redirect(LOGIN_PATH);
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 401) {
+        return null;
+      }
+      // 반복 리다이렉트/요청 등으로 throttling 걸린 경우에도 일단 페이지는 열어둠
+      if (error.response?.status === 429) {
+        return null;
+      }
     }
     throw error;
   }
