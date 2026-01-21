@@ -12,7 +12,7 @@ export class RedisCacheConfig implements CacheOptionsFactory {
       store: redisStore,
       host: this.configService.get<string>('REDIS_HOST', 'localhost'),
       port: this.configService.get<number>('REDIS_PORT', 6379),
-      ttl: 60 * 60, // 1시간 (초 단위)
+      ttl: 24 * 60 * 60, // 24시간 (초 단위)
     };
   }
 }
