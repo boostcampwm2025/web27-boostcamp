@@ -18,7 +18,7 @@ export enum OAuthProvider {
   unique: true,
 })
 @Index('uq_oauth_user_provider', ['userId', 'provider'], { unique: true })
-export class OAuthAccount {
+export class OAuthAccountEntity {
   @PrimaryGeneratedColumn()
   id: number;
 

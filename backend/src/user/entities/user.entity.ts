@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 import { BlogEntity } from '../../blog/entities/blog.entity';
 import { Campaign } from '../../campaign/entities/campaign.entity';
-import { OAuthAccount } from '../../auth/entities/oauth-account.entity';
+import { OAuthAccountEntity } from '../../auth/entities/oauth-account.entity';
 import { UserCredential } from '../../auth/entities/user-credential.entity';
 
 export enum UserRole {
@@ -49,8 +49,8 @@ export class User {
   @OneToMany(() => Campaign, (campaign) => campaign.user)
   campaigns: Campaign[];
 
-  @OneToMany(() => OAuthAccount, (oauthAccount) => oauthAccount.user)
-  oauthAccounts: OAuthAccount[];
+  @OneToMany(() => OAuthAccountEntity, (oauthAccount) => oauthAccount.user)
+  oauthAccounts: OAuthAccountEntity[];
 
   @OneToOne(() => UserCredential, (credential) => credential.user)
   credential: UserCredential;
