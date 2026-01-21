@@ -55,11 +55,10 @@ export class BlogService {
     return blogKey;
   }
 
-  async existsBlogByUserId(userId: number) {
-    if (await this.blogRepository.existsBlogByUserId(userId)) {
-      return true;
+  async getMyBlogExists(userId: number) {
+    if (await this.userRepository.verifyRole(userId, UserRole.ADVERTISER)) {
+      throw new BadRequestException('잘못된 Role의 접근입니다.');
     }
-
-    return false;
+    return await this.blogRepository.existsBlogByUserId(userId);
   }
 }

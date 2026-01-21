@@ -28,7 +28,7 @@ export class BlogController {
   @Get('me/exists')
   async getMyBlogExists(@Req() req: AuthenticatedRequest) {
     const { userId } = req.user;
-    const exists = await this.blogService.existsBlogByUserId(userId);
+    const exists = await this.blogService.getMyBlogExists(userId);
     return successResponse(
       { exists },
       '블로그 등록 여부가 성공적으로 반환되었습니다.'
