@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity } from './entities/user.entity';
-import { Repository } from 'typeorm';
+import { UserRepository } from './repository/user.repository';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectRepository(UserEntity) private readonly userRepo: Repository<UserEntity>) {}
+  constructor(private readonly userRepository: UserRepository) {}
 
-  async handleFirstLogin(userId: number) {
-    const isFirstLogin = this.userRepo.
+  async handleFirstLogin(userId: number): Promise<boolean> {
+    const isFirstLogin =
+      await this.userRepository.setFirstLoginAtIfNull(userId);
+    return isFirstLogin;
   }
 }
