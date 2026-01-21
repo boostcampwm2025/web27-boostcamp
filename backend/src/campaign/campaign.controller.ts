@@ -16,6 +16,7 @@ import { UpdateCampaignDto } from './dto/update-campaign.dto';
 import { GetCampaignListDto } from './dto/get-campaign-list.dto';
 import { JwtCookieGuard } from '../auth/guards/jwt-cookie.guard';
 import type { AuthenticatedRequest } from '../types/authenticated-request';
+import { successResponse } from '../common/response/success-response';
 
 @Controller('campaigns')
 @UseGuards(JwtCookieGuard)
@@ -27,7 +28,11 @@ export class CampaignController {
     @Req() req: AuthenticatedRequest,
     @Body() dto: CreateCampaignDto
   ) {
-    return this.campaignService.createCampaign(req.user.userId, dto);
+    const campaign = await this.campaignService.createCampaign(
+      req.user.userId,
+      dto
+    );
+    return successResponse(campaign, '캠페인이 생성되었습니다.');
   }
 
   @Get()
@@ -35,7 +40,11 @@ export class CampaignController {
     @Req() req: AuthenticatedRequest,
     @Query() dto: GetCampaignListDto
   ) {
-    return this.campaignService.getCampaignList(req.user.userId, dto);
+    const result = await this.campaignService.getCampaignList(
+      req.user.userId,
+      dto
+    );
+    return successResponse(result, '캠페인 목록을 조회했습니다.');
   }
 
   @Get(':id')
@@ -43,7 +52,11 @@ export class CampaignController {
     @Req() req: AuthenticatedRequest,
     @Param('id') id: string
   ) {
-    return this.campaignService.getCampaignById(id, req.user.userId);
+    const campaign = await this.campaignService.getCampaignById(
+      id,
+      req.user.userId
+    );
+    return successResponse(campaign, '캠페인을 조회했습니다.');
   }
 
   @Put(':id')
@@ -52,7 +65,12 @@ export class CampaignController {
     @Param('id') id: string,
     @Body() dto: UpdateCampaignDto
   ) {
-    return this.campaignService.updateCampaign(id, req.user.userId, dto);
+    const campaign = await this.campaignService.updateCampaign(
+      id,
+      req.user.userId,
+      dto
+    );
+    return successResponse(campaign, '캠페인이 수정되었습니다.');
   }
 
   @Delete(':id')
@@ -61,6 +79,6 @@ export class CampaignController {
     @Param('id') id: string
   ) {
     await this.campaignService.deleteCampaign(id, req.user.userId);
-    return { message: '캠페인이 삭제되었습니다.' };
+    return successResponse(null, '캠페인이 삭제되었습니다.');
   }
 }
