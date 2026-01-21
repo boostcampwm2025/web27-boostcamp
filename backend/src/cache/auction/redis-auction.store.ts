@@ -12,10 +12,13 @@ export class RedisAuctionStore extends AuctionStore {
     super();
   }
 
-  async set(auctionId: string, auctionData: AuctionData): Promise<void> {
+  async set(
+    auctionId: string,
+    auctionData: AuctionData,
+    ttl: number = 24 * 60 * 60 * 1000 // TTL: 24시간 (밀리초 단위)
+  ): Promise<void> {
     const key = this.getKey(auctionId);
-    // TTL: 24시간 (밀리초 단위)
-    await this.cacheManager.set(key, auctionData, 24 * 60 * 60 * 1000);
+    await this.cacheManager.set(key, auctionData, ttl);
   }
 
   async get(auctionId: string): Promise<AuctionData | undefined> {
