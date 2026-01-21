@@ -1,11 +1,5 @@
 import { lazy, Suspense } from 'react';
-import {
-  // BrowserRouter,
-  // Routes,
-  // Route,
-  // Navigate,
-  createBrowserRouter,
-} from 'react-router-dom';
+import { createBrowserRouter } from 'react-router-dom';
 import { DashboardLayout, OnboardingLayout } from '@app/layouts';
 import { AdvertiserDashboardPage } from '@pages/advertiserDashboard';
 import { AdvertiserCampaignsPage } from '@pages/advertiserCampaigns';
@@ -19,7 +13,7 @@ import { PublisherSettingsPage } from '@pages/publisherSettings';
 import { OnboardingSdkGuidePageSkeleton } from '@pages/onboardingSdkGuide';
 import { CampaignCreatePage } from '@pages/campaginCreate';
 import { BlogAdmissionPage } from '@pages/onboardingBlogAdmission/ui/BlogAdmissionPage';
-import { publisherGateLoader } from '../lib';
+import { publisherEntryLoader, publisherGateLoader } from '../lib';
 
 const OnboardingSdkGuidePage = lazy(() =>
   import('@pages/onboardingSdkGuide').then((m) => ({
@@ -43,6 +37,10 @@ export const router = createBrowserRouter([
   {
     path: '/publisher', // 👈 URL 접두사 역할만 수행 (Layout 없음)
     children: [
+      {
+        path: 'entry',
+        loader: publisherEntryLoader,
+      },
       // 2-1. 퍼블리셔 온보딩 (OnboardingLayout 사용)
       {
         path: 'onboarding',
