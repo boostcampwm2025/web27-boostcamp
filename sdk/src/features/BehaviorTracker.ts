@@ -1,4 +1,4 @@
-import type { BehaviorTracker as BehaviorTrackerInterface } from '@/shared/types';
+import type { BehaviorTracker as BehaviorTrackerInterface } from '@shared/types';
 
 // 사용자 행동 추적 (스크롤, 시간, 복사)
 export class BehaviorTracker implements BehaviorTrackerInterface {

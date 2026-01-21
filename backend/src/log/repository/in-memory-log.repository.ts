@@ -1,6 +1,6 @@
 import { SaveClickLog } from '../types/save-click-log.type';
 import { SaveViewLog } from '../types/save-view-log.type';
-import { LogRepository } from './log.repository';
+import { LogRepository } from './log.repository.interface';
 
 export class InMemoryLogRepository extends LogRepository {
   private readonly viewLog = new Map<number, SaveViewLog>();
@@ -8,31 +8,30 @@ export class InMemoryLogRepository extends LogRepository {
   private readonly clickLog = new Map<number, SaveClickLog>();
   private clickLogIdx = 0;
 
-  // 인메모리 Map 자료구조에 저장 (다음주에 DB로 갈아끼우기)
-  saveViewLog(dto: SaveViewLog): number {
+  // 인메모리 Map 자료구조에 저장
+  saveViewLog(dto: SaveViewLog): Promise<number> {
     this.viewLogIdx += 1;
     this.viewLog.set(this.viewLogIdx, { ...dto });
 
-    return this.viewLogIdx;
+    return Promise.resolve(this.viewLogIdx);
   }
 
-  // todo: abstact class 선언해두어서 일단 구현부를 작성해두었는데 return을 어떤걸 해줄지 정하고 수정할 예정
-  saveClickLog(dto: SaveClickLog): number {
+  saveClickLog(dto: SaveClickLog): Promise<number> {
     this.clickLogIdx += 1;
     this.clickLog.set(this.clickLogIdx, { ...dto });
 
-    return this.clickLogIdx;
+    return Promise.resolve(this.clickLogIdx);
   }
 
-  getViewLog(viewId: number): SaveViewLog | undefined {
-    return this.viewLog.get(viewId);
+  getViewLog(viewId: number): Promise<SaveViewLog | undefined> {
+    return Promise.resolve(this.viewLog.get(viewId));
   }
 
-  listViewLogs(): Iterable<SaveViewLog> {
-    return this.viewLog.values();
+  listViewLogs(): Promise<SaveViewLog[]> {
+    return Promise.resolve(Array.from(this.viewLog.values()));
   }
 
-  listClickLogs(): Iterable<SaveClickLog> {
-    return this.clickLog.values();
+  listClickLogs(): Promise<SaveClickLog[]> {
+    return Promise.resolve(Array.from(this.clickLog.values()));
   }
 }

@@ -5,17 +5,17 @@ export interface BidInsight {
 
 export interface BidLog {
   id: number;
-  timestamp: string;
+  createdAt: string;
   campaignId: string;
   campaignTitle: string;
   blogKey: string;
   blogName: string;
   blogDomain: string;
   bidAmount: number;
-  winAmount: number;
+  winAmount: number | null;
   isWon: boolean;
   isHighIntent: boolean;
-  behaviorScore: number;
+  behaviorScore: number | null;
   insight?: BidInsight;
 }
 

@@ -9,16 +9,16 @@ import {
   OneToMany,
   type Relation,
 } from 'typeorm';
-import type { User } from '../../user/entities/user.entity';
-import type { BidLog } from '../../bid-log/entities/bid-log.entity';
-import type { ViewLog } from '../../log/entities/view-log.entity';
+import type { UserEntity } from '../../user/entities/user.entity';
+import type { BidLogEntity } from '../../bid-log/entities/bid-log.entity';
+import type { ViewLogEntity } from '../../log/entities/view-log.entity';
 
-import * as UserEntity from '../../user/entities/user.entity';
-import * as BidLogEntity from '../../bid-log/entities/bid-log.entity';
-import * as ViewLogEntity from '../../log/entities/view-log.entity';
+import * as UserEntityModule from '../../user/entities/user.entity';
+import * as BidLogEntityModule from '../../bid-log/entities/bid-log.entity';
+import * as ViewLogEntityModule from '../../log/entities/view-log.entity';
 
 @Entity('Blog')
-export class Blog {
+export class BlogEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -50,13 +50,22 @@ export class Blog {
   deletedAt: Date | null;
 
   // Relations
-  @ManyToOne(() => UserEntity.User, (user: User) => user.blogs)
+  @ManyToOne(
+    () => UserEntityModule.UserEntity,
+    (user: UserEntity) => user.blogs
+  )
   @JoinColumn({ name: 'user_id' })
-  user: Relation<User>;
+  user: Relation<UserEntity>;
 
-  @OneToMany(() => BidLogEntity.BidLog, (bidLog: BidLog) => bidLog.blog)
-  bidLogs: Relation<BidLog>[];
+  @OneToMany(
+    () => BidLogEntityModule.BidLogEntity,
+    (bidLog: BidLogEntity) => bidLog.blog
+  )
+  bidLogs: Relation<BidLogEntity>[];
 
-  @OneToMany(() => ViewLogEntity.ViewLog, (viewLog: ViewLog) => viewLog.blog)
-  viewLogs: Relation<ViewLog>[];
+  @OneToMany(
+    () => ViewLogEntityModule.ViewLogEntity,
+    (viewLog: ViewLogEntity) => viewLog.blog
+  )
+  viewLogs: Relation<ViewLogEntity>[];
 }

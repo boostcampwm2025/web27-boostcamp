@@ -1,6 +1,6 @@
 export interface BidLogItemDto {
   id: number;
-  timestamp: string;
+  createdAt: Date;
   campaignId: string;
   campaignTitle: string;
   blogKey: string;
@@ -10,7 +10,7 @@ export interface BidLogItemDto {
   winAmount: number | null;
   isWon: boolean;
   isHighIntent: boolean;
-  behaviorScore: number;
+  behaviorScore: number | null;
 }
 
 export interface BidLogResponseDto {

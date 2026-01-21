@@ -3,11 +3,11 @@ import { ContentHeader } from './ContentHeader';
 import { ImageUpload } from './ImageUpload';
 import { KeywordSelector } from './KeywordSelector';
 import { AdvancedSettings } from './AdvancedSettings';
-import { useCampaignForm } from '../lib/useCampaignForm';
+import { useCampaignFormStore } from '../lib/campaignFormStore';
 import type { Tag } from '../lib/types';
 
 export function Step1Content() {
-  const { formData, updateCampaignContent } = useCampaignForm();
+  const { formData, updateCampaignContent } = useCampaignFormStore();
   const { title, content, url, tags, isHighIntent, imageFile } =
     formData.campaignContent;
 
