@@ -61,7 +61,7 @@ export class RTBService {
       const result = await this.selector.selectWinner(scored);
 
       // 4. AuctionStore에 경매 데이터 저장 (ViewLog에서 조회용)
-      this.auctionStore.set(auctionId, {
+      await this.auctionStore.set(auctionId, {
         blogId: blogId,
         cost: result.winner.maxCpc,
       });

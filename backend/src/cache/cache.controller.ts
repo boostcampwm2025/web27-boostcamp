@@ -21,13 +21,13 @@ export class CacheController {
   ) {}
 
   @Post('auction')
-  seedAuction(@Body() dto: SeedAuctionDto) {
+  async seedAuction(@Body() dto: SeedAuctionDto) {
     if (process.env.NODE_ENV === 'production') {
       throw new ForbiddenException();
     }
 
     const { auctionId, blogId, cost } = dto;
-    this.auctionStore.set(auctionId, { blogId, cost });
+    await this.auctionStore.set(auctionId, { blogId, cost });
     return successResponse({ auctionId }, 'auction seeded');
   }
 
