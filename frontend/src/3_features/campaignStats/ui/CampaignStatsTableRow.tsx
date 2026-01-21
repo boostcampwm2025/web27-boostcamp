@@ -45,28 +45,20 @@ export function CampaignStatsTableRow({
   };
 
   return (
-    <tr className="text-sm border-b border-gray-100">
+    <tr className="text-base border-b border-gray-100">
       <td className="px-5 py-4 text-gray-900 font-semibold">
         {campaign.title}
       </td>
-      <td className="px-5 py-4 whitespace-nowrap">{getStatusBadge()}</td>
-      <td className="px-5 py-4 text-gray-900 whitespace-nowrap">
-        {campaign.impressions}
-      </td>
-      <td className="px-5 py-4 text-gray-900 whitespace-nowrap">
-        {campaign.clicks}
-      </td>
-      <td className="px-5 py-4 text-gray-900 whitespace-nowrap">
-        {campaign.ctr.toFixed(2)}%
-      </td>
-      <td className="px-5 py-4 whitespace-nowrap">
+      <td className="px-5 py-4">{getStatusBadge()}</td>
+      <td className="px-5 py-4 text-gray-900">{campaign.impressions}</td>
+      <td className="px-5 py-4 text-gray-900">{campaign.clicks}</td>
+      <td className="px-5 py-4 text-gray-900">{campaign.ctr.toFixed(2)}%</td>
+      <td className="px-5 py-4">
         <BudgetProgressBar percentage={campaign.dailySpentPercent} />
       </td>
-      <td className="px-5 py-4 text-gray-900 whitespace-nowrap">
-        {campaign.totalSpentPercent}%
-      </td>
-      <td className="px-5 py-4 text-gray-900 text-sm whitespace-nowrap">
-        {campaign.isHighIntent ? '고의도 학습자' : '모든 학습자'}
+      <td className="px-5 py-4 text-gray-900">{campaign.totalSpentPercent}%</td>
+      <td className="px-5 py-4 text-gray-600 text-sm">
+        {campaign.isHighIntent ? '고의도 학습자 대상' : '모든 학습자 대상'}
       </td>
     </tr>
   );

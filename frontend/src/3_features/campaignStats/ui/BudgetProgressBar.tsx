@@ -10,8 +10,8 @@ export function BudgetProgressBar({ percentage }: BudgetProgressBarProps) {
   };
 
   return (
-    <div className="flex items-center gap-2 whitespace-nowrap">
-      <div className="w-32 h-2 bg-gray-200 rounded-full overflow-hidden shrink-0">
+    <div className="flex items-center gap-2">
+      <div className="w-32 h-2 bg-gray-200 rounded-full overflow-hidden">
         <div
           className={`h-full rounded-full bg-${getColor()}`}
           style={{ width: `${Math.min(percentage, 100)}%` }}
