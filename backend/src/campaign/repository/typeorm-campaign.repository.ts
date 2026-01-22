@@ -71,7 +71,8 @@ export class TypeOrmCampaignRepository extends CampaignRepository {
   async create(
     userId: number,
     dto: CreateCampaignDto,
-    tagIds: number[]
+    tagIds: number[],
+    initialStatus: CampaignStatus = CampaignStatus.PENDING
   ): Promise<CampaignWithTags> {
     const tags = await this.tagRepo.findByIds(tagIds);
 
@@ -89,7 +90,7 @@ export class TypeOrmCampaignRepository extends CampaignRepository {
       totalSpent: 0,
       lastResetDate: new Date(),
       isHighIntent: dto.isHighIntent,
-      status: CampaignStatus.PENDING,
+      status: initialStatus,
       startDate: new Date(dto.startDate),
       endDate: new Date(dto.endDate),
       tags,
@@ -153,7 +154,8 @@ export class TypeOrmCampaignRepository extends CampaignRepository {
   async update(
     campaignId: string,
     dto: UpdateCampaignDto,
-    tagIds?: number[]
+    tagIds?: number[],
+    newStatus?: CampaignStatus
   ): Promise<CampaignWithTags> {
     const campaign = await this.campaignRepo.findOne({
       where: { id: campaignId },
@@ -171,11 +173,17 @@ export class TypeOrmCampaignRepository extends CampaignRepository {
     if (dto.maxCpc !== undefined) campaign.maxCpc = dto.maxCpc;
     if (dto.dailyBudget !== undefined) campaign.dailyBudget = dto.dailyBudget;
     if (dto.totalBudget !== undefined) campaign.totalBudget = dto.totalBudget;
-    if (dto.status !== undefined) {
+    if (dto.startDate !== undefined)
+      campaign.startDate = new Date(dto.startDate);
+    if (dto.endDate !== undefined) campaign.endDate = new Date(dto.endDate);
+
+    // newStatus가 전달되면 우선 적용, 아니면 dto.status 사용
+    if (newStatus !== undefined) {
+      campaign.status = newStatus;
+    } else if (dto.status !== undefined) {
       campaign.status =
         dto.status === 'ACTIVE' ? CampaignStatus.ACTIVE : CampaignStatus.PAUSED;
     }
-    if (dto.endDate !== undefined) campaign.endDate = new Date(dto.endDate);
 
     if (tagIds) {
       const tags = await this.tagRepo.findByIds(tagIds);

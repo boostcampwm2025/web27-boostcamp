@@ -58,7 +58,8 @@ export function RegisterForm() {
       </div>
       <button
         type="submit"
-        className="h-11 rounded-lg bg-blue-600 text-base font-semibold text-white hover:bg-blue-700"
+        disabled={true}
+        className="h-11 rounded-lg bg-blue-600 text-base font-semibold text-white hover:bg-blue-700 cursor-not-allowed"
       >
         회원가입
       </button>

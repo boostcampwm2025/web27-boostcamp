@@ -12,7 +12,8 @@ export abstract class CampaignRepository {
   abstract create(
     userId: number,
     dto: CreateCampaignDto,
-    tagIds: number[]
+    tagIds: number[],
+    initialStatus?: CampaignStatus
   ): Promise<CampaignWithTags>;
 
   abstract findByUserId(
@@ -35,7 +36,8 @@ export abstract class CampaignRepository {
   abstract update(
     campaignId: string,
     dto: UpdateCampaignDto,
-    tagIds?: number[]
+    tagIds?: number[],
+    newStatus?: CampaignStatus
   ): Promise<CampaignWithTags>;
 
   abstract delete(campaignId: string): Promise<void>;

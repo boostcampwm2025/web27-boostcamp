@@ -20,7 +20,7 @@ export function LoginForm() {
       <button
         type="button"
         className="flex h-11 items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white text-base font-semibold text-[#111318] hover:bg-gray-50"
-        onClick={()=>onClick()}
+        onClick={() => onClick()}
       >
         <Icon.Google />
         <span className="cursor-default">Google로 계속하기</span>
@@ -42,7 +42,8 @@ export function LoginForm() {
       />
       <button
         type="submit"
-        className="h-11 rounded-lg bg-blue-600 text-base font-semibold text-white hover:bg-blue-700"
+        disabled={true}
+        className="h-11 rounded-lg bg-blue-600 text-base font-semibold text-white hover:bg-blue-700 cursor-not-allowed"
       >
         로그인
       </button>
