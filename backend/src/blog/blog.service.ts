@@ -7,7 +7,7 @@ import {
 import { randomUUID } from 'crypto';
 import { UserRole } from 'src/user/entities/user.entity';
 import { UserRepository } from 'src/user/repository/user.repository';
-import { BlogRepository } from './repository/blog.repository';
+import { BlogRepository } from './repository/blog.repository.interface';
 
 @Injectable()
 export class BlogService {
@@ -53,5 +53,12 @@ export class BlogService {
     }
 
     return blogKey;
+  }
+
+  async getMyBlogExists(userId: number) {
+    if (await this.userRepository.verifyRole(userId, UserRole.ADVERTISER)) {
+      throw new BadRequestException('잘못된 Role의 접근입니다.');
+    }
+    return await this.blogRepository.existsBlogByUserId(userId);
   }
 }

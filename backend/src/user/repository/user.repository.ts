@@ -5,4 +5,5 @@ export abstract class UserRepository {
   abstract verifyRole(userId: number, role: UserRole): Promise<boolean>;
   abstract createUser(email: string, role: UserRole): Promise<number>;
   abstract findByEmail(email: string): Promise<number | null>;
+  abstract setFirstLoginAtIfNull(userId: number): Promise<boolean>;
 }
