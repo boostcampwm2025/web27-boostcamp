@@ -74,7 +74,8 @@ export class JsonCampaignRepository extends CampaignRepository {
   create(
     userId: number,
     dto: CreateCampaignDto,
-    tagIds: number[]
+    tagIds: number[],
+    initialStatus: CampaignStatus = CampaignStatus.PENDING
   ): Promise<CampaignWithTags> {
     const now = new Date();
     const campaign: CampaignWithTags = {
@@ -91,7 +92,7 @@ export class JsonCampaignRepository extends CampaignRepository {
       totalSpent: 0,
       lastResetDate: now,
       isHighIntent: dto.isHighIntent,
-      status: CampaignStatus.PENDING,
+      status: initialStatus,
       startDate: new Date(dto.startDate),
       endDate: new Date(dto.endDate),
       createdAt: now,

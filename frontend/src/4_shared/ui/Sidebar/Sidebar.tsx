@@ -15,19 +15,19 @@ export function Sidebar() {
   const advertiserMenuItems: MenuItem[] = [
     {
       id: '1',
-      to: '/advertiser/dashboard',
+      to: '/advertiser/dashboard/main',
       icon: 'Dashboard',
       label: '대시보드',
     },
     {
       id: '2',
-      to: '/advertiser/campaigns',
+      to: '/advertiser/dashboard/campaigns',
       icon: 'LoudSpeaker',
       label: '캠페인 관리',
     },
     {
       id: '3',
-      to: '/advertiser/budget',
+      to: '/advertiser/dashboard/budget',
       icon: 'Wallet',
       label: '예산 관리',
     },
@@ -36,19 +36,19 @@ export function Sidebar() {
   const publisherMenuItems: MenuItem[] = [
     {
       id: '1',
-      to: '/publisher/dashboard',
+      to: '/publisher/dashboard/main',
       icon: 'Dashboard',
       label: '대시보드',
     },
     {
       id: '2',
-      to: '/publisher/earnings',
+      to: '/publisher/dashboard/earnings',
       icon: 'Wallet',
       label: '수익 관리',
     },
     {
       id: '3',
-      to: '/publisher/settings',
+      to: '/publisher/dashboard/settings',
       icon: 'Dashboard',
       label: '광고 설정',
     },

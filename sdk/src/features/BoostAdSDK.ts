@@ -6,6 +6,17 @@ import type {
   Tag,
 } from '@shared/types';
 
+// 티스토리 전역 객체 타입 정의
+interface TistoryGlobal {
+  type?: 'post' | 'page' | 'list' | 'category';
+}
+
+declare global {
+  interface Window {
+    tistory?: TistoryGlobal;
+  }
+}
+
 // BoostAD SDK 메인 클래스 (전략 패턴)
 export class BoostAdSDK {
   private hasRequestedSecondAd = false;
@@ -150,9 +161,41 @@ export class BoostAdSDK {
   }
 
   private isPostPage(): boolean {
-    // 메인 페이지(/)가 아니면 포스트 페이지로 간주
+    // 방법 A: 티스토리 공식 변수 확인 (가장 정확함)
+    const tistory = window.tistory;
+
+    if (tistory) {
+      // 페이지 타입이 'post'인 경우만 true (일반 글)
+      return tistory.type === 'post';
+    }
+
+    // 방법 B: 변수가 없는 경우를 대비한 URL 기반 백업 로직
     const pathname = window.location.pathname;
-    return pathname !== '/' && pathname !== '';
+
+    // 제외 목록 (블랙리스트)
+    const excludePatterns = [
+      '/category', // 카테고리 목록
+      '/tag', // 태그 목록
+      '/archive', // 보관함
+      '/guestbook', // 방명록
+      '/notice', // 공지사항
+      '/search', // 검색 결과
+      '/manage', // 관리자
+      '/admin', // 관리자
+    ];
+
+    if (
+      pathname === '/' ||
+      excludePatterns.some((p) => pathname.startsWith(p))
+    ) {
+      return false;
+    }
+
+    const isNumericId = /^\/\d+$/.test(pathname);
+
+    const isEntryPath = pathname.startsWith('/entry/');
+
+    return isNumericId || isEntryPath;
   }
 
   private findContentTop(): Element | null {

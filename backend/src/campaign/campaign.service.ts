@@ -7,6 +7,7 @@ import { CampaignRepository } from './repository/campaign.repository';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { UpdateCampaignDto } from './dto/update-campaign.dto';
 import { GetCampaignListDto } from './dto/get-campaign-list.dto';
+import { CampaignStatus } from './entities/campaign.entity';
 import type {
   CampaignWithTags,
   CampaignWithStats,
@@ -17,7 +18,7 @@ import { AVAILABLE_TAGS } from '../common/constants';
 export class CampaignService {
   constructor(private readonly campaignRepository: CampaignRepository) {}
 
-  // 캠페인 생성 (태그 검증 + 날짜 유효성 체크)
+  // 캠페인 생성 (태그 검증 + 날짜 유효성 체크 + 시작일 기준 상태 설정)
   async createCampaign(
     userId: number,
     dto: CreateCampaignDto
@@ -28,7 +29,23 @@ export class CampaignService {
       throw new BadRequestException('시작일은 종료일보다 앞서야 합니다.');
     }
 
-    return this.campaignRepository.create(userId, dto, tagIds);
+    // 시작일이 오늘 이하면 ACTIVE, 내일 이상이면 PENDING
+    const initialStatus = this.determineInitialStatus(dto.startDate);
+
+    return this.campaignRepository.create(userId, dto, tagIds, initialStatus);
+  }
+
+  // 시작일 기준 초기 상태 결정
+  private determineInitialStatus(
+    startDate: string
+  ): CampaignStatus.ACTIVE | CampaignStatus.PENDING {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const start = new Date(startDate);
+    start.setHours(0, 0, 0, 0);
+
+    return start <= today ? CampaignStatus.ACTIVE : CampaignStatus.PENDING;
   }
 
   // 태그 이름 배열을 태그 ID 배열로 변환
@@ -164,7 +181,7 @@ export class CampaignService {
     return this.addStatsToCampaign(campaign);
   }
 
-  // 캠페인 수정 (소유권 + 날짜 + 태그 검증)
+  // 캠페인 수정 (소유권 + 날짜 + 태그 검증 + 시작일 변경 시 상태 재결정)
   async updateCampaign(
     campaignId: string,
     userId: number,
@@ -182,7 +199,16 @@ export class CampaignService {
 
     const tagIds = dto.tags ? this.validateAndGetTagIds(dto.tags) : undefined;
 
-    return await this.campaignRepository.update(campaignId, dto, tagIds);
+    // 시작일이 변경된 경우, 상태 재결정 (PENDING/ACTIVE 상태인 경우에만)
+    let newStatus: CampaignStatus | undefined;
+    if (
+      dto.startDate &&
+      (campaign.status === 'PENDING' || campaign.status === 'ACTIVE')
+    ) {
+      newStatus = this.determineInitialStatus(dto.startDate);
+    }
+
+    return this.campaignRepository.update(campaignId, dto, tagIds, newStatus);
   }
 
   // 캠페인 삭제 (소프트 삭제, 소유권 검증)
