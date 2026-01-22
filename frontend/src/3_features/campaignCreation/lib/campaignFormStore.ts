@@ -26,12 +26,14 @@ const initialFormData: CampaignFormData = {
     url: '',
     tags: [],
     isHighIntent: false,
-    imageFile: null,
+    image: null,
   },
   budgetSettings: {
     dailyBudget: 0,
     totalBudget: 0,
     maxCpc: 0,
+    startDate: '',
+    endDate: '',
   },
 };
 

@@ -20,6 +20,10 @@ declare global {
 // BoostAD SDK 메인 클래스 (전략 패턴)
 export class BoostAdSDK {
   private hasRequestedSecondAd = false;
+  private mutationObserver: MutationObserver | null = null;
+  private renderedZones = new Set<Element>(); // SPA 라우팅 대응: 이미 렌더링된 zone 추적
+  private behaviorTrackerStarted = false; // 행동 추적 시작 여부
+  private debounceTimer: ReturnType<typeof setTimeout> | null = null; // DOM 변화 감지 디바운스
   private readonly CONTENT_SELECTORS = [
     '#area_view',
     '#article-view',
@@ -69,6 +73,14 @@ export class BoostAdSDK {
         behaviorScore,
         isHighIntent
       );
+
+      // 광고 후보가 없는 경우 처리
+      if (!data || !data.data || !data.data.campaign) {
+        console.warn('[BoostAD SDK] 표시할 광고가 없습니다.');
+        container.innerHTML =
+          '<div style="color: #999; font-size: 14px; padding: 20px; text-align: center;">표시할 광고가 없습니다</div>';
+        return;
+      }
 
       this.adRenderer.render(
         data.data.campaign,
@@ -263,40 +275,91 @@ export class BoostAdSDK {
   // ========================================
 
   private async initManualMode(): Promise<void> {
+    // MutationObserver 시작 (초기 로드 + SPA 라우팅 모두 대응)
+    this.setupMutationObserver();
+  }
+
+  // MutationObserver 설정 (React 등 SPA의 동적 DOM 변화 감지)
+  private setupMutationObserver(): void {
+    this.mutationObserver = new MutationObserver(() => {
+      // Debounce: 100ms 동안 추가 변화가 없으면 실행
+      if (this.debounceTimer) {
+        clearTimeout(this.debounceTimer);
+      }
+      this.debounceTimer = setTimeout(() => {
+        this.checkAndLoadAds();
+      }, 100);
+    });
+
+    // body 전체를 감시 (하위 요소 포함)
+    this.mutationObserver.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+
+    console.log('[BoostAD SDK] MutationObserver 활성화 (SPA 대응)');
+  }
+
+  // 광고존 체크 및 로드
+  private async checkAndLoadAds(): Promise<void> {
     const allZones = document.querySelectorAll('[data-boostad-zone]');
 
     if (allZones.length === 0) {
-      console.warn(
-        '[BoostAD SDK] data-boostad-zone 요소를 찾을 수 없습니다. 광고를 표시하지 않습니다.'
-      );
-      return;
+      return; // zone이 없으면 아무것도 안 함
     }
 
-    const zones = Array.from(allZones).slice(0, 2);
+    // 새로운 광고존만 필터링 (이미 렌더링된 zone 제외)
+    const newZones = Array.from(allZones).filter(
+      (zone) => !this.renderedZones.has(zone)
+    );
 
-    if (allZones.length > 2) {
+    if (newZones.length === 0) {
+      return; // 새로운 zone이 없으면 아무것도 안 함
+    }
+
+    console.log(`[BoostAD SDK] ${newZones.length}개의 새로운 광고존 발견`);
+
+    // 새로운 광고존에 광고 로드
+    await this.loadAdsForZones(newZones);
+  }
+
+  // 광고존에 광고 로드 (중복 렌더링 방지)
+  private async loadAdsForZones(zones: Element[]): Promise<void> {
+    const limitedZones = zones.slice(0, 2);
+
+    if (zones.length > 2) {
       console.warn(
-        `[BoostAD SDK] 광고존은 최대 2개까지 허용됩니다. ${allZones.length}개 중 처음 2개만 사용합니다.`
+        `[BoostAD SDK] 광고존은 최대 2개까지 허용됩니다. ${zones.length}개 중 처음 2개만 사용합니다.`
       );
     }
+
+    // 먼저 모든 zone을 renderedZones에 추가 (중복 방지)
+    limitedZones.forEach((zone) => this.renderedZones.add(zone));
 
     const tags = this.tagExtractor.extract();
     console.log('[BoostAD SDK] 추출된 태그:', tags);
     const postUrl = window.location.href;
 
     // 각 광고존에 1차 광고 삽입
-    zones.forEach(async (zone) => {
+    for (const zone of limitedZones) {
       const container = zone as HTMLElement;
       container.style.margin = '30px 0';
 
       await this.fetchAndRenderAd(container, tags, postUrl, 0, false);
-    });
+    }
 
-    // 행동 추적 시작 + 70점 도달 시 2차 광고로 교체 (같은 위치)
-    this.behaviorTracker.onThresholdReached(() => {
-      this.requestSecondAdManualMode(tags, postUrl, zones);
-    });
-    this.behaviorTracker.start();
+    // 행동 추적은 한 번만 시작
+    if (!this.behaviorTrackerStarted) {
+      this.behaviorTrackerStarted = true;
+      this.behaviorTracker.onThresholdReached(() => {
+        this.requestSecondAdManualMode(
+          tags,
+          postUrl,
+          Array.from(this.renderedZones)
+        );
+      });
+      this.behaviorTracker.start();
+    }
   }
 
   private async requestSecondAdManualMode(

@@ -1,13 +1,16 @@
 import { ContentHeader } from './ContentHeader';
 import { CurrencyField } from './CurrencyField';
+import { DateField } from './DateField';
 import { useCampaignFormStore } from '../lib/campaignFormStore';
+import { validateStartDate, validateEndDate } from '../lib/dateValidation';
 
 const MIN_DAILY_BUDGET = 3000;
 
 export function Step2Content() {
   const { formData, updateBudgetSettings, errors, setErrors } =
     useCampaignFormStore();
-  const { dailyBudget, totalBudget, maxCpc } = formData.budgetSettings;
+  const { dailyBudget, totalBudget, maxCpc, startDate, endDate } =
+    formData.budgetSettings;
 
   const handleDailyBudgetChange = (value: number) => {
     updateBudgetSettings({ dailyBudget: value });
@@ -25,18 +28,52 @@ export function Step2Content() {
     if (dailyBudget > 0 && dailyBudget < MIN_DAILY_BUDGET) {
       setErrors({
         budgetSettings: {
+          ...errors.budgetSettings,
           dailyBudget: `최소 ${MIN_DAILY_BUDGET.toLocaleString()}원 이상 입력해주세요`,
         },
       });
     } else {
-      setErrors({});
+      setErrors({
+        budgetSettings: {
+          ...errors.budgetSettings,
+          dailyBudget: undefined,
+        },
+      });
     }
+  };
+
+  const handleStartDateChange = (value: string) => {
+    updateBudgetSettings({ startDate: value });
+  };
+
+  const handleEndDateChange = (value: string) => {
+    updateBudgetSettings({ endDate: value });
+  };
+
+  const handleStartDateBlur = () => {
+    const error = validateStartDate(startDate);
+    setErrors({
+      budgetSettings: {
+        ...errors.budgetSettings,
+        startDate: error || undefined,
+      },
+    });
+  };
+
+  const handleEndDateBlur = () => {
+    const error = validateEndDate(startDate, endDate);
+    setErrors({
+      budgetSettings: {
+        ...errors.budgetSettings,
+        endDate: error || undefined,
+      },
+    });
   };
 
   return (
     <div className="flex flex-col gap-6">
       <ContentHeader
-        title="예산 설정"
+        title="예산 및 기간 설정"
         description="광고에 사용할 예산을 설정해주세요"
       />
 
@@ -64,6 +101,25 @@ export function Step2Content() {
         hint="(광고 입찰 참여 금액)"
         error={errors.budgetSettings?.maxCpc}
       />
+
+      <div className="grid grid-cols-2 gap-4">
+        <DateField
+          label="시작일"
+          value={startDate}
+          onChange={handleStartDateChange}
+          onBlur={handleStartDateBlur}
+          error={errors.budgetSettings?.startDate}
+        />
+
+        <DateField
+          label="종료일"
+          value={endDate}
+          onChange={handleEndDateChange}
+          onBlur={handleEndDateBlur}
+          min={startDate}
+          error={errors.budgetSettings?.endDate}
+        />
+      </div>
     </div>
   );
 }

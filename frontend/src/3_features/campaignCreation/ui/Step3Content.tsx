@@ -1,21 +1,18 @@
-import { useMemo } from 'react';
 import { ContentHeader } from './ContentHeader';
 import { ConfirmCard } from './ConfirmCard';
 import { ConfirmItem } from './ConfirmItem';
+import { AdPreview } from './AdPreview';
 import { useCampaignFormStore } from '../lib/campaignFormStore';
 import { formatWithComma } from '@shared/lib/format';
 import { DEFAULT_ENGAGEMENT_SCORE } from '../lib/constants';
+import { formatDateForDisplay } from '../lib/dateValidation';
 
 export function Step3Content() {
   const { formData, setStep } = useCampaignFormStore();
-  const { title, content, url, tags, isHighIntent, imageFile } =
+  const { title, content, url, tags, isHighIntent, image } =
     formData.campaignContent;
-  const { dailyBudget, totalBudget, maxCpc } = formData.budgetSettings;
-
-  const previewUrl = useMemo(() => {
-    if (!imageFile) return null;
-    return URL.createObjectURL(imageFile);
-  }, [imageFile]);
+  const { dailyBudget, totalBudget, maxCpc, startDate, endDate } =
+    formData.budgetSettings;
 
   const keywordText = tags.map((tag) => tag.name).join(', ') || '-';
 
@@ -23,19 +20,16 @@ export function Step3Content() {
     ? `고의도 방문자만 (최소 Engagement Score: ${DEFAULT_ENGAGEMENT_SCORE}점)`
     : '모든 방문자';
 
-  // 광고 콘텐츠 - 반반 차지
   const contentGridItems = [
     { label: '광고 제목', value: title || '-' },
     { label: '키워드', value: keywordText },
   ];
 
-  // 광고 콘텐츠 - 한 줄 차지
   const contentFullItems = [
     { label: '광고 내용', value: content || '-', isLink: false },
     { label: '광고 URL', value: url || '-', isLink: true },
   ];
 
-  // 예산 - 반반 차지
   const budgetGridItems = [
     {
       label: '일 예산',
@@ -44,6 +38,17 @@ export function Step3Content() {
     {
       label: '총 예산',
       value: totalBudget > 0 ? `${formatWithComma(totalBudget)}원` : '-',
+    },
+  ];
+
+  const periodGridItems = [
+    {
+      label: '시작일',
+      value: formatDateForDisplay(startDate),
+    },
+    {
+      label: '종료일',
+      value: formatDateForDisplay(endDate),
     },
   ];
 
@@ -67,9 +72,9 @@ export function Step3Content() {
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <span className="text-xs text-gray-500">광고 이미지</span>
-            {previewUrl ? (
+            {image ? (
               <img
-                src={previewUrl}
+                src={image}
                 alt="광고 이미지"
                 className="h-40 w-full rounded-lg border border-gray-200 object-contain"
               />
@@ -101,8 +106,8 @@ export function Step3Content() {
         </div>
       </ConfirmCard>
 
-      {/* 예산 */}
-      <ConfirmCard title="예산" onEdit={handleEditBudget}>
+      {/* 예산 및 기간 */}
+      <ConfirmCard title="예산 및 기간" onEdit={handleEditBudget}>
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-2 gap-4">
             {budgetGridItems.map((item) => (
@@ -117,6 +122,15 @@ export function Step3Content() {
             label="클릭당 최대 입찰가(CPC)"
             value={maxCpc > 0 ? `${formatWithComma(maxCpc)}원` : '-'}
           />
+          <div className="grid grid-cols-2 gap-4">
+            {periodGridItems.map((item) => (
+              <ConfirmItem
+                key={item.label}
+                label={item.label}
+                value={item.value}
+              />
+            ))}
+          </div>
         </div>
       </ConfirmCard>
 
@@ -124,6 +138,9 @@ export function Step3Content() {
       <ConfirmCard title="고급 설정" onEdit={handleEditContent}>
         <ConfirmItem label="행동 타겟팅" value={targetingText} />
       </ConfirmCard>
+
+      {/* 광고 미리보기 */}
+      <AdPreview title={title} content={content} imageUrl={image} />
     </div>
   );
 }
