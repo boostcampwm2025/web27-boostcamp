@@ -15,6 +15,7 @@ export function SdkCodeSnippet({ blogKey, mode }: SdkCodeSnippetProps) {
   const autoModeSnippet = `<head>
   <script src="https://kr.object.ncloudstorage.com/boostad-sdk-dev/sdk/sdk.js"
           blog-key="${blogKey}"
+          asnyc
   ></script>
 </head>`;
 
@@ -22,6 +23,7 @@ export function SdkCodeSnippet({ blogKey, mode }: SdkCodeSnippetProps) {
   <script src="https://kr.object.ncloudstorage.com/boostad-sdk-dev/sdk/sdk.js"
           blog-key="${blogKey}"
           data-auto="false"
+          asnyc
   ></script>
 </head>
 
