@@ -14,13 +14,13 @@ export function SdkCodeSnippet({ blogKey, mode }: SdkCodeSnippetProps) {
 
   const autoModeSnippet = `<script src="https://kr.object.ncloudstorage.com/boostad-sdk-dev/sdk/sdk.js"
           data-blog-key="${blogKey}"
-          asnyc
+          async
   ></script>`;
 
   const manualModeSnippet = `<script src="https://kr.object.ncloudstorage.com/boostad-sdk-dev/sdk/sdk.js"
           data-blog-key="${blogKey}"
           data-auto="false"
-          asnyc
+          async
   ></script>
 
 // 광고를 노출할 위치에 추가하세요
