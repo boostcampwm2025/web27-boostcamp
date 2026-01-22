@@ -7,11 +7,13 @@ import { FormNavigation } from './FormNavigation';
 interface CampaignCreationFormProps {
   children?: ReactNode;
   onSubmit?: () => void;
+  isSubmitting?: boolean;
 }
 
 export function CampaignCreationForm({
   children,
   onSubmit,
+  isSubmitting = false,
 }: CampaignCreationFormProps) {
   const { currentStep, setStep } = useCampaignFormStore();
 
@@ -44,6 +46,8 @@ export function CampaignCreationForm({
         onPrev={handlePrev}
         onNext={handleNext}
         isLastStep={currentStep === 3}
+        disableNext={isSubmitting}
+        disablePrev={isSubmitting}
       />
     </div>
   );

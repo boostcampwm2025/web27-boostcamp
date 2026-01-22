@@ -21,7 +21,7 @@ export interface CampaignContent {
   url: string;
   tags: Tag[];
   isHighIntent: boolean;
-  imageFile: File | null;
+  image: string | null;
 }
 
 export interface BudgetSettings {

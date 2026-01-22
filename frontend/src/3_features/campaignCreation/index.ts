@@ -15,6 +15,7 @@ export {
   DEFAULT_ENGAGEMENT_SCORE,
 } from './lib/constants';
 export { useCampaignFormStore } from './lib/campaignFormStore';
+export { useCreateCampaign } from './lib/useCreateCampaign';
 export { StepIndicator } from './ui/StepIndicator';
 export { FormNavigation } from './ui/FormNavigation';
 export { CampaignCreationForm } from './ui/CampaignCreationForm';
