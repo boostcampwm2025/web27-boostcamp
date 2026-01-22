@@ -12,4 +12,8 @@ export interface CampaignStats {
   isHighIntent: boolean;
 }
 
-export type CampaignStatsResponse = CampaignStats[];
+export interface CampaignStatsResponse {
+  campaigns: CampaignStats[];
+  total: number;
+  hasMore: boolean;
+}

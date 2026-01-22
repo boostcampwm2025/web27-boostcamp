@@ -56,6 +56,10 @@ export class UpdateCampaignDto {
   status?: 'ACTIVE' | 'PAUSED';
 
   @IsOptional()
+  @IsDateString({}, { message: '시작일은 ISO 8601 형식이어야 합니다.' })
+  startDate?: string;
+
+  @IsOptional()
   @IsDateString({}, { message: '종료일은 ISO 8601 형식이어야 합니다.' })
   endDate?: string;
 }
