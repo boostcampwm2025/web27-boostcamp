@@ -9,6 +9,7 @@ import {
   SdkModeToggle,
 } from '@features/sdkInstallation';
 import type { SdkMode } from '@features/sdkInstallation';
+import { useBlogKey } from '@/3_features/sdkInstallation/lib/useBlogKey';
 
 // TODO: API 응답 or 로그인 시 받아온 실제 blogKey로 교체 필요!
 const MOCK_BLOG_KEY = 'tech-blog-1';
@@ -16,6 +17,7 @@ const MOCK_BLOG_KEY = 'tech-blog-1';
 export function OnboardingSdkGuidePage() {
   const navigate = useNavigate();
   const [mode, setMode] = useState<SdkMode>('auto');
+  const { data } = useBlogKey();
 
   const handleNavigateToDashboard = () => {
     navigate('/publisher/dashboard');

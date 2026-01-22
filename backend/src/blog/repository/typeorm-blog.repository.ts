@@ -37,6 +37,11 @@ export class TypeOrmBlogRepository extends BlogRepository {
     return await this.blogRepo.findOne({ where: { id } });
   }
 
+  // userId로 블로그 조회
+  async findByUserId(userId: number): Promise<BlogEntity | null> {
+    return await this.blogRepo.findOne({ where: { userId } });
+  }
+
   // blogKey로 블로그 조회 (SDK 연동용)
   async findByBlogKey(blogKey: string): Promise<BlogEntity | null> {
     return await this.blogRepo.findOne({ where: { blogKey } });
