@@ -46,11 +46,11 @@ export class BlogController {
   @Get('me/key')
   async getMyBlogKey(
     @Req() req: AuthenticatedRequest
-  ): Promise<SuccessResponse<{ blogKey: string }>> {
+  ): Promise<SuccessResponse<{ blogKey: string; domain: string }>> {
     const { userId } = req.user;
-    const blogKey = await this.blogService.getMyBlogKey(userId);
+    const { blogKey, domain } = await this.blogService.getMyBlogKey(userId);
     return successResponse(
-      { blogKey },
+      { blogKey, domain },
       '블로그 키가 성공적으로 반환되었습니다.'
     );
   }

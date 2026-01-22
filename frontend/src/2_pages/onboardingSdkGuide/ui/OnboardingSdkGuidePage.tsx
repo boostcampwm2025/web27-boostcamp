@@ -28,7 +28,9 @@ export function OnboardingSdkGuidePage() {
           블로그 키를 불러오지 못했습니다.
         </p>
         <p className="text-xs text-gray-500">
-          {error instanceof Error ? error.message : '잠시 후 다시 시도해주세요.'}
+          {error instanceof Error
+            ? error.message
+            : '잠시 후 다시 시도해주세요.'}
         </p>
         <button
           className="flex flex-row bg-blue-500 items-center py-3 px-8 gap-1.5 text-white rounded-lg"
@@ -46,6 +48,18 @@ export function OnboardingSdkGuidePage() {
     navigate('/publisher/dashboard/main');
   };
 
+  const handleRedirectToMyWeb = () => {
+    const url = data.domain.startsWith('http')
+      ? data.domain
+      : `https://${data.domain}`;
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.click();
+  };
+
   return (
     <div className="flex flex-col items-center gap-8 px-8 py-6 bg-gray-50">
       <SdkSuccessHeader mode={mode} />
@@ -53,7 +67,10 @@ export function OnboardingSdkGuidePage() {
       <SdkCodeSnippet blogKey={data.blogKey} mode={mode} />
       <SdkInfoBox mode={mode} />
       <SdkInstallGuideList mode={mode} />
-      <SdkInstallFooter onNavigateToDashboard={handleNavigateToDashboard} />
+      <SdkInstallFooter
+        onRedirectToMyWeb={handleRedirectToMyWeb}
+        onNavigateToDashboard={handleNavigateToDashboard}
+      />
     </div>
   );
 }
