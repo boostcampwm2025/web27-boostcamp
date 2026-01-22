@@ -1,0 +1,1 @@
+export { DiagonalBannersBackground } from './DiagonalBannersBackground';
