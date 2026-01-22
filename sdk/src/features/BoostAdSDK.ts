@@ -274,9 +274,6 @@ export class BoostAdSDK {
   // ========================================
 
   private async initManualMode(): Promise<void> {
-    // MutationObserver로 DOM 변화 감지 (SPA 대응)
-    this.setupMutationObserver();
-
     // 초기 광고 로드 시도
     await this.tryLoadManualAds();
   }
@@ -320,14 +317,16 @@ export class BoostAdSDK {
         }, 1000);
         return;
       } else {
+        // 재시도 5번 모두 실패 → MutationObserver 시작
         console.warn(
-          '[BoostAD SDK] data-boostad-zone 요소를 찾을 수 없습니다. MutationObserver가 DOM 변화를 감지하면 자동으로 재시도합니다.'
+          '[BoostAD SDK] data-boostad-zone 요소를 찾을 수 없습니다. MutationObserver를 시작합니다.'
         );
+        this.setupMutationObserver();
         return;
       }
     }
 
-    // 광고존을 찾았으면 MutationObserver 중지
+    // 광고존을 찾았으면 MutationObserver 중지 (혹시 실행 중이라면)
     this.mutationObserver?.disconnect();
 
     console.log(`[BoostAD SDK] ${allZones.length}개의 광고존을 찾았습니다.`);
