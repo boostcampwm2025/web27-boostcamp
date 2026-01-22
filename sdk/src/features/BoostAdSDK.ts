@@ -286,11 +286,11 @@ export class BoostAdSDK {
     this.mutationObserver = new MutationObserver(() => {
       const zones = document.querySelectorAll('[data-boostad-zone]');
       if (zones.length > 0) {
-        console.log(
-          '[BoostAD SDK] DOM 변화 감지: data-boostad-zone 요소 발견'
-        );
+        console.log('[BoostAD SDK] DOM 변화 감지: data-boostad-zone 요소 발견');
         // Observer 해제 (한번만 실행)
         this.mutationObserver?.disconnect();
+        // 재시도 카운트 리셋
+        this.retryCount = 0;
         // 광고 로드
         this.tryLoadManualAds();
       }
@@ -309,23 +309,26 @@ export class BoostAdSDK {
     const allZones = document.querySelectorAll('[data-boostad-zone]');
 
     if (allZones.length === 0) {
-      // SPA 환경을 위한 재시도 로직
+      // SPA 환경을 위한 재시도 로직 (최대 5번)
       if (this.retryCount < this.MAX_RETRIES) {
         this.retryCount++;
         console.warn(
           `[BoostAD SDK] data-boostad-zone 요소를 찾을 수 없습니다. ${this.retryCount}초 후 재시도합니다... (${this.retryCount}/${this.MAX_RETRIES})`
         );
         setTimeout(() => {
-          this.initManualMode();
+          this.tryLoadManualAds();
         }, 1000);
         return;
       } else {
         console.warn(
-          '[BoostAD SDK] data-boostad-zone 요소를 찾을 수 없습니다. 광고를 표시하지 않습니다.'
+          '[BoostAD SDK] data-boostad-zone 요소를 찾을 수 없습니다. MutationObserver가 DOM 변화를 감지하면 자동으로 재시도합니다.'
         );
         return;
       }
     }
+
+    // 광고존을 찾았으면 MutationObserver 중지
+    this.mutationObserver?.disconnect();
 
     console.log(`[BoostAD SDK] ${allZones.length}개의 광고존을 찾았습니다.`);
 
