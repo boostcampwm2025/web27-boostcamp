@@ -12,20 +12,16 @@ interface SdkCodeSnippetProps {
 export function SdkCodeSnippet({ blogKey, mode }: SdkCodeSnippetProps) {
   const { showToast } = useToast();
 
-  const autoModeSnippet = `<head>
-  <script src="https://kr.object.ncloudstorage.com/boostad-sdk-dev/sdk/sdk.js"
-          blog-key="${blogKey}"
+  const autoModeSnippet = `<script src="https://kr.object.ncloudstorage.com/boostad-sdk-dev/sdk/sdk.js"
+          data-blog-key="${blogKey}"
           asnyc
-  ></script>
-</head>`;
+  ></script>`;
 
-  const manualModeSnippet = `<head>
-  <script src="https://kr.object.ncloudstorage.com/boostad-sdk-dev/sdk/sdk.js"
-          blog-key="${blogKey}"
+  const manualModeSnippet = `<script src="https://kr.object.ncloudstorage.com/boostad-sdk-dev/sdk/sdk.js"
+          data-blog-key="${blogKey}"
           data-auto="false"
           asnyc
   ></script>
-</head>
 
 // 광고를 노출할 위치에 추가하세요
 <div data-boostad-zone></div>`;
