@@ -11,7 +11,7 @@ import { randomUUID } from 'crypto';
 import { BidLogRepository } from '../bid-log/repositories/bid-log.repository.interface';
 import { CacheRepository } from '../cache/repository/cache.repository.interface';
 import { BidLog, BidStatus } from '../bid-log/bid-log.types';
-import { BlogRepository } from '../blog/repository/blog.repository';
+import { BlogRepository } from '../blog/repository/blog.repository.interface';
 
 @Injectable()
 export class RTBService {

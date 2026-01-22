@@ -3,7 +3,7 @@ import { BidStatus } from './bid-log.types';
 import { BidLogRepository } from './repositories/bid-log.repository.interface';
 import { BidLogResponseDto, BidLogItemDto } from './dto/bid-log-response.dto';
 import { CampaignRepository } from 'src/campaign/repository/campaign.repository';
-import { BlogRepository } from 'src/blog/repository/blog.repository';
+import { BlogRepository } from 'src/blog/repository/blog.repository.interface';
 
 @Injectable()
 export class BidLogService {
