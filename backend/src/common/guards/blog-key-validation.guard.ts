@@ -11,7 +11,7 @@ import { getBlogByKey } from '../utils/blog.utils';
 import type { MockBlog } from '../constants';
 
 interface RequestWithBlog extends Request {
-  blog?: MockBlog;
+  blog?: MockBlog; // TODO: Mock 인터페이스 수정 필요
 }
 
 @Injectable()
@@ -31,6 +31,7 @@ export class BlogKeyValidationGuard implements CanActivate {
       throw new BadRequestException('blogKey가 필요합니다.');
     }
 
+    // TODO: Blog 키 검증 로직 수정 필요
     // blogKey 검증
     const blog = getBlogByKey(blogKey);
 
