@@ -4,3 +4,5 @@ export { SdkInfoBox } from './ui/SdkInfoBox';
 export { SdkInstallStepCard } from './ui/SdkInstallStepCard';
 export { SdkInstallGuideList } from './ui/SdkInstallGuideList';
 export { SdkInstallFooter } from './ui/SdkInstallFooter';
+export { SdkModeToggle } from './ui/SdkModeToggle';
+export type { SdkMode } from './ui/SdkModeToggle';

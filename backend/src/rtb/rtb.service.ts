@@ -9,7 +9,7 @@ import type {
 } from './types/decision.types';
 import { randomUUID } from 'crypto';
 import { BidLogRepository } from '../bid-log/repositories/bid-log.repository.interface';
-import { AuctionStore } from '../cache/auction/auction.store';
+import { CacheRepository } from '../cache/repository/cache.repository.interface';
 import { BidLog, BidStatus } from '../bid-log/bid-log.types';
 import { getBlogIdByKey } from '../common/utils/blog.utils';
 
@@ -22,7 +22,7 @@ export class RTBService {
     private readonly scorer: Scorer,
     private readonly selector: CampaignSelector,
     private readonly bidLogRepository: BidLogRepository,
-    private readonly auctionStore: AuctionStore
+    private readonly cacheRepository: CacheRepository
   ) {}
 
   // 경매 참여 가능한 캠페인만 필터링
@@ -93,7 +93,7 @@ export class RTBService {
       const result = await this.selector.selectWinner(scored);
 
       // 4. AuctionStore에 경매 데이터 저장 (ViewLog에서 조회용)
-      this.auctionStore.set(auctionId, {
+      await this.cacheRepository.setAuctionData(auctionId, {
         blogId: blogId,
         cost: result.winner.maxCpc,
       });

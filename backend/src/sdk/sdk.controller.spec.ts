@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { SdkController } from './sdk.controller';
 import { SdkService } from './sdk.service';
 import { LogRepository } from 'src/log/repository/log.repository.interface';
-import { AuctionStore } from 'src/cache/auction/auction.store';
+import { CacheRepository } from 'src/cache/repository/cache.repository.interface';
 
 describe('SdkController', () => {
   let controller: SdkController;
@@ -23,11 +23,11 @@ describe('SdkController', () => {
           },
         },
         {
-          provide: AuctionStore,
+          provide: CacheRepository,
           useValue: {
-            set: jest.fn(),
-            get: jest.fn(),
-            delete: jest.fn(),
+            setAuctionData: jest.fn(),
+            getAuctionData: jest.fn(),
+            deleteAuctionData: jest.fn(),
           },
         },
       ],

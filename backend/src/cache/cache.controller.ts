@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { AuctionStore } from './auction/auction.store';
+import { CacheRepository } from './repository/cache.repository.interface';
 import { SeedAuctionDto } from './dto/seed-auction.dto';
 import { successResponse } from 'src/common/response/success-response';
 import { LogRepository } from 'src/log/repository/log.repository.interface';
@@ -16,18 +16,18 @@ import { SaveViewLog } from 'src/log/types/save-view-log.type';
 @Controller('cache')
 export class CacheController {
   constructor(
-    private readonly auctionStore: AuctionStore,
+    private readonly cacheRepository: CacheRepository,
     private readonly logRepository: LogRepository
   ) {}
 
   @Post('auction')
-  seedAuction(@Body() dto: SeedAuctionDto) {
+  async seedAuction(@Body() dto: SeedAuctionDto) {
     if (process.env.NODE_ENV === 'production') {
       throw new ForbiddenException();
     }
 
     const { auctionId, blogId, cost } = dto;
-    this.auctionStore.set(auctionId, { blogId, cost });
+    await this.cacheRepository.setAuctionData(auctionId, { blogId, cost });
     return successResponse({ auctionId }, 'auction seeded');
   }
 

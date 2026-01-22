@@ -12,6 +12,7 @@ import { UserRole } from 'src/user/entities/user.entity';
 import { UserRepository } from 'src/user/repository/user.repository';
 import { OAuthAccountRepository } from './repository/oauthaccount.repository';
 import { OAuthProvider } from './entities/oauth-account.entity';
+import { CacheRepository } from 'src/cache/repository/cache.repository.interface';
 
 export type GoogleTokenResponse = {
   access_token: string;
@@ -44,7 +45,7 @@ export type OAuthState =
   | { intent: 'login' }
   | { intent: 'register'; role: UserRole };
 
-type StoredOAuthState = OAuthState & { expiresAt: number };
+export type StoredOAuthState = OAuthState & { expiresAt: number };
 
 export type AuthorizeResult = {
   isNew: boolean;
@@ -68,12 +69,11 @@ const getJwtSecret = () => {
 export class OAuthService {
   constructor(
     private readonly userRepository: UserRepository,
-    private readonly oauthAccountRepository: OAuthAccountRepository
+    private readonly oauthAccountRepository: OAuthAccountRepository,
+    private readonly cacheRepository: CacheRepository
   ) {}
 
-  private readonly stateStore = new Map<string, StoredOAuthState>(); // 추후에 Redis로 이동
-
-  getGoogleAuthUrl(intent: AuthIntent, role?: UserRole): string {
+  async getGoogleAuthUrl(intent: AuthIntent, role?: UserRole): Promise<string> {
     const { GOOGLE_CLIENT_ID: clientId, GOOGLE_REDIRECT_URI: redirectUri } =
       process.env;
 
@@ -84,13 +84,35 @@ export class OAuthService {
     const state = randomUUID();
 
     const expiresAt = Date.now() + 10 * 60 * 1000;
+
+    // TODO: 명시적 타입 가드 때문에 길어짐 추후에 리팩토링 필요할 거 같음
     if (intent === 'register') {
       if (role !== UserRole.ADVERTISER && role !== UserRole.PUBLISHER) {
         throw new BadRequestException('role이 올바르지 않습니다.');
       }
-      this.stateStore.set(state, { expiresAt, intent, role });
+
+      const stateData: StoredOAuthState = {
+        expiresAt,
+        intent: 'register',
+        role,
+      };
+
+      await this.cacheRepository.setOAuthState(
+        state,
+        stateData,
+        15 * 60 * 1000
+      );
     } else {
-      this.stateStore.set(state, { expiresAt, intent });
+      const stateData: StoredOAuthState = {
+        expiresAt,
+        intent: 'login',
+      };
+
+      await this.cacheRepository.setOAuthState(
+        state,
+        stateData,
+        15 * 60 * 1000
+      );
     }
 
     const params = new URLSearchParams({
@@ -104,16 +126,18 @@ export class OAuthService {
     return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
   }
 
-  validateState(state: string): OAuthState {
-    const data = this.stateStore.get(state);
+  async validateState(state: string): Promise<OAuthState> {
+    const data = await this.cacheRepository.getOAuthState(state);
     if (!data) throw new UnauthorizedException('잘못된 state입니다.');
 
     if (data.expiresAt < Date.now()) {
-      this.stateStore.delete(state);
+      await this.cacheRepository.deleteOAuthState(state);
       throw new UnauthorizedException('만료된 state입니다.');
     }
 
-    this.stateStore.delete(state);
+    // 사용 후 삭제 (일회용)
+    await this.cacheRepository.deleteOAuthState(state);
+
     if (data.intent === 'register') {
       if (!data.role) {
         throw new BadRequestException('role이 누락되었습니다.');

@@ -3,11 +3,13 @@ import { SdkService } from './sdk.service';
 import { CreateViewLogDto } from './dto/create-view-log.dto';
 import { successResponse } from 'src/common/response/success-response';
 import { CreateClickLogDto } from './dto/create-click-log.dto';
+import { Public } from 'src/auth/decorators/public.decorator';
 
 @Controller('sdk')
 export class SdkController {
   constructor(private readonly sdkService: SdkService) {}
 
+  @Public()
   @Post('campaign-view')
   async recordView(@Body() createViewLogDto: CreateViewLogDto) {
     const viewId = await this.sdkService.recordView(createViewLogDto);
@@ -17,6 +19,7 @@ export class SdkController {
     );
   }
 
+  @Public()
   @Post('campaign-click')
   async recordClick(@Body() createClickLogDto: CreateClickLogDto) {
     const clickId = await this.sdkService.recordClick(createClickLogDto);

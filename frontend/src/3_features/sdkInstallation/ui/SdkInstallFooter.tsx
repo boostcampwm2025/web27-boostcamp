@@ -8,7 +8,7 @@ export function SdkInstallFooter({
   onNavigateToDashboard,
 }: SdkInstallFooterProps) {
   return (
-    <div className="flex flex-col min-w-150 items-center gap-2">
+    <div className="flex flex-col w-150 items-center gap-2">
       <button
         className="flex flex-row bg-blue-500 items-center py-3  px-8 gap-1.5 text-white rounded-lg"
         onClick={onNavigateToDashboard}

@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Controller,
   Get,
+  Post,
   Query,
   Res,
 } from '@nestjs/common';
@@ -9,6 +10,7 @@ import { type AuthIntent, OAuthService } from './auth.service';
 import { type Response } from 'express';
 import { Public } from './decorators/public.decorator';
 import { UserRole } from 'src/user/entities/user.entity';
+import { successResponse } from 'src/common/response/success-response';
 
 @Controller('auth')
 export class AuthController {
@@ -17,11 +19,11 @@ export class AuthController {
   // 구글 로그인 페이지로 리다이렉트 하기 위한 요청 받음
   @Get('google')
   @Public()
-  redirectToGoogleAuth(
+  async redirectToGoogleAuth(
     @Res() res: Response,
     @Query('intent') intent: AuthIntent,
     @Query('role') role?: UserRole
-  ): void {
+  ): Promise<void> {
     if (intent !== 'login' && intent !== 'register') {
       throw new BadRequestException('잘못된 접근입니다.');
     }
@@ -36,7 +38,7 @@ export class AuthController {
       }
     }
 
-    const url = this.oauthService.getGoogleAuthUrl(
+    const url = await this.oauthService.getGoogleAuthUrl(
       intent,
       intent === 'register' ? role : undefined
     );
@@ -61,7 +63,7 @@ export class AuthController {
     if (!state) {
       throw new BadRequestException('state가 없습니다.');
     }
-    const stateData = this.oauthService.validateState(state);
+    const stateData = await this.oauthService.validateState(state);
     const payload = await this.oauthService.getTokensFromGoogle(code);
 
     const result = await this.oauthService.authorizeUserByToken(
@@ -86,8 +88,8 @@ export class AuthController {
         }
         redirectUrl =
           result.role === UserRole.PUBLISHER
-            ? `${clientUrl}/publisher/dashboard`
-            : `${clientUrl}/advertiser/dashboard`;
+            ? `${clientUrl}/publisher/entry`
+            : `${clientUrl}/advertiser/dashboard/main`;
       }
     } else {
       redirectUrl = result.isNew
@@ -96,5 +98,18 @@ export class AuthController {
     }
 
     return res.redirect(redirectUrl);
+  }
+
+  @Post('logout')
+  @Public()
+  logout(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie('access_token', {
+      path: '/',
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+    });
+
+    return successResponse({}, '로그아웃되었습니다.');
   }
 }

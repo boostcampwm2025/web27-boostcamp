@@ -93,6 +93,10 @@ jobs:
             export NCP_REGION="kr-standard"
             export NCP_ENDPOINT="https://kr.object.ncloudstorage.com"
             export NCP_BUCKET="boostadad-campaign-images"
+            
+            export REDIS_HOST="${{secrets.REDIS_HOST}}"
+            export REDIS_PORT="${{secrets.REDIS_PORT}}"
+            # 추후 Redis Password도 추가 예정
 
             echo "${{ secrets.NCP_SECRET_KEY }}" | docker login \
               -u "${{ secrets.NCP_ACCESS_KEY }}" \

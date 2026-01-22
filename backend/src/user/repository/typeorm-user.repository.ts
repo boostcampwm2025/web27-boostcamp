@@ -43,4 +43,16 @@ export class TypeOrmUserRepository extends UserRepository {
 
     return null;
   }
+
+  async setFirstLoginAtIfNull(userId: number): Promise<boolean> {
+    const qb = this.userRepo.createQueryBuilder('u');
+    const result = await qb
+      .update(UserEntity)
+      .set({ firstLoginAt: () => 'CURRENT_TIMESTAMP' })
+      .where('id = :id', { id: userId })
+      .andWhere('first_login_at IS NULL')
+      .execute();
+
+    return (result.affected ?? 0) > 0;
+  }
 }
