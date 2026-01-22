@@ -15,4 +15,5 @@ export abstract class BlogRepository {
 
   // blogKey로 블로그 조회 (SDK 연동용)
   abstract findByBlogKey(blogKey: string): Promise<BlogEntity | null>;
+  abstract existsBlogByUserId(userId: number): Promise<boolean>;
 }

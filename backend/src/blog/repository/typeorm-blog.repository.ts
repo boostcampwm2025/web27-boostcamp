@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { BlogRepository } from './blog.repository';
+import { BlogRepository } from './blog.repository.interface';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BlogEntity } from '../entities/blog.entity';
 import { Repository } from 'typeorm';
@@ -40,5 +40,15 @@ export class TypeOrmBlogRepository extends BlogRepository {
   // blogKey로 블로그 조회 (SDK 연동용)
   async findByBlogKey(blogKey: string): Promise<BlogEntity | null> {
     return await this.blogRepo.findOne({ where: { blogKey } });
+  }
+
+  async existsBlogByUserId(userId: number): Promise<boolean> {
+    const qb = this.blogRepo.createQueryBuilder('b');
+    const blog = await qb.where('b.userId = :id', { id: userId }).getOne();
+    if (blog) {
+      return true;
+    }
+
+    return false;
   }
 }

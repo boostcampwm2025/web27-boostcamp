@@ -39,6 +39,9 @@ export class UserEntity {
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
+  @Column({ name: 'first_login_at', type: 'datetime', nullable: true })
+  firstLoginAt: Date | null;
+
   @DeleteDateColumn({ name: 'deleted_at', nullable: true })
   deletedAt: Date | null;
 

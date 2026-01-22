@@ -4,7 +4,7 @@ import { BlogController } from './blog.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BlogEntity } from './entities/blog.entity';
 import { UserModule } from 'src/user/user.module';
-import { BlogRepository } from './repository/blog.repository';
+import { BlogRepository } from './repository/blog.repository.interface';
 import { TypeOrmBlogRepository } from './repository/typeorm-blog.repository';
 
 @Module({
