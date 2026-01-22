@@ -26,6 +26,7 @@ export class RTBService {
     private readonly blogRepository: BlogRepository
   ) {}
 
+  // cache 문제로 인한 무의미한 주석
   // 경매 참여 가능한 캠페인만 필터링
   private filterEligibleCampaigns(candidates: Candidate[]): Candidate[] {
     const now = new Date();
