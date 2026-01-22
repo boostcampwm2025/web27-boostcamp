@@ -15,7 +15,6 @@ export class AdvertiserService {
     private readonly campaignRepository: CampaignRepository,
     private readonly logRepository: LogRepository
   ) {}
-  // todo: 추후 DB에 데이터를 넣게되면 로직 수정
   async getDashboardStats(userId: number) {
     const isAdvertiser = await this.userRepository.verifyRole(
       userId,
