@@ -1,4 +1,7 @@
-import type { CampaignWithTags, Tag } from 'src/campaign/types/campaign.types';
+import type {
+  CampaignWithTags,
+  Tag,
+} from '../../campaign/types/campaign.types';
 
 // export interface Campaign {
 //   id: string;
