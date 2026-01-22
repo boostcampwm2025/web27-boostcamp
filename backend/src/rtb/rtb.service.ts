@@ -12,10 +12,13 @@ import { BidLogRepository } from '../bid-log/repositories/bid-log.repository.int
 import { CacheRepository } from '../cache/repository/cache.repository.interface';
 import { BidLog, BidStatus } from '../bid-log/bid-log.types';
 import { BlogRepository } from '../blog/repository/blog.repository.interface';
+import { CampaignRepository } from '../campaign/repository/campaign.repository';
 
 @Injectable()
 export class RTBService {
   private readonly logger = new Logger(RTBService.name);
+  private readonly FALLBACK_CAMPAIGN_ID =
+    '54e92912-e23d-471f-b700-81caf834da51';
 
   constructor(
     private readonly matcher: Matcher,
@@ -23,7 +26,8 @@ export class RTBService {
     private readonly selector: CampaignSelector,
     private readonly bidLogRepository: BidLogRepository,
     private readonly cacheRepository: CacheRepository,
-    private readonly blogRepository: BlogRepository
+    private readonly blogRepository: BlogRepository,
+    private readonly campaignRepository: CampaignRepository
   ) {}
 
   // 경매 참여 가능한 캠페인만 필터링
@@ -84,10 +88,26 @@ export class RTBService {
         );
       }
 
+      // 후보가 없으면 fallback 캠페인 조회
       if (candidates.length === 0) {
-        throw new Error(
-          `${context.tags.join(', ')}태그에 유사도가 비슷한 후보자들이 존재하지 않습니다.`
+        this.logger.warn(
+          `후보가 없습니다. Fallback 캠페인 조회: ${this.FALLBACK_CAMPAIGN_ID}`
         );
+
+        const fallbackCampaign = await this.campaignRepository.getById(
+          this.FALLBACK_CAMPAIGN_ID
+        );
+
+        if (fallbackCampaign) {
+          candidates = [
+            {
+              campaign: fallbackCampaign,
+              similarity: 0,
+            },
+          ];
+        } else {
+          throw new Error('Fallback 캠페인을 찾을 수 없습니다');
+        }
       }
 
       // 2. 점수 계산 (아 복잡하다)
