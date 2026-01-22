@@ -43,6 +43,7 @@ export function useAccountSummary(): UseAccountSummaryReturn {
         setIsLoading(true);
         setError(null);
 
+        // TODO: userId 매개변수 필요
         const response = await apiClient<AccountSummaryResponse>(
           '/api/advertiser/dashboard/stats'
         );

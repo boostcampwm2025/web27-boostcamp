@@ -11,6 +11,7 @@ export class BidLogController {
     @Query('limit') limit?: string,
     @Query('offset') offset?: string
   ): Promise<BidLogResponseDto> {
+    // TODO: userId 넘겨받기 필요
     const parsedLimit = limit ? parseInt(limit, 10) : 3;
     const parsedOffset = offset ? parseInt(offset, 10) : 0;
 

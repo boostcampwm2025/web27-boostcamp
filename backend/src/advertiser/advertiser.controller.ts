@@ -8,6 +8,7 @@ export class AdvertiserController {
 
   @Get('dashboard/stats')
   async getDashboardStats() {
+    // TODO: userId 매개변수로 넘겨 받기 필요
     const MOCK_USER_ID = 1;
     const userId = MOCK_USER_ID;
 

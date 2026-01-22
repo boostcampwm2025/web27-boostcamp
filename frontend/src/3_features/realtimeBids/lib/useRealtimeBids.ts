@@ -31,6 +31,7 @@ export function useRealtimeBids(
         setIsLoading(true);
         setError(null);
 
+        // TODO: userId 매개변수 필요
         const response = await apiClient<RealtimeBidsResponse>(
           `/api/advertiser/bids/realtime?limit=${limit}&offset=${offset}`
         );
