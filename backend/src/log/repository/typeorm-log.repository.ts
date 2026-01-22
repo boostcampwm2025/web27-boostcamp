@@ -44,4 +44,69 @@ export class TypeOrmLogRepository extends LogRepository {
     const logs = await this.clickLogRepository.find();
     return logs;
   }
+
+  async countViewLogsByCampaignIds(
+    campaignIds: string[]
+  ): Promise<Map<string, number>> {
+    if (campaignIds.length === 0) {
+      return new Map();
+    }
+
+    // GROUP BY를 사용한 집계 쿼리
+    const results = await this.viewLogRepository
+      .createQueryBuilder('view_log')
+      .select('view_log.campaign_id', 'campaignId')
+      .addSelect('COUNT(*)', 'count')
+      .where('view_log.campaign_id IN (:...campaignIds)', { campaignIds })
+      .groupBy('view_log.campaign_id')
+      .getRawMany<{ campaignId: string; count: string }>();
+
+    // Map으로 변환
+    const counts = new Map<string, number>();
+    results.forEach((row) => {
+      counts.set(row.campaignId, parseInt(row.count, 10));
+    });
+
+    // 요청한 모든 campaignId에 대해 0으로 초기화 (없는 경우 대비)
+    campaignIds.forEach((id) => {
+      if (!counts.has(id)) {
+        counts.set(id, 0);
+      }
+    });
+
+    return counts;
+  }
+
+  async countClickLogsByCampaignIds(
+    campaignIds: string[]
+  ): Promise<Map<string, number>> {
+    if (campaignIds.length === 0) {
+      return new Map();
+    }
+
+    // ViewLog와 JOIN하여 campaign_id별 ClickLog 집계
+    const results = await this.clickLogRepository
+      .createQueryBuilder('click_log')
+      .innerJoin('click_log.viewLog', 'view_log')
+      .select('view_log.campaign_id', 'campaignId')
+      .addSelect('COUNT(*)', 'count')
+      .where('view_log.campaign_id IN (:...campaignIds)', { campaignIds })
+      .groupBy('view_log.campaign_id')
+      .getRawMany<{ campaignId: string; count: string }>();
+
+    // Map으로 변환
+    const counts = new Map<string, number>();
+    results.forEach((row) => {
+      counts.set(row.campaignId, parseInt(row.count, 10));
+    });
+
+    // 요청한 모든 campaignId에 대해 0으로 초기화
+    campaignIds.forEach((id) => {
+      if (!counts.has(id)) {
+        counts.set(id, 0);
+      }
+    });
+
+    return counts;
+  }
 }

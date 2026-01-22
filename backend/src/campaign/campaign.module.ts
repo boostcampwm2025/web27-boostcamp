@@ -1,10 +1,21 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { CampaignRepository } from './repository/campaign.repository';
-import { JsonCampaignRepository } from './repository/json-campaign.repository';
+import { TypeOrmCampaignRepository } from './repository/typeorm-campaign.repository';
+import { CampaignService } from './campaign.service';
+import { CampaignController } from './campaign.controller';
+import { CampaignCronService } from './campaign-cron.service';
+import { CampaignEntity } from './entities/campaign.entity';
+import { TagEntity } from '../tag/entities/tag.entity';
+import { LogModule } from '../log/log.module';
 
 @Module({
+  imports: [TypeOrmModule.forFeature([CampaignEntity, TagEntity]), LogModule],
+  controllers: [CampaignController],
   providers: [
-    { provide: CampaignRepository, useClass: JsonCampaignRepository },
+    CampaignService,
+    CampaignCronService,
+    { provide: CampaignRepository, useClass: TypeOrmCampaignRepository },
   ],
   exports: [CampaignRepository],
 })
