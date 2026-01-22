@@ -99,6 +99,11 @@ export class CampaignCronService {
     await this.resetDailyBudgets();
   }
 
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async scheduledCleanupOrphanImages(): Promise<void> {
+    await this.cleanupOrphanImages();
+  }
+
   // 일일 예산 리셋 (수동 실행 가능)
   async resetDailyBudgets(): Promise<void> {
     this.logger.log('일일 예산 리셋 시작');
