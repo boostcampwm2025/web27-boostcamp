@@ -7,7 +7,7 @@ import { AdvertiserBudgetPage } from '@pages/advertiserBudget';
 import { NotFoundPage } from '@pages/notFound';
 import { RegisterPage } from '@pages/auth/ui/RegisterPage';
 import { LoginPage } from '@pages/auth/ui/LoginPage';
-import { PublisherDashboardPage } from '@pages/publisherDashboard';
+// import { PublisherDashboardPage } from '@pages/publisherDashboard';
 import { PublisherEarningsPage } from '@pages/publisherEarnings';
 import { PublisherSettingsPage } from '@pages/publisherSettings';
 import { OnboardingSdkGuidePageSkeleton } from '@pages/onboardingSdkGuide';
@@ -72,7 +72,15 @@ export const router = createBrowserRouter([
         loader: publisherBlogRequiredLoader,
         element: <DashboardLayout />, // 👈 다른 레이아웃 지정
         children: [
-          { path: 'main', element: <PublisherDashboardPage /> },
+          // { path: 'main', element: <PublisherDashboardPage /> }, // 개발 편의상 메인을 온보딩 대시보드로연결해두었습니다.
+          {
+            path: 'main',
+            element: (
+              <Suspense fallback={<OnboardingSdkGuidePageSkeleton />}>
+                <OnboardingSdkGuidePage />
+              </Suspense>
+            ),
+          },
           { path: 'earnings', element: <PublisherEarningsPage /> },
           { path: 'settings', element: <PublisherSettingsPage /> },
         ],

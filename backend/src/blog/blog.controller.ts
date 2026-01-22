@@ -34,4 +34,14 @@ export class BlogController {
       '블로그 등록 여부가 성공적으로 반환되었습니다.'
     );
   }
+
+  @Get('me/key')
+  async getMyBlogKey(@Req() req: AuthenticatedRequest) {
+    const { userId } = req.user;
+    const blogKey = await this.blogService.getMyBlogKey(userId);
+    return successResponse(
+      { blogKey },
+      '블로그 키가 성공적으로 반환되었습니다.'
+    );
+  }
 }
