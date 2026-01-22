@@ -22,7 +22,7 @@ export class BannerAdRenderer implements AdRenderer {
     isHighIntent?: boolean
   ): void {
     container.innerHTML = campaign
-      ? this.renderAdWidget(campaign)
+      ? this.renderAdWidget(campaign, container)
       : this.renderEmptyState();
 
     if (campaign) {
@@ -143,13 +143,166 @@ export class BannerAdRenderer implements AdRenderer {
     `;
   }
 
-  private renderAdWidget(campaign: Campaign): string {
+  private renderAdWidget(
+    campaign: Campaign,
+    container: HTMLElement
+  ): string {
     // XSS 방지: 모든 사용자 입력 데이터 이스케이프
     const safeTitle = this.escapeHtml(campaign.title);
     const safeContent = this.escapeHtml(campaign.content);
     const safeUrl = this.escapeHtml(campaign.url);
     const safeImage = this.escapeHtml(campaign.image);
 
+    const containerHeight = container.offsetHeight || container.clientHeight;
+
+    // S: 높이가 120px 이하일 때
+    if (containerHeight > 0 && containerHeight <= 120) {
+      return this.renderCompactWidget(
+        safeTitle,
+        safeContent,
+        safeUrl,
+        safeImage
+      );
+    }
+
+    // M: 높이가 200px 이하일 때
+    if (containerHeight > 120 && containerHeight <= 200) {
+      return this.renderMediumWidget(
+        safeTitle,
+        safeContent,
+        safeUrl,
+        safeImage
+      );
+    }
+
+    // 기본
+    return this.renderFullWidget(safeTitle, safeContent, safeUrl, safeImage);
+  }
+
+  // S (h-20 ~ 120px)
+  private renderCompactWidget(
+    title: string,
+    _content: string,
+    url: string,
+    image: string
+  ): string {
+    return `
+      <a href="${url}" class="boostad-link" target="_blank" rel="noopener noreferrer" style="
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        height: 100%;
+        padding: 8px 12px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        background: #ffffff;
+        text-decoration: none;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+        transition: box-shadow 0.2s;
+        box-sizing: border-box;
+      " onmouseover="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.12)';" onmouseout="this.style.boxShadow='0 1px 4px rgba(0,0,0,0.08)';">
+        <img src="${image}" alt="${title}" style="
+          width: 48px;
+          height: 48px;
+          border-radius: 6px;
+          object-fit: cover;
+          flex-shrink: 0;
+        " onerror="this.style.display='none';" />
+        <div style="flex: 1; min-width: 0; overflow: hidden;">
+          <div style="
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          ">${title}</div>
+          <div style="font-size: 10px; color: #999; margin-top: 2px;">Sponsored by BoostAD</div>
+        </div>
+        <span style="
+          padding: 6px 12px;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          border-radius: 6px;
+          font-size: 12px;
+          font-weight: 600;
+          white-space: nowrap;
+          flex-shrink: 0;
+        ">보기</span>
+      </a>
+    `;
+  }
+
+  // M (120px ~ 200px)
+  private renderMediumWidget(
+    title: string,
+    content: string,
+    url: string,
+    image: string
+  ): string {
+    return `
+      <div class="boostad-widget" style="
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        height: 100%;
+        padding: 12px 16px;
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+        background: #ffffff;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        box-sizing: border-box;
+      ">
+        <img src="${image}" alt="${title}" style="
+          width: 80px;
+          height: 80px;
+          border-radius: 8px;
+          object-fit: cover;
+          flex-shrink: 0;
+        " onerror="this.style.display='none';" />
+        <div style="flex: 1; min-width: 0; overflow: hidden;">
+          <div style="font-size: 10px; color: #999; margin-bottom: 4px;">Sponsored</div>
+          <div style="
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 4px;
+          ">${title}</div>
+          <div style="
+            font-size: 12px;
+            color: #666;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          ">${content}</div>
+        </div>
+        <a href="${url}" class="boostad-link" target="_blank" rel="noopener noreferrer" style="
+          padding: 10px 20px;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          text-decoration: none;
+          border-radius: 8px;
+          font-size: 13px;
+          font-weight: 600;
+          white-space: nowrap;
+          flex-shrink: 0;
+        ">자세히 보기</a>
+      </div>
+    `;
+  }
+
+  // 기본 (200px 이상)
+  private renderFullWidget(
+    title: string,
+    content: string,
+    url: string,
+    image: string
+  ): string {
     return `
       <div class="boostad-widget" style="
         border: 1px solid #e0e0e0;
@@ -174,7 +327,7 @@ export class BannerAdRenderer implements AdRenderer {
         </div>
 
         <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: stretch;">
-          <img src="${safeImage}" alt="${safeTitle}" style="
+          <img src="${image}" alt="${title}" style="
             width: 200px;
             height: 200px;
             border-radius: 8px;
@@ -189,7 +342,7 @@ export class BannerAdRenderer implements AdRenderer {
               font-weight: 600;
               color: #333;
               line-height: 1.4;
-            ">${safeTitle}</h3>
+            ">${title}</h3>
 
             <p style="
               margin: 0 0 24px;
@@ -197,7 +350,7 @@ export class BannerAdRenderer implements AdRenderer {
               font-size: 15px;
               line-height: 1.6;
               flex-grow: 1;
-            ">${safeContent}</p>
+            ">${content}</p>
 
             <div style="
               display: flex;
@@ -207,7 +360,7 @@ export class BannerAdRenderer implements AdRenderer {
               padding-top: 16px;
               gap: 12px;
             ">
-              <a href="${safeUrl}" class="boostad-link" target="_blank" rel="noopener noreferrer" style="
+              <a href="${url}" class="boostad-link" target="_blank" rel="noopener noreferrer" style="
                 display: inline-block;
                 padding: 12px 24px;
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
