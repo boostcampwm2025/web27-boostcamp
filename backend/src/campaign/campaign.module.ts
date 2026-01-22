@@ -8,9 +8,14 @@ import { CampaignCronService } from './campaign-cron.service';
 import { CampaignEntity } from './entities/campaign.entity';
 import { TagEntity } from '../tag/entities/tag.entity';
 import { LogModule } from '../log/log.module';
+import { ImageModule } from '../image/image.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([CampaignEntity, TagEntity]), LogModule],
+  imports: [
+    TypeOrmModule.forFeature([CampaignEntity, TagEntity]),
+    LogModule,
+    ImageModule,
+  ],
   controllers: [CampaignController],
   providers: [
     CampaignService,
