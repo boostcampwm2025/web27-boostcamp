@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Controller,
   Get,
+  Post,
   Query,
   Res,
 } from '@nestjs/common';
@@ -9,6 +10,7 @@ import { type AuthIntent, OAuthService } from './auth.service';
 import { type Response } from 'express';
 import { Public } from './decorators/public.decorator';
 import { UserRole } from 'src/user/entities/user.entity';
+import { successResponse } from 'src/common/response/success-response';
 
 @Controller('auth')
 export class AuthController {
@@ -87,7 +89,7 @@ export class AuthController {
         redirectUrl =
           result.role === UserRole.PUBLISHER
             ? `${clientUrl}/publisher/entry`
-            : `${clientUrl}/advertiser/dashboard`;
+            : `${clientUrl}/advertiser/dashboard/main`;
       }
     } else {
       redirectUrl = result.isNew
@@ -96,5 +98,18 @@ export class AuthController {
     }
 
     return res.redirect(redirectUrl);
+  }
+
+  @Post('logout')
+  @Public()
+  logout(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie('access_token', {
+      path: '/',
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+    });
+
+    return successResponse({}, '로그아웃되었습니다.');
   }
 }
