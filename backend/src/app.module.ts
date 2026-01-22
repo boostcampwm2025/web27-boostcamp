@@ -15,6 +15,7 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtCookieGuard } from './auth/guards/jwt-cookie.guard';
 import { BlogModule } from './blog/blog.module';
+import { ImageModule } from './image/image.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { BlogModule } from './blog/blog.module';
     UserModule,
     AuthModule,
     BlogModule,
+    ImageModule,
   ],
   controllers: [],
   providers: [

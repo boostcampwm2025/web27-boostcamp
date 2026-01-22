@@ -2,12 +2,16 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { CampaignRepository } from './repository/campaign.repository';
 import { CampaignStatus } from './entities/campaign.entity';
+import { ImageService } from '../image/image.service';
 
 @Injectable()
 export class CampaignCronService {
   private readonly logger = new Logger(CampaignCronService.name);
 
-  constructor(private readonly campaignRepository: CampaignRepository) {}
+  constructor(
+    private readonly campaignRepository: CampaignRepository,
+    private readonly imageService: ImageService
+  ) {}
 
   // 매일 자정(00:00)에 상태 자동 업데이트
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
@@ -95,6 +99,11 @@ export class CampaignCronService {
     await this.resetDailyBudgets();
   }
 
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async scheduledCleanupOrphanImages(): Promise<void> {
+    await this.cleanupOrphanImages();
+  }
+
   // 일일 예산 리셋 (수동 실행 가능)
   async resetDailyBudgets(): Promise<void> {
     this.logger.log('일일 예산 리셋 시작');
@@ -108,7 +117,7 @@ export class CampaignCronService {
     }
   }
 
-  // 수동 Lazy Reset: 상태 업데이트 + 일일 예산 리셋
+  // 수동 Lazy Reset: 상태 업데이트 + 일일 예산 리셋 + 고아 이미지 정리
   async manualReset(): Promise<{
     statusUpdate: {
       pendingToActive: number;
@@ -116,17 +125,58 @@ export class CampaignCronService {
       pausedToEnded: number;
     };
     dailyBudgetReset: boolean;
+    orphanImagesDeleted: number;
   }> {
     this.logger.log('수동 Lazy Reset 시작');
 
     const statusUpdate = await this.updateCampaignStatuses();
     await this.resetDailyBudgets();
+    const orphanImagesDeleted = await this.cleanupOrphanImages();
 
     this.logger.log('수동 Lazy Reset 완료');
 
     return {
       statusUpdate,
       dailyBudgetReset: true,
+      orphanImagesDeleted,
     };
+  }
+
+  // 고아 이미지 정리: DB에 없는 이미지 삭제
+  async cleanupOrphanImages(): Promise<number> {
+    this.logger.log('고아 이미지 정리 시작');
+
+    try {
+      // Object Storage에서 모든 이미지 목록 가져오기
+      const storedImages = await this.imageService.listImages('campaigns/');
+
+      // DB에서 모든 캠페인의 image URL 가져오기
+      const allCampaigns = await this.campaignRepository.getAll();
+      const usedImageUrls = new Set(
+        allCampaigns
+          .filter((campaign) => campaign.image)
+          .map((campaign) => campaign.image)
+      );
+
+      // 사용되지 않는 이미지 찾기 및 삭제
+      let deletedCount = 0;
+      for (const image of storedImages) {
+        if (!usedImageUrls.has(image.url)) {
+          try {
+            await this.imageService.deleteImage(image.url);
+            deletedCount++;
+            this.logger.log(`고아 이미지 삭제: ${image.key}`);
+          } catch (error) {
+            this.logger.error(`이미지 삭제 실패: ${image.key}`, error);
+          }
+        }
+      }
+
+      this.logger.log(`고아 이미지 정리 완료 - ${deletedCount}개 삭제`);
+      return deletedCount;
+    } catch (error) {
+      this.logger.error('고아 이미지 정리 중 오류 발생', error);
+      return 0;
+    }
   }
 }
