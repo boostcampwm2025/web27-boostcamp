@@ -31,6 +31,12 @@ services:
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
       GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI:-}
+      # NCP Object Storage (image upload)
+      NCP_ACCESS_KEY: ${NCP_ACCESS_KEY:-}
+      NCP_SECRET_KEY: ${NCP_SECRET_KEY:-}
+      NCP_REGION: ${NCP_REGION:-kr-standard}
+      NCP_ENDPOINT: ${NCP_ENDPOINT:-https://kr.object.ncloudstorage.com}
+      NCP_BUCKET: ${NCP_BUCKET:-boostadad-campaign-images}
       REDIS_HOST: ${REDIS_HOST:-localhost}
       REDIS_PORT: ${REDIS_PORT:-6379}
     expose:
