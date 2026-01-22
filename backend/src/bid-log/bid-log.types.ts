@@ -1,11 +1,17 @@
+export enum BidStatus {
+  WIN = 'WIN',
+  LOSS = 'LOSS',
+}
+
 export interface BidLog {
   id?: number;
   auctionId: string;
   campaignId: string;
-  blogId: string;
-  status: 'WIN' | 'LOSS';
+  blogId: number;
+  status: BidStatus;
   bidPrice: number;
+  reason: string | null;
+  createdAt?: Date;
   isHighIntent: boolean;
-  behaviorScore: number;
-  timestamp: string;
+  behaviorScore: number | null;
 }

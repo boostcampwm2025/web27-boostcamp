@@ -11,14 +11,14 @@ import {
   OneToMany,
   type Relation,
 } from 'typeorm';
-import type { User } from '../../user/entities/user.entity';
-import type { Tag } from '../../tag/entities/tag.entity';
-import type { BidLog } from '../../bid-log/entities/bid-log.entity';
-import type { ViewLog } from '../../log/entities/view-log.entity';
-import * as UserEntity from '../../user/entities/user.entity';
-import * as TagEntity from '../../tag/entities/tag.entity';
-import * as BidLogEntity from '../../bid-log/entities/bid-log.entity';
-import * as ViewLogEntity from '../../log/entities/view-log.entity';
+import type { UserEntity } from '../../user/entities/user.entity';
+import type { TagEntity } from '../../tag/entities/tag.entity';
+import type { BidLogEntity } from '../../bid-log/entities/bid-log.entity';
+import type { ViewLogEntity } from '../../log/entities/view-log.entity';
+import * as UserEntityModule from '../../user/entities/user.entity';
+import * as TagEntityModule from '../../tag/entities/tag.entity';
+import * as BidLogEntityModule from '../../bid-log/entities/bid-log.entity';
+import * as ViewLogEntityModule from '../../log/entities/view-log.entity';
 
 export enum CampaignStatus {
   PENDING = 'PENDING',
@@ -28,7 +28,7 @@ export enum CampaignStatus {
 }
 
 @Entity('Campaign')
-export class Campaign {
+export class CampaignEntity {
   @PrimaryColumn({ type: 'varchar', length: 255, comment: 'UUID' })
   id: string;
 
@@ -62,6 +62,30 @@ export class Campaign {
   totalBudget: number | null;
 
   @Column({
+    name: 'daily_spent',
+    type: 'int',
+    default: 0,
+    comment: '오늘 소진 예산 (KRW)',
+  })
+  dailySpent: number;
+
+  @Column({
+    name: 'total_spent',
+    type: 'int',
+    default: 0,
+    comment: '총 소진 예산 (KRW)',
+  })
+  totalSpent: number;
+
+  @Column({
+    name: 'last_reset_date',
+    type: 'datetime',
+    default: () => 'CURRENT_TIMESTAMP',
+    comment: '일일 예산 마지막 리셋 날짜',
+  })
+  lastResetDate: Date;
+
+  @Column({
     name: 'is_high_intent',
     type: 'boolean',
     default: false,
@@ -89,24 +113,33 @@ export class Campaign {
   deletedAt: Date | null;
 
   // Relations
-  @ManyToOne(() => UserEntity.User, (user: User) => user.campaigns)
+  @ManyToOne(
+    () => UserEntityModule.UserEntity,
+    (user: UserEntity) => user.campaigns
+  )
   @JoinColumn({ name: 'user_id' })
-  user: Relation<User>;
+  user: Relation<UserEntity>;
 
-  @ManyToMany(() => TagEntity.Tag, (tag: Tag) => tag.campaigns)
+  @ManyToMany(
+    () => TagEntityModule.TagEntity,
+    (tag: TagEntity) => tag.campaigns
+  )
   @JoinTable({
     name: 'CampaignTag',
     joinColumn: { name: 'campaign_id', referencedColumnName: 'id' },
     inverseJoinColumn: { name: 'tag_id', referencedColumnName: 'id' },
   })
-  tags: Relation<Tag[]>;
-
-  @OneToMany(() => BidLogEntity.BidLog, (bidLog: BidLog) => bidLog.campaign)
-  bidLogs: Relation<BidLog[]>;
+  tags: Relation<TagEntity[]>;
 
   @OneToMany(
-    () => ViewLogEntity.ViewLog,
-    (viewLog: ViewLog) => viewLog.campaign
+    () => BidLogEntityModule.BidLogEntity,
+    (bidLog: BidLogEntity) => bidLog.campaign
   )
-  viewLogs: Relation<ViewLog[]>;
+  bidLogs: Relation<BidLogEntity[]>;
+
+  @OneToMany(
+    () => ViewLogEntityModule.ViewLogEntity,
+    (viewLog: ViewLogEntity) => viewLog.campaign
+  )
+  viewLogs: Relation<ViewLogEntity[]>;
 }

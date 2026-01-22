@@ -20,15 +20,25 @@ services:
       PORT: '3000'
       # 배포 시 Object Storage(정적 호스팅) 도메인으로 교체
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
+      CLIENT_URL: ${CLIENT_URL:-http://localhost:3000}
       NODE_ENV: ${NODE_ENV:-development}
       DB_HOST: ${DB_HOST:-localhost}
       DB_PORT: ${DB_PORT:-3306}
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_DATABASE: ${DB_DATABASE}
+      JWT_SECRET: ${JWT_SECRET}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
       GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI:-}
+      # NCP Object Storage (image upload)
+      NCP_ACCESS_KEY: ${NCP_ACCESS_KEY:-}
+      NCP_SECRET_KEY: ${NCP_SECRET_KEY:-}
+      NCP_REGION: ${NCP_REGION:-kr-standard}
+      NCP_ENDPOINT: ${NCP_ENDPOINT:-https://kr.object.ncloudstorage.com}
+      NCP_BUCKET: ${NCP_BUCKET:-boostadad-campaign-images}
+      REDIS_HOST: ${REDIS_HOST:-localhost}
+      REDIS_PORT: ${REDIS_PORT:-6379}
     expose:
       - '3000'
     restart: unless-stopped

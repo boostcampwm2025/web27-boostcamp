@@ -18,7 +18,7 @@ export class CreateViewLogDto {
   @IsNotEmpty()
   campaignId: string;
 
-  @IsUrl()
+  @IsUrl({ require_tld: false })
   @IsNotEmpty()
   postUrl: string;
 

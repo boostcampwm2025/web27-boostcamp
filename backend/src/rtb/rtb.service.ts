@@ -8,40 +8,79 @@ import type {
   ScoredCandidate,
 } from './types/decision.types';
 import { randomUUID } from 'crypto';
-import { BidLogRepository } from '../bid-log/repositories/bid-log.repository';
-import { AuctionStore } from '../cache/auction/auction.store';
-import { BidLog } from '../bid-log/bid-log.types';
-import { getBlogIdByKey } from '../common/utils/blog.utils';
+import { BidLogRepository } from '../bid-log/repositories/bid-log.repository.interface';
+import { CacheRepository } from '../cache/repository/cache.repository.interface';
+import { BidLog, BidStatus } from '../bid-log/bid-log.types';
+import { BlogRepository } from '../blog/repository/blog.repository.interface';
+import { CampaignRepository } from '../campaign/repository/campaign.repository';
 
 @Injectable()
 export class RTBService {
   private readonly logger = new Logger(RTBService.name);
+  private readonly FALLBACK_CAMPAIGN_ID =
+    '54e92912-e23d-471f-b700-81caf834da51';
 
   constructor(
     private readonly matcher: Matcher,
     private readonly scorer: Scorer,
     private readonly selector: CampaignSelector,
     private readonly bidLogRepository: BidLogRepository,
-    private readonly auctionStore: AuctionStore
+    private readonly cacheRepository: CacheRepository,
+    private readonly blogRepository: BlogRepository,
+    private readonly campaignRepository: CampaignRepository
   ) {}
+
+  // 경매 참여 가능한 캠페인만 필터링
+  private filterEligibleCampaigns(candidates: Candidate[]): Candidate[] {
+    const now = new Date();
+
+    return candidates.filter((candidate) => {
+      const campaign = candidate.campaign;
+
+      // 삭제된 캠페인 제외
+      if (campaign.deletedAt) {
+        return false;
+      }
+
+      // ACTIVE 상태만 허용
+      if (campaign.status !== 'ACTIVE') {
+        return false;
+      }
+
+      // 날짜 범위 검증
+      const startDate = new Date(campaign.startDate);
+      const endDate = new Date(campaign.endDate);
+
+      if (now < startDate || now >= endDate) {
+        return false;
+      }
+
+      return true;
+    });
+  }
 
   async runAuction(context: DecisionContext) {
     try {
       const auctionId = randomUUID();
 
-      // 0. blogKey → blogId 변환 (Guard에서 이미 검증됨)
-      const blogId = getBlogIdByKey(context.blogKey)!;
+      // 0. blogKey → Blog 조회 (Guard에서 이미 검증됨)
+      const blog = await this.blogRepository.findByBlogKey(context.blogKey);
+      if (!blog) {
+        throw new Error(`블로그를 찾을 수 없습니다: ${context.blogKey}`);
+      }
+      const blogId = blog.id;
 
       // 1. 후보 필터링
       let candidates: Candidate[] =
         await this.matcher.findCandidatesByTags(context);
 
-      // 2. 고의도 필터링 (isHighIntent에 따라 광고 분리)
+      // 2. 캠페인 상태 검증 (ACTIVE + 날짜 범위 + 삭제되지 않음)
+      candidates = this.filterEligibleCampaigns(candidates);
+
+      // 3. 고의도 필터링 (isHighIntent에 따라 광고 분리)
       if (context.isHighIntent) {
         // 고의도 요청: is_high_intent=true 광고만
-        candidates = candidates.filter(
-          (c) => c.campaign.isHighIntent === true
-        );
+        candidates = candidates.filter((c) => c.campaign.isHighIntent === true);
       } else {
         // 일반 요청: is_high_intent=false 광고만
         candidates = candidates.filter(
@@ -49,10 +88,26 @@ export class RTBService {
         );
       }
 
+      // 후보가 없으면 fallback 캠페인 조회
       if (candidates.length === 0) {
-        throw new Error(
-          `${context.tags.join(', ')}태그에 유사도가 비슷한 후보자들이 존재하지 않습니다.`
+        this.logger.warn(
+          `후보가 없습니다. Fallback 캠페인 조회: ${this.FALLBACK_CAMPAIGN_ID}`
         );
+
+        const fallbackCampaign = await this.campaignRepository.getById(
+          this.FALLBACK_CAMPAIGN_ID
+        );
+
+        if (fallbackCampaign) {
+          candidates = [
+            {
+              campaign: fallbackCampaign,
+              similarity: 0,
+            },
+          ];
+        } else {
+          throw new Error('Fallback 캠페인을 찾을 수 없습니다');
+        }
       }
 
       // 2. 점수 계산 (아 복잡하다)
@@ -63,24 +118,24 @@ export class RTBService {
       const result = await this.selector.selectWinner(scored);
 
       // 4. AuctionStore에 경매 데이터 저장 (ViewLog에서 조회용)
-      this.auctionStore.set(auctionId, {
+      await this.cacheRepository.setAuctionData(auctionId, {
         blogId: blogId,
         cost: result.winner.maxCpc,
       });
 
       // 5. BidLog 저장 (모든 참여 캠페인의 입찰 기록)
-      const timestamp = new Date().toISOString();
       const bidLogs: BidLog[] = result.candidates.map((candidate) => ({
         auctionId,
         campaignId: candidate.id,
-        blogId: context.blogKey,
-        status: candidate.id === result.winner.id ? 'WIN' : 'LOSS',
+        blogId: blogId,
+        status:
+          candidate.id === result.winner.id ? BidStatus.WIN : BidStatus.LOSS,
         bidPrice: candidate.maxCpc,
         isHighIntent: context.isHighIntent,
         behaviorScore: context.behaviorScore,
-        timestamp,
+        reason: '', // 추후에 수정 필요
       }));
-      this.bidLogRepository.saveMany(bidLogs);
+      await this.bidLogRepository.saveMany(bidLogs);
 
       this.logger.log(
         `Auction ${auctionId}: ${bidLogs.length}개 BidLog 저장 완료 (WIN: ${result.winner.id})`

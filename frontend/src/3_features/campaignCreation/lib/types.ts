@@ -21,13 +21,15 @@ export interface CampaignContent {
   url: string;
   tags: Tag[];
   isHighIntent: boolean;
-  imageFile: File | null;
+  image: string | null;
 }
 
 export interface BudgetSettings {
   dailyBudget: number;
   totalBudget: number;
   maxCpc: number;
+  startDate: string;
+  endDate: string;
 }
 
 export interface CampaignFormData {

@@ -7,7 +7,7 @@ import {
   JoinColumn,
   Index,
 } from 'typeorm';
-import { User } from '../../user/entities/user.entity';
+import { UserEntity } from '../../user/entities/user.entity';
 
 export enum OAuthProvider {
   GOOGLE = 'GOOGLE',
@@ -18,7 +18,7 @@ export enum OAuthProvider {
   unique: true,
 })
 @Index('uq_oauth_user_provider', ['userId', 'provider'], { unique: true })
-export class OAuthAccount {
+export class OAuthAccountEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -59,7 +59,7 @@ export class OAuthAccount {
   createdAt: Date;
 
   // Relations
-  @ManyToOne(() => User, (user) => user.oauthAccounts)
+  @ManyToOne(() => UserEntity, (user) => user.oauthAccounts)
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: UserEntity;
 }

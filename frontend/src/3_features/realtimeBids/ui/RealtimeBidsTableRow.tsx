@@ -51,7 +51,7 @@ export function RealtimeBidsTableRow({ bid }: RealtimeBidsTableRowProps) {
       <td
         className={`px-5 py-4 font-semibold whitespace-nowrap ${bid.isWon ? 'text-green-500' : 'text-gray-900'}`}
       >
-        {formatAmount(bid.winAmount)}
+        {bid.winAmount !== null ? formatAmount(bid.winAmount) : '-'}
       </td>
       <td className="px-5 py-4 whitespace-nowrap">
         <div className="text-gray-900 text-sm">

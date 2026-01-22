@@ -10,6 +10,9 @@ export type Campaign = {
   maxCpc: number;
   dailyBudget: number;
   totalBudget: number | null;
+  dailySpent: number;
+  totalSpent: number;
+  lastResetDate: Date;
   isHighIntent: boolean;
   status: CampaignStatus;
   startDate: Date;
@@ -25,6 +28,14 @@ export type Tag = {
 
 export type CampaignWithTags = Campaign & {
   tags: Tag[];
+};
+
+export type CampaignWithStats = CampaignWithTags & {
+  impressions: number;
+  clicks: number;
+  ctr: number;
+  dailySpentPercent: number;
+  totalSpentPercent: number;
 };
 
 export type CampaignTag = {

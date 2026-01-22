@@ -7,12 +7,12 @@ import {
   JoinColumn,
   OneToMany,
 } from 'typeorm';
-import { Campaign } from '../../campaign/entities/campaign.entity';
-import { Blog } from '../../blog/entities/blog.entity';
-import { ClickLog } from './click-log.entity';
+import { CampaignEntity } from '../../campaign/entities/campaign.entity';
+import { BlogEntity } from '../../blog/entities/blog.entity';
+import { ClickLogEntity } from './click-log.entity';
 
 @Entity('ViewLog')
-export class ViewLog {
+export class ViewLogEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -65,14 +65,14 @@ export class ViewLog {
   createdAt: Date;
 
   // Relations
-  @ManyToOne(() => Campaign, (campaign) => campaign.viewLogs)
+  @ManyToOne(() => CampaignEntity, (campaign) => campaign.viewLogs)
   @JoinColumn({ name: 'campaign_id' })
-  campaign: Campaign;
+  campaign: CampaignEntity;
 
-  @ManyToOne(() => Blog, (blog) => blog.viewLogs)
+  @ManyToOne(() => BlogEntity, (blog) => blog.viewLogs)
   @JoinColumn({ name: 'blog_id' })
-  blog: Blog;
+  blog: BlogEntity;
 
-  @OneToMany(() => ClickLog, (clickLog) => clickLog.viewLog)
-  clickLogs: ClickLog[];
+  @OneToMany(() => ClickLogEntity, (clickLog) => clickLog.viewLog)
+  clickLogs: ClickLogEntity[];
 }

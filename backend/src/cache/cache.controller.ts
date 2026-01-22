@@ -7,32 +7,32 @@ import {
 } from '@nestjs/common';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { AuctionStore } from './auction/auction.store';
+import { CacheRepository } from './repository/cache.repository.interface';
 import { SeedAuctionDto } from './dto/seed-auction.dto';
 import { successResponse } from 'src/common/response/success-response';
-import { LogRepository } from 'src/log/repository/log.repository';
+import { LogRepository } from 'src/log/repository/log.repository.interface';
 import { SaveViewLog } from 'src/log/types/save-view-log.type';
 
 @Controller('cache')
 export class CacheController {
   constructor(
-    private readonly auctionStore: AuctionStore,
+    private readonly cacheRepository: CacheRepository,
     private readonly logRepository: LogRepository
   ) {}
 
   @Post('auction')
-  seedAuction(@Body() dto: SeedAuctionDto) {
+  async seedAuction(@Body() dto: SeedAuctionDto) {
     if (process.env.NODE_ENV === 'production') {
       throw new ForbiddenException();
     }
 
     const { auctionId, blogId, cost } = dto;
-    this.auctionStore.set(auctionId, { blogId, cost });
+    await this.cacheRepository.setAuctionData(auctionId, { blogId, cost });
     return successResponse({ auctionId }, 'auction seeded');
   }
 
   @Post('seed/logs')
-  seedLogs(@Query('useNow') useNow?: string) {
+  async seedLogs(@Query('useNow') useNow?: string) {
     if (process.env.NODE_ENV === 'production') {
       throw new ForbiddenException();
     }
@@ -44,7 +44,7 @@ export class CacheController {
 
     const fixtureViewIdToSavedViewId = new Map<number, number>();
     for (const [idx, viewLog] of fixture.view_logs.entries()) {
-      const savedViewId = this.logRepository.saveViewLog(
+      const savedViewId = await this.logRepository.saveViewLog(
         toSaveViewLog(
           viewLog,
           shouldUseNow ? new Date(nowMs + idx * 1000) : undefined
@@ -60,7 +60,7 @@ export class CacheController {
         continue;
       }
 
-      this.logRepository.saveClickLog({
+      await this.logRepository.saveClickLog({
         viewId: savedViewId,
         createdAt: shouldUseNow
           ? new Date(nowMs + idx * 1000 + 500)
@@ -105,11 +105,11 @@ const toSaveViewLog = (v: FixtureViewLog, createdAt?: Date): SaveViewLog => {
     auctionId: v.auction_id,
     campaignId: v.campaign_id,
     blogId: v.blog_id,
-    postUrl: v.post_url ?? '',
+    postUrl: v.post_url,
     cost: v.cost,
-    positionRatio: v.position_ratio ?? undefined,
+    positionRatio: v.position_ratio,
     isHighIntent: v.is_high_intent,
-    behaviorScore: v.behavior_score ?? 0,
+    behaviorScore: v.behavior_score,
     createdAt: createdAt ?? new Date(v.created_at),
   };
 };

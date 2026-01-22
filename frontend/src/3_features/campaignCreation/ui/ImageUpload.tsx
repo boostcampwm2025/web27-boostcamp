@@ -1,44 +1,41 @@
-import { useRef, useState, useEffect, useMemo } from 'react';
+import { useRef, useState } from 'react';
 import { Icon } from '@shared/ui/Icon';
+import { useImageUpload } from '../lib/useImageUpload';
 
 interface ImageUploadProps {
-  value: File | null;
-  onChange: (file: File | null) => void;
+  value: string | null;
+  onChange: (imageUrl: string | null) => void;
 }
 
 export function ImageUpload({ value, onChange }: ImageUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const { upload, isLoading, error } = useImageUpload();
 
-  const previewUrl = useMemo(() => {
-    if (!value) return null;
-    return URL.createObjectURL(value);
-  }, [value]);
+  const handleFileSelect = async (file: File | null) => {
+    if (!file) return;
 
-  useEffect(() => {
-    return () => {
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-      }
-    };
-  }, [previewUrl]);
-
-  const handleFileChange = (file: File | null) => {
-    onChange(file);
+    try {
+      const imageUrl = await upload(file);
+      onChange(imageUrl);
+    } catch {
+      // error 메시지는 아래 UI에 표시됨
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] ?? null;
-    handleFileChange(file);
+    handleFileSelect(file);
   };
 
   const handleClick = () => {
+    if (isLoading) return;
     inputRef.current?.click();
   };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
-    setIsDragging(true);
+    if (!isLoading) setIsDragging(true);
   };
 
   const handleDragLeave = (e: React.DragEvent) => {
@@ -49,9 +46,11 @@ export function ImageUpload({ value, onChange }: ImageUploadProps) {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
+    if (isLoading) return;
+
     const file = e.dataTransfer.files?.[0] ?? null;
     if (file && file.type.startsWith('image/')) {
-      handleFileChange(file);
+      handleFileSelect(file);
     }
   };
 
@@ -76,12 +75,17 @@ export function ImageUpload({ value, onChange }: ImageUploadProps) {
           isDragging
             ? 'border-blue-500 bg-blue-50'
             : 'border-gray-300 bg-gray-50 hover:border-gray-400'
-        }`}
+        } ${isLoading ? 'pointer-events-none opacity-50' : ''}`}
       >
-        {previewUrl ? (
+        {isLoading ? (
+          <div className="flex flex-col items-center gap-2">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
+            <span className="text-sm text-gray-500">업로드 중...</span>
+          </div>
+        ) : value ? (
           <>
             <img
-              src={previewUrl}
+              src={value}
               alt="미리보기"
               className="h-full w-full rounded-lg object-contain"
             />
@@ -107,10 +111,12 @@ export function ImageUpload({ value, onChange }: ImageUploadProps) {
         )}
       </div>
 
+      {error && <p className="text-sm text-red-500">{error}</p>}
+
       <input
         ref={inputRef}
         type="file"
-        accept="image/*"
+        accept="image/jpeg,image/png,image/webp,image/gif"
         onChange={handleInputChange}
         className="hidden"
       />

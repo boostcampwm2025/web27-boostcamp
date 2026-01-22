@@ -7,10 +7,10 @@ import {
   OneToMany,
   OneToOne,
 } from 'typeorm';
-import { Blog } from '../../blog/entities/blog.entity';
-import { Campaign } from '../../campaign/entities/campaign.entity';
-import { OAuthAccount } from '../../auth/entities/oauth-account.entity';
-import { UserCredential } from '../../auth/entities/user-credential.entity';
+import { BlogEntity } from '../../blog/entities/blog.entity';
+import { CampaignEntity } from '../../campaign/entities/campaign.entity';
+import { OAuthAccountEntity } from '../../auth/entities/oauth-account.entity';
+import { UserCredentialEntity } from '../../auth/entities/user-credential.entity';
 
 export enum UserRole {
   PUBLISHER = 'PUBLISHER',
@@ -19,7 +19,7 @@ export enum UserRole {
 }
 
 @Entity('User')
-export class User {
+export class UserEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -39,19 +39,22 @@ export class User {
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
+  @Column({ name: 'first_login_at', type: 'datetime', nullable: true })
+  firstLoginAt: Date | null;
+
   @DeleteDateColumn({ name: 'deleted_at', nullable: true })
   deletedAt: Date | null;
 
   // Relations
-  @OneToMany(() => Blog, (blog) => blog.user)
-  blogs: Blog[];
+  @OneToMany(() => BlogEntity, (blog) => blog.user)
+  blogs: BlogEntity[];
 
-  @OneToMany(() => Campaign, (campaign) => campaign.user)
-  campaigns: Campaign[];
+  @OneToMany(() => CampaignEntity, (campaign) => campaign.user)
+  campaigns: CampaignEntity[];
 
-  @OneToMany(() => OAuthAccount, (oauthAccount) => oauthAccount.user)
-  oauthAccounts: OAuthAccount[];
+  @OneToMany(() => OAuthAccountEntity, (oauthAccount) => oauthAccount.user)
+  oauthAccounts: OAuthAccountEntity[];
 
-  @OneToOne(() => UserCredential, (credential) => credential.user)
-  credential: UserCredential;
+  @OneToOne(() => UserCredentialEntity, (credential) => credential.user)
+  credential: UserCredentialEntity;
 }

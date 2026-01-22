@@ -6,10 +6,10 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { ViewLog } from './view-log.entity';
+import { ViewLogEntity } from './view-log.entity';
 
 @Entity('ClickLog')
-export class ClickLog {
+export class ClickLogEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -20,7 +20,7 @@ export class ClickLog {
   createdAt: Date;
 
   // Relations
-  @ManyToOne(() => ViewLog, (viewLog) => viewLog.clickLogs)
+  @ManyToOne(() => ViewLogEntity, (viewLog) => viewLog.clickLogs)
   @JoinColumn({ name: 'view_id' })
-  viewLog: ViewLog;
+  viewLog: ViewLogEntity;
 }

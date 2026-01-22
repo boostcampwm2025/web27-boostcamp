@@ -1,11 +1,12 @@
 export type SaveViewLog = {
+  id?: number;
   auctionId: string;
   campaignId: string;
   blogId: number;
-  postUrl: string;
+  postUrl: string | null;
   cost: number;
-  positionRatio?: number;
+  positionRatio: number | null;
   isHighIntent: boolean;
-  behaviorScore: number;
-  createdAt: Date;
+  behaviorScore: number | null;
+  createdAt?: Date;
 };
