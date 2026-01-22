@@ -9,7 +9,7 @@ import { RedisCacheRepository } from './repository/redis-cache.repository';
 @Module({
   imports: [
     LogModule,
-    // TODO: 추후에 app모듈로 위치 변경 예정
+    // TODO(후순위): 추후에 app모듈로 위치 변경 예정
     NestCacheModule.registerAsync({
       isGlobal: true,
       useClass: RedisCacheConfig,

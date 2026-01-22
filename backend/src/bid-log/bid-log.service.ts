@@ -44,7 +44,7 @@ export class BidLogService {
     // 6. offset + limit 적용
     const paginatedBidLogs = sortedBidLogs.slice(offset, offset + limit);
 
-    // TODO : Promise.all로 병렬 처리 필요
+    // TODO(후순위) : Promise.all로 병렬 처리 필요
     // 7. DTO로 변환 (Campaign, Blog 조인)
     const dataPromises = paginatedBidLogs.map(async (log) => {
       const campaign = userCampaigns.find((c) => c.id === log.campaignId);

@@ -85,7 +85,7 @@ export class OAuthService {
 
     const expiresAt = Date.now() + 10 * 60 * 1000;
 
-    // TODO: 명시적 타입 가드 때문에 길어짐 추후에 리팩토링 필요할 거 같음
+    // TODO(후순위): 명시적 타입 가드 때문에 길어짐 추후에 리팩토링 필요할 거 같음
     if (intent === 'register') {
       if (role !== UserRole.ADVERTISER && role !== UserRole.PUBLISHER) {
         throw new BadRequestException('role이 올바르지 않습니다.');
