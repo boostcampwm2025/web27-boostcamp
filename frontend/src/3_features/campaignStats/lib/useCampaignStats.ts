@@ -15,7 +15,9 @@ interface UseCampaignStatsReturn {
   error: string | null;
 }
 
-export function useCampaignStats(params: UseCampaignStatsParams = {}): UseCampaignStatsReturn {
+export function useCampaignStats(
+  params: UseCampaignStatsParams = {}
+): UseCampaignStatsReturn {
   const { limit = 3, offset = 0 } = params;
   const [campaigns, setCampaigns] = useState<CampaignStats[]>([]);
   const [total, setTotal] = useState(0);
@@ -30,12 +32,12 @@ export function useCampaignStats(params: UseCampaignStatsParams = {}): UseCampai
         setError(null);
 
         const response = await apiClient<CampaignStatsResponse>(
-          `/api/advertiser/campaigns?limit=${limit}&offset=${offset}`
+          `/api/campaigns?limit=${limit}&offset=${offset}`
         );
 
-        setCampaigns(response);
-        setTotal(0);
-        setHasMore(false);
+        setCampaigns(response.campaigns);
+        setTotal(response.total);
+        setHasMore(response.hasMore);
       } catch (err) {
         const message =
           err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다';
