@@ -32,8 +32,11 @@ import { CacheModule } from '../cache/cache.module';
 // BidLog
 import { BidLogModule } from '../bid-log/bid-log.module';
 
+// Blog
+import { BlogModule } from '../blog/blog.module';
+
 @Module({
-  imports: [CacheModule, BidLogModule, CampaignModule],
+  imports: [CacheModule, BidLogModule, CampaignModule, BlogModule],
   controllers: [RTBController],
   providers: [
     RTBService,

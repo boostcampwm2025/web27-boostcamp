@@ -11,7 +11,7 @@ import { randomUUID } from 'crypto';
 import { BidLogRepository } from '../bid-log/repositories/bid-log.repository.interface';
 import { CacheRepository } from '../cache/repository/cache.repository.interface';
 import { BidLog, BidStatus } from '../bid-log/bid-log.types';
-import { getBlogIdByKey } from '../common/utils/blog.utils';
+import { BlogRepository } from '../blog/repository/blog.repository.interface';
 
 @Injectable()
 export class RTBService {
@@ -22,7 +22,8 @@ export class RTBService {
     private readonly scorer: Scorer,
     private readonly selector: CampaignSelector,
     private readonly bidLogRepository: BidLogRepository,
-    private readonly cacheRepository: CacheRepository
+    private readonly cacheRepository: CacheRepository,
+    private readonly blogRepository: BlogRepository
   ) {}
 
   // 경매 참여 가능한 캠페인만 필터링
@@ -58,8 +59,12 @@ export class RTBService {
     try {
       const auctionId = randomUUID();
 
-      // 0. blogKey → blogId 변환 (Guard에서 이미 검증됨)
-      const blogId = getBlogIdByKey(context.blogKey)!;
+      // 0. blogKey → Blog 조회 (Guard에서 이미 검증됨)
+      const blog = await this.blogRepository.findByBlogKey(context.blogKey);
+      if (!blog) {
+        throw new Error(`블로그를 찾을 수 없습니다: ${context.blogKey}`);
+      }
+      const blogId = blog.id;
 
       // 1. 후보 필터링
       let candidates: Candidate[] =
