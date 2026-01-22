@@ -3,6 +3,7 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { UserRole } from 'src/user/entities/user.entity';
@@ -55,16 +56,23 @@ export class BlogService {
     return blogKey;
   }
 
-  async getMyBlogExists(userId: number) {
+  async getMyBlogExists(userId: number): Promise<boolean> {
     if (await this.userRepository.verifyRole(userId, UserRole.ADVERTISER)) {
       throw new BadRequestException('잘못된 Role의 접근입니다.');
     }
     return await this.blogRepository.existsBlogByUserId(userId);
   }
 
-  async getMyBlogKey(userId: number) {
+  async getMyBlogKey(userId: number): Promise<string> {
     if (await this.userRepository.verifyRole(userId, UserRole.ADVERTISER)) {
       throw new BadRequestException('잘못된 Role의 접근입니다.');
     }
+    const blog = await this.blogRepository.findById(userId);
+
+    if (!blog) {
+      throw new NotFoundException('사용자의 블로그가 존재하지 않습니다.');
+    }
+
+    return blog.blogKey;
   }
 }
