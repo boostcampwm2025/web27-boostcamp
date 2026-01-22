@@ -9,8 +9,8 @@ import axios from 'axios';
 import { randomUUID } from 'crypto';
 import { createRemoteJWKSet, jwtVerify, SignJWT } from 'jose';
 import { UserRole } from 'src/user/entities/user.entity';
-import { UserRepository } from 'src/user/repository/user.repository';
-import { OAuthAccountRepository } from './repository/oauthaccount.repository';
+import { UserRepository } from 'src/user/repository/user.repository.interface';
+import { OAuthAccountRepository } from './repository/oauthaccount.repository.interface';
 import { OAuthProvider } from './entities/oauth-account.entity';
 import { CacheRepository } from 'src/cache/repository/cache.repository.interface';
 

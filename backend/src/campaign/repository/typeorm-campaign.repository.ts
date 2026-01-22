@@ -2,7 +2,7 @@ import { Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, IsNull, In } from 'typeorm';
 import { randomUUID } from 'node:crypto';
-import { CampaignRepository } from './campaign.repository';
+import { CampaignRepository } from './campaign.repository.interface';
 import { CampaignEntity, CampaignStatus } from '../entities/campaign.entity';
 import { TagEntity } from '../../tag/entities/tag.entity';
 import { CampaignWithTags, Tag } from '../types/campaign.types';

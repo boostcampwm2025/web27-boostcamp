@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { BidStatus } from './bid-log.types';
 import { BidLogRepository } from './repositories/bid-log.repository.interface';
 import { BidLogResponseDto, BidLogItemDto } from './dto/bid-log-response.dto';
-import { CampaignRepository } from 'src/campaign/repository/campaign.repository';
+import { CampaignRepository } from 'src/campaign/repository/campaign.repository.interface';
 import { BlogRepository } from 'src/blog/repository/blog.repository.interface';
 
 @Injectable()
