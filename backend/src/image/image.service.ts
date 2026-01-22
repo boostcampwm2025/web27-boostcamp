@@ -110,4 +110,25 @@ export class ImageService {
 
     await this.s3.deleteObject(params).promise();
   }
+
+  async listImages(prefix: string = 'campaigns/'): Promise<
+    {
+      key: string;
+      url: string;
+      lastModified: Date;
+    }[]
+  > {
+    const params: AWS.S3.ListObjectsV2Request = {
+      Bucket: this.bucket,
+      Prefix: prefix,
+    };
+
+    const result = await this.s3.listObjectsV2(params).promise();
+
+    return (result.Contents || []).map((item) => ({
+      key: item.Key || '',
+      url: `${this.endpoint}/${this.bucket}/${item.Key}`,
+      lastModified: item.LastModified || new Date(),
+    }));
+  }
 }
