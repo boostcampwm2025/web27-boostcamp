@@ -182,7 +182,7 @@ export class CampaignService {
 
     const tagIds = dto.tags ? this.validateAndGetTagIds(dto.tags) : undefined;
 
-    return this.campaignRepository.update(campaignId, dto, tagIds);
+    return await this.campaignRepository.update(campaignId, dto, tagIds);
   }
 
   // 캠페인 삭제 (소프트 삭제, 소유권 검증)
