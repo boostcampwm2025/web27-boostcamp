@@ -23,6 +23,8 @@ export class BidLogService {
     // 2. 모든 Campaign 가져오기
     const allCampaigns = await this.campaignRepository.getAll();
 
+    // TODO : userId=1인 캠페인만 필터링하는 로직이 수정 필요
+    // TODO : userId 필터링 로직이 campaignRepository에 추가되면 수정 필요
     // 3. userId=1인 캠페인만 필터링
     const userCampaigns = allCampaigns.filter((c) => c.userId === 1);
     const userCampaignIds = new Set(userCampaigns.map((c) => c.id));
