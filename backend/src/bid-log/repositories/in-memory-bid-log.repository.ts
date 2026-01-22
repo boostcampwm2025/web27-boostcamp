@@ -48,4 +48,17 @@ export class InMemoryBidLogRepository extends BidLogRepository {
   getAll(): Promise<BidLog[]> {
     return Promise.resolve([...this.bidLogs]);
   }
+
+  findByUserId(
+    _userId: number,
+    _limit?: number,
+    _offset?: number,
+    _sortBy?: 'createdAt',
+    _order?: 'asc' | 'desc'
+  ): Promise<BidLog[]> {
+    // !WARN: InMemory 구현체는 Campaign 데이터에 접근할 수 없어서 userId 필터링 불가
+    // 테스트 환경에서 필요하다면 CampaignRepository를 주입받아 구현 필요
+    console.log(_userId, _limit, _offset, _sortBy, _order);
+    return Promise.resolve([]);
+  }
 }
