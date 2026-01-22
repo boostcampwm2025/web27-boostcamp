@@ -3,15 +3,14 @@ import { BidStatus } from './bid-log.types';
 import { BidLogRepository } from './repositories/bid-log.repository.interface';
 import { BidLogResponseDto, BidLogItemDto } from './dto/bid-log-response.dto';
 import { CampaignRepository } from 'src/campaign/repository/campaign.repository';
-import { MOCK_BLOGS } from '../common/constants';
-import { getBlogIdByKey } from '../common/utils/blog.utils';
+import { BlogRepository } from 'src/blog/repository/blog.repository.interface';
 
 @Injectable()
 export class BidLogService {
   constructor(
     private readonly bidLogRepository: BidLogRepository,
-    private readonly campaignRepository: CampaignRepository
-    // private readonly blogRepository: BlogRepository // TODO: blogRepo 만들기
+    private readonly campaignRepository: CampaignRepository,
+    private readonly blogRepository: BlogRepository
   ) {}
 
   async getRealtimeBidLogs(
@@ -43,13 +42,11 @@ export class BidLogService {
     // 6. offset + limit 적용
     const paginatedBidLogs = sortedBidLogs.slice(offset, offset + limit);
 
-    // 7. DTO로 변환 (Campaign, Blog 조인) - Promise.all로 병렬 처리
+    // TODO : Promise.all로 병렬 처리 필요
+    // 7. DTO로 변환 (Campaign, Blog 조인)
     const dataPromises = paginatedBidLogs.map(async (log) => {
       const campaign = userCampaigns.find((c) => c.id === log.campaignId);
-      const blog = MOCK_BLOGS.find(
-        // TODO: 이 부분도 추후 BlogRepository로 변경 -> blog_key -> blog_id -> 매칭
-        (b) => getBlogIdByKey(b.blog_key) === log.blogId
-      );
+      const blog = await this.blogRepository.findById(log.blogId);
       const winAmount = await this.bidLogRepository.findWinAmountByAuctionId(
         log.auctionId
       );
@@ -59,7 +56,7 @@ export class BidLogService {
         createdAt: log.createdAt!, // Entity에서 자동생성됨
         campaignId: log.campaignId,
         campaignTitle: campaign?.title || 'Unknown Campaign',
-        blogKey: blog?.blog_key || 'Unknown Blog Key',
+        blogKey: blog?.blogKey || 'Unknown Blog Key',
         blogName: blog?.name || 'Unknown Blog',
         blogDomain: blog?.domain || 'unknown.com',
         bidAmount: log.bidPrice,
