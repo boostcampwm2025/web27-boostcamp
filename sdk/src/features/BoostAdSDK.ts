@@ -20,6 +20,9 @@ declare global {
 // BoostAD SDK 메인 클래스 (전략 패턴)
 export class BoostAdSDK {
   private hasRequestedSecondAd = false;
+  private retryCount = 0;
+  private readonly MAX_RETRIES = 5;
+  private mutationObserver: MutationObserver | null = null;
   private readonly CONTENT_SELECTORS = [
     '#area_view',
     '#article-view',
@@ -69,6 +72,14 @@ export class BoostAdSDK {
         behaviorScore,
         isHighIntent
       );
+
+      // 광고 후보가 없는 경우 처리
+      if (!data || !data.data || !data.data.campaign) {
+        console.warn('[BoostAD SDK] 표시할 광고가 없습니다.');
+        container.innerHTML =
+          '<div style="color: #999; font-size: 14px; padding: 20px; text-align: center;">표시할 광고가 없습니다</div>';
+        return;
+      }
 
       this.adRenderer.render(
         data.data.campaign,
@@ -263,14 +274,60 @@ export class BoostAdSDK {
   // ========================================
 
   private async initManualMode(): Promise<void> {
+    // MutationObserver로 DOM 변화 감지 (SPA 대응)
+    this.setupMutationObserver();
+
+    // 초기 광고 로드 시도
+    await this.tryLoadManualAds();
+  }
+
+  // MutationObserver 설정 (React 등 SPA의 동적 DOM 변화 감지)
+  private setupMutationObserver(): void {
+    this.mutationObserver = new MutationObserver(() => {
+      const zones = document.querySelectorAll('[data-boostad-zone]');
+      if (zones.length > 0) {
+        console.log(
+          '[BoostAD SDK] DOM 변화 감지: data-boostad-zone 요소 발견'
+        );
+        // Observer 해제 (한번만 실행)
+        this.mutationObserver?.disconnect();
+        // 광고 로드
+        this.tryLoadManualAds();
+      }
+    });
+
+    // body 전체를 감시 (하위 요소 포함)
+    this.mutationObserver.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+
+    console.log('[BoostAD SDK] MutationObserver 활성화 (SPA 대응)');
+  }
+
+  private async tryLoadManualAds(): Promise<void> {
     const allZones = document.querySelectorAll('[data-boostad-zone]');
 
     if (allZones.length === 0) {
-      console.warn(
-        '[BoostAD SDK] data-boostad-zone 요소를 찾을 수 없습니다. 광고를 표시하지 않습니다.'
-      );
-      return;
+      // SPA 환경을 위한 재시도 로직
+      if (this.retryCount < this.MAX_RETRIES) {
+        this.retryCount++;
+        console.warn(
+          `[BoostAD SDK] data-boostad-zone 요소를 찾을 수 없습니다. ${this.retryCount}초 후 재시도합니다... (${this.retryCount}/${this.MAX_RETRIES})`
+        );
+        setTimeout(() => {
+          this.initManualMode();
+        }, 1000);
+        return;
+      } else {
+        console.warn(
+          '[BoostAD SDK] data-boostad-zone 요소를 찾을 수 없습니다. 광고를 표시하지 않습니다.'
+        );
+        return;
+      }
     }
+
+    console.log(`[BoostAD SDK] ${allZones.length}개의 광고존을 찾았습니다.`);
 
     const zones = Array.from(allZones).slice(0, 2);
 
