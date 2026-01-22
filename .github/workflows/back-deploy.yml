@@ -87,6 +87,13 @@ jobs:
             export DB_DATABASE="${{secrets.DB_DATABASE}}"
             export JWT_SECRET="${{secrets.JWT_SECRET}}"
 
+            # NCP Object Storage
+            export NCP_ACCESS_KEY="${{ secrets.NCP_ACCESS_KEY }}"
+            export NCP_SECRET_KEY="${{ secrets.NCP_SECRET_KEY }}"
+            export NCP_REGION="kr-standard"
+            export NCP_ENDPOINT="https://kr.object.ncloudstorage.com"
+            export NCP_BUCKET="boostadad-campaign-images"
+
             echo "${{ secrets.NCP_SECRET_KEY }}" | docker login \
               -u "${{ secrets.NCP_ACCESS_KEY }}" \
               --password-stdin \
