@@ -32,6 +32,8 @@ const initialFormData: CampaignFormData = {
     dailyBudget: 0,
     totalBudget: 0,
     maxCpc: 0,
+    startDate: '',
+    endDate: '',
   },
 };
 
