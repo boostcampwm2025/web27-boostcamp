@@ -13,7 +13,7 @@ export function SdkInstallFooter({
     <div className="flex flex-col w-150 items-center gap-2">
       <div className="flex gap-2">
         <button
-          className="flex flex-row bg-white items-center py-3 border border-gray-300 px-8 gap-1.5 text-gray-600 rounded-lg"
+          className="flex flex-row bg-blue-500 items-center py-3  px-8 gap-1.5 text-white rounded-lg"
           onClick={onRedirectToMyWeb}
         >
           <span className="text-base font-medium cursor-pointer">
@@ -22,7 +22,7 @@ export function SdkInstallFooter({
           <Icon.ArrowRight className="w-3" />
         </button>
         <button
-          className="flex flex-row bg-blue-500 items-center py-3  px-8 gap-1.5 text-white rounded-lg"
+          className="flex flex-row bg-white items-center py-3  px-8 gap-1.5 border border-gray-300 text-gray-600  rounded-lg"
           onClick={onNavigateToDashboard}
         >
           <span className="text-base font-medium cursor-pointer">
