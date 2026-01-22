@@ -26,7 +26,7 @@ const initialFormData: CampaignFormData = {
     url: '',
     tags: [],
     isHighIntent: false,
-    imageFile: null,
+    image: null,
   },
   budgetSettings: {
     dailyBudget: 0,

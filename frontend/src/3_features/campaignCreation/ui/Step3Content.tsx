@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { ContentHeader } from './ContentHeader';
 import { ConfirmCard } from './ConfirmCard';
 import { ConfirmItem } from './ConfirmItem';
@@ -8,14 +7,9 @@ import { DEFAULT_ENGAGEMENT_SCORE } from '../lib/constants';
 
 export function Step3Content() {
   const { formData, setStep } = useCampaignFormStore();
-  const { title, content, url, tags, isHighIntent, imageFile } =
+  const { title, content, url, tags, isHighIntent, image } =
     formData.campaignContent;
   const { dailyBudget, totalBudget, maxCpc } = formData.budgetSettings;
-
-  const previewUrl = useMemo(() => {
-    if (!imageFile) return null;
-    return URL.createObjectURL(imageFile);
-  }, [imageFile]);
 
   const keywordText = tags.map((tag) => tag.name).join(', ') || '-';
 
@@ -23,19 +17,16 @@ export function Step3Content() {
     ? `고의도 방문자만 (최소 Engagement Score: ${DEFAULT_ENGAGEMENT_SCORE}점)`
     : '모든 방문자';
 
-  // 광고 콘텐츠 - 반반 차지
   const contentGridItems = [
     { label: '광고 제목', value: title || '-' },
     { label: '키워드', value: keywordText },
   ];
 
-  // 광고 콘텐츠 - 한 줄 차지
   const contentFullItems = [
     { label: '광고 내용', value: content || '-', isLink: false },
     { label: '광고 URL', value: url || '-', isLink: true },
   ];
 
-  // 예산 - 반반 차지
   const budgetGridItems = [
     {
       label: '일 예산',
@@ -67,9 +58,9 @@ export function Step3Content() {
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <span className="text-xs text-gray-500">광고 이미지</span>
-            {previewUrl ? (
+            {image ? (
               <img
-                src={previewUrl}
+                src={image}
                 alt="광고 이미지"
                 className="h-40 w-full rounded-lg border border-gray-200 object-contain"
               />

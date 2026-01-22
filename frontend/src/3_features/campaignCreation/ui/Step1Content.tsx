@@ -8,11 +8,11 @@ import type { Tag } from '../lib/types';
 
 export function Step1Content() {
   const { formData, updateCampaignContent } = useCampaignFormStore();
-  const { title, content, url, tags, isHighIntent, imageFile } =
+  const { title, content, url, tags, isHighIntent, image } =
     formData.campaignContent;
 
-  const handleImageChange = (file: File | null) => {
-    updateCampaignContent({ imageFile: file });
+  const handleImageChange = (imageUrl: string | null) => {
+    updateCampaignContent({ image: imageUrl });
   };
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,7 +41,7 @@ export function Step1Content() {
         title="광고 내용"
         description="광고에 표시될 이미지와 텍스트를 입력해주세요"
       />
-      <ImageUpload value={imageFile} onChange={handleImageChange} />
+      <ImageUpload value={image} onChange={handleImageChange} />
       <TextField
         label="광고 제목"
         placeholder="Next로 배우는 프론트"
