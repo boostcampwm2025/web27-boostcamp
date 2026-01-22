@@ -67,7 +67,7 @@ export class BlogService {
     if (await this.userRepository.verifyRole(userId, UserRole.ADVERTISER)) {
       throw new BadRequestException('잘못된 Role의 접근입니다.');
     }
-    const blog = await this.blogRepository.findById(userId);
+    const blog = await this.blogRepository.findByUserId(userId);
 
     if (!blog) {
       throw new NotFoundException('사용자의 블로그가 존재하지 않습니다.');
