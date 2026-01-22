@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SdkService } from './sdk.service';
 import { LogRepository } from 'src/log/repository/log.repository.interface';
-import { AuctionStore } from 'src/cache/auction/auction.store';
+import { CacheRepository } from 'src/cache/repository/cache.repository.interface';
 
 describe('SdkService', () => {
   let service: SdkService;
@@ -21,11 +21,11 @@ describe('SdkService', () => {
           },
         },
         {
-          provide: AuctionStore,
+          provide: CacheRepository,
           useValue: {
-            set: jest.fn(),
-            get: jest.fn(),
-            delete: jest.fn(),
+            setAuctionData: jest.fn(),
+            getAuctionData: jest.fn(),
+            deleteAuctionData: jest.fn(),
           },
         },
       ],

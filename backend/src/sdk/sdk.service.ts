@@ -1,14 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateViewLogDto } from './dto/create-view-log.dto';
 import { LogRepository } from 'src/log/repository/log.repository.interface';
-import { AuctionStore } from 'src/cache/auction/auction.store';
+import { CacheRepository } from 'src/cache/repository/cache.repository.interface';
 import { CreateClickLogDto } from './dto/create-click-log.dto';
 
 @Injectable()
 export class SdkService {
   constructor(
     private readonly logRepository: LogRepository,
-    private readonly auctionStore: AuctionStore
+    private readonly cacheRepository: CacheRepository
   ) {}
 
   async recordView(dto: CreateViewLogDto) {
@@ -22,7 +22,7 @@ export class SdkService {
     } = dto;
 
     // TODO: 추후 redis로 마이그레이션 필요할 거 같음
-    const auctionData = this.auctionStore.get(auctionId);
+    const auctionData = await this.cacheRepository.getAuctionData(auctionId);
     if (!auctionData) {
       throw new NotFoundException('404 not found');
     }

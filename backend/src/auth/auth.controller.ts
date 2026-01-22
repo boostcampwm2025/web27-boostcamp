@@ -19,11 +19,11 @@ export class AuthController {
   // 구글 로그인 페이지로 리다이렉트 하기 위한 요청 받음
   @Get('google')
   @Public()
-  redirectToGoogleAuth(
+  async redirectToGoogleAuth(
     @Res() res: Response,
     @Query('intent') intent: AuthIntent,
     @Query('role') role?: UserRole
-  ): void {
+  ): Promise<void> {
     if (intent !== 'login' && intent !== 'register') {
       throw new BadRequestException('잘못된 접근입니다.');
     }
@@ -38,7 +38,7 @@ export class AuthController {
       }
     }
 
-    const url = this.oauthService.getGoogleAuthUrl(
+    const url = await this.oauthService.getGoogleAuthUrl(
       intent,
       intent === 'register' ? role : undefined
     );
@@ -63,7 +63,7 @@ export class AuthController {
     if (!state) {
       throw new BadRequestException('state가 없습니다.');
     }
-    const stateData = this.oauthService.validateState(state);
+    const stateData = await this.oauthService.validateState(state);
     const payload = await this.oauthService.getTokensFromGoogle(code);
 
     const result = await this.oauthService.authorizeUserByToken(
