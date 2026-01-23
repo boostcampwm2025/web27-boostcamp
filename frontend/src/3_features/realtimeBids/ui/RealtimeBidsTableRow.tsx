@@ -21,13 +21,15 @@ export function RealtimeBidsTableRow({ bid }: RealtimeBidsTableRowProps) {
 
   return (
     <tr
-      className={`text-base border-b border-gray-100 ${bid.isWon ? 'bg-green-100/30' : ''}`}
+      className={`text-sm border-b border-gray-100 ${bid.isWon ? 'bg-green-100/30' : ''}`}
     >
-      <td className="px-5 py-4 text-gray-600">{formatTime(bid.createdAt)}</td>
+      <td className="px-5 py-4 text-gray-900 whitespace-nowrap">
+        {formatTime(bid.createdAt)}
+      </td>
       <td className="px-5 py-4 text-gray-900 font-semibold">
         {bid.campaignTitle}
       </td>
-      <td className="px-5 py-4">
+      <td className="px-5 py-4 whitespace-nowrap">
         {bid.blogDomain ? (
           <a
             href={`https://${bid.blogDomain}`}
@@ -42,23 +44,23 @@ export function RealtimeBidsTableRow({ bid }: RealtimeBidsTableRowProps) {
         )}
       </td>
       <td
-        className={`px-5 py-4 ${bid.isWon ? 'text-green-500' : 'text-gray-600'}`}
+        className={`px-5 py-4 whitespace-nowrap ${bid.isWon ? 'text-green-500' : 'text-gray-600'}`}
       >
         {formatAmount(bid.bidAmount)}
       </td>
       <td
-        className={`px-5 py-4 font-semibold ${bid.isWon ? 'text-green-500' : 'text-gray-900'}`}
+        className={`px-5 py-4 font-semibold whitespace-nowrap ${bid.isWon ? 'text-green-500' : 'text-gray-900'}`}
       >
         {bid.winAmount !== null ? formatAmount(bid.winAmount) : '-'}
       </td>
-      <td className="px-5 py-4">
-        <div className="text-gray-600 text-sm">
+      <td className="px-5 py-4 whitespace-nowrap">
+        <div className="text-gray-900 text-sm">
           {bid.isHighIntent
-            ? `고의도 학습자 대상 - ${bid.behaviorScore ?? 0}점 학습자`
-            : '모든 학습자 대상'}
+            ? `고의도 학습자 - ${bid.behaviorScore}점 학습자`
+            : '모든 학습자'}
         </div>
       </td>
-      <td className="px-5 py-4">
+      <td className="px-5 py-4 whitespace-nowrap">
         {bid.isWon ? (
           <div className="flex flex-row items-center gap-1 px-1.5 py-0.5 bg-green-100 border border-green-300 rounded-lg text-xs font-semibold text-green-500 w-fit">
             <Icon.Circle className="w-3 h-3 text-green-500" />
