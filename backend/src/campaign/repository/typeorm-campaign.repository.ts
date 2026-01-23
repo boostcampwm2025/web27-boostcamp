@@ -222,10 +222,11 @@ export class TypeOrmCampaignRepository extends CampaignRepository {
   }
 
   async resetAllDailySpent(): Promise<void> {
-    await this.campaignRepo.update(
-      {},
-      { dailySpent: 0, lastResetDate: new Date() }
-    );
+    await this.campaignRepo
+      .createQueryBuilder()
+      .update()
+      .set({ dailySpent: 0, lastResetDate: new Date() })
+      .execute();
   }
 
   async getViewCountsByCampaignIds(
