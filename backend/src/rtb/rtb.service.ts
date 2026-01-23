@@ -134,6 +134,7 @@ export class RTBService {
         bidPrice: candidate.maxCpc,
         isHighIntent: context.isHighIntent,
         behaviorScore: context.behaviorScore,
+        postUrl: context.postUrl,
         reason: '', // 추후에 수정 필요
       }));
       await this.bidLogRepository.saveMany(bidLogs);
