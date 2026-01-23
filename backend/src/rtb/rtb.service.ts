@@ -12,7 +12,7 @@ import { BidLogRepository } from '../bid-log/repositories/bid-log.repository.int
 import { CacheRepository } from '../cache/repository/cache.repository.interface';
 import { BidLog, BidStatus } from '../bid-log/bid-log.types';
 import { BlogRepository } from '../blog/repository/blog.repository.interface';
-import { CampaignRepository } from '../campaign/repository/campaign.repository';
+import { CampaignRepository } from '../campaign/repository/campaign.repository.interface';
 
 @Injectable()
 export class RTBService {
@@ -30,6 +30,7 @@ export class RTBService {
     private readonly campaignRepository: CampaignRepository
   ) {}
 
+  // cache 문제로 인한 무의미한 주석
   // 경매 참여 가능한 캠페인만 필터링
   private filterEligibleCampaigns(candidates: Candidate[]): Candidate[] {
     const now = new Date();

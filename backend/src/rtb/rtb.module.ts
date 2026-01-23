@@ -3,7 +3,7 @@
 import { Module } from '@nestjs/common';
 import { RTBService } from './rtb.service';
 
-import { CampaignModule } from 'src/campaign/campaign.module';
+import { CampaignModule } from '../campaign/campaign.module';
 
 // MLEngine
 import { MLEngine } from './ml/mlEngine.interface';

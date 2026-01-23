@@ -1,8 +1,8 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, IsNull } from 'typeorm';
+import { Repository, IsNull, In } from 'typeorm';
 import { randomUUID } from 'node:crypto';
-import { CampaignRepository } from './campaign.repository';
+import { CampaignRepository } from './campaign.repository.interface';
 import { CampaignEntity, CampaignStatus } from '../entities/campaign.entity';
 import { TagEntity } from '../../tag/entities/tag.entity';
 import { CampaignWithTags, Tag } from '../types/campaign.types';
@@ -74,7 +74,7 @@ export class TypeOrmCampaignRepository extends CampaignRepository {
     tagIds: number[],
     initialStatus: CampaignStatus = CampaignStatus.PENDING
   ): Promise<CampaignWithTags> {
-    const tags = await this.tagRepo.findByIds(tagIds);
+    const tags = await this.tagRepo.find({ where: { id: In(tagIds) } });
 
     const campaign = this.campaignRepo.create({
       id: randomUUID(),
@@ -186,7 +186,7 @@ export class TypeOrmCampaignRepository extends CampaignRepository {
     }
 
     if (tagIds) {
-      const tags = await this.tagRepo.findByIds(tagIds);
+      const tags = await this.tagRepo.find({ where: { id: In(tagIds) } });
       campaign.tags = tags;
     }
 

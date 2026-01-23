@@ -51,4 +51,24 @@ export class TypeOrmBidLogRepository extends BidLogRepository {
     const logs = await this.repository.find();
     return logs;
   }
+
+  async findByUserId(
+    userId: number,
+    limit: number = 10,
+    offset: number = 0,
+    sortBy: 'createdAt' = 'createdAt',
+    order: 'asc' | 'desc' = 'desc'
+  ): Promise<BidLog[]> {
+    // DB 레벨에서 JOIN, 필터링, 정렬, 페이지네이션을 한 번에 처리
+    const logs = await this.repository
+      .createQueryBuilder('bidLog')
+      .innerJoin('bidLog.campaign', 'campaign')
+      .where('campaign.userId = :userId', { userId })
+      .orderBy(`bidLog.${sortBy}`, order.toUpperCase() as 'ASC' | 'DESC')
+      .skip(offset)
+      .take(limit)
+      .getMany();
+
+    return logs;
+  }
 }

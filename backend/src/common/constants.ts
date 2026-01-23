@@ -1,49 +1,6 @@
 import { Tag } from '../types/tag';
 
-// Mock 블로그 데이터 (ERD 스키마 준수)
-export interface MockBlog {
-  id: number;
-  user_id: number;
-  domain: string;
-  name: string;
-  blog_key: string;
-  verified: boolean;
-  created_at: string;
-  deleted_at: string | null;
-}
-
-export const MOCK_BLOGS: MockBlog[] = [
-  {
-    id: 1,
-    user_id: 1,
-    domain: 'tech.example.com',
-    name: '테크 블로그',
-    blog_key: 'tech-blog-1',
-    verified: true,
-    created_at: '2025-01-01T00:00:00Z',
-    deleted_at: null,
-  },
-  {
-    id: 2,
-    user_id: 1,
-    domain: 'dev.example.com',
-    name: '개발 블로그',
-    blog_key: 'dev-blog-2',
-    verified: true,
-    created_at: '2025-01-02T00:00:00Z',
-    deleted_at: null,
-  },
-  {
-    id: 3,
-    user_id: 1,
-    domain: 'test.example.com',
-    name: '테스트 블로그',
-    blog_key: 'test-blog',
-    verified: true,
-    created_at: '2025-01-03T00:00:00Z',
-    deleted_at: null,
-  },
-];
+// MOCK_BLOGS는 제거
 
 export const AVAILABLE_TAGS: Tag[] = [
   // Programming Languages

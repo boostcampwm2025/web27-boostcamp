@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { BidStatus } from './bid-log.types';
 import { BidLogRepository } from './repositories/bid-log.repository.interface';
 import { BidLogResponseDto, BidLogItemDto } from './dto/bid-log-response.dto';
-import { CampaignRepository } from 'src/campaign/repository/campaign.repository';
+import { CampaignRepository } from 'src/campaign/repository/campaign.repository.interface';
 import { BlogRepository } from 'src/blog/repository/blog.repository.interface';
 
 @Injectable()
@@ -14,39 +14,27 @@ export class BidLogService {
   ) {}
 
   async getRealtimeBidLogs(
+    userId: number,
     limit: number,
     offset: number
   ): Promise<BidLogResponseDto> {
-    // 1. 모든 BidLog 가져오기
-    const allBidLogs = await this.bidLogRepository.getAll();
-
-    // 2. 모든 Campaign 가져오기
-    const allCampaigns = await this.campaignRepository.getAll();
-
-    // 3. userId=1인 캠페인만 필터링
-    const userCampaigns = allCampaigns.filter((c) => c.userId === 1);
-    const userCampaignIds = new Set(userCampaigns.map((c) => c.id));
-
-    // 4. userId=1의 캠페인에 해당하는 BidLog만 필터링
-    const filteredBidLogs = allBidLogs.filter((log) =>
-      userCampaignIds.has(log.campaignId)
+    // Repository에서 userId 필터링, 정렬, 페이지네이션을 모두 처리
+    const bidLogs = await this.bidLogRepository.findByUserId(
+      userId,
+      limit,
+      offset,
+      'createdAt',
+      'desc'
     );
 
-    // 5. 최신순 정렬 (createdAt 내림차순)
-    const sortedBidLogs = filteredBidLogs.sort((a, b) => {
-      const timeA = a.createdAt?.getTime() ?? 0;
-      const timeB = b.createdAt?.getTime() ?? 0;
-      return timeB - timeA;
-    });
-
-    // 6. offset + limit 적용
-    const paginatedBidLogs = sortedBidLogs.slice(offset, offset + limit);
-
-    // TODO : Promise.all로 병렬 처리 필요
-    // 7. DTO로 변환 (Campaign, Blog 조인)
-    const dataPromises = paginatedBidLogs.map(async (log) => {
-      const campaign = userCampaigns.find((c) => c.id === log.campaignId);
+    // TODO(후순위): 쿼리 최적화 필요
+    // DTO로 변환 (Campaign, Blog 조인)
+    const dataPromises = bidLogs.map(async (log) => {
+      // Campaign 정보 조회
+      const campaign = await this.campaignRepository.getById(log.campaignId);
+      // Blog 정보 조회
       const blog = await this.blogRepository.findById(log.blogId);
+      // 낙찰가 조회
       const winAmount = await this.bidLogRepository.findWinAmountByAuctionId(
         log.auctionId
       );

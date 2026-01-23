@@ -1,9 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Matcher } from './matcher.interface';
-import { CampaignRepository } from 'src/campaign/repository/campaign.repository';
+import { CampaignRepository } from '../../campaign/repository/campaign.repository.interface';
 import { MLEngine } from '../ml/mlEngine.interface';
 import type { Candidate, DecisionContext } from '../types/decision.types';
-import type { CampaignWithTags } from 'src/campaign/types/campaign.types';
+import type { CampaignWithTags } from '../../campaign/types/campaign.types';
 @Injectable()
 export class TransformerMatcher extends Matcher {
   private readonly logger = new Logger(TransformerMatcher.name);

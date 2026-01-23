@@ -21,4 +21,13 @@ export abstract class BidLogRepository {
 
   // 모든 입찰 로그 목록 조회
   abstract getAll(): Promise<BidLog[]>;
+
+  // userId에 해당하는 캠페인의 입찰 로그 조회 (페이지네이션, 정렬 포함)
+  abstract findByUserId(
+    userId: number,
+    limit?: number,
+    offset?: number,
+    sortBy?: 'createdAt',
+    order?: 'asc' | 'desc'
+  ): Promise<BidLog[]>;
 }

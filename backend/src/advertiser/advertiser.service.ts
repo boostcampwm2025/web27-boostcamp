@@ -1,8 +1,8 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { CampaignRepository } from 'src/campaign/repository/campaign.repository';
+import { CampaignRepository } from 'src/campaign/repository/campaign.repository.interface';
 import { LogRepository } from 'src/log/repository/log.repository.interface';
 import { UserRole } from 'src/user/entities/user.entity';
-import { UserRepository } from 'src/user/repository/user.repository';
+import { UserRepository } from 'src/user/repository/user.repository.interface';
 
 type Snapshot = {
   endMsExclusive: number;
@@ -15,7 +15,6 @@ export class AdvertiserService {
     private readonly campaignRepository: CampaignRepository,
     private readonly logRepository: LogRepository
   ) {}
-  // todo: 추후 DB에 데이터를 넣게되면 로직 수정
   async getDashboardStats(userId: number) {
     const isAdvertiser = await this.userRepository.verifyRole(
       userId,
