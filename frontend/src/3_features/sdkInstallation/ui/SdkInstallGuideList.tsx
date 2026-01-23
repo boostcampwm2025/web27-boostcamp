@@ -25,9 +25,9 @@ export function SdkInstallGuideList({ mode }: SdkInstallGuideListProps) {
     {
       icon: <Icon.Terminal className="w-5 h-5 text-blue-500" />,
       stepNumber: 3,
-      title: '<body> 태그 하단에 코드 붙여넣기',
+      title: '<head> 태그 하단에 코드 붙여넣기',
       description:
-        '복사한 코드를 <body>와 </body> 사이 제일 하단에 붙여넣으세요. 페이지 로딩을 방해하지 않고 광고가 안정적으로 삽입됩니다.',
+        '복사한 코드를 <head>와 </head> 사이 제일 하단에 붙여넣으세요. 페이지 로딩을 방해하지 않고 광고가 안정적으로 삽입됩니다.',
       imageSrc: '/step3.png',
     },
   ];
@@ -45,7 +45,7 @@ export function SdkInstallGuideList({ mode }: SdkInstallGuideListProps) {
       stepNumber: 2,
       title: '코드 삽입',
       description:
-        '복사한 코드를 index.html의 <body> 태그 하단에 붙여넣으세요. 페이지 로딩에 영향을 주지 않으면서 광고가 안정적으로 동작합니다.',
+        '복사한 코드를 index.html의 <head> 태그 하단에 붙여넣으세요. 페이지 로딩에 영향을 주지 않으면서 광고가 안정적으로 동작합니다.',
       imageSrc: undefined,
     },
     {
