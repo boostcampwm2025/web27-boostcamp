@@ -14,4 +14,5 @@ export interface BidLog {
   createdAt?: Date;
   isHighIntent: boolean;
   behaviorScore: number | null;
+  postUrl?: string | null;
 }
