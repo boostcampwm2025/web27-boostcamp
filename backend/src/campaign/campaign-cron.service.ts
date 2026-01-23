@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { CampaignRepository } from './repository/campaign.repository';
+import { CampaignRepository } from './repository/campaign.repository.interface';
 import { CampaignStatus } from './entities/campaign.entity';
 import { ImageService } from '../image/image.service';
 

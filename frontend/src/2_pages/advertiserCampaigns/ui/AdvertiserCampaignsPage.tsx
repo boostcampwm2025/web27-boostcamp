@@ -86,6 +86,7 @@ export function AdvertiserCampaignsPage() {
           )}
         </div>
         {/* BoostAd 광고 영역 */}
+        <div data-boostad-zone className="mb-6 h-20" />
         <div data-boostad-zone className="mb-6" />
       </div>
     </div>

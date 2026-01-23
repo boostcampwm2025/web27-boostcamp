@@ -4,7 +4,7 @@ import { OAuthService } from './auth.service';
 import { UserModule } from 'src/user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OAuthAccountEntity } from './entities/oauth-account.entity';
-import { OAuthAccountRepository } from './repository/oauthaccount.repository';
+import { OAuthAccountRepository } from './repository/oauthaccount.repository.interface';
 import { TypeOrmOAuthAccountRepository } from './repository/typeorm-oauthaccount.repository';
 import { CacheModule } from 'src/cache/cache.module';
 

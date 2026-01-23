@@ -4,21 +4,24 @@ import {
   ExecutionContext,
   ForbiddenException,
   BadRequestException,
+  InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { getBlogByKey } from '../utils/blog.utils';
-import type { MockBlog } from '../constants';
+import { BlogRepository } from '../../blog/repository/blog.repository.interface';
+import type { BlogEntity } from '../../blog/entities/blog.entity';
 
 interface RequestWithBlog extends Request {
-  blog?: MockBlog;
+  blog?: BlogEntity; // TypeORM 엔티티로 변경
 }
 
 @Injectable()
 export class BlogKeyValidationGuard implements CanActivate {
   private readonly logger = new Logger(BlogKeyValidationGuard.name);
 
-  canActivate(context: ExecutionContext): boolean {
+  constructor(private readonly blogRepository: BlogRepository) {}
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<RequestWithBlog>();
     const { blogKey } = request.body as { blogKey?: string };
 
@@ -31,8 +34,19 @@ export class BlogKeyValidationGuard implements CanActivate {
       throw new BadRequestException('blogKey가 필요합니다.');
     }
 
-    // blogKey 검증
-    const blog = getBlogByKey(blogKey);
+    // blogKey 검증 (DB 조회)
+    let blog: BlogEntity | null;
+    try {
+      blog = await this.blogRepository.findByBlogKey(blogKey);
+    } catch (error) {
+      this.logger.error('blogKey 조회 중 DB 오류 발생', {
+        blogKey,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw new InternalServerErrorException(
+        '블로그 정보 조회 중 오류가 발생했습니다.'
+      );
+    }
 
     if (!blog) {
       this.logger.warn('미등록 blogKey 요청 차단', {

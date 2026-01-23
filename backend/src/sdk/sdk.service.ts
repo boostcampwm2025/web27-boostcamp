@@ -21,7 +21,6 @@ export class SdkService {
       positionRatio,
     } = dto;
 
-    // TODO: 추후 redis로 마이그레이션 필요할 거 같음
     const auctionData = await this.cacheRepository.getAuctionData(auctionId);
     if (!auctionData) {
       throw new NotFoundException('404 not found');

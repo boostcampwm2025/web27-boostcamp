@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { UserRole } from 'src/user/entities/user.entity';
-import { UserRepository } from 'src/user/repository/user.repository';
+import { UserRepository } from 'src/user/repository/user.repository.interface';
 import { BlogRepository } from './repository/blog.repository.interface';
 
 @Injectable()

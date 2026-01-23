@@ -3,7 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import { CampaignRepository } from './repository/campaign.repository';
+import { CampaignRepository } from './repository/campaign.repository.interface';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { UpdateCampaignDto } from './dto/update-campaign.dto';
 import { GetCampaignListDto } from './dto/get-campaign-list.dto';
