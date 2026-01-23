@@ -57,13 +57,27 @@ export class TypeOrmBidLogRepository extends BidLogRepository {
     limit: number = 10,
     offset: number = 0,
     sortBy: 'createdAt' = 'createdAt',
-    order: 'asc' | 'desc' = 'desc'
+    order: 'asc' | 'desc' = 'desc',
+    startDate?: string,
+    endDate?: string
   ): Promise<BidLog[]> {
-    // DB 레벨에서 JOIN, 필터링, 정렬, 페이지네이션을 한 번에 처리
-    const logs = await this.repository
+    const queryBuilder = this.repository
       .createQueryBuilder('bidLog')
       .innerJoin('bidLog.campaign', 'campaign')
-      .where('campaign.userId = :userId', { userId })
+      .where('campaign.userId = :userId', { userId });
+
+    if (startDate) {
+      queryBuilder.andWhere('bidLog.createdAt >= :startDate', {
+        startDate: new Date(startDate),
+      });
+    }
+    if (endDate) {
+      queryBuilder.andWhere('bidLog.createdAt <= :endDate', {
+        endDate: new Date(endDate),
+      });
+    }
+
+    const logs = await queryBuilder
       .orderBy(`bidLog.${sortBy}`, order.toUpperCase() as 'ASC' | 'DESC')
       .skip(offset)
       .take(limit)
