@@ -16,15 +16,24 @@ export class BidLogService {
   async getRealtimeBidLogs(
     userId: number,
     limit: number,
-    offset: number
+    offset: number,
+    startDate?: string,
+    endDate?: string
   ): Promise<BidLogResponseDto> {
-    // Repository에서 userId 필터링, 정렬, 페이지네이션을 모두 처리
+    const total = await this.bidLogRepository.countByUserId(
+      userId,
+      startDate,
+      endDate
+    );
+
     const bidLogs = await this.bidLogRepository.findByUserId(
       userId,
       limit,
       offset,
       'createdAt',
-      'desc'
+      'desc',
+      startDate,
+      endDate
     );
 
     // TODO(후순위): 쿼리 최적화 필요
@@ -55,13 +64,18 @@ export class BidLogService {
       };
     });
 
-    const data: BidLogItemDto[] = await Promise.all(dataPromises);
+    const bids: BidLogItemDto[] = await Promise.all(dataPromises);
 
-    // 8. 최종 응답 형식
+    const hasMore = offset + limit < total;
+
     return {
       status: 'success',
       message: '광고주 실시간 입찰 로그입니다.',
-      data,
+      data: {
+        total,
+        hasMore,
+        bids,
+      },
       timestamp: new Date().toISOString(),
     };
   }
