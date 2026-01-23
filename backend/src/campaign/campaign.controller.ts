@@ -18,6 +18,7 @@ import { GetCampaignListDto } from './dto/get-campaign-list.dto';
 import { JwtCookieGuard } from '../auth/guards/jwt-cookie.guard';
 import type { AuthenticatedRequest } from '../types/authenticated-request';
 import { successResponse } from '../common/response/success-response';
+import { Public } from '../auth/decorators/public.decorator';
 
 @Controller('campaigns')
 @UseGuards(JwtCookieGuard)
@@ -87,6 +88,7 @@ export class CampaignController {
   }
 
   @Post('manual-reset')
+  @Public()
   async manualReset() {
     const result = await this.campaignCronService.manualReset();
     return successResponse(
