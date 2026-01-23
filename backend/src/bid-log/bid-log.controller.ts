@@ -11,7 +11,9 @@ export class BidLogController {
   async getRealtimeBids(
     @Req() req: AuthenticatedRequest,
     @Query('limit') limit?: string,
-    @Query('offset') offset?: string
+    @Query('offset') offset?: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string
   ): Promise<BidLogResponseDto> {
     const userId = req.user.userId;
     const parsedLimit = limit ? parseInt(limit, 10) : 3;
@@ -20,7 +22,9 @@ export class BidLogController {
     return this.bidLogService.getRealtimeBidLogs(
       userId,
       parsedLimit,
-      parsedOffset
+      parsedOffset,
+      startDate,
+      endDate
     );
   }
 }
