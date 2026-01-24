@@ -10,7 +10,7 @@ export interface BidLog {
   campaignTitle: string;
   blogKey: string;
   blogName: string;
-  blogDomain: string;
+  postUrl: string;
   bidAmount: number;
   winAmount: number | null;
   isWon: boolean;

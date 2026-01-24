@@ -46,7 +46,7 @@ export class BidLogService {
         campaignTitle: campaign?.title || 'Unknown Campaign',
         blogKey: blog?.blogKey || 'Unknown Blog Key',
         blogName: blog?.name || 'Unknown Blog',
-        blogDomain: log.postUrl || blog?.domain || 'unknown.com',
+        postUrl: log.postUrl || blog?.domain || 'unknown.com',
         bidAmount: log.bidPrice,
         winAmount: winAmount,
         isWon: log.status === BidStatus.WIN,
