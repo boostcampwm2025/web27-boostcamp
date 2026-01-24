@@ -32,9 +32,10 @@ export function AdvertiserCampaignsPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">캠페인 관리</h1>
-
         <div className="bg-white border border-gray-200 rounded-xl shadow">
+          <div className="p-5 flex flex-row justify-between items-center border-b border-gray-100">
+            <h2 className="text-gray-900 text-xl font-bold">캠페인 관리</h2>
+          </div>
           {isLoading ? (
             <div className="p-10 text-center text-gray-500">로딩 중...</div>
           ) : error ? (
