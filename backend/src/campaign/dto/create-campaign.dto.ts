@@ -44,7 +44,7 @@ export class CreateCampaignDto {
   @Type(() => Number)
   @IsInt({ message: '총 예산은 정수여야 합니다.' })
   @Min(0, { message: '총 예산은 0 이상이어야 합니다.' })
-  totalBudget: number | null;
+  totalBudget: number;
 
   @IsDateString({}, { message: '시작일은 ISO 8601 형식이어야 합니다.' })
   startDate: string;
