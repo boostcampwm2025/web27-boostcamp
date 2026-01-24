@@ -5,7 +5,7 @@ export interface BidLogItemDto {
   campaignTitle: string;
   blogKey: string;
   blogName: string;
-  blogDomain: string;
+  postUrl: string;
   bidAmount: number;
   winAmount: number | null;
   isWon: boolean;
