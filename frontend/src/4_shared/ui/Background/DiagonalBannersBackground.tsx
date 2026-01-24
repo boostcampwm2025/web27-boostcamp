@@ -316,7 +316,7 @@ export function DiagonalBannersBackground() {
       </div>
 
       {/* 폼 가독성 오버레이 */}
-      <div className="absolute inset-0 bg-gradient-to-b from-white/0 via-white/30 to-white/0" />
+      <div className="absolute inset-0 bg-linear-to-b from-white/0 via-white/30 to-white/0" />
 
       <style>
         {`
