@@ -59,13 +59,11 @@ export class CampaignService {
     checkBalance?: boolean;
   }): Promise<void> {
     if (maxCpc > dailyBudget) {
-      throw new BadRequestException('CPC값은 하루 예산을 초과할 수 없습니다.');
+      throw new BadRequestException('CPC값은 일 예산을 초과할 수 없습니다.');
     }
 
     if (totalBudget !== null && dailyBudget > totalBudget) {
-      throw new BadRequestException(
-        '하루 예산은 총 예산을 초과할 수 없습니다.'
-      );
+      throw new BadRequestException('일 예산은 총 예산을 초과할 수 없습니다.');
     }
 
     if (checkBalance && totalBudget !== null) {
