@@ -34,7 +34,25 @@ export class CampaignService {
 
     return this.campaignRepository.create(userId, dto, tagIds, initialStatus);
   }
+  // private validateBudget({
+  //   maxCpc,
+  //   dailyBudget,
+  //   totalBudget,
+  // }: {
+  //   maxCpc: number;
+  //   dailyBudget: number;
+  //   totalBudget: number;
+  // }) {
+  //   if (maxCpc > dailyBudget) {
+  //     throw new BadRequestException('CPC값은 하루 예산을 초과할 수 없습니다.');
+  //   }
 
+  //   if (dailyBudget > totalBudget) {
+  //     throw new BadRequestException(
+  //       '하루 예산은 총 예산을 초과할 수 없습니다.'
+  //     );
+  //   }
+  // }
   // 시작일 기준 초기 상태 결정
   private determineInitialStatus(
     startDate: string
