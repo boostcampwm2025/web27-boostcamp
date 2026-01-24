@@ -30,9 +30,9 @@ export function RealtimeBidsTableRow({ bid }: RealtimeBidsTableRowProps) {
         {bid.campaignTitle}
       </td>
       <td className="px-5 py-4 whitespace-nowrap">
-        {bid.blogDomain ? (
+        {bid.postUrl ? (
           <a
-            href={`https://${bid.blogDomain}`}
+            href={`https://${bid.postUrl}`}
             target="_blank"
             rel="noopener noreferrer"
             className="text-gray-900 hover:text-blue-600 hover:underline cursor-pointer"

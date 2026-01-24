@@ -63,6 +63,15 @@ export class BidLogEntity {
   })
   behaviorScore: number | null;
 
+  @Column({
+    name: 'post_url',
+    type: 'varchar',
+    length: 500,
+    nullable: true,
+    comment: '광고가 게재된 블로그 포스트 URL',
+  })
+  postUrl: string | null;
+
   @CreateDateColumn({ name: 'created_at', comment: 'TTL 적용' })
   createdAt: Date;
 

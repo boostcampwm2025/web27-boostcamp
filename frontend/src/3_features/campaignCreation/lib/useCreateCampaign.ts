@@ -39,13 +39,16 @@ interface CreateCampaignResponse {
 }
 
 interface UseCreateCampaignReturn {
-  createCampaign: (formData: CampaignFormData) => Promise<CreateCampaignResponse>;
+  createCampaign: (
+    formData: CampaignFormData
+  ) => Promise<CreateCampaignResponse>;
   isLoading: boolean;
   error: string | null;
 }
 
 function toISOString(dateString: string): string {
-  return new Date(dateString).toISOString();
+  // KST 00:00 명시
+  return `${dateString}T00:00:00+09:00`;
 }
 
 export function useCreateCampaign(): UseCreateCampaignReturn {
