@@ -85,4 +85,28 @@ export class TypeOrmBidLogRepository extends BidLogRepository {
 
     return logs;
   }
+
+  async countByUserId(
+    userId: number,
+    startDate?: string,
+    endDate?: string
+  ): Promise<number> {
+    const queryBuilder = this.repository
+      .createQueryBuilder('bidLog')
+      .innerJoin('bidLog.campaign', 'campaign')
+      .where('campaign.userId = :userId', { userId });
+
+    if (startDate) {
+      queryBuilder.andWhere('bidLog.createdAt >= :startDate', {
+        startDate: new Date(startDate),
+      });
+    }
+    if (endDate) {
+      queryBuilder.andWhere('bidLog.createdAt <= :endDate', {
+        endDate: new Date(endDate),
+      });
+    }
+
+    return await queryBuilder.getCount();
+  }
 }
