@@ -5,6 +5,8 @@ import type { RealtimeBidsData, BidLog } from './types';
 interface UseRealtimeBidsParams {
   limit?: number;
   offset?: number;
+  startDate?: string;
+  endDate?: string;
 }
 
 interface UseRealtimeBidsReturn {
@@ -18,7 +20,7 @@ interface UseRealtimeBidsReturn {
 export function useRealtimeBids(
   params: UseRealtimeBidsParams = {}
 ): UseRealtimeBidsReturn {
-  const { limit = 3, offset = 0 } = params;
+  const { limit = 3, offset = 0, startDate, endDate } = params;
   const [bids, setBids] = useState<BidLog[]>([]);
   const [total, setTotal] = useState(0);
   const [hasMore, setHasMore] = useState(false);
@@ -31,8 +33,16 @@ export function useRealtimeBids(
         setIsLoading(true);
         setError(null);
 
+        const params = new URLSearchParams({
+          limit: limit.toString(),
+          offset: offset.toString(),
+        });
+
+        if (startDate) params.append('startDate', startDate);
+        if (endDate) params.append('endDate', endDate);
+
         const response = await apiClient<RealtimeBidsData>(
-          `/api/advertiser/bids/realtime?limit=${limit}&offset=${offset}`
+          `/api/advertiser/bids/realtime?${params.toString()}`
         );
 
         setBids(response.bids);
@@ -48,7 +58,7 @@ export function useRealtimeBids(
     };
 
     fetchBids();
-  }, [limit, offset]);
+  }, [limit, offset, startDate, endDate]);
 
   return { bids, total, hasMore, isLoading, error };
 }
