@@ -1,22 +1,21 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   RealtimeBidsTableHeader,
   RealtimeBidsTableRow,
   useRealtimeBids,
 } from '@features/realtimeBids';
 
-const ITEMS_PER_PAGE = 20;
-
-// 7일 전 날짜 계산
-const getSevenDaysAgo = () => {
-  const date = new Date();
-  date.setDate(date.getDate() - 7);
-  return date.toISOString();
-};
+const ITEMS_PER_PAGE = 10;
 
 export function RealtimeBidsHistoryPage() {
   const [offset, setOffset] = useState(0);
-  const startDate = getSevenDaysAgo();
+
+  // 7일 전 날짜 계산 (메모이제이션으로 무한 루프 방지)
+  const startDate = useMemo(() => {
+    const date = new Date();
+    date.setDate(date.getDate() - 7);
+    return date.toISOString();
+  }, []);
 
   const { bids, total, hasMore, isLoading, error } = useRealtimeBids({
     limit: ITEMS_PER_PAGE,
