@@ -19,4 +19,15 @@ export interface BidLog {
   insight?: BidInsight;
 }
 
-export type RealtimeBidsResponse = BidLog[];
+export interface RealtimeBidsData {
+  total: number;
+  hasMore: boolean;
+  bids: BidLog[];
+}
+
+export interface RealtimeBidsResponse {
+  status: string;
+  message: string;
+  data: RealtimeBidsData;
+  timestamp: string;
+}

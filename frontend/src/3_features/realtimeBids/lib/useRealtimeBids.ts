@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { apiClient } from '@shared/lib/api';
-import type { RealtimeBidsResponse, BidLog } from './types';
+import type { RealtimeBidsData, BidLog } from './types';
 
 interface UseRealtimeBidsParams {
   limit?: number;
@@ -31,13 +31,13 @@ export function useRealtimeBids(
         setIsLoading(true);
         setError(null);
 
-        const response = await apiClient<RealtimeBidsResponse>(
+        const response = await apiClient<RealtimeBidsData>(
           `/api/advertiser/bids/realtime?limit=${limit}&offset=${offset}`
         );
 
-        setBids(response);
-        setTotal(0);
-        setHasMore(false);
+        setBids(response.bids);
+        setTotal(response.total);
+        setHasMore(response.hasMore);
       } catch (err) {
         const message =
           err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다';
