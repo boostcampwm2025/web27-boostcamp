@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { BidStatus } from './bid-log.types';
 import { BidLogRepository } from './repositories/bid-log.repository.interface';
-import { BidLogResponseDto, BidLogItemDto } from './dto/bid-log-response.dto';
+import { BidLogDataDto, BidLogItemDto } from './dto/bid-log-response.dto';
 import { CampaignRepository } from 'src/campaign/repository/campaign.repository.interface';
 import { BlogRepository } from 'src/blog/repository/blog.repository.interface';
 
@@ -19,7 +19,7 @@ export class BidLogService {
     offset: number,
     startDate?: string,
     endDate?: string
-  ): Promise<BidLogResponseDto> {
+  ): Promise<BidLogDataDto> {
     const total = await this.bidLogRepository.countByUserId(
       userId,
       startDate,
@@ -69,14 +69,9 @@ export class BidLogService {
     const hasMore = offset + limit < total;
 
     return {
-      status: 'success',
-      message: '광고주 실시간 입찰 로그입니다.',
-      data: {
-        total,
-        hasMore,
-        bids,
-      },
-      timestamp: new Date().toISOString(),
+      total,
+      hasMore,
+      bids,
     };
   }
 }
