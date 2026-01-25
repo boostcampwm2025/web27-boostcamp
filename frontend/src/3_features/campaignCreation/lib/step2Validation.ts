@@ -70,12 +70,19 @@ export function validateMaxCpc(maxCpc: number, dailyBudget: number) {
   return null;
 }
 
-export function validateDailyBudget(dailyBudget: number, totalBudget: number) {
+export function validateDailyBudget(
+  dailyBudget: number,
+  totalBudget: number,
+  maxCpc: number
+) {
   if (dailyBudget <= 0) {
     return '하루 예산을 입력해주세요.';
   }
   if (dailyBudget < MIN_DAILY_BUDGET) {
     return `최소 ${MIN_DAILY_BUDGET.toLocaleString()}원 이상 입력해주세요`;
+  }
+  if (maxCpc > 0 && dailyBudget < maxCpc) {
+    return '하루 예산은 CPC 이상이어야 합니다.';
   }
   if (totalBudget > 0 && dailyBudget > totalBudget) {
     return '하루 예산은 총 예산을 초과할 수 없습니다.';
@@ -85,10 +92,14 @@ export function validateDailyBudget(dailyBudget: number, totalBudget: number) {
 
 export function validateTotalBudget(
   totalBudget: number,
+  dailyBudget: number,
   balance: number | null
 ) {
   if (totalBudget <= 0) {
     return '총 예산을 입력해주세요.';
+  }
+  if (dailyBudget > 0 && totalBudget < dailyBudget) {
+    return '총 예산은 하루 예산 이상이어야 합니다.';
   }
   if (balance !== null && totalBudget > balance) {
     return '총 예산은 보유 잔액을 초과할 수 없습니다.';
@@ -96,7 +107,6 @@ export function validateTotalBudget(
   return null;
 }
 
-// === Step2 통합 검증 ===
 interface Step2ValidationParams {
   dailyBudget: number;
   totalBudget: number;
@@ -112,8 +122,8 @@ export function isStep2Valid(params: Step2ValidationParams) {
 
   return (
     validateMaxCpc(maxCpc, dailyBudget) === null &&
-    validateDailyBudget(dailyBudget, totalBudget) === null &&
-    validateTotalBudget(totalBudget, balance) === null &&
+    validateDailyBudget(dailyBudget, totalBudget, maxCpc) === null &&
+    validateTotalBudget(totalBudget, dailyBudget, balance) === null &&
     validateStartDate(startDate) === null &&
     validateEndDate(startDate, endDate) === null
   );

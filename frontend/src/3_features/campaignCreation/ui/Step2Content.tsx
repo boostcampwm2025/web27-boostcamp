@@ -5,6 +5,9 @@ import { useCampaignFormStore } from '../lib/campaignFormStore';
 import {
   validateStartDate,
   validateEndDate,
+  validateMaxCpc,
+  validateDailyBudget,
+  validateTotalBudget,
   MIN_DAILY_BUDGET,
 } from '../lib/step2Validation';
 
@@ -31,22 +34,34 @@ export function Step2Content() {
     updateBudgetSettings({ maxCpc: value });
   };
 
+  const handleMaxCpcBlur = () => {
+    const error = validateMaxCpc(maxCpc, dailyBudget);
+    setErrors({
+      budgetSettings: {
+        ...errors.budgetSettings,
+        maxCpc: error || undefined,
+      },
+    });
+  };
+
   const handleDailyBudgetBlur = () => {
-    if (dailyBudget > 0 && dailyBudget < MIN_DAILY_BUDGET) {
-      setErrors({
-        budgetSettings: {
-          ...errors.budgetSettings,
-          dailyBudget: `최소 ${MIN_DAILY_BUDGET.toLocaleString()}원 이상 입력해주세요`,
-        },
-      });
-    } else {
-      setErrors({
-        budgetSettings: {
-          ...errors.budgetSettings,
-          dailyBudget: undefined,
-        },
-      });
-    }
+    const error = validateDailyBudget(dailyBudget, totalBudget, maxCpc);
+    setErrors({
+      budgetSettings: {
+        ...errors.budgetSettings,
+        dailyBudget: error || undefined,
+      },
+    });
+  };
+
+  const handleTotalBudgetBlur = () => {
+    const error = validateTotalBudget(totalBudget, dailyBudget, balance);
+    setErrors({
+      budgetSettings: {
+        ...errors.budgetSettings,
+        totalBudget: error || undefined,
+      },
+    });
   };
 
   const handleStartDateChange = (value: string) => {
@@ -97,6 +112,7 @@ export function Step2Content() {
         label="총 예산"
         value={totalBudget}
         onChange={handleTotalBudgetChange}
+        onBlur={handleTotalBudgetBlur}
         hint={balanceHint}
         error={errors.budgetSettings?.totalBudget}
       />
@@ -105,6 +121,7 @@ export function Step2Content() {
         label="클릭당 최대 입찰가 (CPC)"
         value={maxCpc}
         onChange={handleMaxCpcChange}
+        onBlur={handleMaxCpcBlur}
         hint="(광고 입찰 참여 금액)"
         error={errors.budgetSettings?.maxCpc}
       />
