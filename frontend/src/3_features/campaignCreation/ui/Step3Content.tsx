@@ -5,7 +5,7 @@ import { AdPreview } from './AdPreview';
 import { useCampaignFormStore } from '../lib/campaignFormStore';
 import { formatWithComma } from '@shared/lib/format';
 import { DEFAULT_ENGAGEMENT_SCORE } from '../lib/constants';
-import { formatDateForDisplay } from '../lib/dateValidation';
+import { formatDateForDisplay } from '../lib/step2Validation';
 
 export function Step3Content() {
   const { formData, setStep } = useCampaignFormStore();

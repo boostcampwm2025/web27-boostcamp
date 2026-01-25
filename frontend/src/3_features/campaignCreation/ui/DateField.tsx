@@ -1,4 +1,4 @@
-import { getToday } from '../lib/dateValidation';
+import { getToday } from '../lib/step2Validation';
 
 interface DateFieldProps {
   label: string;

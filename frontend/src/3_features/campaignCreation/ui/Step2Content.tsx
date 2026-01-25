@@ -2,15 +2,22 @@ import { ContentHeader } from './ContentHeader';
 import { CurrencyField } from './CurrencyField';
 import { DateField } from './DateField';
 import { useCampaignFormStore } from '../lib/campaignFormStore';
-import { validateStartDate, validateEndDate } from '../lib/dateValidation';
-
-const MIN_DAILY_BUDGET = 3000;
+import {
+  validateStartDate,
+  validateEndDate,
+  MIN_DAILY_BUDGET,
+} from '../lib/step2Validation';
 
 export function Step2Content() {
-  const { formData, updateBudgetSettings, errors, setErrors } =
+  const { formData, updateBudgetSettings, errors, setErrors, balance } =
     useCampaignFormStore();
   const { dailyBudget, totalBudget, maxCpc, startDate, endDate } =
     formData.budgetSettings;
+
+  const balanceHint =
+    balance !== null
+      ? `(보유 잔액: ${balance.toLocaleString()}원)`
+      : '(잔액 조회 중...)';
 
   const handleDailyBudgetChange = (value: number) => {
     updateBudgetSettings({ dailyBudget: value });
@@ -90,7 +97,7 @@ export function Step2Content() {
         label="총 예산"
         value={totalBudget}
         onChange={handleTotalBudgetChange}
-        hint="(약 30일 진행)"
+        hint={balanceHint}
         error={errors.budgetSettings?.totalBudget}
       />
 
