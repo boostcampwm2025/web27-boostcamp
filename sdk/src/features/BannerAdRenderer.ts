@@ -69,6 +69,7 @@ export class BannerAdRenderer implements AdRenderer {
       const response = await fetch(`${API_BASE_URL}/sdk/campaign-view`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(requestBody),
       });
 
@@ -102,6 +103,7 @@ export class BannerAdRenderer implements AdRenderer {
       const response = await fetch(`${API_BASE_URL}/sdk/campaign-click`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(requestBody),
       });
 
@@ -148,10 +150,7 @@ export class BannerAdRenderer implements AdRenderer {
     `;
   }
 
-  private renderAdWidget(
-    campaign: Campaign,
-    container: HTMLElement
-  ): string {
+  private renderAdWidget(campaign: Campaign, container: HTMLElement): string {
     // XSS 방지: 모든 사용자 입력 데이터 이스케이프
     const safeTitle = this.escapeHtml(campaign.title);
     const safeContent = this.escapeHtml(campaign.content);
