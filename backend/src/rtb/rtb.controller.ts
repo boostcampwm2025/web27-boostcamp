@@ -38,7 +38,7 @@ export class RTBController {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         maxAge: 1000 * 60 * 60 * 24 * 365, // 1년
-        path: '/sdk',
+        path: '/',
       });
     }
 
