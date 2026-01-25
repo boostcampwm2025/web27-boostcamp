@@ -3,12 +3,8 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
-  ManyToOne,
-  JoinColumn,
   OneToMany,
 } from 'typeorm';
-import { CampaignEntity } from '../../campaign/entities/campaign.entity';
-import { BlogEntity } from '../../blog/entities/blog.entity';
 import { ClickLogEntity } from './click-log.entity';
 
 @Entity('ViewLog')
@@ -19,10 +15,19 @@ export class ViewLogEntity {
   @Column({ name: 'auction_id', type: 'varchar', length: 255 })
   auctionId: string;
 
-  @Column({ name: 'campaign_id', type: 'varchar', length: 255 })
+  @Column({
+    name: 'campaign_id',
+    type: 'varchar',
+    length: 255,
+    comment: '논리적 참조: Campaign.id (FK 없음)',
+  })
   campaignId: string;
 
-  @Column({ name: 'blog_id', type: 'int' })
+  @Column({
+    name: 'blog_id',
+    type: 'int',
+    comment: '논리적 참조: Blog.id (FK 없음)',
+  })
   blogId: number;
 
   @Column({
@@ -65,14 +70,6 @@ export class ViewLogEntity {
   createdAt: Date;
 
   // Relations
-  @ManyToOne(() => CampaignEntity, (campaign) => campaign.viewLogs)
-  @JoinColumn({ name: 'campaign_id' })
-  campaign: CampaignEntity;
-
-  @ManyToOne(() => BlogEntity, (blog) => blog.viewLogs)
-  @JoinColumn({ name: 'blog_id' })
-  blog: BlogEntity;
-
   @OneToMany(() => ClickLogEntity, (clickLog) => clickLog.viewLog)
   clickLogs: ClickLogEntity[];
 }
