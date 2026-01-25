@@ -60,10 +60,11 @@ export class TypeOrmBidLogRepository extends BidLogRepository {
     order: 'asc' | 'desc' = 'desc'
   ): Promise<BidLog[]> {
     // DB 레벨에서 JOIN, 필터링, 정렬, 페이지네이션을 한 번에 처리
+    // 외래키 제약조건이 제거되었으므로 명시적인 JOIN 조건 사용
     const logs = await this.repository
       .createQueryBuilder('bidLog')
-      .innerJoin('bidLog.campaign', 'campaign')
-      .where('campaign.userId = :userId', { userId })
+      .innerJoin('Campaign', 'campaign', 'bidLog.campaign_id = campaign.id')
+      .where('campaign.user_id = :userId', { userId })
       .orderBy(`bidLog.${sortBy}`, order.toUpperCase() as 'ASC' | 'DESC')
       .skip(offset)
       .take(limit)
