@@ -11,12 +11,17 @@ import { CampaignStatus } from './entities/campaign.entity';
 import type {
   CampaignWithTags,
   CampaignWithStats,
+  CachedCampaign,
 } from './types/campaign.types';
 import { AVAILABLE_TAGS } from '../common/constants';
+import { CampaignCacheRepository } from './repository/campaign.cache.repository.interface';
 
 @Injectable()
 export class CampaignService {
-  constructor(private readonly campaignRepository: CampaignRepository) {}
+  constructor(
+    private readonly campaignRepository: CampaignRepository,
+    private readonly campaignCacheRepository: CampaignCacheRepository
+  ) {}
 
   // 캠페인 생성 (태그 검증 + 날짜 유효성 체크 + 시작일 기준 상태 설정)
   async createCampaign(
@@ -32,8 +37,125 @@ export class CampaignService {
     // 시작일이 오늘 이하면 ACTIVE, 내일 이상이면 PENDING
     const initialStatus = this.determineInitialStatus(dto.startDate);
 
-    return this.campaignRepository.create(userId, dto, tagIds, initialStatus);
+    // 실제 DB 먼저
+    const campaign = await this.campaignRepository.create(
+      userId,
+      dto,
+      tagIds,
+      initialStatus
+    );
+
+    // Redis 캐싱 (write-through 비슷하게)
+    await this.campaignCacheRepository.saveCampaignCacheById(
+      campaign.id,
+      this.convertToCachedCampaignType(campaign)
+    );
+
+    return campaign;
   }
+
+  // 캠페인 목록 조회 (페이지네이션 + 정렬 + 통계)
+  async getCampaignList(userId: number, dto: GetCampaignListDto) {
+    const { campaigns, total } = await this.campaignRepository.findByUserId(
+      userId,
+      dto.status,
+      dto.limit,
+      dto.offset,
+      dto.sortBy,
+      dto.order
+    );
+
+    // 통계 필드 추가
+    const campaignsWithStats =
+      await this.addStatsToMultipleCampaigns(campaigns);
+
+    // hasMore 계산
+    const hasMore = (dto.offset || 0) + (dto.limit || 3) < total;
+
+    return {
+      campaigns: campaignsWithStats,
+      total,
+      hasMore,
+    };
+  }
+
+  // 특정 캠페인 조회 (소유권 검증 + 통계)
+  async getCampaignById(
+    campaignId: string,
+    userId: number
+  ): Promise<CampaignWithStats> {
+    const campaign = await this.campaignRepository.findOne(campaignId, userId);
+
+    if (!campaign) {
+      throw new NotFoundException('캠페인을 찾을 수 없습니다.');
+    }
+
+    // 통계 필드 추가
+    return this.addStatsToCampaign(campaign);
+  }
+
+  // 캠페인 수정 (소유권 + 날짜 + 태그 검증 + 시작일 변경 시 상태 재결정)
+  async updateCampaign(
+    campaignId: string,
+    userId: number,
+    dto: UpdateCampaignDto
+  ): Promise<CampaignWithTags> {
+    const campaign = await this.campaignRepository.findOne(campaignId, userId);
+
+    if (!campaign) {
+      throw new NotFoundException('캠페인을 찾을 수 없습니다.');
+    }
+
+    if (dto.endDate && new Date(dto.endDate) <= campaign.startDate) {
+      throw new BadRequestException('종료일은 시작일보다 이후여야 합니다.');
+    }
+
+    const tagIds = dto.tags ? this.validateAndGetTagIds(dto.tags) : undefined;
+
+    // 시작일이 변경된 경우, 상태 재결정 (PENDING/ACTIVE 상태인 경우에만)
+    let newStatus: CampaignStatus | undefined;
+    if (
+      dto.startDate &&
+      (campaign.status === 'PENDING' || campaign.status === 'ACTIVE')
+    ) {
+      newStatus = this.determineInitialStatus(dto.startDate);
+    }
+
+    // TODO: 업데이트 시 DB 먼저 할지 고려 필요
+    const updatedCampaign = await this.campaignRepository.update(
+      campaignId,
+      dto,
+      tagIds,
+      newStatus
+    );
+
+    // Redis 캐시 업데이트
+    await this.campaignCacheRepository.saveCampaignCacheById(
+      updatedCampaign.id,
+      this.convertToCachedCampaignType(updatedCampaign)
+    );
+
+    return updatedCampaign;
+  }
+
+  // 캠페인 삭제 (소프트 삭제, 소유권 검증)
+  async deleteCampaign(campaignId: string, userId: number): Promise<void> {
+    const campaign = await this.campaignRepository.findOne(campaignId, userId);
+
+    if (!campaign) {
+      throw new NotFoundException('캠페인을 찾을 수 없습니다.');
+    }
+
+    // Redis 먼저 삭제 (캠페인 내 돈 관련 부분에 대한 빠른 업데이트)
+    await this.campaignCacheRepository.deleteCampaignCacheById(campaignId);
+
+    // DB 삭제 (Soft Delete)
+    await this.campaignRepository.delete(campaignId);
+  }
+
+  // ============================================================================
+  // 모듈화 된 함수들
+  // ============================================================================
 
   // 시작일 기준 초기 상태 결정
   private determineInitialStatus(
@@ -141,84 +263,28 @@ export class CampaignService {
     });
   }
 
-  // 캠페인 목록 조회 (페이지네이션 + 정렬 + 통계)
-  async getCampaignList(userId: number, dto: GetCampaignListDto) {
-    const { campaigns, total } = await this.campaignRepository.findByUserId(
-      userId,
-      dto.status,
-      dto.limit,
-      dto.offset,
-      dto.sortBy,
-      dto.order
-    );
-
-    // 통계 필드 추가
-    const campaignsWithStats =
-      await this.addStatsToMultipleCampaigns(campaigns);
-
-    // hasMore 계산
-    const hasMore = (dto.offset || 0) + (dto.limit || 3) < total;
-
+  private convertToCachedCampaignType(
+    campaign: CampaignWithTags
+  ): CachedCampaign {
     return {
-      campaigns: campaignsWithStats,
-      total,
-      hasMore,
+      id: campaign.id,
+      userId: campaign.userId,
+      title: campaign.title,
+      content: campaign.content,
+      image: campaign.image,
+      url: campaign.url,
+      maxCpc: campaign.maxCpc,
+      dailyBudget: campaign.dailyBudget,
+      totalBudget: campaign.totalBudget ?? null,
+      dailySpent: campaign.dailySpent,
+      totalSpent: campaign.totalSpent,
+      lastResetDate: campaign.lastResetDate.toISOString(),
+      isHighIntent: campaign.isHighIntent,
+      status: campaign.status,
+      startDate: campaign.startDate.toISOString(),
+      endDate: campaign.endDate.toISOString(),
+      createdAt: campaign.createdAt.toISOString(),
+      // embedding은 Worker가 나중에 추가
     };
-  }
-
-  // 특정 캠페인 조회 (소유권 검증 + 통계)
-  async getCampaignById(
-    campaignId: string,
-    userId: number
-  ): Promise<CampaignWithStats> {
-    const campaign = await this.campaignRepository.findOne(campaignId, userId);
-
-    if (!campaign) {
-      throw new NotFoundException('캠페인을 찾을 수 없습니다.');
-    }
-
-    // 통계 필드 추가
-    return this.addStatsToCampaign(campaign);
-  }
-
-  // 캠페인 수정 (소유권 + 날짜 + 태그 검증 + 시작일 변경 시 상태 재결정)
-  async updateCampaign(
-    campaignId: string,
-    userId: number,
-    dto: UpdateCampaignDto
-  ): Promise<CampaignWithTags> {
-    const campaign = await this.campaignRepository.findOne(campaignId, userId);
-
-    if (!campaign) {
-      throw new NotFoundException('캠페인을 찾을 수 없습니다.');
-    }
-
-    if (dto.endDate && new Date(dto.endDate) <= campaign.startDate) {
-      throw new BadRequestException('종료일은 시작일보다 이후여야 합니다.');
-    }
-
-    const tagIds = dto.tags ? this.validateAndGetTagIds(dto.tags) : undefined;
-
-    // 시작일이 변경된 경우, 상태 재결정 (PENDING/ACTIVE 상태인 경우에만)
-    let newStatus: CampaignStatus | undefined;
-    if (
-      dto.startDate &&
-      (campaign.status === 'PENDING' || campaign.status === 'ACTIVE')
-    ) {
-      newStatus = this.determineInitialStatus(dto.startDate);
-    }
-
-    return this.campaignRepository.update(campaignId, dto, tagIds, newStatus);
-  }
-
-  // 캠페인 삭제 (소프트 삭제, 소유권 검증)
-  async deleteCampaign(campaignId: string, userId: number): Promise<void> {
-    const campaign = await this.campaignRepository.findOne(campaignId, userId);
-
-    if (!campaign) {
-      throw new NotFoundException('캠페인을 찾을 수 없습니다.');
-    }
-
-    await this.campaignRepository.delete(campaignId);
   }
 }
