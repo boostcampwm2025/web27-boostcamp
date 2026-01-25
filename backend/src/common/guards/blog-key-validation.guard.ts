@@ -13,6 +13,7 @@ import type { BlogEntity } from '../../blog/entities/blog.entity';
 
 interface RequestWithBlog extends Request {
   blog?: BlogEntity; // TypeORM 엔티티로 변경
+  visitorId?: string;
 }
 
 @Injectable()
@@ -23,9 +24,10 @@ export class BlogKeyValidationGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<RequestWithBlog>();
-    const { blogKey, postUrl } = request.body as {
+    const { blogKey, postUrl, visitorId } = request.body as {
       blogKey?: string;
       postUrl?: string;
+      visitorId?: string;
     };
 
     // blogKey 누락 체크
@@ -92,7 +94,9 @@ export class BlogKeyValidationGuard implements CanActivate {
         '요청 도메인이 blogKey의 도메인과 일치하지 않습니다.'
       );
     }
-
+    if (visitorId) {
+      request.visitorId = visitorId;
+    }
     // 요청 객체에 blog 정보 첨부 (후속 로직에서 사용 가능)
     request.blog = blog;
 

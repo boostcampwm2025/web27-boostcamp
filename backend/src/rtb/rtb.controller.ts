@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Res } from '@nestjs/common';
 import { RTBService } from './rtb.service';
 import { plainToInstance } from 'class-transformer';
 
@@ -9,6 +9,7 @@ import type { DecisionContext } from './types/decision.types';
 import { Logger } from '@nestjs/common';
 import { BlogKeyValidationGuard } from '../common/guards/blog-key-validation.guard';
 import { Public } from '../auth/decorators/public.decorator';
+import { type Response } from 'express';
 
 @Controller('sdk')
 @Public()
@@ -19,7 +20,10 @@ export class RTBController {
   constructor(private readonly rtbService: RTBService) {}
 
   @Post('decision')
-  async getDecision(@Body() body: RTBRequestDto) {
+  async getDecision(
+    @Body() body: RTBRequestDto,
+    // @Res({ passthrough: true }) res: Response
+  ) {
     const context: DecisionContext = {
       blogKey: body.blogKey,
       tags: body.tags,
