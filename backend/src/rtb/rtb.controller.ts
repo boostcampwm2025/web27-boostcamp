@@ -30,13 +30,13 @@ export class RTBController {
     @Res({ passthrough: true }) res: Response
   ) {
     const visitorId = req.visitorId;
+    console.log(`visitorId:${visitorId}`); // todo: 제거
 
     if (!visitorId) {
-      const isProduction = process.env.NODE_ENV === 'production';
       res.cookie('visitor_id', randomUUID(), {
         httpOnly: true,
-        secure: isProduction,
-        sameSite: isProduction ? 'none' : 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
         maxAge: 1000 * 60 * 60 * 24 * 365, // 1년
         path: '/sdk',
       });

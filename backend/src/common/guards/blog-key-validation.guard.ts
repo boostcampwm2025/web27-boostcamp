@@ -24,10 +24,9 @@ export class BlogKeyValidationGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<RequestWithBlog>();
-    const { blogKey, postUrl, visitorId } = request.body as {
+    const { blogKey, postUrl } = request.body as {
       blogKey?: string;
       postUrl?: string;
-      visitorId?: string;
     };
 
     // blogKey 누락 체크
@@ -94,6 +93,9 @@ export class BlogKeyValidationGuard implements CanActivate {
         '요청 도메인이 blogKey의 도메인과 일치하지 않습니다.'
       );
     }
+
+    const visitorId = request.cookies?.visitor_id as string | undefined;
+
     if (visitorId) {
       request.visitorId = visitorId;
     }
