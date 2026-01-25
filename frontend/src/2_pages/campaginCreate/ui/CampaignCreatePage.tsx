@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   CampaignCreationForm,
@@ -6,12 +7,21 @@ import {
   Step3Content,
   useCampaignFormStore,
   useCreateCampaign,
+  useAdvertiserBalance,
 } from '@features/campaignCreation';
 
 export function CampaignCreatePage() {
   const navigate = useNavigate();
-  const { currentStep, formData, resetForm } = useCampaignFormStore();
+  const { currentStep, formData, resetForm, setBalance } =
+    useCampaignFormStore();
   const { createCampaign, isLoading, error } = useCreateCampaign();
+  const { balance } = useAdvertiserBalance();
+
+  useEffect(() => {
+    if (balance !== null) {
+      setBalance(balance);
+    }
+  }, [balance, setBalance]);
 
   const handleSubmit = async () => {
     if (isLoading) return;

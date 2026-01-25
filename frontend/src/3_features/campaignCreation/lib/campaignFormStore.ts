@@ -11,11 +11,13 @@ interface CampaignFormState {
   currentStep: FormStep;
   formData: CampaignFormData;
   errors: FormErrors;
+  balance: number | null;
 
   setStep: (step: FormStep) => void;
   updateCampaignContent: (data: Partial<CampaignContent>) => void;
   updateBudgetSettings: (data: Partial<BudgetSettings>) => void;
   setErrors: (errors: FormErrors) => void;
+  setBalance: (balance: number | null) => void;
   resetForm: () => void;
 }
 
@@ -41,8 +43,11 @@ export const useCampaignFormStore = create<CampaignFormState>((set) => ({
   currentStep: 1,
   formData: initialFormData,
   errors: {},
+  balance: null,
 
   setStep: (step) => set({ currentStep: step }),
+
+  setBalance: (balance) => set({ balance }),
 
   updateCampaignContent: (data) =>
     set((state) => ({
@@ -73,5 +78,6 @@ export const useCampaignFormStore = create<CampaignFormState>((set) => ({
       currentStep: 1,
       formData: initialFormData,
       errors: {},
+      balance: null,
     }),
 }));
