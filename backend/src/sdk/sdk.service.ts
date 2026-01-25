@@ -41,6 +41,7 @@ export class SdkService {
 
   async recordClick(dto: CreateClickLogDto) {
     const { viewId } = dto;
+    // todo: 실제 존재하는 viewlog id인가 확인 필요할 듯
     return await this.logRepository.saveClickLog({ viewId });
   }
 }

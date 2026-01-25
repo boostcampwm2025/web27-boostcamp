@@ -10,6 +10,8 @@ import { API_BASE_URL } from '@shared/config/constants';
 
 // 배너 광고 렌더러
 export class BannerAdRenderer implements AdRenderer {
+  constructor(private readonly blogKey: string) {}
+
   private currentViewId: number | null = null;
   private currentAdUrl: string | null = null;
 
@@ -55,6 +57,7 @@ export class BannerAdRenderer implements AdRenderer {
   ): Promise<void> {
     try {
       const requestBody: ViewLogRequest = {
+        blogKey: this.blogKey,
         auctionId,
         campaignId,
         postUrl,
@@ -92,6 +95,8 @@ export class BannerAdRenderer implements AdRenderer {
     try {
       const requestBody: ClickLogRequest = {
         viewId: this.currentViewId,
+        blogKey: this.blogKey,
+        postUrl: window.location.href,
       };
 
       const response = await fetch(`${API_BASE_URL}/sdk/campaign-click`, {
