@@ -5,7 +5,6 @@ import { RedisModule, REDIS_CLIENT } from 'src/redis/redis.module';
 import { CacheRepository } from './repository/cache.repository.interface';
 import { RedisCacheRepository } from './repository/redis-cache.repository';
 import Redis from 'ioredis';
-import { CampaignCacheService } from './services/campaign-cache.service';
 import { BlogCacheService } from './services/blog-cache.service';
 import { RedisIndexService } from './services/redis-index.service';
 
@@ -40,10 +39,9 @@ type RedisStoreModule = {
   controllers: [],
   providers: [
     { provide: CacheRepository, useClass: RedisCacheRepository },
-    CampaignCacheService,
     BlogCacheService,
     RedisIndexService,
   ],
-  exports: [CacheRepository, CampaignCacheService, BlogCacheService],
+  exports: [CacheRepository, BlogCacheService],
 })
 export class CacheModule {}
