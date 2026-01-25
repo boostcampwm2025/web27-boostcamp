@@ -9,6 +9,8 @@ import { CampaignEntity } from './entities/campaign.entity';
 import { TagEntity } from '../tag/entities/tag.entity';
 import { LogModule } from '../log/log.module';
 import { ImageModule } from '../image/image.module';
+import { CampaignCacheRepository } from './repository/campaign.cache.repository.interface';
+import { RedisCampaignCacheRepository } from './repository/redis-campaign.cache.repository';
 
 @Module({
   imports: [
@@ -21,6 +23,10 @@ import { ImageModule } from '../image/image.module';
     CampaignService,
     CampaignCronService,
     { provide: CampaignRepository, useClass: TypeOrmCampaignRepository },
+    {
+      provide: CampaignCacheRepository,
+      useClass: RedisCampaignCacheRepository,
+    },
   ],
   exports: [CampaignRepository],
 })
