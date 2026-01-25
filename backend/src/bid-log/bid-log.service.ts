@@ -82,20 +82,15 @@ export class BidLogService {
   subscribeToBidEvents(userId: number): Observable<MessageEvent> {
     return new Observable((observer) => {
       const listener = (bid: BidLogItemDto) => {
-        // 해당 광고주의 입찰만 필터링
-        if (bid.userId === userId) {
-          observer.next({
-            data: JSON.stringify(bid),
-          } as MessageEvent);
-        }
+        observer.next({
+          data: JSON.stringify(bid),
+        } as MessageEvent);
       };
 
-      // 이벤트 리스너 등록
-      this.eventEmitter.on('bid.created', listener);
+      this.eventEmitter.on(`bid.created.${userId}`, listener);
 
-      // 연결 종료 시 리스너 제거 (메모리 누수 방지)
       return () => {
-        this.eventEmitter.off('bid.created', listener);
+        this.eventEmitter.off(`bid.created.${userId}`, listener);
       };
     });
   }
@@ -106,13 +101,13 @@ export class BidLogService {
     const log = await this.bidLogRepository.findById(bidLogId);
     if (!log) return;
 
-    const campaign = await this.campaignRepository.getById(log.campaignId);
-    const blog = await this.blogRepository.findById(log.blogId);
-    const winAmount = await this.bidLogRepository.findWinAmountByAuctionId(
-      log.auctionId
-    );
+    const [campaign, blog, winAmount] = await Promise.all([
+      this.campaignRepository.getById(log.campaignId),
+      this.blogRepository.findById(log.blogId),
+      this.bidLogRepository.findWinAmountByAuctionId(log.auctionId),
+    ]);
 
-    const bidData: BidLogItemDto & { userId: number } = {
+    const bidData: BidLogItemDto = {
       id: log.id!,
       createdAt: log.createdAt!,
       campaignId: log.campaignId,
@@ -125,10 +120,10 @@ export class BidLogService {
       isWon: log.status === BidStatus.WIN,
       isHighIntent: log.isHighIntent,
       behaviorScore: log.behaviorScore,
-      userId: campaign?.userId || 0,
     };
 
-    // 이벤트 발행
-    this.eventEmitter.emit('bid.created', bidData);
+    // userId별로 다른 이벤트 발행 (해당 광고주만 수신)
+    const userId = campaign?.userId || 0;
+    this.eventEmitter.emit(`bid.created.${userId}`, bidData);
   }
 }
