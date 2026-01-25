@@ -9,6 +9,13 @@ import { CampaignCacheService } from './services/campaign-cache.service';
 import { BlogCacheService } from './services/blog-cache.service';
 import { RedisIndexService } from './services/redis-index.service';
 
+// TODO: 맞는 방식이었는지 점검 필요
+// eslint검증 피하기 위한 cache-manager-ioredis 타입 정의
+type RedisStoreModule = {
+  default?: unknown;
+  [key: string]: unknown;
+};
+
 @Module({
   imports: [
     LogModule,
@@ -17,10 +24,12 @@ import { RedisIndexService } from './services/redis-index.service';
       isGlobal: true,
       imports: [RedisModule],
       useFactory: async (redisClient: Redis) => {
+        const redisStoreModule =
+          (await import('cache-manager-ioredis')) as RedisStoreModule;
+        const redisStore = redisStoreModule.default ?? redisStoreModule;
+
         return {
-          store: await import('cache-manager-ioredis').then(
-            (m) => m.default || m
-          ),
+          store: redisStore,
           redisInstance: redisClient,
           ttl: 5, // 기본 TTL 5초 (cache-manager-ioredis는 초 단위 사용)
         };
