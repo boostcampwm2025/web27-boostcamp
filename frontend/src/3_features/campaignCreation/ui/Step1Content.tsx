@@ -4,15 +4,30 @@ import { ImageUpload } from './ImageUpload';
 import { KeywordSelector } from './KeywordSelector';
 import { AdvancedSettings } from './AdvancedSettings';
 import { useCampaignFormStore } from '../lib/campaignFormStore';
+import {
+  validateImage,
+  validateTitle,
+  validateContent,
+  validateUrl,
+  validateTags,
+} from '../lib/step1Validation';
 import type { Tag } from '../lib/types';
 
 export function Step1Content() {
-  const { formData, updateCampaignContent } = useCampaignFormStore();
+  const { formData, updateCampaignContent, errors, setErrors } =
+    useCampaignFormStore();
   const { title, content, url, tags, isHighIntent, image } =
     formData.campaignContent;
 
   const handleImageChange = (imageUrl: string | null) => {
     updateCampaignContent({ image: imageUrl });
+    const error = validateImage(imageUrl);
+    setErrors({
+      campaignContent: {
+        ...errors.campaignContent,
+        image: error || undefined,
+      },
+    });
   };
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,10 +44,47 @@ export function Step1Content() {
 
   const handleTagsChange = (newTags: Tag[]) => {
     updateCampaignContent({ tags: newTags });
+    const error = validateTags(newTags);
+    setErrors({
+      campaignContent: {
+        ...errors.campaignContent,
+        tags: error || undefined,
+      },
+    });
   };
 
   const handleHighIntentChange = (value: boolean) => {
     updateCampaignContent({ isHighIntent: value });
+  };
+
+  const handleTitleBlur = () => {
+    const error = validateTitle(title);
+    setErrors({
+      campaignContent: {
+        ...errors.campaignContent,
+        title: error || undefined,
+      },
+    });
+  };
+
+  const handleContentBlur = () => {
+    const error = validateContent(content);
+    setErrors({
+      campaignContent: {
+        ...errors.campaignContent,
+        content: error || undefined,
+      },
+    });
+  };
+
+  const handleUrlBlur = () => {
+    const error = validateUrl(url);
+    setErrors({
+      campaignContent: {
+        ...errors.campaignContent,
+        url: error || undefined,
+      },
+    });
   };
 
   return (
@@ -41,26 +93,40 @@ export function Step1Content() {
         title="광고 내용"
         description="광고에 표시될 이미지와 텍스트를 입력해주세요"
       />
-      <ImageUpload value={image} onChange={handleImageChange} />
+      <ImageUpload
+        value={image}
+        onChange={handleImageChange}
+        validationError={errors.campaignContent?.image}
+      />
       <TextField
         label="광고 제목"
         placeholder="Next로 배우는 프론트"
         value={title}
         onChange={handleTitleChange}
+        onBlur={handleTitleBlur}
+        error={errors.campaignContent?.title}
       />
       <TextField
         label="광고 내용"
         placeholder="Next로 프론트를 배워보고 싶다면 꼭 들어보세요!"
         value={content}
         onChange={handleContentChange}
+        onBlur={handleContentBlur}
+        error={errors.campaignContent?.content}
       />
       <TextField
         label="광고 URL"
         placeholder="https://myshop.com/macbook"
         value={url}
         onChange={handleUrlChange}
+        onBlur={handleUrlBlur}
+        error={errors.campaignContent?.url}
       />
-      <KeywordSelector value={tags} onChange={handleTagsChange} />
+      <KeywordSelector
+        value={tags}
+        onChange={handleTagsChange}
+        error={errors.campaignContent?.tags}
+      />
       <AdvancedSettings
         isHighIntent={isHighIntent}
         onChange={handleHighIntentChange}

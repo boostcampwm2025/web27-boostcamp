@@ -5,9 +5,14 @@ import { useImageUpload } from '../lib/useImageUpload';
 interface ImageUploadProps {
   value: string | null;
   onChange: (imageUrl: string | null) => void;
+  validationError?: string;
 }
 
-export function ImageUpload({ value, onChange }: ImageUploadProps) {
+export function ImageUpload({
+  value,
+  onChange,
+  validationError,
+}: ImageUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const { upload, isLoading, error } = useImageUpload();
@@ -111,7 +116,9 @@ export function ImageUpload({ value, onChange }: ImageUploadProps) {
         )}
       </div>
 
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      {(error || validationError) && (
+        <p className="text-sm text-red-500">{error || validationError}</p>
+      )}
 
       <input
         ref={inputRef}
