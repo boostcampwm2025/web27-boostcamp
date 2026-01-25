@@ -4,7 +4,7 @@ import { useRealtimeBids } from '../lib/useRealtimeBids';
 import { Link } from 'react-router-dom';
 
 export function RealtimeBidsTable() {
-  const { bids, isLoading, error } = useRealtimeBids({ limit: 3 });
+  const { bids, isLoading, error, isConnected } = useRealtimeBids({ limit: 3 });
 
   if (isLoading) {
     return (
@@ -43,7 +43,22 @@ export function RealtimeBidsTable() {
   return (
     <div className="text-gray-600 flex flex-col bg-white border border-gray-200 rounded-xl shadow">
       <div className="p-5 flex flex-row justify-between items-center border-b border-gray-100">
-        <h2 className="text-gray-900 text-xl font-bold">실시간 입찰 현황</h2>
+        <div className="flex items-center gap-3">
+          <h2 className="text-gray-900 text-xl font-bold">실시간 입찰 현황</h2>
+          <div className="flex items-center gap-2">
+            {isConnected ? (
+              <>
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                <span className="text-xs text-green-600">실시간 연결됨</span>
+              </>
+            ) : (
+              <>
+                <div className="w-2 h-2 bg-gray-400 rounded-full" />
+                <span className="text-xs text-gray-500">연결 대기 중</span>
+              </>
+            )}
+          </div>
+        </div>
         <Link
           to="/advertiser/dashboard/history"
           className="text-base font-bold hover:text-blue-600"
