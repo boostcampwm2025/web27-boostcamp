@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { apiClient } from '@shared/lib/api';
+import { API_CONFIG } from '@shared/lib/api/config';
 import type { RealtimeBidsData, BidLog } from './types';
 
 interface UseRealtimeBidsParams {
@@ -15,6 +16,7 @@ interface UseRealtimeBidsReturn {
   hasMore: boolean;
   isLoading: boolean;
   error: string | null;
+  isConnected: boolean;
 }
 
 export function useRealtimeBids(
@@ -26,6 +28,9 @@ export function useRealtimeBids(
   const [hasMore, setHasMore] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
+
+  const eventSourceRef = useRef<EventSource | null>(null);
 
   useEffect(() => {
     const fetchBids = async () => {
@@ -60,5 +65,42 @@ export function useRealtimeBids(
     fetchBids();
   }, [limit, offset, startDate, endDate]);
 
-  return { bids, total, hasMore, isLoading, error };
+  useEffect(() => {
+    // offset=0이고 날짜 필터가 없을 때만 SSE 활성화 (첫 페이지 실시간 업데이트)
+    if (offset !== 0 || startDate || endDate) return;
+
+    const eventSource = new EventSource(
+      `${API_CONFIG.baseURL}/api/advertiser/bids/stream`,
+      { withCredentials: true }
+    );
+
+    eventSourceRef.current = eventSource;
+
+    eventSource.onopen = () => {
+      setIsConnected(true);
+    };
+
+    eventSource.onmessage = (event) => {
+      try {
+        const newBid: BidLog = JSON.parse(event.data);
+        setBids((prev) => [newBid, ...prev].slice(0, limit));
+      } catch (err) {
+        console.error('[SSE] 메시지 파싱 오류:', err);
+      }
+    };
+
+    eventSource.onerror = (err) => {
+      console.error('[SSE] 연결 오류:', err);
+      setIsConnected(false);
+      eventSource.close();
+    };
+
+    return () => {
+      setIsConnected(false);
+      eventSource.close();
+      eventSourceRef.current = null;
+    };
+  }, [limit, offset, startDate, endDate]);
+
+  return { bids, total, hasMore, isLoading, error, isConnected };
 }
