@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Res } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Res, Req } from '@nestjs/common';
 import { RTBService } from './rtb.service';
 import { plainToInstance } from 'class-transformer';
 
@@ -7,9 +7,13 @@ import { RTBResponseDto } from './dto/rtb-response.dto';
 import type { DecisionContext } from './types/decision.types';
 
 import { Logger } from '@nestjs/common';
-import { BlogKeyValidationGuard } from '../common/guards/blog-key-validation.guard';
+import {
+  BlogKeyValidationGuard,
+  type RequestWithBlog,
+} from '../common/guards/blog-key-validation.guard';
 import { Public } from '../auth/decorators/public.decorator';
 import { type Response } from 'express';
+import { randomUUID } from 'crypto';
 
 @Controller('sdk')
 @Public()
@@ -22,8 +26,22 @@ export class RTBController {
   @Post('decision')
   async getDecision(
     @Body() body: RTBRequestDto,
-    // @Res({ passthrough: true }) res: Response
+    @Req() req: RequestWithBlog,
+    @Res({ passthrough: true }) res: Response
   ) {
+    const visitorId = req.visitorId;
+
+    if (!visitorId) {
+      const isProduction = process.env.NODE_ENV === 'production';
+      res.cookie('visitor_id', randomUUID(), {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'lax',
+        maxAge: 1000 * 60 * 60 * 24 * 365, // 1년
+        path: '/sdk',
+      });
+    }
+
     const context: DecisionContext = {
       blogKey: body.blogKey,
       tags: body.tags,

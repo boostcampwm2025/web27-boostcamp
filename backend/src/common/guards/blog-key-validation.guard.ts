@@ -11,7 +11,7 @@ import { Request } from 'express';
 import { BlogRepository } from '../../blog/repository/blog.repository.interface';
 import type { BlogEntity } from '../../blog/entities/blog.entity';
 
-interface RequestWithBlog extends Request {
+export interface RequestWithBlog extends Request {
   blog?: BlogEntity; // TypeORM 엔티티로 변경
   visitorId?: string;
 }
