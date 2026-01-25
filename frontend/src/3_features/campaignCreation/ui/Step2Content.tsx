@@ -17,10 +17,10 @@ export function Step2Content() {
   const { dailyBudget, totalBudget, maxCpc, startDate, endDate } =
     formData.budgetSettings;
 
-  const balanceHint =
+  const totalBudgetHint =
     balance !== null
-      ? `(보유 잔액: ${balance.toLocaleString()}원)`
-      : '(잔액 조회 중...)';
+      ? `(일 예산 이상 · 잔액: ${balance.toLocaleString()}원)`
+      : '(일 예산 이상)';
 
   const handleDailyBudgetChange = (value: number) => {
     updateBudgetSettings({ dailyBudget: value });
@@ -113,7 +113,7 @@ export function Step2Content() {
         value={totalBudget}
         onChange={handleTotalBudgetChange}
         onBlur={handleTotalBudgetBlur}
-        hint={balanceHint}
+        hint={totalBudgetHint}
         error={errors.budgetSettings?.totalBudget}
       />
 
@@ -122,7 +122,7 @@ export function Step2Content() {
         value={maxCpc}
         onChange={handleMaxCpcChange}
         onBlur={handleMaxCpcBlur}
-        hint="(광고 입찰 참여 금액)"
+        hint="(일 예산 이하)"
         error={errors.budgetSettings?.maxCpc}
       />
 
