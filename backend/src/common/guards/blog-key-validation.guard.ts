@@ -11,7 +11,7 @@ import { Request } from 'express';
 import { BlogRepository } from '../../blog/repository/blog.repository.interface';
 import type { BlogEntity } from '../../blog/entities/blog.entity';
 
-export interface RequestWithBlog extends Request {
+export interface BlogKeyValidatedRequest extends Request {
   blog?: BlogEntity; // TypeORM 엔티티로 변경
   visitorId?: string;
 }
@@ -23,7 +23,9 @@ export class BlogKeyValidationGuard implements CanActivate {
   constructor(private readonly blogRepository: BlogRepository) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest<RequestWithBlog>();
+    const request = context
+      .switchToHttp()
+      .getRequest<BlogKeyValidatedRequest>();
     const { blogKey, postUrl } = request.body as {
       blogKey?: string;
       postUrl?: string;

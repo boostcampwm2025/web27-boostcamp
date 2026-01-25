@@ -9,7 +9,7 @@ import type { DecisionContext } from './types/decision.types';
 import { Logger } from '@nestjs/common';
 import {
   BlogKeyValidationGuard,
-  type RequestWithBlog,
+  type BlogKeyValidatedRequest,
 } from '../common/guards/blog-key-validation.guard';
 import { Public } from '../auth/decorators/public.decorator';
 import { type Response } from 'express';
@@ -26,11 +26,11 @@ export class RTBController {
   @Post('decision')
   async getDecision(
     @Body() body: RTBRequestDto,
-    @Req() req: RequestWithBlog,
+    @Req() req: BlogKeyValidatedRequest,
     @Res({ passthrough: true }) res: Response
   ) {
     const visitorId = req.visitorId;
-    console.log(`visitorId:${visitorId}`); // todo: 제거
+    console.log(`현재 방문자의 visitorId:${visitorId}`); // todo: 제거
 
     if (!visitorId) {
       res.cookie('visitor_id', randomUUID(), {
@@ -40,6 +40,7 @@ export class RTBController {
         maxAge: 1000 * 60 * 60 * 24 * 365, // 1년
         path: '/',
       });
+      console.log(`visitorId가 생성되었습니다: ${visitorId}`); // todo: 제거
     }
 
     const context: DecisionContext = {
