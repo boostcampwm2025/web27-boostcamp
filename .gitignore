@@ -30,5 +30,5 @@ certs/localhost-key.pem
 certs/localhost-key+2.pem
 
 # mysql폴더
-mysql/init/
+mysql/init/*.sql
 
