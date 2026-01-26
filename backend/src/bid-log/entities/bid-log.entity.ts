@@ -3,14 +3,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
-  ManyToOne,
-  JoinColumn,
-  type Relation,
 } from 'typeorm';
-import type { CampaignEntity } from '../../campaign/entities/campaign.entity';
-import type { BlogEntity } from '../../blog/entities/blog.entity';
-import * as CampaignEntityModule from '../../campaign/entities/campaign.entity';
-import * as BlogEntityModule from '../../blog/entities/blog.entity';
 
 import { BidStatus } from '../bid-log.types';
 
@@ -27,10 +20,19 @@ export class BidLogEntity {
   })
   auctionId: string;
 
-  @Column({ name: 'campaign_id', type: 'varchar', length: 255 })
+  @Column({
+    name: 'campaign_id',
+    type: 'varchar',
+    length: 255,
+    comment: '논리적 참조: Campaign.id (FK 없음)',
+  })
   campaignId: string;
 
-  @Column({ name: 'blog_id', type: 'int' })
+  @Column({
+    name: 'blog_id',
+    type: 'int',
+    comment: '논리적 참조: Blog.id (FK 없음)',
+  })
   blogId: number;
 
   @Column({ type: 'enum', enum: BidStatus })
@@ -74,19 +76,4 @@ export class BidLogEntity {
 
   @CreateDateColumn({ name: 'created_at', comment: 'TTL 적용' })
   createdAt: Date;
-
-  // Relations
-  @ManyToOne(
-    () => CampaignEntityModule.CampaignEntity,
-    (campaign: CampaignEntity) => campaign.bidLogs
-  )
-  @JoinColumn({ name: 'campaign_id' })
-  campaign: Relation<CampaignEntity>;
-
-  @ManyToOne(
-    () => BlogEntityModule.BlogEntity,
-    (blog: BlogEntity) => blog.bidLogs
-  )
-  @JoinColumn({ name: 'blog_id' })
-  blog: Relation<BlogEntity>;
 }

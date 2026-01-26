@@ -61,9 +61,12 @@ export class TypeOrmBidLogRepository extends BidLogRepository {
     startDate?: string,
     endDate?: string
   ): Promise<BidLog[]> {
+
+    // DB 레벨에서 JOIN, 필터링, 정렬, 페이지네이션을 한 번에 처리
+    // 외래키 제약조건이 제거되었으므로 명시적인 JOIN 조건 사용
     const queryBuilder = this.repository
       .createQueryBuilder('bidLog')
-      .innerJoin('bidLog.campaign', 'campaign')
+      .innerJoin('Campaign', 'campaign', 'bidLog.campaign_id = campaign.id')
       .where('campaign.userId = :userId', { userId });
 
     if (startDate) {
