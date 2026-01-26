@@ -1,4 +1,4 @@
-import { AccountSummaryCard } from './AccountSummaryCard';
+import { StatCard } from '@shared/ui/StatCard';
 import { Icon } from '@shared/ui/Icon';
 import { useAccountSummary } from '../lib/useAccountSummary';
 
@@ -9,25 +9,25 @@ export function AccountSummaryCardList() {
   if (error || isLoading || !data) {
     return (
       <div className="flex flex-row gap-4 min-w-fit">
-        <AccountSummaryCard
+        <StatCard
           title="전체 광고 클릭 수"
           value="0"
           change="+0"
           icon={<Icon.Click className="w-8 h-8" />}
         />
-        <AccountSummaryCard
+        <StatCard
           title="전체 광고 노출 수"
           value="0"
           change="+0"
           icon={<Icon.Eye className="w-8 h-8" />}
         />
-        <AccountSummaryCard
+        <StatCard
           title="평균 노출당 클릭률 (CTR)"
           value="0.0%"
           change="0.00%"
           icon={<Icon.Percent className="w-8 h-8" />}
         />
-        <AccountSummaryCard
+        <StatCard
           title="총 사용"
           value="0원"
           icon={<Icon.Dollar className="w-8 h-8" />}
@@ -38,7 +38,7 @@ export function AccountSummaryCardList() {
 
   return (
     <div className="flex flex-row gap-4 min-w-fit">
-      <AccountSummaryCard
+      <StatCard
         title="전체 캠페인 클릭 수"
         value={data.totalClicks.toLocaleString()}
         change={
@@ -48,7 +48,7 @@ export function AccountSummaryCardList() {
         }
         icon={<Icon.Click className="w-8 h-8" />}
       />
-      <AccountSummaryCard
+      <StatCard
         title="전체 캠페인 노출 수"
         value={data.totalImpressions.toLocaleString()}
         change={
@@ -58,7 +58,7 @@ export function AccountSummaryCardList() {
         }
         icon={<Icon.Eye className="w-8 h-8" />}
       />
-      <AccountSummaryCard
+      <StatCard
         title="평균 노출당 클릭률 (CTR)"
         value={`${data.averageCtr}%`}
         change={
@@ -68,7 +68,7 @@ export function AccountSummaryCardList() {
         }
         icon={<Icon.Percent className="w-8 h-8" />}
       />
-      <AccountSummaryCard
+      <StatCard
         title="총 사용"
         value={`${data.totalSpent.toLocaleString()}원`}
         icon={<Icon.Dollar className="w-8 h-8" />}

@@ -1,2 +1,3 @@
-export { AccountSummaryCard } from './ui/AccountSummaryCard';
 export { AccountSummaryCardList } from './ui/AccountSummaryCardList';
+
+// StatCard는 @shared/ui/StatCard에서 import하세요
