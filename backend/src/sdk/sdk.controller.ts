@@ -51,6 +51,9 @@ export class SdkController {
     @Req() req: BlogKeyValidatedRequest
   ) {
     const { visitorId } = req;
+    if (!visitorId) {
+      throw new BadRequestException('비정상적인 API 요청입니다.');
+    }
     const clickId = await this.sdkService.recordClick(
       createClickLogDto,
       visitorId
