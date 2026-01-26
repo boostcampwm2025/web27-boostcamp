@@ -4,9 +4,6 @@ services:
     build:
       context: .
       dockerfile: nginx/Dockerfile.prod
-      target: runner
-    environment:
-      PORT: '80'
     ports:
       - '80:80'
     depends_on:
