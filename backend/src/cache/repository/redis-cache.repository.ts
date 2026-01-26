@@ -4,6 +4,7 @@ import type { Cache } from 'cache-manager';
 import { AuctionData } from '../types/auction-data.type';
 import { CacheRepository } from './cache.repository.interface';
 import { StoredOAuthState } from '../../auth/auth.service';
+import crypto from 'crypto';
 
 @Injectable()
 export class RedisCacheRepository extends CacheRepository {
@@ -53,11 +54,30 @@ export class RedisCacheRepository extends CacheRepository {
     await this.cacheManager.del(key);
   }
 
+  // async setViewIdempotencyKey(
+  //   postUrl: string,
+  //   visitorId: string,
+  //   viewId: number
+  // ): Promise<void | number> {
+  //   const hashedUrl = this.hashUrl(postUrl);
+  //   const key = `dedup:view:post:${hashedUrl}:visitor:${visitorId}`;
+  //   await this.cacheManager.set(key, viewId, 60 * 30 * 1000);
+  // }
+
+  // async getViewIdByIdempotencyKey(
+  //   postUrl: string,
+  //   visitorId: string
+  // ): Promise<number | null> {}
+
   private getAuctionKey(auctionId: string): string {
     return `auction:${auctionId}`;
   }
 
   private getOAuthStateKey(state: string): string {
     return `oauth:state:${state}`;
+  }
+
+  private hashUrl(url: string) {
+    return crypto.createHash('sha256').update(url).digest('base64url');
   }
 }

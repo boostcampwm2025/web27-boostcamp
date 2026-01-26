@@ -20,8 +20,13 @@ export abstract class CacheRepository {
   abstract getOAuthState(state: string): Promise<StoredOAuthState | undefined>;
   abstract deleteOAuthState(state: string): Promise<void>;
 
-  abstract setAbusePreventionFlag(
+  abstract setViewIdempotencyKey(
+    postUrl: string,
+    visitorId: string,
+    viewId: number
+  ): Promise<void | number>;
+  abstract getViewIdByIdempotencyKey(
     postUrl: string,
     visitorId: string
-  ): Promise<void>;
+  ): Promise<number | null>;
 }

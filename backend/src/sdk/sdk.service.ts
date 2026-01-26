@@ -27,7 +27,10 @@ export class SdkService {
     }
 
     const { blogId, cost } = auctionData;
-    return await this.logRepository.saveViewLog({
+
+    await this.cacheRepository.getViewIdByIdempotencyKey(postUrl, visitorId);
+
+    const viewId = await this.logRepository.saveViewLog({
       auctionId,
       campaignId,
       blogId,
@@ -37,6 +40,8 @@ export class SdkService {
       isHighIntent,
       behaviorScore,
     });
+
+    return viewId;
   }
 
   async recordClick(dto: CreateClickLogDto) {
