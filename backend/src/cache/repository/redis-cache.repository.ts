@@ -118,7 +118,29 @@ export class RedisCacheRepository extends CacheRepository {
     return viewId;
   }
 
-  // async setClickIdempotencyKey()
+  // 이미 있는 값이면 true, 최초면 false return
+  async setClickIdempotencyKey(
+    postUrl: string,
+    visitorId: string,
+    ttlMs: number = 60 * 30 * 1000
+  ): Promise<boolean> {
+    const hashedUrl = this.hashUrl(postUrl);
+    const key = `dedup:click:post:${hashedUrl}:visitor:${visitorId}`;
+
+    const result = await this.redisClient.set(key, 1, {
+      expiration: { type: 'PX', value: ttlMs },
+      condition: 'NX',
+    });
+
+    if (result === 'OK') {
+      return false;
+    }
+
+    const existingValue = await this.redisClient.get(key);
+    if (!existingValue) return false;
+
+    return true;
+  }
 
   private getAuctionKey(auctionId: string): string {
     return `auction:${auctionId}`;
