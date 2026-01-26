@@ -109,7 +109,13 @@ export class BannerAdRenderer implements AdRenderer {
 
       if (response.ok) {
         const data: ClickLogResponse = await response.json();
-        console.log('[BoostAD SDK] ClickLog 기록 성공:', data.data.clickId);
+        if (!data.data.clickId) {
+          console.log(
+            '[BoostAD SDK] 중복 클릭으로 판단되어 예산이 차감되지 않습니다.'
+          );
+        } else {
+          console.log('[BoostAD SDK] ClickLog 기록 성공:', data.data.clickId);
+        }
       } else {
         console.warn('[BoostAD SDK] ClickLog 기록 실패:', response.status);
       }

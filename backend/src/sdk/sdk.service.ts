@@ -73,12 +73,21 @@ export class SdkService {
     return viewId;
   }
 
-  async recordClick(dto: CreateClickLogDto, visitorId: string) {
+  async recordClick(
+    dto: CreateClickLogDto,
+    visitorId: string
+  ): Promise<number | null> {
     const { viewId, postUrl } = dto;
     // todo: 어뷰징 방지
 
-    await this.cacheRepository.setClickIdempotencyKey(postUrl, visitorId);
-    
+    const isDup = await this.cacheRepository.setClickIdempotencyKey(
+      postUrl,
+      visitorId
+    );
+
+    if (isDup) {
+      return null;
+    }
     const exists = await this.logRepository.existsByViewId(viewId);
     if (!exists) {
       throw new BadRequestException('잘못된 요청입니다.');
