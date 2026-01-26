@@ -8,6 +8,7 @@ import { Reflector } from '@nestjs/core';
 import { jwtVerify } from 'jose';
 import { type Request } from 'express';
 import { UserRole } from 'src/user/entities/user.entity';
+import { type AuthenticatedRequest } from 'src/types/authenticated-request';
 
 const getJwtSecret = () => {
   const value = process.env.JWT_SECRET;
@@ -15,9 +16,6 @@ const getJwtSecret = () => {
     throw new Error('JWT_SECRET is missing');
   }
   return new TextEncoder().encode(value);
-};
-type AuthenticatedRequest = Request & {
-  user?: { userId: number; role: UserRole; email?: string };
 };
 
 @Injectable()
@@ -32,7 +30,7 @@ export class JwtCookieGuard implements CanActivate {
 
     if (isPublic) return true;
 
-    const req = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    const req = context.switchToHttp().getRequest<AuthenticatedRequest>(); // req는 이런 형태일 것이다 제네릭으로 넣어주는거
     const token = req.cookies?.access_token as string;
 
     if (!token) {

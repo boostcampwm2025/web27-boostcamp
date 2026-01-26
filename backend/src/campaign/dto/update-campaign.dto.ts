@@ -1,6 +1,7 @@
+import { Type } from 'class-transformer';
 import {
   IsString,
-  IsNumber,
+  IsInt,
   IsDateString,
   IsArray,
   IsUrl,
@@ -35,17 +36,20 @@ export class UpdateCampaignDto {
   tags?: string[];
 
   @IsOptional()
-  @IsNumber()
+  @Type(() => Number)
+  @IsInt({ message: '최대 CPC는 정수여야 합니다.' })
   @Min(0, { message: '최대 CPC는 0 이상이어야 합니다.' })
   maxCpc?: number;
 
   @IsOptional()
-  @IsNumber()
+  @Type(() => Number)
+  @IsInt({ message: '일일 예산은 정수여야 합니다.' })
   @Min(0, { message: '일일 예산은 0 이상이어야 합니다.' })
   dailyBudget?: number;
 
   @IsOptional()
-  @IsNumber()
+  @Type(() => Number)
+  @IsInt({ message: '총 예산은 정수여야 합니다.' })
   @Min(0, { message: '총 예산은 0 이상이어야 합니다.' })
   totalBudget?: number;
 

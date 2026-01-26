@@ -1,53 +1,66 @@
+import { Type } from 'class-transformer';
 import {
   IsString,
-  IsNumber,
+  IsInt,
   IsBoolean,
   IsDateString,
   IsArray,
   IsUrl,
   MaxLength,
   Min,
-  IsOptional,
+  IsNotEmpty,
 } from 'class-validator';
 
 export class CreateCampaignDto {
   @IsString()
+  @IsNotEmpty()
   @MaxLength(20, { message: '제목은 최대 20자까지 입력 가능합니다.' })
   title: string;
 
   @IsString()
+  @IsNotEmpty()
   @MaxLength(100, { message: '내용은 최대 100자까지 입력 가능합니다.' })
   content: string;
 
   @IsUrl({}, { message: '올바른 이미지 URL 형식이 아닙니다.' })
+  @IsNotEmpty()
   image: string;
 
   @IsUrl({}, { message: '올바른 URL 형식이 아닙니다.' })
+  @IsNotEmpty()
   url: string;
 
   @IsArray()
   @IsString({ each: true })
   tags: string[];
 
-  @IsNumber()
+  @Type(() => Number)
+  @IsNotEmpty()
+  @IsInt({ message: '최대 CPC는 정수여야 합니다.' })
   @Min(100, { message: '최대 CPC는 100원 이상이어야 합니다.' })
   maxCpc: number;
 
-  @IsNumber()
+  @Type(() => Number)
+  @IsNotEmpty()
+  @IsInt({ message: '일일 예산은 정수여야 합니다.' })
   @Min(3000, { message: '일일 예산은 3,000원 이상이어야 합니다.' })
   dailyBudget: number;
 
-  @IsOptional()
-  @IsNumber()
+  @Type(() => Number)
+  @IsNotEmpty()
+  @IsInt({ message: '총 예산은 정수여야 합니다.' })
   @Min(0, { message: '총 예산은 0 이상이어야 합니다.' })
-  totalBudget: number | null;
+  totalBudget: number;
 
   @IsDateString({}, { message: '시작일은 ISO 8601 형식이어야 합니다.' })
+  @IsNotEmpty()
   startDate: string;
 
   @IsDateString({}, { message: '종료일은 ISO 8601 형식이어야 합니다.' })
+  @IsNotEmpty()
   endDate: string;
 
   @IsBoolean()
+  @IsNotEmpty()
   isHighIntent: boolean;
 }

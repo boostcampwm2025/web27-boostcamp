@@ -32,15 +32,21 @@ export function RealtimeBidsTableRow({ bid }: RealtimeBidsTableRowProps) {
       <td className="px-5 py-4 whitespace-nowrap">
         {bid.postUrl ? (
           <a
-            href={`https://${bid.postUrl}`}
+            href={
+              bid.postUrl.startsWith('http')
+                ? bid.postUrl
+                : `https://${bid.postUrl}`
+            }
             target="_blank"
             rel="noopener noreferrer"
-            className="text-gray-900 hover:text-blue-600 hover:underline cursor-pointer"
+            className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer text-xs"
           >
-            {bid.blogName}
+            {bid.postUrl.length > 50
+              ? `${bid.postUrl.substring(0, 50)}...`
+              : bid.postUrl}
           </a>
         ) : (
-          <span className="text-gray-900">{bid.blogName}</span>
+          <span className="text-gray-500 text-xs">{bid.blogName}</span>
         )}
       </td>
       <td

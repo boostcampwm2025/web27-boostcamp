@@ -23,7 +23,10 @@ export class BlogKeyValidationGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<RequestWithBlog>();
-    const { blogKey } = request.body as { blogKey?: string };
+    const { blogKey, postUrl } = request.body as {
+      blogKey?: string;
+      postUrl?: string;
+    };
 
     // blogKey 누락 체크
     if (!blogKey) {
@@ -32,6 +35,21 @@ export class BlogKeyValidationGuard implements CanActivate {
         url: request.url,
       });
       throw new BadRequestException('blogKey가 필요합니다.');
+    }
+
+    if (!postUrl) {
+      this.logger.warn('postUrl 누락된 요청 시도', {
+        ip: request.ip,
+        url: request.url,
+      });
+      throw new BadRequestException('postUrl이 필요합니다.');
+    }
+
+    let requestDomain: string;
+    try {
+      requestDomain = new URL(postUrl).hostname;
+    } catch {
+      throw new BadRequestException('유효한 postUrl이 필요합니다.');
     }
 
     // blogKey 검증 (DB 조회)
@@ -57,6 +75,21 @@ export class BlogKeyValidationGuard implements CanActivate {
       });
       throw new ForbiddenException(
         '등록되지 않은 blogKey입니다. 관리자에게 문의하세요.'
+      );
+    }
+
+    const { domain } = blog;
+
+    if (requestDomain !== domain) {
+      this.logger.warn('blogKey 도메인 불일치', {
+        blogKey,
+        requestDomain,
+        blogDomain: domain,
+        ip: request.ip,
+        url: request.url,
+      });
+      throw new ForbiddenException(
+        '요청 도메인이 blogKey의 도메인과 일치하지 않습니다.'
       );
     }
 
