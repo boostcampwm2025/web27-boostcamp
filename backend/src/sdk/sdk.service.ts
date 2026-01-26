@@ -28,7 +28,7 @@ export class SdkService {
 
     const { blogId, cost } = auctionData;
 
-    await this.cacheRepository.getViewIdByIdempotencyKey(postUrl, visitorId);
+    // await this.cacheRepository.getViewIdByIdempotencyKey(postUrl, visitorId);
 
     const viewId = await this.logRepository.saveViewLog({
       auctionId,
