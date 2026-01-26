@@ -22,3 +22,9 @@ npm-debug.log*
 
 # 개인폴더
 docs_personal/
+
+# cert폴더
+certs/localhost.pem
+certs/localhost+2.pem
+certs/localhost-key.pem
+certs/localhost-key+2.pem
