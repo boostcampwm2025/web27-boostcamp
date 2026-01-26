@@ -1,10 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { apiClient } from '@shared/lib/api';
-import type { RealtimeBidsResponse, BidLog } from './types';
+import { API_CONFIG } from '@shared/lib/api/config';
+import type { RealtimeBidsData, BidLog } from './types';
 
 interface UseRealtimeBidsParams {
   limit?: number;
   offset?: number;
+  startDate?: string;
+  endDate?: string;
 }
 
 interface UseRealtimeBidsReturn {
@@ -13,17 +16,21 @@ interface UseRealtimeBidsReturn {
   hasMore: boolean;
   isLoading: boolean;
   error: string | null;
+  isConnected: boolean;
 }
 
 export function useRealtimeBids(
   params: UseRealtimeBidsParams = {}
 ): UseRealtimeBidsReturn {
-  const { limit = 3, offset = 0 } = params;
+  const { limit = 3, offset = 0, startDate, endDate } = params;
   const [bids, setBids] = useState<BidLog[]>([]);
   const [total, setTotal] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
+
+  const eventSourceRef = useRef<EventSource | null>(null);
 
   useEffect(() => {
     const fetchBids = async () => {
@@ -31,13 +38,21 @@ export function useRealtimeBids(
         setIsLoading(true);
         setError(null);
 
-        const response = await apiClient<RealtimeBidsResponse>(
-          `/api/advertiser/bids/realtime?limit=${limit}&offset=${offset}`
+        const params = new URLSearchParams({
+          limit: limit.toString(),
+          offset: offset.toString(),
+        });
+
+        if (startDate) params.append('startDate', startDate);
+        if (endDate) params.append('endDate', endDate);
+
+        const response = await apiClient<RealtimeBidsData>(
+          `/api/advertiser/bids/realtime?${params.toString()}`
         );
 
-        setBids(response);
-        setTotal(0);
-        setHasMore(false);
+        setBids(response.bids);
+        setTotal(response.total);
+        setHasMore(response.hasMore);
       } catch (err) {
         const message =
           err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다';
@@ -48,7 +63,44 @@ export function useRealtimeBids(
     };
 
     fetchBids();
-  }, [limit, offset]);
+  }, [limit, offset, startDate, endDate]);
 
-  return { bids, total, hasMore, isLoading, error };
+  useEffect(() => {
+    // 첫 페이지(offset=0)일 때만 SSE 활성화
+    if (offset !== 0) return;
+
+    const eventSource = new EventSource(
+      `${API_CONFIG.baseURL}/api/advertiser/bids/stream`,
+      { withCredentials: true }
+    );
+
+    eventSourceRef.current = eventSource;
+
+    eventSource.onopen = () => {
+      setIsConnected(true);
+    };
+
+    eventSource.onmessage = (event) => {
+      try {
+        const newBid: BidLog = JSON.parse(event.data);
+        setBids((prev) => [newBid, ...prev].slice(0, limit));
+      } catch (err) {
+        console.error('[SSE] 메시지 파싱 오류:', err);
+      }
+    };
+
+    eventSource.onerror = (err) => {
+      console.error('[SSE] 연결 오류:', err);
+      setIsConnected(false);
+      eventSource.close();
+    };
+
+    return () => {
+      setIsConnected(false);
+      eventSource.close();
+      eventSourceRef.current = null;
+    };
+  }, [limit, offset, startDate, endDate]);
+
+  return { bids, total, hasMore, isLoading, error, isConnected };
 }

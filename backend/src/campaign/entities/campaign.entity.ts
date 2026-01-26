@@ -8,17 +8,12 @@ import {
   JoinColumn,
   JoinTable,
   PrimaryColumn,
-  OneToMany,
   type Relation,
 } from 'typeorm';
 import type { UserEntity } from '../../user/entities/user.entity';
 import type { TagEntity } from '../../tag/entities/tag.entity';
-import type { BidLogEntity } from '../../bid-log/entities/bid-log.entity';
-import type { ViewLogEntity } from '../../log/entities/view-log.entity';
 import * as UserEntityModule from '../../user/entities/user.entity';
 import * as TagEntityModule from '../../tag/entities/tag.entity';
-import * as BidLogEntityModule from '../../bid-log/entities/bid-log.entity';
-import * as ViewLogEntityModule from '../../log/entities/view-log.entity';
 
 export enum CampaignStatus {
   PENDING = 'PENDING',
@@ -130,16 +125,4 @@ export class CampaignEntity {
     inverseJoinColumn: { name: 'tag_id', referencedColumnName: 'id' },
   })
   tags: Relation<TagEntity[]>;
-
-  @OneToMany(
-    () => BidLogEntityModule.BidLogEntity,
-    (bidLog: BidLogEntity) => bidLog.campaign
-  )
-  bidLogs: Relation<BidLogEntity[]>;
-
-  @OneToMany(
-    () => ViewLogEntityModule.ViewLogEntity,
-    (viewLog: ViewLogEntity) => viewLog.campaign
-  )
-  viewLogs: Relation<ViewLogEntity[]>;
 }

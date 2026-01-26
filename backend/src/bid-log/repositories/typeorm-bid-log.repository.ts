@@ -14,6 +14,11 @@ export class TypeOrmBidLogRepository extends BidLogRepository {
     super();
   }
 
+  async findById(id: number): Promise<BidLog | null> {
+    const log = await this.repository.findOne({ where: { id } });
+    return log ?? null;
+  }
+
   async save(bidLog: BidLog): Promise<void> {
     await this.repository.save(bidLog);
   }
@@ -57,18 +62,59 @@ export class TypeOrmBidLogRepository extends BidLogRepository {
     limit: number = 10,
     offset: number = 0,
     sortBy: 'createdAt' = 'createdAt',
-    order: 'asc' | 'desc' = 'desc'
+    order: 'asc' | 'desc' = 'desc',
+    startDate?: string,
+    endDate?: string
   ): Promise<BidLog[]> {
+
     // DB 레벨에서 JOIN, 필터링, 정렬, 페이지네이션을 한 번에 처리
-    const logs = await this.repository
+    // 외래키 제약조건이 제거되었으므로 명시적인 JOIN 조건 사용
+    const queryBuilder = this.repository
       .createQueryBuilder('bidLog')
-      .innerJoin('bidLog.campaign', 'campaign')
-      .where('campaign.userId = :userId', { userId })
+      .innerJoin('Campaign', 'campaign', 'bidLog.campaign_id = campaign.id')
+      .where('campaign.userId = :userId', { userId });
+
+    if (startDate) {
+      queryBuilder.andWhere('bidLog.createdAt >= :startDate', {
+        startDate: new Date(startDate),
+      });
+    }
+    if (endDate) {
+      queryBuilder.andWhere('bidLog.createdAt <= :endDate', {
+        endDate: new Date(endDate),
+      });
+    }
+
+    const logs = await queryBuilder
       .orderBy(`bidLog.${sortBy}`, order.toUpperCase() as 'ASC' | 'DESC')
       .skip(offset)
       .take(limit)
       .getMany();
 
     return logs;
+  }
+
+  async countByUserId(
+    userId: number,
+    startDate?: string,
+    endDate?: string
+  ): Promise<number> {
+    const queryBuilder = this.repository
+      .createQueryBuilder('bidLog')
+      .innerJoin('Campaign', 'campaign', 'bidLog.campaign_id = campaign.id')
+      .where('campaign.userId = :userId', { userId });
+
+    if (startDate) {
+      queryBuilder.andWhere('bidLog.createdAt >= :startDate', {
+        startDate: new Date(startDate),
+      });
+    }
+    if (endDate) {
+      queryBuilder.andWhere('bidLog.createdAt <= :endDate', {
+        endDate: new Date(endDate),
+      });
+    }
+
+    return await queryBuilder.getCount();
   }
 }

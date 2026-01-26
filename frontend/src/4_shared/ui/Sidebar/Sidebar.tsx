@@ -27,6 +27,12 @@ export function Sidebar() {
     },
     {
       id: '3',
+      to: '/advertiser/dashboard/history',
+      icon: 'Clock',
+      label: '입찰 히스토리',
+    },
+    {
+      id: '4',
       to: '/advertiser/dashboard/budget',
       icon: 'Wallet',
       label: '예산 관리',

@@ -28,6 +28,7 @@ import Close from '@shared/ui/Icon/icons/close.svg?react';
 import ClickLine from '@shared/ui/Icon/icons/clickLine.svg?react';
 import Pen from '@shared/ui/Icon/icons/pen.svg?react';
 import LineLeft from '@shared/ui/Icon/icons/lineLeft.svg?react';
+import Clock from '@shared/ui/Icon/icons/clock.svg?react';
 
 export const Icon = {
   ArrowRight,
@@ -60,4 +61,5 @@ export const Icon = {
   ClickLine,
   Pen,
   LineLeft,
+  Clock,
 };

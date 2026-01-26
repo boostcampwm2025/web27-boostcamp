@@ -13,9 +13,15 @@ export interface BidLogItemDto {
   behaviorScore: number | null;
 }
 
+export interface BidLogDataDto {
+  total: number;
+  hasMore: boolean;
+  bids: BidLogItemDto[];
+}
+
 export interface BidLogResponseDto {
   status: string;
   message: string;
-  data: BidLogItemDto[];
+  data: BidLogDataDto;
   timestamp: string;
 }
