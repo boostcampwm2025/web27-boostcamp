@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
 import { Modal } from '@shared/ui/Modal';
 import { useCampaignFormStore } from '../lib/campaignFormStore';
+import { isStep1Valid } from '../lib/step1Validation';
+import { isStep2Valid } from '../lib/step2Validation';
 import { StepIndicator } from './StepIndicator';
 import { FormNavigation } from './FormNavigation';
 
@@ -15,7 +17,18 @@ export function CampaignCreationForm({
   onSubmit,
   isSubmitting = false,
 }: CampaignCreationFormProps) {
-  const { currentStep, setStep } = useCampaignFormStore();
+  const { currentStep, setStep, formData, balance } = useCampaignFormStore();
+
+  const isNextDisabled = () => {
+    if (isSubmitting) return true;
+    if (currentStep === 1) {
+      return !isStep1Valid(formData.campaignContent);
+    }
+    if (currentStep === 2) {
+      return !isStep2Valid({ ...formData.budgetSettings, balance });
+    }
+    return false;
+  };
 
   const handlePrev = () => {
     if (currentStep === 2) {
@@ -46,7 +59,7 @@ export function CampaignCreationForm({
         onPrev={handlePrev}
         onNext={handleNext}
         isLastStep={currentStep === 3}
-        disableNext={isSubmitting}
+        disableNext={isNextDisabled()}
         disablePrev={isSubmitting}
       />
     </div>

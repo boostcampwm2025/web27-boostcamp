@@ -13,7 +13,7 @@ import { BoostAdSDK } from './features/BoostAdSDK';
   const config = getSDKConfig();
   const tagExtractor = new TagExtractor(TAGS);
   const apiClient = new DecisionAPIClient(config);
-  const adRenderer = new BannerAdRenderer();
+  const adRenderer = new BannerAdRenderer(config.blogKey);
   const behaviorTracker = new BehaviorTracker();
   const sdk = new BoostAdSDK(
     tagExtractor,

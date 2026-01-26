@@ -19,4 +19,31 @@ export abstract class CacheRepository {
   ): Promise<void>;
   abstract getOAuthState(state: string): Promise<StoredOAuthState | undefined>;
   abstract deleteOAuthState(state: string): Promise<void>;
+
+  abstract acquireViewIdempotencyKey(
+    postUrl: string,
+    visitorId: string,
+    ttlMs?: number
+  ): Promise<
+    | { status: 'acquired' }
+    | { status: 'exists'; viewId: number }
+    | { status: 'locked' }
+  >;
+
+  abstract setViewIdempotencyKey(
+    postUrl: string,
+    visitorId: string,
+    viewId: number,
+    ttlMs?: number
+  ): Promise<void>;
+
+  abstract getViewIdByIdempotencyKey(
+    postUrl: string,
+    visitorId: string
+  ): Promise<number | null>;
+
+  abstract setClickIdempotencyKey(
+    postUrl: string,
+    visitorId: string
+  ): Promise<boolean>;
 }

@@ -13,6 +13,7 @@ import {
   successResponse,
   SuccessResponse,
 } from '../common/response/success-response';
+import { type AuthenticatedRequest } from 'src/types/authenticated-request';
 
 interface UploadedFileType {
   fieldname: string;
@@ -23,11 +24,11 @@ interface UploadedFileType {
   buffer: Buffer;
 }
 
-interface AuthenticatedRequest extends Request {
-  user: {
-    userId: number;
-  };
-}
+// interface AuthenticatedRequest extends Request {
+//   user: {
+//     userId: number;
+//   };
+// }
 
 @Controller('images')
 @UseGuards(JwtCookieGuard)

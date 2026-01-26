@@ -9,12 +9,14 @@ import { CampaignEntity } from './entities/campaign.entity';
 import { TagEntity } from '../tag/entities/tag.entity';
 import { LogModule } from '../log/log.module';
 import { ImageModule } from '../image/image.module';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([CampaignEntity, TagEntity]),
     LogModule,
     ImageModule,
+    UserModule,
   ],
   controllers: [CampaignController],
   providers: [

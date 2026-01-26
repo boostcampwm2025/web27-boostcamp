@@ -6,16 +6,11 @@ import {
   DeleteDateColumn,
   ManyToOne,
   JoinColumn,
-  OneToMany,
   type Relation,
 } from 'typeorm';
 import type { UserEntity } from '../../user/entities/user.entity';
-import type { BidLogEntity } from '../../bid-log/entities/bid-log.entity';
-import type { ViewLogEntity } from '../../log/entities/view-log.entity';
 
 import * as UserEntityModule from '../../user/entities/user.entity';
-import * as BidLogEntityModule from '../../bid-log/entities/bid-log.entity';
-import * as ViewLogEntityModule from '../../log/entities/view-log.entity';
 
 @Entity('Blog')
 export class BlogEntity {
@@ -56,16 +51,4 @@ export class BlogEntity {
   )
   @JoinColumn({ name: 'user_id' })
   user: Relation<UserEntity>;
-
-  @OneToMany(
-    () => BidLogEntityModule.BidLogEntity,
-    (bidLog: BidLogEntity) => bidLog.blog
-  )
-  bidLogs: Relation<BidLogEntity>[];
-
-  @OneToMany(
-    () => ViewLogEntityModule.ViewLogEntity,
-    (viewLog: ViewLogEntity) => viewLog.blog
-  )
-  viewLogs: Relation<ViewLogEntity>[];
 }

@@ -49,15 +49,39 @@ export function OnboardingSdkGuidePage() {
   };
 
   const handleRedirectToMyWeb = () => {
-    const url = data.domain.startsWith('http')
-      ? data.domain
-      : `https://${data.domain}`;
+    const rawDomain = data.domain.trim();
+    if (!rawDomain) return;
 
-    const a = document.createElement('a');
-    a.href = url;
-    a.target = '_blank';
-    a.rel = 'noopener noreferrer';
-    a.click();
+    const hasScheme = /^https?:\/\//i.test(rawDomain);
+    if (hasScheme) {
+      const a = document.createElement('a');
+      a.href = rawDomain;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.click();
+      return;
+    }
+
+    const httpsUrl = `https://${rawDomain}`;
+    const httpUrl = `http://${rawDomain}`;
+    const popup = window.open('', '_blank');
+    if (popup) popup.opener = null;
+
+    const navigateTo = (url: string) => {
+      if (popup) {
+        popup.location.href = url;
+        return;
+      }
+      const a = document.createElement('a');
+      a.href = url;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.click();
+    };
+
+    fetch(httpsUrl, { method: 'GET', mode: 'no-cors' })
+      .then(() => navigateTo(httpsUrl))
+      .catch(() => navigateTo(httpUrl));
   };
 
   return (
