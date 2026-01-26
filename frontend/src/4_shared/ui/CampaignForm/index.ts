@@ -1,4 +1,3 @@
-// UI Components
 export { CampaignForm } from './ui/CampaignForm';
 export { CampaignForm as CampaignCreationForm } from './ui/CampaignForm'; // Backward compatibility alias
 export { Step1Content } from './ui/Step1Content';
@@ -15,5 +14,4 @@ export { ConfirmCard } from './ui/ConfirmCard';
 export { ConfirmItem } from './ui/ConfirmItem';
 export { ContentHeader } from './ui/ContentHeader';
 
-// Lib
 export * from './lib';
