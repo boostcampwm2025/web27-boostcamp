@@ -25,4 +25,6 @@ export abstract class LogRepository {
   abstract countClickLogsByCampaignIds(
     campaignIds: string[]
   ): Promise<Map<string, number>>;
+
+  abstract existsByViewId(viewId: number): Promise<boolean>;
 }

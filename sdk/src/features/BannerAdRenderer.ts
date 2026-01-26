@@ -10,6 +10,8 @@ import { API_BASE_URL } from '@shared/config/constants';
 
 // 배너 광고 렌더러
 export class BannerAdRenderer implements AdRenderer {
+  constructor(private readonly blogKey: string) {}
+
   private currentViewId: number | null = null;
   private currentAdUrl: string | null = null;
 
@@ -55,6 +57,7 @@ export class BannerAdRenderer implements AdRenderer {
   ): Promise<void> {
     try {
       const requestBody: ViewLogRequest = {
+        blogKey: this.blogKey,
         auctionId,
         campaignId,
         postUrl,
@@ -66,6 +69,7 @@ export class BannerAdRenderer implements AdRenderer {
       const response = await fetch(`${API_BASE_URL}/sdk/campaign-view`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(requestBody),
       });
 
@@ -92,17 +96,26 @@ export class BannerAdRenderer implements AdRenderer {
     try {
       const requestBody: ClickLogRequest = {
         viewId: this.currentViewId,
+        blogKey: this.blogKey,
+        postUrl: window.location.href,
       };
 
       const response = await fetch(`${API_BASE_URL}/sdk/campaign-click`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(requestBody),
       });
 
       if (response.ok) {
         const data: ClickLogResponse = await response.json();
-        console.log('[BoostAD SDK] ClickLog 기록 성공:', data.data.clickId);
+        if (!data.data.clickId) {
+          console.log(
+            '[BoostAD SDK] 중복 클릭으로 판단되어 예산이 차감되지 않습니다.'
+          );
+        } else {
+          console.log('[BoostAD SDK] ClickLog 기록 성공:', data.data.clickId);
+        }
       } else {
         console.warn('[BoostAD SDK] ClickLog 기록 실패:', response.status);
       }
@@ -143,10 +156,7 @@ export class BannerAdRenderer implements AdRenderer {
     `;
   }
 
-  private renderAdWidget(
-    campaign: Campaign,
-    container: HTMLElement
-  ): string {
+  private renderAdWidget(campaign: Campaign, container: HTMLElement): string {
     // XSS 방지: 모든 사용자 입력 데이터 이스케이프
     const safeTitle = this.escapeHtml(campaign.title);
     const safeContent = this.escapeHtml(campaign.content);

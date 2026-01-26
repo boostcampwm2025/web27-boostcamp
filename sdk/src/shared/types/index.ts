@@ -42,6 +42,7 @@ export interface DecisionResponse {
 
 // ViewLog API 요청 타입
 export interface ViewLogRequest {
+  blogKey: string;
   auctionId: string;
   campaignId: string;
   postUrl: string;
@@ -63,6 +64,8 @@ export interface ViewLogResponse {
 // ClickLog API 요청 타입
 export interface ClickLogRequest {
   viewId: number;
+  blogKey: string;
+  postUrl: string;
 }
 
 // ClickLog API 응답 타입
