@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile.local
+    container_name: boostad-nginx-local
+    ports:
+      - '80:80'
+      - '443:443'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    restart: unless-stopped
+    networks:
+      - boostad-local
+
+  redis:
+    image: redis/redis-stack-server:latest
+    container_name: boostad-redis-master-local
+    ports:
+      - '16379:6379' # 호스트 16379 -> 컨테이너 6379
+    command: redis-server /usr/local/etc/redis/redis.conf
+    volumes:
+      - redis-master-data:/data
+      - ./redis/redis-master.local.conf:/usr/local/etc/redis/redis.conf
+    restart: unless-stopped
+    networks:
+      - boostad-local
+
+  mysql:
+    image: mysql:8.0
+    container_name: boostad-mysql-local
+    ports:
+      - '13306:3306' # 호스트 13306 -> 컨테이너 3306
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-test_user}
+      MYSQL_DATABASE: ${DB_DATABASE:-test_db}
+      MYSQL_USER: ${DB_USERNAME:-test_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-test_user}
+      TZ: Asia/Seoul
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d:ro # 초기화 스크립트 -> 파일 순서대로 실행
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-time-zone=+09:00
+    restart: unless-stopped
+    networks:
+      - boostad-local
+
+volumes:
+  redis-master-data:
+  mysql-data:
+
+networks:
+  boostad-local:
+    driver: bridge
