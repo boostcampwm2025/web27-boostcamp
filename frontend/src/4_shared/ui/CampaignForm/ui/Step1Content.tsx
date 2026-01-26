@@ -13,7 +13,11 @@ import {
 } from '../lib/step1Validation';
 import type { Tag } from '../lib/types';
 
-export function Step1Content() {
+interface Step1ContentProps {
+  onImageUpload: (file: File) => Promise<string>;
+}
+
+export function Step1Content({ onImageUpload }: Step1ContentProps) {
   const { formData, updateCampaignContent, errors, setErrors } =
     useCampaignFormStore();
   const { title, content, url, tags, isHighIntent, image } =
@@ -97,6 +101,7 @@ export function Step1Content() {
         value={image}
         onChange={handleImageChange}
         validationError={errors.campaignContent?.image}
+        onUpload={onImageUpload}
       />
       <TextField
         label="광고 제목"

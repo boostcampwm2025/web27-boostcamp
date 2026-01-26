@@ -1,13 +1,14 @@
 import { formatWithComma, parseNumber } from '@shared/lib/format';
 
 interface CurrencyFieldProps {
-  label: string;
+  label?: string;
   value: number;
   onChange: (value: number) => void;
   onBlur?: () => void;
   hint?: string;
   error?: string;
   placeholder?: string;
+  unit?: string;
 }
 
 export function CurrencyField({
@@ -18,6 +19,7 @@ export function CurrencyField({
   hint,
   error,
   placeholder = '0',
+  unit = '원',
 }: CurrencyFieldProps) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const numberValue = parseNumber(e.target.value);
@@ -32,7 +34,7 @@ export function CurrencyField({
 
   return (
     <div className="flex flex-col gap-2">
-      <label className="text-sm font-bold text-gray-900">{label}</label>
+      {label && <label className="text-sm font-bold text-gray-900">{label}</label>}
 
       <div
         className={`flex h-11 items-center rounded-lg border px-3 focus-within:ring-2 ${
@@ -50,7 +52,7 @@ export function CurrencyField({
           placeholder={placeholder}
           className="flex-1 outline-none"
         />
-        <span className="ml-2 text-sm text-gray-500">원</span>
+        <span className="ml-2 text-sm text-gray-500">{unit}</span>
       </div>
 
       {hint && !error && <p className="text-xs text-gray-400">{hint}</p>}

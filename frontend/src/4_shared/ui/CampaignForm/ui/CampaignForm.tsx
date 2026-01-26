@@ -6,18 +6,18 @@ import { isStep2Valid } from '../lib/step2Validation';
 import { StepIndicator } from './StepIndicator';
 import { FormNavigation } from './FormNavigation';
 
-interface CampaignCreationFormProps {
+interface CampaignFormProps {
   children?: ReactNode;
   onSubmit?: () => void;
   isSubmitting?: boolean;
 }
 
-export function CampaignCreationForm({
+export function CampaignForm({
   children,
   onSubmit,
   isSubmitting = false,
-}: CampaignCreationFormProps) {
-  const { currentStep, setStep, formData, balance } = useCampaignFormStore();
+}: CampaignFormProps) {
+  const { currentStep, setStep, formData, balance, mode } = useCampaignFormStore();
 
   const isNextDisabled = () => {
     if (isSubmitting) return true;
@@ -56,6 +56,7 @@ export function CampaignCreationForm({
       </Modal>
       <FormNavigation
         currentStep={currentStep}
+        mode={mode}
         onPrev={handlePrev}
         onNext={handleNext}
         isLastStep={currentStep === 3}
