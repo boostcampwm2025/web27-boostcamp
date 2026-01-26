@@ -19,4 +19,9 @@ export abstract class CacheRepository {
   ): Promise<void>;
   abstract getOAuthState(state: string): Promise<StoredOAuthState | undefined>;
   abstract deleteOAuthState(state: string): Promise<void>;
+
+  // abstract setAbusePreventionFlag(
+  //   postUrl: string,
+  //   visitorId: string
+  // ): Promise<void>;
 }

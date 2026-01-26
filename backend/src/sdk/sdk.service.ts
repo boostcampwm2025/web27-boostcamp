@@ -11,7 +11,7 @@ export class SdkService {
     private readonly cacheRepository: CacheRepository
   ) {}
 
-  async recordView(dto: CreateViewLogDto) {
+  async recordView(dto: CreateViewLogDto, visitorId: string) {
     const {
       auctionId,
       campaignId,

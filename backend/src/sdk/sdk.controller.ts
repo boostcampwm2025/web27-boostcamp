@@ -1,10 +1,20 @@
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  Req,
+  BadRequestException,
+} from '@nestjs/common';
 import { SdkService } from './sdk.service';
 import { CreateViewLogDto } from './dto/create-view-log.dto';
 import { successResponse } from 'src/common/response/success-response';
 import { CreateClickLogDto } from './dto/create-click-log.dto';
 import { Public } from 'src/auth/decorators/public.decorator';
-import { BlogKeyValidationGuard } from 'src/common/guards/blog-key-validation.guard';
+import {
+  type BlogKeyValidatedRequest,
+  BlogKeyValidationGuard,
+} from 'src/common/guards/blog-key-validation.guard';
 
 @Controller('sdk')
 export class SdkController {
@@ -13,8 +23,20 @@ export class SdkController {
   @Public()
   @UseGuards(BlogKeyValidationGuard)
   @Post('campaign-view')
-  async recordView(@Body() createViewLogDto: CreateViewLogDto) {
-    const viewId = await this.sdkService.recordView(createViewLogDto);
+  async recordView(
+    @Body() createViewLogDto: CreateViewLogDto,
+    @Req() req: BlogKeyValidatedRequest
+  ) {
+    const { visitorId } = req;
+
+    if (!visitorId) {
+      throw new BadRequestException('비정상적인 API 요청입니다.');
+    }
+
+    const viewId = await this.sdkService.recordView(
+      createViewLogDto,
+      visitorId
+    );
     return successResponse(
       { viewId },
       '캠페인 노출 로그가 성공적으로 저장되었습니다.'
