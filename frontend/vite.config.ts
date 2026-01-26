@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import svgr from 'vite-plugin-svgr';
 
-const isDev = process.env.NODE_ENV === 'development';
+const isDev = process.env.NODE_ENV === 'development'; // 이 단계에서는 import.meta.env.NODE_ENV를 사용할 수 없음
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -22,9 +22,6 @@ export default defineConfig({
           ),
         },
         port: 5173,
-        proxy: {
-          '/api': 'http://localhost:3000',
-        },
       }
     : {
         port: 5173,
