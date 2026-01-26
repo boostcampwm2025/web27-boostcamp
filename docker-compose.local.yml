@@ -3,7 +3,7 @@ version: '3.8'
 services:
   nginx:
     build:
-      context: ./nginx
+      context: .
       dockerfile: Dockerfile.local
     container_name: boostad-nginx-local
     ports:
