@@ -14,6 +14,11 @@ export class TypeOrmBidLogRepository extends BidLogRepository {
     super();
   }
 
+  async findById(id: number): Promise<BidLog | null> {
+    const log = await this.repository.findOne({ where: { id } });
+    return log ?? null;
+  }
+
   async save(bidLog: BidLog): Promise<void> {
     await this.repository.save(bidLog);
   }

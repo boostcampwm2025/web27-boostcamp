@@ -114,8 +114,6 @@ export class BoostAdSDK {
     }
 
     const tags = this.tagExtractor.extract();
-    console.log('[BoostAD SDK] 추출된 태그:', tags);
-
     const postUrl = window.location.href;
 
     // 1차 광고: 본문 상단에 삽입
@@ -145,13 +143,6 @@ export class BoostAdSDK {
     const score = this.behaviorTracker.getCurrentScore();
     const isHighIntent = this.behaviorTracker.isHighIntent();
 
-    console.log(
-      '[BoostAD SDK] 2차 광고 요청 - Score:',
-      score,
-      'HighIntent:',
-      isHighIntent
-    );
-
     // 1차 광고 제거
     document.getElementById('boostad-first-ad')?.remove();
 
@@ -173,41 +164,25 @@ export class BoostAdSDK {
   }
 
   private isPostPage(): boolean {
-    // 방법 A: 티스토리 공식 변수 확인 (가장 정확함)
     const tistory = window.tistory;
 
+    // Tistory 블로그인 경우
     if (tistory) {
-      // 페이지 타입이 'post'인 경우만 true (일반 글)
       return tistory.type === 'post';
     }
 
-    // 방법 B: 변수가 없는 경우를 대비한 URL 기반 백업 로직
+    // 일반 웹페이지인 경우: 제외 목록만 체크
     const pathname = window.location.pathname;
 
-    // 제외 목록 (블랙리스트)
-    const excludePatterns = [
-      '/category', // 카테고리 목록
-      '/tag', // 태그 목록
-      '/archive', // 보관함
-      '/guestbook', // 방명록
-      '/notice', // 공지사항
-      '/search', // 검색 결과
-      '/manage', // 관리자
-      '/admin', // 관리자
-    ];
+    const excludePatterns = ['/admin', '/manage', '/login', '/signup'];
 
-    if (
-      pathname === '/' ||
-      excludePatterns.some((p) => pathname.startsWith(p))
-    ) {
+    // 제외 목록에 있으면 false
+    if (excludePatterns.some((p) => pathname.startsWith(p))) {
       return false;
     }
 
-    const isNumericId = /^\/\d+$/.test(pathname);
-
-    const isEntryPath = pathname.startsWith('/entry/');
-
-    return isNumericId || isEntryPath;
+    // 그 외에는 모두 콘텐츠 페이지로 간주
+    return true;
   }
 
   private findContentTop(): Element | null {
@@ -275,7 +250,10 @@ export class BoostAdSDK {
   // ========================================
 
   private async initManualMode(): Promise<void> {
-    // MutationObserver 시작 (초기 로드 + SPA 라우팅 모두 대응)
+    // 초기 로드된 zone 체크
+    await this.checkAndLoadAds();
+
+    // MutationObserver 시작 (SPA 라우팅 대응)
     this.setupMutationObserver();
   }
 
@@ -296,8 +274,6 @@ export class BoostAdSDK {
       childList: true,
       subtree: true,
     });
-
-    console.log('[BoostAD SDK] MutationObserver 활성화 (SPA 대응)');
   }
 
   // 광고존 체크 및 로드
@@ -314,12 +290,9 @@ export class BoostAdSDK {
     );
 
     if (newZones.length === 0) {
-      return; // 새로운 zone이 없으면 아무것도 안 함
+      return;
     }
 
-    console.log(`[BoostAD SDK] ${newZones.length}개의 새로운 광고존 발견`);
-
-    // 새로운 광고존에 광고 로드
     await this.loadAdsForZones(newZones);
   }
 
@@ -333,11 +306,9 @@ export class BoostAdSDK {
       );
     }
 
-    // 먼저 모든 zone을 renderedZones에 추가 (중복 방지)
     limitedZones.forEach((zone) => this.renderedZones.add(zone));
 
     const tags = this.tagExtractor.extract();
-    console.log('[BoostAD SDK] 추출된 태그:', tags);
     const postUrl = window.location.href;
 
     // 각 광고존에 1차 광고 삽입

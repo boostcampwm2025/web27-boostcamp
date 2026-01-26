@@ -1,6 +1,9 @@
 import { BidLog } from '../bid-log.types';
 
 export abstract class BidLogRepository {
+  // 단일 입찰 로그 조회 (by ID)
+  abstract findById(id: number): Promise<BidLog | null>;
+
   // 단일 입찰 로그 저장
   abstract save(bidLog: BidLog): Promise<void>;
 

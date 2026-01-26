@@ -4,6 +4,7 @@ import { DashboardLayout, OnboardingLayout } from '@app/layouts';
 import { AdvertiserDashboardPage } from '@pages/advertiserDashboard';
 import { AdvertiserCampaignsPage } from '@pages/advertiserCampaigns';
 import { AdvertiserBudgetPage } from '@pages/advertiserBudget';
+import { RealtimeBidsHistoryPage } from '@pages/realtimeBidsHistory';
 import { NotFoundPage } from '@pages/notFound';
 import { RegisterPage } from '@pages/auth/ui/RegisterPage';
 import { LoginPage } from '@pages/auth/ui/LoginPage';
@@ -115,6 +116,7 @@ export const router = createBrowserRouter([
           { path: 'main', element: <AdvertiserDashboardPage /> },
           { path: 'campaigns', element: <AdvertiserCampaignsPage /> },
           { path: 'budget', element: <AdvertiserBudgetPage /> },
+          { path: 'history', element: <RealtimeBidsHistoryPage /> },
         ],
       },
     ],

@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Req } from '@nestjs/common';
+import { Controller, Get, Query, Req, Sse, MessageEvent } from '@nestjs/common';
 import { BidLogService } from './bid-log.service';
 import { BidLogDataDto } from './dto/bid-log-response.dto';
 import { type AuthenticatedRequest } from 'src/types/authenticated-request';
@@ -6,6 +6,7 @@ import {
   successResponse,
   type SuccessResponse,
 } from '../common/response/success-response';
+import { Observable } from 'rxjs';
 
 @Controller('advertiser/bids')
 export class BidLogController {
@@ -32,5 +33,11 @@ export class BidLogController {
     );
 
     return successResponse(data, '광고주 실시간 입찰 로그입니다.');
+  }
+
+  @Sse('stream')
+  streamBids(@Req() req: AuthenticatedRequest): Observable<MessageEvent> {
+    const userId = req.user.userId;
+    return this.bidLogService.subscribeToBidEvents(userId);
   }
 }
