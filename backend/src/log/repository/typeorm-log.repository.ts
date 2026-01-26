@@ -109,4 +109,17 @@ export class TypeOrmLogRepository extends LogRepository {
 
     return counts;
   }
+
+  async existsByViewId(viewId: number): Promise<boolean> {
+    const viewLog = await this.viewLogRepository
+      .createQueryBuilder('v')
+      .where('v.id = :viewId', { viewId })
+      .getOne();
+
+    if (!viewLog) {
+      return false;
+    }
+
+    return true;
+  }
 }

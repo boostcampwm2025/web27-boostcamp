@@ -46,8 +46,15 @@ export class SdkController {
   @Public()
   @UseGuards(BlogKeyValidationGuard)
   @Post('campaign-click')
-  async recordClick(@Body() createClickLogDto: CreateClickLogDto) {
-    const clickId = await this.sdkService.recordClick(createClickLogDto);
+  async recordClick(
+    @Body() createClickLogDto: CreateClickLogDto,
+    @Req() req: BlogKeyValidatedRequest
+  ) {
+    const { visitorId } = req;
+    const clickId = await this.sdkService.recordClick(
+      createClickLogDto,
+      visitorId
+    );
     return successResponse(
       { clickId },
       '캠페인 클릭 로그가 성공적으로 저장되었습니다.'
