@@ -5,10 +5,15 @@ import { AuctionData } from '../types/auction-data.type';
 import { CacheRepository } from './cache.repository.interface';
 import { StoredOAuthState } from '../../auth/auth.service';
 import crypto from 'crypto';
+import { REDIS_CLIENT } from 'src/redis/redis.constant';
+import type { AppRedisClient } from 'src/redis/redis.type';
 
 @Injectable()
 export class RedisCacheRepository extends CacheRepository {
-  constructor(@Inject(CACHE_MANAGER) private readonly cacheManager: Cache) {
+  constructor(
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    @Inject(REDIS_CLIENT) private readonly redisClient: AppRedisClient
+  ) {
     super();
   }
 
@@ -54,20 +59,64 @@ export class RedisCacheRepository extends CacheRepository {
     await this.cacheManager.del(key);
   }
 
-  // async setViewIdempotencyKey(
-  //   postUrl: string,
-  //   visitorId: string,
-  //   viewId: number
-  // ): Promise<void | number> {
-  //   const hashedUrl = this.hashUrl(postUrl);
-  //   const key = `dedup:view:post:${hashedUrl}:visitor:${visitorId}`;
-  //   await this.cacheManager.set(key, viewId, 60 * 30 * 1000);
-  // }
+  async setViewIdempotencyKey(
+    postUrl: string,
+    visitorId: string,
+    viewId: number,
+    ttlMs: number = 60 * 30 * 1000
+  ): Promise<void> {
+    const hashedUrl = this.hashUrl(postUrl);
+    const key = `dedup:view:post:${hashedUrl}:visitor:${visitorId}`;
+    await this.redisClient.set(key, viewId, {
+      expiration: { type: 'PX', value: ttlMs },
+    });
+  }
 
-  // async getViewIdByIdempotencyKey(
-  //   postUrl: string,
-  //   visitorId: string
-  // ): Promise<number | null> {}
+  async acquireViewIdempotencyKey(
+    postUrl: string,
+    visitorId: string,
+    ttlMs: number = 60 * 30 * 1000
+  ): Promise<
+    | { status: 'acquired' }
+    | { status: 'exists'; viewId: number }
+    | { status: 'locked' }
+  > {
+    const hashedUrl = this.hashUrl(postUrl);
+    const key = `dedup:view:post:${hashedUrl}:visitor:${visitorId}`;
+
+    const result = await this.redisClient.set(key, 'LOCK', {
+      expiration: { type: 'PX', value: ttlMs },
+      condition: 'NX',
+    });
+
+    if (result === 'OK') {
+      return { status: 'acquired' };
+    }
+
+    const existingValue = await this.redisClient.get(key);
+    if (!existingValue) return { status: 'locked' };
+
+    const existingViewId = Number(existingValue);
+    if (Number.isNaN(existingViewId)) return { status: 'locked' };
+
+    return { status: 'exists', viewId: existingViewId };
+  }
+
+  async getViewIdByIdempotencyKey(
+    postUrl: string,
+    visitorId: string
+  ): Promise<number | null> {
+    const hashedUrl = this.hashUrl(postUrl);
+    const key = `dedup:view:post:${hashedUrl}:visitor:${visitorId}`;
+
+    const value = await this.redisClient.get(key);
+    if (!value) return null;
+
+    const viewId = Number(value);
+    if (Number.isNaN(viewId)) return null;
+
+    return viewId;
+  }
 
   private getAuctionKey(auctionId: string): string {
     return `auction:${auctionId}`;

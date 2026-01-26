@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateViewLogDto } from './dto/create-view-log.dto';
 import { LogRepository } from 'src/log/repository/log.repository.interface';
 import { CacheRepository } from 'src/cache/repository/cache.repository.interface';
@@ -28,7 +32,25 @@ export class SdkService {
 
     const { blogId, cost } = auctionData;
 
-    // await this.cacheRepository.getViewIdByIdempotencyKey(postUrl, visitorId);
+    const dedupResult = await this.cacheRepository.acquireViewIdempotencyKey(
+      postUrl,
+      visitorId
+    );
+    if (dedupResult.status === 'exists') {
+      return dedupResult.viewId;
+    }
+
+    if (dedupResult.status === 'locked') {
+      const existingViewId =
+        await this.cacheRepository.getViewIdByIdempotencyKey(
+          postUrl,
+          visitorId
+        );
+      if (existingViewId !== null) {
+        return existingViewId;
+      }
+      throw new ConflictException('중복 요청 처리 중입니다.');
+    }
 
     const viewId = await this.logRepository.saveViewLog({
       auctionId,
@@ -40,6 +62,12 @@ export class SdkService {
       isHighIntent,
       behaviorScore,
     });
+
+    await this.cacheRepository.setViewIdempotencyKey(
+      postUrl,
+      visitorId,
+      viewId
+    );
 
     return viewId;
   }
