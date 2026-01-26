@@ -17,11 +17,12 @@ export function RealtimeBidsHistoryPage() {
     return date.toISOString();
   }, []);
 
-  const { bids, total, hasMore, isLoading, error } = useRealtimeBids({
-    limit: ITEMS_PER_PAGE,
-    offset,
-    startDate,
-  });
+  const { bids, total, hasMore, isLoading, error, isConnected } =
+    useRealtimeBids({
+      limit: ITEMS_PER_PAGE,
+      offset,
+      startDate,
+    });
 
   const currentPage = Math.floor(offset / ITEMS_PER_PAGE) + 1;
   const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
@@ -43,7 +44,25 @@ export function RealtimeBidsHistoryPage() {
       <div className="max-w-7xl mx-auto">
         <div className="bg-white border border-gray-200 rounded-xl shadow">
           <div className="p-5 flex flex-row justify-between items-center border-b border-gray-100">
-            <h2 className="text-gray-900 text-xl font-bold">입찰 히스토리</h2>
+            <div className="flex items-center gap-3">
+              <h2 className="text-gray-900 text-xl font-bold">입찰 히스토리</h2>
+              {offset === 0 && (
+                <div className="flex items-center gap-2">
+                  <div
+                    className={`w-2 h-2 rounded-full ${
+                      isConnected ? 'bg-green-500 animate-pulse' : 'bg-gray-300'
+                    }`}
+                  />
+                  <span
+                    className={`text-xs font-medium ${
+                      isConnected ? 'text-green-600' : 'text-gray-400'
+                    }`}
+                  >
+                    {isConnected ? '실시간 연결됨' : '연결 안됨'}
+                  </span>
+                </div>
+              )}
+            </div>
             <p className="text-sm text-gray-600">최근 7일간의 입찰 기록</p>
           </div>
 
