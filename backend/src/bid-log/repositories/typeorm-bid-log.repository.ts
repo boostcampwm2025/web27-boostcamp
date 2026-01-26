@@ -101,7 +101,7 @@ export class TypeOrmBidLogRepository extends BidLogRepository {
   ): Promise<number> {
     const queryBuilder = this.repository
       .createQueryBuilder('bidLog')
-      .innerJoin('bidLog.campaign', 'campaign')
+      .innerJoin('Campaign', 'campaign', 'bidLog.campaign_id = campaign.id')
       .where('campaign.userId = :userId', { userId });
 
     if (startDate) {
