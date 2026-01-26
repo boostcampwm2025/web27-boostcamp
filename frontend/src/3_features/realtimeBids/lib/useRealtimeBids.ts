@@ -66,8 +66,8 @@ export function useRealtimeBids(
   }, [limit, offset, startDate, endDate]);
 
   useEffect(() => {
-    // offset=0이고 날짜 필터가 없을 때만 SSE 활성화 (첫 페이지 실시간 업데이트)
-    if (offset !== 0 || startDate || endDate) return;
+    // 첫 페이지(offset=0)일 때만 SSE 활성화
+    if (offset !== 0) return;
 
     const eventSource = new EventSource(
       `${API_CONFIG.baseURL}/api/advertiser/bids/stream`,
