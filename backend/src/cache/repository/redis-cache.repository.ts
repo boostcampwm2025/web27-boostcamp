@@ -118,6 +118,8 @@ export class RedisCacheRepository extends CacheRepository {
     return viewId;
   }
 
+  // async setClickIdempotencyKey()
+
   private getAuctionKey(auctionId: string): string {
     return `auction:${auctionId}`;
   }

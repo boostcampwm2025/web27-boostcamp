@@ -78,7 +78,7 @@ export class SdkService {
     // todo: 어뷰징 방지
 
     await this.cacheRepository.setClickIdempotencyKey(postUrl, visitorId);
-    // todo: 실제 존재하는 viewlog id인가 확인 필요할 듯
+    
     const exists = await this.logRepository.existsByViewId(viewId);
     if (!exists) {
       throw new BadRequestException('잘못된 요청입니다.');

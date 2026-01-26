@@ -41,4 +41,9 @@ export abstract class CacheRepository {
     postUrl: string,
     visitorId: string
   ): Promise<number | null>;
+
+  abstract setClickIdempotencyKey(
+    postUrl: string,
+    visitorId: string
+  ): Promise<boolean>;
 }
