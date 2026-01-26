@@ -16,6 +16,7 @@ export {
 } from './lib/constants';
 export { useCampaignFormStore } from './lib/campaignFormStore';
 export { useCreateCampaign } from './lib/useCreateCampaign';
+export { useAdvertiserBalance } from './lib/useAdvertiserBalance';
 export { StepIndicator } from './ui/StepIndicator';
 export { FormNavigation } from './ui/FormNavigation';
 export { CampaignCreationForm } from './ui/CampaignCreationForm';

@@ -2,15 +2,25 @@ import { ContentHeader } from './ContentHeader';
 import { CurrencyField } from './CurrencyField';
 import { DateField } from './DateField';
 import { useCampaignFormStore } from '../lib/campaignFormStore';
-import { validateStartDate, validateEndDate } from '../lib/dateValidation';
-
-const MIN_DAILY_BUDGET = 3000;
+import {
+  validateStartDate,
+  validateEndDate,
+  validateMaxCpc,
+  validateDailyBudget,
+  validateTotalBudget,
+  MIN_DAILY_BUDGET,
+} from '../lib/step2Validation';
 
 export function Step2Content() {
-  const { formData, updateBudgetSettings, errors, setErrors } =
+  const { formData, updateBudgetSettings, errors, setErrors, balance } =
     useCampaignFormStore();
   const { dailyBudget, totalBudget, maxCpc, startDate, endDate } =
     formData.budgetSettings;
+
+  const totalBudgetHint =
+    balance !== null
+      ? `(일 예산 이상 · 잔액: ${balance.toLocaleString()}원)`
+      : '(일 예산 이상)';
 
   const handleDailyBudgetChange = (value: number) => {
     updateBudgetSettings({ dailyBudget: value });
@@ -24,22 +34,34 @@ export function Step2Content() {
     updateBudgetSettings({ maxCpc: value });
   };
 
+  const handleMaxCpcBlur = () => {
+    const error = validateMaxCpc(maxCpc, dailyBudget);
+    setErrors({
+      budgetSettings: {
+        ...errors.budgetSettings,
+        maxCpc: error || undefined,
+      },
+    });
+  };
+
   const handleDailyBudgetBlur = () => {
-    if (dailyBudget > 0 && dailyBudget < MIN_DAILY_BUDGET) {
-      setErrors({
-        budgetSettings: {
-          ...errors.budgetSettings,
-          dailyBudget: `최소 ${MIN_DAILY_BUDGET.toLocaleString()}원 이상 입력해주세요`,
-        },
-      });
-    } else {
-      setErrors({
-        budgetSettings: {
-          ...errors.budgetSettings,
-          dailyBudget: undefined,
-        },
-      });
-    }
+    const error = validateDailyBudget(dailyBudget, totalBudget, maxCpc);
+    setErrors({
+      budgetSettings: {
+        ...errors.budgetSettings,
+        dailyBudget: error || undefined,
+      },
+    });
+  };
+
+  const handleTotalBudgetBlur = () => {
+    const error = validateTotalBudget(totalBudget, dailyBudget, balance);
+    setErrors({
+      budgetSettings: {
+        ...errors.budgetSettings,
+        totalBudget: error || undefined,
+      },
+    });
   };
 
   const handleStartDateChange = (value: string) => {
@@ -90,7 +112,8 @@ export function Step2Content() {
         label="총 예산"
         value={totalBudget}
         onChange={handleTotalBudgetChange}
-        hint="(약 30일 진행)"
+        onBlur={handleTotalBudgetBlur}
+        hint={totalBudgetHint}
         error={errors.budgetSettings?.totalBudget}
       />
 
@@ -98,7 +121,8 @@ export function Step2Content() {
         label="클릭당 최대 입찰가 (CPC)"
         value={maxCpc}
         onChange={handleMaxCpcChange}
-        hint="(광고 입찰 참여 금액)"
+        onBlur={handleMaxCpcBlur}
+        hint="(일 예산 이하)"
         error={errors.budgetSettings?.maxCpc}
       />
 

@@ -10,9 +10,14 @@ import {
 interface KeywordSelectorProps {
   value: Tag[];
   onChange: (tags: Tag[]) => void;
+  error?: string;
 }
 
-export function KeywordSelector({ value, onChange }: KeywordSelectorProps) {
+export function KeywordSelector({
+  value,
+  onChange,
+  error,
+}: KeywordSelectorProps) {
   const [activeCategory, setActiveCategory] =
     useState<CampaignCategory>('언어');
 
@@ -113,6 +118,8 @@ export function KeywordSelector({ value, onChange }: KeywordSelectorProps) {
           })}
         </div>
       </div>
+
+      {error && <p className="text-sm text-red-500">{error}</p>}
     </div>
   );
 }
