@@ -3,7 +3,10 @@ services:
     image: ${NCR_ENDPOINT:-local}/boostad/nginx:${IMAGE_TAG:-deploy}
     build:
       context: .
-      dockerfile: nginx/Dockerfile.dev
+      dockerfile: nginx/Dockerfile.prod
+      target: runner
+    environment:
+      PORT: '80'
     ports:
       - '80:80'
     depends_on:
@@ -14,7 +17,7 @@ services:
     image: ${NCR_ENDPOINT:-local}/boostad/backend:${IMAGE_TAG:-deploy}
     build:
       context: .
-      dockerfile: backend/Dockerfile.dev
+      dockerfile: backend/Dockerfile.prod
       target: runner
     environment:
       PORT: '3000'

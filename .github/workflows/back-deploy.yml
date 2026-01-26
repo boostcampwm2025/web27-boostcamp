@@ -6,7 +6,7 @@ on:
     paths:
       - backend/**
       - nginx/**
-      - docker-compose.dev.yml
+      - docker-compose.prod.yml
 
 env:
   DEPLOY_BRANCH: ${{ vars.DEPLOY_BRANCH || 'feature/deploy' }}
@@ -35,12 +35,12 @@ jobs:
           BACKEND_IMAGE="${{ secrets.NCR_ENDPOINT }}/boostad/backend:${IMAGE_TAG}"
           NGINX_IMAGE="${{ secrets.NCR_ENDPOINT }}/boostad/nginx:${IMAGE_TAG}"
 
-          docker build -f backend/Dockerfile.dev -t "$BACKEND_IMAGE" .
+          docker build -f backend/Dockerfile.prod -t "$BACKEND_IMAGE" .
           docker push "$BACKEND_IMAGE"
           docker tag "$BACKEND_IMAGE" "${{ secrets.NCR_ENDPOINT }}/boostad/backend:deploy"
           docker push "${{ secrets.NCR_ENDPOINT }}/boostad/backend:deploy"
 
-          docker build -f nginx/Dockerfile.dev -t "$NGINX_IMAGE" .
+          docker build -f nginx/Dockerfile.prod -t "$NGINX_IMAGE" .
           docker push "$NGINX_IMAGE"
           docker tag "$NGINX_IMAGE" "${{ secrets.NCR_ENDPOINT }}/boostad/nginx:deploy"
           docker push "${{ secrets.NCR_ENDPOINT }}/boostad/nginx:deploy"
@@ -109,6 +109,6 @@ jobs:
               COMPOSE="docker-compose"
             fi
 
-            $COMPOSE -f docker-compose.dev.yml pull
-            $COMPOSE -f docker-compose.dev.yml up -d --remove-orphans
-            $COMPOSE -f docker-compose.dev.yml ps
+            $COMPOSE -f docker-compose.prod.yml pull
+            $COMPOSE -f docker-compose.prod.yml up -d --remove-orphans
+            $COMPOSE -f docker-compose.prod.yml ps
