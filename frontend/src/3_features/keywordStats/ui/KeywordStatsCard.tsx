@@ -192,7 +192,7 @@ export function KeywordStatsCard() {
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="p-4 flex flex-col gap-2 max-h-72 overflow-y-auto"
+        className="p-4 flex flex-col gap-2 max-h-79.5 overflow-y-auto"
       >
         {keywords.map((keyword, index) => (
           <KeywordStatsItem
