@@ -1,5 +1,5 @@
 import { ContentHeader } from './ContentHeader';
-import { CurrencyField } from './CurrencyField';
+import { CurrencyField } from '@shared/ui/CurrencyField';
 import { DateField } from './DateField';
 import { useCampaignFormStore } from '../lib/campaignFormStore';
 import {

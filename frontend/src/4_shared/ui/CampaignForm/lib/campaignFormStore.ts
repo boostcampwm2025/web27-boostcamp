@@ -5,19 +5,23 @@ import type {
   CampaignContent,
   BudgetSettings,
   FormErrors,
+  CampaignFormMode,
 } from './types';
 
 interface CampaignFormState {
+  mode: CampaignFormMode;
   currentStep: FormStep;
   formData: CampaignFormData;
   errors: FormErrors;
   balance: number | null;
 
+  setMode: (mode: CampaignFormMode) => void;
   setStep: (step: FormStep) => void;
   updateCampaignContent: (data: Partial<CampaignContent>) => void;
   updateBudgetSettings: (data: Partial<BudgetSettings>) => void;
   setErrors: (errors: FormErrors) => void;
   setBalance: (balance: number | null) => void;
+  setFormData: (data: CampaignFormData) => void;
   resetForm: () => void;
 }
 
@@ -40,14 +44,19 @@ const initialFormData: CampaignFormData = {
 };
 
 export const useCampaignFormStore = create<CampaignFormState>((set) => ({
+  mode: 'create',
   currentStep: 1,
   formData: initialFormData,
   errors: {},
   balance: null,
 
+  setMode: (mode) => set({ mode }),
+
   setStep: (step) => set({ currentStep: step }),
 
   setBalance: (balance) => set({ balance }),
+
+  setFormData: (data) => set({ formData: data }),
 
   updateCampaignContent: (data) =>
     set((state) => ({
@@ -75,6 +84,7 @@ export const useCampaignFormStore = create<CampaignFormState>((set) => ({
 
   resetForm: () =>
     set({
+      mode: 'create',
       currentStep: 1,
       formData: initialFormData,
       errors: {},

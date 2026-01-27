@@ -1,30 +1,37 @@
 import { useRef, useState } from 'react';
 import { Icon } from '@shared/ui/Icon';
-import { useImageUpload } from '../lib/useImageUpload';
 
 interface ImageUploadProps {
   value: string | null;
   onChange: (imageUrl: string | null) => void;
   validationError?: string;
+  onUpload: (file: File) => Promise<string>;
 }
 
 export function ImageUpload({
   value,
   onChange,
   validationError,
+  onUpload,
 }: ImageUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const { upload, isLoading, error } = useImageUpload();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleFileSelect = async (file: File | null) => {
     if (!file) return;
 
+    setIsLoading(true);
+    setError(null);
+
     try {
-      const imageUrl = await upload(file);
+      const imageUrl = await onUpload(file);
       onChange(imageUrl);
-    } catch {
-      // error 메시지는 아래 UI에 표시됨
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '이미지 업로드에 실패했습니다.');
+    } finally {
+      setIsLoading(false);
     }
   };
 

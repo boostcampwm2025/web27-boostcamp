@@ -41,3 +41,5 @@ export interface FormErrors {
   campaignContent?: Partial<Record<keyof CampaignContent, string>>;
   budgetSettings?: Partial<Record<keyof BudgetSettings, string>>;
 }
+
+export type CampaignFormMode = 'create' | 'edit';
