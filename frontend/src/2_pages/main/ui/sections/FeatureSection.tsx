@@ -17,11 +17,10 @@ export function FeatureSection() {
     <section id="solution" className="bg-white">
       <div className="mx-auto max-w-6xl px-6 py-20">
         <h2 className="text-center text-3xl font-extrabold tracking-[-0.03em] text-gray-900 sm:text-4xl">
-          추적을 멈추고, 매칭을 시작하세요
+          쿠키가 아닌, 내용에 집중합니다
         </h2>
         <p className="mx-auto mt-4 max-w-2xl text-center text-sm leading-6 text-gray-600 sm:text-base">
-          기술 문서·개발자 블로그에 최적화된 맥락 기반 광고로 전환율과 수익을
-          함께 올려보세요.
+          독자가 보고 있는 글의 기술 스택과 내용을 분석하여, 가장 필요한 '정보'가 되는 광고를 매칭합니다.
         </p>
 
         <div className="mt-12 grid gap-6 md:grid-cols-2">

@@ -3,7 +3,7 @@ import { MAIN_LOG_ROWS } from '../../model/content';
 
 export function AuctionLogSection() {
   return (
-    <section id="developer" className="bg-gray-50">
+    <section id="developer" className="bg-white">
       <div className="mx-auto max-w-6xl px-6 py-20">
         <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
           <div>

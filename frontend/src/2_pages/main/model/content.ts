@@ -2,7 +2,10 @@ export const MAIN_NAV_ITEMS = [
   { label: '솔루션', href: '#solution' },
   { label: '개발자', href: '#developer' },
   { label: '가격', href: '#pricing' },
-  { label: '블로그', href: '#blog' },
+  {
+    label: '공지사항',
+    href: 'https://github.com/boostcampwm2025/web27-BoostAD',
+  },
 ] as const;
 
 export type MainFeatureStepIcon = 'Stop2' | 'Terminal' | 'ClickLine' | 'Dollar';
@@ -16,14 +19,12 @@ export const MAIN_FEATURE_STEPS = [
   },
   {
     title: '맥락 분석',
-    description:
-      '페이지의 핵심 키워드·주제를 추출해 의도를 정확히 파악합니다.',
+    description: '페이지의 핵심 키워드·주제를 추출해 의도를 정확히 파악합니다.',
     icon: 'Terminal',
   },
   {
     title: '의도 매칭',
-    description:
-      '오디언스가 지금 찾는 정보와 가장 가까운 광고를 연결합니다.',
+    description: '오디언스가 지금 찾는 정보와 가장 가까운 광고를 연결합니다.',
     icon: 'ClickLine',
   },
   {
@@ -36,6 +37,45 @@ export const MAIN_FEATURE_STEPS = [
   title: string;
   description: string;
   icon: MainFeatureStepIcon;
+}>;
+
+export type HighIntentStepIcon = 'Copy' | 'Eye' | 'Clock' | 'Click';
+
+export const HIGH_INTENT_STEPS = [
+  {
+    title: '코드 복사 (Copy)',
+    description: '단순 방문을 넘어, 실제 코드 사용 의도가 있는 핵심 오디언스를 식별합니다.',
+    icon: 'Copy',
+    stat: '3.5x',
+    statLabel: '전환율',
+  },
+  {
+    title: '정독 (Scroll)',
+    description: '콘텐츠를 끝까지 읽은 깊은 스크롤 행동을 분석해 관심도를 측정합니다.',
+    icon: 'Eye',
+    stat: '60%',
+    statLabel: '완독률',
+  },
+  {
+    title: '긴 체류 시간 (Dwell)',
+    description: '문서에 충분히 머무른 시간을 통해 실질적인 학습 의도를 파악합니다.',
+    icon: 'Clock',
+    stat: '+2m',
+    statLabel: '평균 체류',
+  },
+  {
+    title: '참조 클릭 (Link)',
+    description: '관련 문서나 레퍼런스로의 이동 패턴으로 적극적인 탐색 의도를 잡아냅니다.',
+    icon: 'Click',
+    stat: '15%',
+    statLabel: 'CTR',
+  },
+] as const satisfies ReadonlyArray<{
+  title: string;
+  description: string;
+  icon: HighIntentStepIcon;
+  stat: string;
+  statLabel: string;
 }>;
 
 export const MAIN_LOG_ROWS = [

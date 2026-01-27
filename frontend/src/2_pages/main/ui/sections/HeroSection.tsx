@@ -15,17 +15,17 @@ export function HeroSection() {
 
       <div className="relative mx-auto max-w-6xl px-6 pb-20 pt-20 text-center sm:pt-24">
         <h1 className="mx-auto mt-6 max-w-3xl text-balance text-4xl font-extrabold tracking-[-0.05em] text-gray-900 sm:text-6xl">
-          광고가 정보가 되는 경험
+          개발자의 '학습 순간'을 연결합니다
         </h1>
 
         <p className="mx-auto mt-6 max-w-2xl text-pretty text-base leading-7 text-gray-600 sm:text-lg sm:leading-8">
-          프라이버시를 침해하지 않으면서 오디언스의 의도를 수익으로 전환하세요.
+          무분별한 추적 대신, 지금 읽고 있는 코드와 기술 문맥에 집중합니다.
           <br className="hidden sm:block" />
-          개발자 블로그와 기술 문서를 위해 특별히 설계된 맥락 기반 광고입니다.
+          독자의 학습 흐름을 끊지 않는 가장 자연스러운 광고를 만나보세요.
         </p>
 
         <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
-          <PrimaryButton to="/auth/register">지금 시작하기</PrimaryButton>
+          <PrimaryButton to="/auth/register">문맥 기반 광고 시작하기</PrimaryButton>
           <SecondaryButton href="https://github.com/boostcampwm2025/web27-BoostAD/wiki">
             문서 보기
           </SecondaryButton>
