@@ -8,6 +8,7 @@ import { RealtimeBidsHistoryPage } from '@pages/realtimeBidsHistory';
 import { NotFoundPage } from '@pages/notFound';
 import { RegisterPage } from '@pages/auth/ui/RegisterPage';
 import { LoginPage } from '@pages/auth/ui/LoginPage';
+import { PaymentSuccessPage, PaymentFailPage } from '@pages/payment';
 // import { PublisherDashboardPage } from '@pages/publisherDashboard';
 import { PublisherEarningsPage } from '@pages/publisherEarnings';
 import { PublisherSettingsPage } from '@pages/publisherSettings';
@@ -120,6 +121,16 @@ export const router = createBrowserRouter([
         ],
       },
     ],
+  },
+
+  // 4. 결제 (Payment) 페이지
+  {
+    path: '/payment/success',
+    element: <PaymentSuccessPage />,
+  },
+  {
+    path: '/payment/fail',
+    element: <PaymentFailPage />,
   },
 
   { path: '*', element: <NotFoundPage /> },
