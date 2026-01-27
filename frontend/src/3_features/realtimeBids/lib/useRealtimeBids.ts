@@ -8,6 +8,7 @@ interface UseRealtimeBidsParams {
   offset?: number;
   startDate?: string;
   endDate?: string;
+  campaignId?: number;
 }
 
 interface UseRealtimeBidsReturn {
@@ -22,7 +23,7 @@ interface UseRealtimeBidsReturn {
 export function useRealtimeBids(
   params: UseRealtimeBidsParams = {}
 ): UseRealtimeBidsReturn {
-  const { limit = 3, offset = 0, startDate, endDate } = params;
+  const { limit = 3, offset = 0, startDate, endDate, campaignId } = params;
   const [bids, setBids] = useState<BidLog[]>([]);
   const [total, setTotal] = useState(0);
   const [hasMore, setHasMore] = useState(false);
@@ -45,6 +46,7 @@ export function useRealtimeBids(
 
         if (startDate) params.append('startDate', startDate);
         if (endDate) params.append('endDate', endDate);
+        if (campaignId) params.append('campaignId', campaignId.toString());
 
         const response = await apiClient<RealtimeBidsData>(
           `/api/advertiser/bids/realtime?${params.toString()}`
@@ -63,11 +65,11 @@ export function useRealtimeBids(
     };
 
     fetchBids();
-  }, [limit, offset, startDate, endDate]);
+  }, [limit, offset, startDate, endDate, campaignId]);
 
   useEffect(() => {
-    // 첫 페이지(offset=0)일 때만 SSE 활성화
-    if (offset !== 0) return;
+    // 첫 페이지(offset=0)이고 캠페인 필터가 없을 때만 SSE 활성화
+    if (offset !== 0 || campaignId) return;
 
     const eventSource = new EventSource(
       `${API_CONFIG.baseURL}/api/advertiser/bids/stream`,
@@ -100,7 +102,7 @@ export function useRealtimeBids(
       eventSource.close();
       eventSourceRef.current = null;
     };
-  }, [limit, offset, startDate, endDate]);
+  }, [limit, offset, startDate, endDate, campaignId]);
 
   return { bids, total, hasMore, isLoading, error, isConnected };
 }
