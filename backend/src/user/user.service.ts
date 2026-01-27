@@ -54,7 +54,8 @@ export class UserService {
             type: CreditHistoryType.CHARGE,
             amount: WELCOME_CREDIT,
             balanceAfter: newBalance,
-            campaignId: '신규 가입 축하 크레딧', // campaignId를 설명으로 활용
+            campaignId: null,
+            description: '신규 가입 축하 크레딧',
           });
         });
       }
@@ -100,6 +101,7 @@ export class UserService {
         amount,
         balanceAfter: newBalance,
         campaignId: null,
+        description: '수동 충전',
       });
 
       return {
@@ -120,6 +122,7 @@ export class UserService {
       amount: number;
       balanceAfter: number;
       campaignName: string | null;
+      description: string | null;
       createdAt: Date;
     }>;
     total: number;

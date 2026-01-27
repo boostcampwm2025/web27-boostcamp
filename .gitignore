@@ -32,3 +32,7 @@ certs/localhost-key+2.pem
 # mysql폴더
 mysql/init/*.sql
 
+# SDK 빌드 파일
+sdk/dist/sdk.js
+backend/public/sdk.js
+

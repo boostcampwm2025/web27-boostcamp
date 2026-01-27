@@ -1,9 +1,9 @@
 import { Icon } from '@shared/ui/Icon';
 import { formatWithComma } from '@shared/lib/format/formatCurrency';
-import { useCreditBalance } from '../lib/useCreditBalance';
+import { useAdvertiserBalance } from '@shared/lib/hooks/useAdvertiserBalance';
 
 export function CreditBalanceCard() {
-  const { balance, isLoading, error } = useCreditBalance();
+  const { balance, isLoading, error } = useAdvertiserBalance();
 
   if (isLoading) {
     return (
@@ -41,7 +41,7 @@ export function CreditBalanceCard() {
       </div>
       <div className="flex flex-row items-baseline gap-4 pt-4">
         <div className="text-4xl font-bold text-gray-900">
-          {formatWithComma(balance)}
+          {formatWithComma(balance ?? 0)}
           <span className="text-2xl font-normal text-gray-600 ml-2">원</span>
         </div>
       </div>

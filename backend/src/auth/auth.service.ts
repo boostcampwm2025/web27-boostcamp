@@ -13,6 +13,7 @@ import { UserRepository } from 'src/user/repository/user.repository.interface';
 import { OAuthAccountRepository } from './repository/oauthaccount.repository.interface';
 import { OAuthProvider } from './entities/oauth-account.entity';
 import { CacheRepository } from 'src/cache/repository/cache.repository.interface';
+import { UserService } from 'src/user/user.service';
 
 export type GoogleTokenResponse = {
   access_token: string;
@@ -70,7 +71,8 @@ export class OAuthService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly oauthAccountRepository: OAuthAccountRepository,
-    private readonly cacheRepository: CacheRepository
+    private readonly cacheRepository: CacheRepository,
+    private readonly userService: UserService
   ) {}
 
   async getGoogleAuthUrl(intent: AuthIntent, role?: UserRole): Promise<string> {
@@ -269,6 +271,9 @@ export class OAuthService {
     if (state.intent === 'register') {
       return { isNew: false };
     }
+
+    // 첫 로그인 체크 및 웰컴 크레딧 지급
+    await this.userService.handleFirstLogin(userId);
 
     const jwt = await this.issueAccessToken({
       userId,

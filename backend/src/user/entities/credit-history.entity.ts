@@ -48,6 +48,14 @@ export class CreditHistoryEntity {
   })
   campaignId: string | null;
 
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+    comment: '충전/차감 설명 (예: 신규 가입 축하 크레딧)',
+  })
+  description: string | null;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 

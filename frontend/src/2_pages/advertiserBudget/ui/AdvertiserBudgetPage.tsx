@@ -1,9 +1,12 @@
-import { CreditBalanceCard, ChargeAmountSelector } from '@features/creditBalance';
+import {
+  CreditBalanceCard,
+  ChargeAmountSelector,
+} from '@features/creditBalance';
 import { CreditHistoryTable } from '@features/creditHistory';
 
 export function AdvertiserBudgetPage() {
   return (
-    <div className="flex flex-col gap-4 px-8 py-8 bg-gray-100">
+    <div className="min-h-screen flex flex-col gap-4 px-8 py-8 bg-gray-50">
       {/* 크레딧 잔액 */}
       <CreditBalanceCard />
 
