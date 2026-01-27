@@ -9,7 +9,6 @@ export function StepIndicator({
   currentStep,
   totalSteps = 3,
 }: StepIndicatorProps) {
-  // 진행률 = (현재 단계 / 전체 단계 * 100)
   const progressPercentage = (currentStep / totalSteps) * 100;
 
   const getStepTitle = (step: FormStep) => {
@@ -26,7 +25,9 @@ export function StepIndicator({
       <div className="flex flex-row items-center justify-between">
         <span className="text-sm font-medium text-gray-900">
           STEP {currentStep} OF {totalSteps}
-          <span className="pl-2 text-gray-500">{getStepTitle(currentStep)}</span>
+          <span className="pl-2 text-gray-500">
+            {getStepTitle(currentStep)}
+          </span>
         </span>
         <span className="text-sm font-medium text-blue-500">
           {Math.round(progressPercentage)}%

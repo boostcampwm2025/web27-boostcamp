@@ -8,7 +8,7 @@ import { DEFAULT_ENGAGEMENT_SCORE } from '../lib/constants';
 import { formatDateForDisplay } from '../lib/step2Validation';
 
 export function Step3Content() {
-  const { formData, setStep } = useCampaignFormStore();
+  const { formData, setStep, mode } = useCampaignFormStore();
   const { title, content, url, tags, isHighIntent, image } =
     formData.campaignContent;
   const { dailyBudget, totalBudget, maxCpc, startDate, endDate } =
@@ -60,11 +60,16 @@ export function Step3Content() {
     setStep(2);
   };
 
+  const headerTitle = mode === 'edit' ? '캠페인 수정 확인' : '광고 캠페인 확인';
+  const headerDescription = mode === 'edit'
+    ? '수정된 내용을 확인하고 저장하세요'
+    : '아래 내용을 확인하고 광고를 시작하세요';
+
   return (
     <div className="flex flex-col gap-6">
       <ContentHeader
-        title="광고 캠페인 확인"
-        description="아래 내용을 확인하고 광고를 시작하세요"
+        title={headerTitle}
+        description={headerDescription}
       />
 
       {/* 광고 콘텐츠 */}

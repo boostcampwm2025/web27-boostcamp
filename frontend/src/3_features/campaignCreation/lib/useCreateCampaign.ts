@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { API_CONFIG } from '@shared/lib/api';
-import type { CampaignFormData } from './types';
+import type { CampaignFormData } from '@shared/ui/CampaignForm/lib/types';
 
 interface CreateCampaignRequest {
   title: string;
