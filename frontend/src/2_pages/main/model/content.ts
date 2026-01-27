@@ -24,7 +24,7 @@ export const MAIN_FEATURE_STEPS = [
   },
   {
     title: '의도 매칭',
-    description: '오디언스가 지금 찾는 정보와 가장 가까운 광고를 연결합니다.',
+    description: '독자가 지금 찾는 정보와 가장 가까운 광고를 연결합니다.',
     icon: 'ClickLine',
   },
   {
@@ -44,7 +44,7 @@ export type HighIntentStepIcon = 'Copy' | 'Eye' | 'Clock' | 'Click';
 export const HIGH_INTENT_STEPS = [
   {
     title: '코드 복사 (Copy)',
-    description: '단순 방문을 넘어, 실제 코드 사용 의도가 있는 핵심 오디언스를 식별합니다.',
+    description: '단순 방문을 넘어, 학습 의도가 높은 독자를 식별합니다.',
     icon: 'Copy',
     stat: '3.5x',
     statLabel: '전환율',

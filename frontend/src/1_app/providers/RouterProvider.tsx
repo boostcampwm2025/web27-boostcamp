@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, Outlet } from 'react-router-dom';
 import { DashboardLayout, OnboardingLayout } from '@app/layouts';
 import { AdvertiserDashboardPage } from '@pages/advertiserDashboard';
 import { AdvertiserCampaignsPage } from '@pages/advertiserCampaigns';
@@ -33,17 +33,21 @@ export const router = createBrowserRouter([
   // 1. 공통 (로그인 등) - 여긴 역할 구분이 없으므로 최상위 유지
   {
     path: '/',
-    loader: guestOnlyLoader,
-    element: <OnboardingLayout />,
+    element: <Outlet />,
     children: [
-      { index: true, element: <LoginPage /> },
-      { path: 'auth/login', element: <LoginPage /> },
-      { path: 'auth/register', element: <RegisterPage /> },
+      { index: true, element: <MainPage /> },
+      { path: 'main', element: <MainPage /> },
+      {
+        path: 'auth',
+        loader: guestOnlyLoader,
+        element: <OnboardingLayout />,
+        children: [
+          { index: true, element: <LoginPage /> },
+          { path: 'login', element: <LoginPage /> },
+          { path: 'register', element: <RegisterPage /> },
+        ],
+      },
     ],
-  },
-  {
-    path: '/main',
-    element: <MainPage />,
   },
   // 2. 퍼블리셔 (Publisher) 그룹
   {
