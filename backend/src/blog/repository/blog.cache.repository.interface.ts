@@ -1,4 +1,4 @@
-import { CachedBlog } from '../types/blog.types';
+import { CachedBlog } from '../types/blog.type';
 
 export abstract class BlogCacheRepository {
   abstract saveBlogCacheById(
