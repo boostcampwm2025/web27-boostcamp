@@ -2,6 +2,7 @@ import type { ComponentType, SVGProps } from 'react';
 import { Icon } from '@shared/ui/Icon';
 import { MAIN_FEATURE_STEPS } from '../../model/content';
 import type { MainFeatureStepIcon } from '../../model/content';
+import { ScrollReveal } from '@shared/ui/ScrollReveal';
 
 type SvgIcon = ComponentType<SVGProps<SVGSVGElement>>;
 
@@ -15,7 +16,7 @@ const FEATURE_ICONS = {
 export function FeatureSection() {
   return (
     <section id="solution" className="bg-white">
-      <div className="mx-auto max-w-6xl px-6 py-20">
+      <ScrollReveal className="mx-auto max-w-6xl px-6 py-20">
         <h2 className="text-center text-3xl font-extrabold tracking-[-0.03em] text-gray-900 sm:text-4xl">
           쿠키가 아닌, 내용에 집중합니다
         </h2>
@@ -49,7 +50,7 @@ export function FeatureSection() {
             );
           })}
         </div>
-      </div>
+      </ScrollReveal>
     </section>
   );
 }

@@ -8,6 +8,7 @@ import { MonetizeSection } from './sections/MonetizeSection';
 import { MainFooter } from './sections/MainFooter';
 import { RoleToggle } from './components/RoleToggle';
 import type { RoleType } from './components/RoleToggle';
+import { ScrollReveal } from '@shared/ui/ScrollReveal';
 
 export function MainPage() {
   const [role, setRole] = useState<RoleType>('advertiser');
@@ -19,8 +20,10 @@ export function MainPage() {
       <main>
         <HeroSection />
 
-        <div className="flex justify-center py-8 bg-white">
-          <RoleToggle value={role} onChange={setRole} />
+        <div className="bg-white py-8">
+          <ScrollReveal className="flex justify-center">
+            <RoleToggle value={role} onChange={setRole} />
+          </ScrollReveal>
         </div>
 
         {role === 'advertiser' ? (

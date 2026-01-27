@@ -1,9 +1,10 @@
 import { MAIN_LOG_ROWS } from '../../model/content';
+import { ScrollReveal } from '@shared/ui/ScrollReveal';
 
 export function AuctionLogSection() {
   return (
     <section id="developer" className="bg-white">
-      <div className="mx-auto max-w-7xl px-6 py-20">
+      <ScrollReveal className="mx-auto max-w-7xl px-6 py-20">
         <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
           <div>
             <h2 className="text-3xl font-extrabold tracking-[-0.03em] text-gray-900 sm:text-4xl">
@@ -23,7 +24,7 @@ export function AuctionLogSection() {
           className="mt-10 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg"
         >
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[1000px] border-collapse text-left text-sm">
+            <table className="w-full min-w-250 border-collapse text-left text-sm">
               <thead className="bg-gray-50 text-gray-600">
                 <tr>
                   <th className="px-6 py-4 font-medium">시간</th>
@@ -43,12 +44,12 @@ export function AuctionLogSection() {
                   >
                     <td className="px-6 py-4 text-gray-900">{row.time}</td>
                     <td className="px-6 py-4">
-                      <div className="max-w-[180px] truncate font-medium text-gray-900">
+                      <div className="max-w-45 truncate font-medium text-gray-900">
                         {row.campaign}
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="max-w-[240px] truncate block text-blue-600">
+                      <span className="max-w-60 truncate block text-blue-600">
                         {row.postUrl}
                       </span>
                     </td>
@@ -85,7 +86,7 @@ export function AuctionLogSection() {
             </table>
           </div>
         </div>
-      </div>
+      </ScrollReveal>
     </section>
   );
 }

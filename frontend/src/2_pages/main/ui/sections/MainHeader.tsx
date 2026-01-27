@@ -37,7 +37,7 @@ export function MainHeader() {
           </Link>
           <Link
             to="/auth/register"
-            className="inline-flex items-center justify-center rounded-[10px] bg-blue-500 px-4 py-2 text-sm font-bold text-white shadow-[0px_10px_15px_rgba(37,99,235,0.16),0px_4px_6px_rgba(37,99,235,0.16)] transition-colors hover:bg-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+            className="inline-flex items-center justify-center rounded-[10px] bg-blue-500 px-4 py-2 text-sm font-bold text-white shadow-[0px_10px_15px_rgba(37,99,235,0.16),0px_4px_6px_rgba(37,99,235,0.16)] transition-colors hover:bg-blue-600 focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-blue-500"
           >
             시작하기
           </Link>

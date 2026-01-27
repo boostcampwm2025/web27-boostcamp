@@ -1,12 +1,12 @@
 import { Icon } from '@shared/ui/Icon';
 import { MAIN_MONETIZE_POINTS } from '../../model/content';
 import { PrimaryButton } from '../components/PrimaryButton';
-import { SecondaryButton } from '../components/SecondaryButton';
+import { ScrollReveal } from '@shared/ui/ScrollReveal';
 
 export function MonetizeSection() {
   return (
     <section id="pricing" className="bg-white">
-      <div className="mx-auto grid max-w-6xl gap-12 px-6 py-20 lg:grid-cols-2 lg:items-center">
+      <ScrollReveal className="mx-auto grid max-w-6xl gap-12 px-6 py-20 lg:grid-cols-2 lg:items-center">
         <div>
           <h2 className="text-3xl font-extrabold tracking-[-0.03em] text-gray-900 sm:text-4xl">
             5분이면 수익 창출
@@ -26,11 +26,6 @@ export function MonetizeSection() {
               </li>
             ))}
           </ul>
-
-          <div className="mt-10 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
-            <PrimaryButton to="/auth/register">시작하기</PrimaryButton>
-            <SecondaryButton href="#developer">API 문서</SecondaryButton>
-          </div>
         </div>
 
         <div className="rounded-2xl bg-[#1F2937] p-6 shadow-[0px_24px_70px_rgba(17,24,39,0.25)]">
@@ -81,8 +76,7 @@ export function MonetizeSection() {
             </code>
           </pre>
         </div>
-      </div>
+      </ScrollReveal>
     </section>
   );
 }
-

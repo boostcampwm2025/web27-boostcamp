@@ -2,6 +2,7 @@ import type { ComponentType, SVGProps } from 'react';
 import { Icon } from '@shared/ui/Icon';
 import { HIGH_INTENT_STEPS } from '../../model/content';
 import type { HighIntentStepIcon } from '../../model/content';
+import { ScrollReveal } from '@shared/ui/ScrollReveal';
 
 type SvgIcon = ComponentType<SVGProps<SVGSVGElement>>;
 
@@ -15,7 +16,7 @@ const STEP_ICONS = {
 export function HighIntentSection() {
   return (
     <section className="bg-gray-50">
-      <div className="mx-auto max-w-6xl px-6 py-24">
+      <ScrollReveal className="mx-auto max-w-6xl px-6 py-24">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-extrabold tracking-[-0.03em] text-gray-900 sm:text-4xl">
             진짜 관심이 있는 순간을 포착합니다
@@ -51,7 +52,7 @@ export function HighIntentSection() {
             })}
           </div>
         </div>
-      </div>
+      </ScrollReveal>
     </section>
   );
 }

@@ -67,14 +67,14 @@ export function HeroAlgorithmicMatch() {
   }, []);
 
   return (
-    <div className="relative mx-auto mt-10 h-[320px] w-full max-w-4xl select-none sm:mt-12 sm:h-[380px]">
+    <div className="relative mx-auto mt-10 h-80 w-full max-w-4xl select-none sm:mt-12 sm:h-95">
       {/* Background Gradients */}
-      <div className="absolute left-1/2 top-1/2 -z-10 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-500/5 blur-[100px]" />
+      <div className="absolute left-1/2 top-1/2 -z-10 h-100 w-100 -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-500/5 blur-[100px]" />
 
       {/* Center Node: Blog Post */}
       <div className="absolute left-1/2 top-1/2 z-20 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center">
         <div
-          className={`relative flex h-[140px] w-[200px] flex-col rounded-xl border border-gray-100 bg-white p-4 shadow-xl transition-all duration-700 ${
+          className={`relative flex h-35 w-50 flex-col rounded-xl border border-gray-100 bg-white p-4 shadow-xl transition-all duration-700 ${
             phase === 'reading' ? 'scale-95 opacity-50' : 'scale-100 opacity-100'
           }`}
         >
@@ -156,16 +156,16 @@ export function HeroAlgorithmicMatch() {
         <svg className="absolute inset-0 pointer-events-none h-full w-full z-10">
           {/* Lines point to the 'Inner Corner' of each card roughly */}
           {currentScenario.matchIndex === 0 && ( // To Top Left Card (Bottom-Right corner)
-            <line x1="50%" y1="50%" x2="32%" y2="32%" className="stroke-orange-400 stroke-[3] animate-[dash_0.5s_linear]" strokeDasharray="10" />
+            <line x1="50%" y1="50%" x2="32%" y2="32%" className="stroke-orange-400 stroke-3 animate-[dash_0.5s_linear]" strokeDasharray="10" />
           )}
           {currentScenario.matchIndex === 1 && ( // To Top Right Card (Bottom-Left corner)
-            <line x1="50%" y1="50%" x2="68%" y2="32%" className="stroke-blue-400 stroke-[3] animate-[dash_0.5s_linear]" strokeDasharray="10" />
+            <line x1="50%" y1="50%" x2="68%" y2="32%" className="stroke-blue-400 stroke-3 animate-[dash_0.5s_linear]" strokeDasharray="10" />
           )}
           {currentScenario.matchIndex === 2 && ( // To Bottom Left Card (Top-Right corner)
-            <line x1="50%" y1="50%" x2="32%" y2="68%" className="stroke-red-400 stroke-[3] animate-[dash_0.5s_linear]" strokeDasharray="10" />
+            <line x1="50%" y1="50%" x2="32%" y2="68%" className="stroke-red-400 stroke-3 animate-[dash_0.5s_linear]" strokeDasharray="10" />
           )}
           {currentScenario.matchIndex === 3 && ( // To Bottom Right Card (Top-Left corner)
-            <line x1="50%" y1="50%" x2="68%" y2="68%" className="stroke-purple-400 stroke-[3] animate-[dash_0.5s_linear]" strokeDasharray="10" />
+            <line x1="50%" y1="50%" x2="68%" y2="68%" className="stroke-purple-400 stroke-3 animate-[dash_0.5s_linear]" strokeDasharray="10" />
           )}
         </svg>
       )}
@@ -201,7 +201,7 @@ function AdBannerNode({
 
   return (
     <div
-      className={`absolute ${position} flex w-[180px] flex-col gap-2 rounded-xl border p-3 transition-all duration-500 ${activeStyles}`}
+      className={`absolute ${position} flex w-45 flex-col gap-2 rounded-xl border p-3 transition-all duration-500 ${activeStyles}`}
     >
       <div className="flex items-center gap-2">
         <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${isActive ? 'bg-current/10' : 'bg-gray-100'}`}>
