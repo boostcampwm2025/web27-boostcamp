@@ -21,7 +21,7 @@ import {
   publisherGateLoader,
   advertiserGateLoader,
 } from '../lib';
-import { MainPage } from '@/2_pages/main/ui/Mainpage';
+import { MainPage } from '@pages/main';
 
 const OnboardingSdkGuidePage = lazy(() =>
   import('@pages/onboardingSdkGuide').then((m) => ({
