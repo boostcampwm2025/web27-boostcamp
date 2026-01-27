@@ -23,6 +23,7 @@ export abstract class CacheRepository {
   abstract acquireViewIdempotencyKey(
     postUrl: string,
     visitorId: string,
+    isHighIntent: boolean,
     ttlMs?: number
   ): Promise<
     | { status: 'acquired' }
@@ -33,17 +34,19 @@ export abstract class CacheRepository {
   abstract setViewIdempotencyKey(
     postUrl: string,
     visitorId: string,
+    isHighIntent: boolean,
     viewId: number,
     ttlMs?: number
   ): Promise<void>;
 
   abstract getViewIdByIdempotencyKey(
     postUrl: string,
-    visitorId: string
+    visitorId: string,
+    isHighIntent: boolean
   ): Promise<number | null>;
 
   abstract setClickIdempotencyKey(
-    postUrl: string,
-    visitorId: string
+    viewId: number,
+    ttlMs?: number
   ): Promise<boolean>;
 }

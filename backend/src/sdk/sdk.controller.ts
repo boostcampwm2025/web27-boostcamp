@@ -54,10 +54,7 @@ export class SdkController {
     if (!visitorId) {
       throw new BadRequestException('비정상적인 API 요청입니다.');
     }
-    const clickId = await this.sdkService.recordClick(
-      createClickLogDto,
-      visitorId
-    );
+    const clickId = await this.sdkService.recordClick(createClickLogDto);
     return successResponse(
       { clickId },
       '캠페인 클릭 로그가 성공적으로 저장되었습니다.'
