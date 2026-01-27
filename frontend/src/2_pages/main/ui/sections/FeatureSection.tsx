@@ -30,7 +30,7 @@ export function FeatureSection() {
             return (
               <div
                 key={step.title}
-                className="group rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-[0px_18px_55px_rgba(17,24,39,0.08)]"
+                className="relative rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-200 transition-all hover:shadow-lg hover:ring-blue-100"
               >
                 <div className="flex items-start gap-4">
                   <span className="flex h-12 w-12 items-center justify-center text-blue-600">

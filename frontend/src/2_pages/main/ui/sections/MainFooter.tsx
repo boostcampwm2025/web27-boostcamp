@@ -14,10 +14,8 @@ export function MainFooter() {
             </span>
             <span className="text-lg font-bold tracking-[-0.3px]">BoostAD</span>
           </div>
-          <p className="mt-4 text-sm leading-6 text-gray-600">
-            개발자 문서와 블로그에 자연스럽게 스며드는
-            <br className="hidden sm:block" />
-            프라이버시 친화 광고.
+          <p className="text-sm leading-6 text-gray-600">
+            광고가 정보가 되는 경험
           </p>
         </div>
 
