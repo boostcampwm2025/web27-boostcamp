@@ -9,6 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 import { IOREDIS_CLIENT } from './redis.constant';
 import type { AppIORedisClient } from './redis.type';
+import { RedisIndexService } from './redis-index.service';
 
 @Global()
 @Module({
@@ -48,8 +49,9 @@ import type { AppIORedisClient } from './redis.type';
         return client;
       },
     },
+    RedisIndexService,
   ],
-  exports: [IOREDIS_CLIENT],
+  exports: [IOREDIS_CLIENT, RedisIndexService],
 })
 export class RedisModule implements OnApplicationShutdown {
   private readonly logger = new Logger(RedisModule.name);
