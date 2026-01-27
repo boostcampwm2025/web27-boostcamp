@@ -17,7 +17,6 @@ export function useCurrentUser() {
       const response = await apiClient<User>('/api/users/me');
       return response;
     },
-    staleTime: 5 * 60 * 1000, // 5분간 캐시
     retry: 1,
   });
 }
