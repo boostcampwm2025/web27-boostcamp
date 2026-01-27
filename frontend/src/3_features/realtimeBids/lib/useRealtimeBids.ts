@@ -70,8 +70,8 @@ export function useRealtimeBids(
   }, [limit, offset, startDate, endDate, campaignIds]);
 
   useEffect(() => {
-    // 첫 페이지(offset=0)일 때만 SSE 활성화
-    if (offset !== 0) return;
+    // 첫 페이지(offset=0)이고 캠페인 필터가 없을 때만 SSE 활성화
+    if (offset !== 0 || (campaignIds && campaignIds.length > 0)) return;
 
     const eventSource = new EventSource(
       `${API_CONFIG.baseURL}/api/advertiser/bids/stream`,
