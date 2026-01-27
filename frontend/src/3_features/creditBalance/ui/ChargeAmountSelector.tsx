@@ -2,13 +2,17 @@ import { useState } from 'react';
 import { Button } from '@shared/ui/Button';
 import { TextField } from '@shared/ui/TextField';
 import { useToast } from '@shared/lib/toast/useToast';
+import { API_CONFIG } from '@shared/lib/api';
+import { useCreditBalance } from '../lib/useCreditBalance';
 
 const PRESET_AMOUNTS = [10000, 30000, 50000, 100000];
 
 export function ChargeAmountSelector() {
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState('');
+  const [isCharging, setIsCharging] = useState(false);
   const { showToast } = useToast();
+  const { refetch } = useCreditBalance();
 
   const handleCharge = async () => {
     const amount = selectedAmount || Number(customAmount);
@@ -18,13 +22,53 @@ export function ChargeAmountSelector() {
       return;
     }
 
-    // TODO: API 호출
-    showToast({ message: `${amount.toLocaleString()}원이 충전되었습니다`, type: 'success' });
+    try {
+      setIsCharging(true);
+
+      const response = await fetch(
+        `${API_CONFIG.baseURL}/api/users/me/credit/charge`,
+        {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ amount }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok || data.status === 'error') {
+        const message = data.message || '충전에 실패했습니다';
+        throw new Error(message);
+      }
+
+      showToast({
+        message: `${amount.toLocaleString()}원이 충전되었습니다`,
+        type: 'success',
+      });
+
+      // 잔액 리프레시
+      await refetch();
+
+      // 입력 초기화
+      setSelectedAmount(null);
+      setCustomAmount('');
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : '충전에 실패했습니다';
+      showToast({ message, type: 'error' });
+    } finally {
+      setIsCharging(false);
+    }
   };
 
   return (
     <div className="p-6 bg-white border border-gray-200 rounded-xl shadow">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">충전 금액 선택</h3>
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">
+        충전 금액 선택
+      </h3>
 
       {/* 금액 선택 버튼 */}
       <div className="grid grid-cols-4 gap-2 mb-4">
@@ -58,13 +102,17 @@ export function ChargeAmountSelector() {
       />
 
       {/* 충전 버튼 */}
-      <Button
-        variant="blue"
-        onClick={handleCharge}
-        disabled={!selectedAmount && !customAmount}
-      >
-        <span className="w-full text-center">충전하기</span>
-      </Button>
+      <div className="mt-4 flex justify-end">
+        <Button
+          variant="blue"
+          onClick={handleCharge}
+          disabled={isCharging || (!selectedAmount && !customAmount)}
+        >
+          <span className="text-center">
+            {isCharging ? '충전 중...' : '충전하기'}
+          </span>
+        </Button>
+      </div>
     </div>
   );
 }
