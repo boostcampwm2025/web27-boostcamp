@@ -21,6 +21,7 @@ import {
   publisherGateLoader,
   advertiserGateLoader,
 } from '../lib';
+import { MainPage } from '@/2_pages/main/ui/Mainpage';
 
 const OnboardingSdkGuidePage = lazy(() =>
   import('@pages/onboardingSdkGuide').then((m) => ({
@@ -40,7 +41,10 @@ export const router = createBrowserRouter([
       { path: 'auth/register', element: <RegisterPage /> },
     ],
   },
-
+  {
+    path: '/main',
+    element: <MainPage />,
+  },
   // 2. 퍼블리셔 (Publisher) 그룹
   {
     path: '/publisher', // 👈 URL 접두사 역할만 수행 (Layout 없음)
