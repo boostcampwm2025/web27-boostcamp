@@ -3,7 +3,7 @@ import { Button } from '@shared/ui/Button';
 import { TextField } from '@shared/ui/TextField';
 import { useToast } from '@shared/lib/toast/useToast';
 import { API_CONFIG } from '@shared/lib/api';
-import { useCreditBalance } from '../lib/useCreditBalance';
+import { useAdvertiserBalance } from '@shared/lib/hooks/useAdvertiserBalance';
 
 const PRESET_AMOUNTS = [10000, 30000, 50000, 100000];
 
@@ -12,7 +12,7 @@ export function ChargeAmountSelector() {
   const [customAmount, setCustomAmount] = useState('');
   const [isCharging, setIsCharging] = useState(false);
   const { showToast } = useToast();
-  const { refetch } = useCreditBalance();
+  const { refetch } = useAdvertiserBalance();
 
   const handleCharge = async () => {
     const amount = selectedAmount || Number(customAmount);
