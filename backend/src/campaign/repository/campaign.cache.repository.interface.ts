@@ -8,6 +8,10 @@ export abstract class CampaignCacheRepository {
   ): Promise<void>;
   abstract findCampaignCacheById(id: string): Promise<CachedCampaign | null>;
   abstract updateDailySpentCacheById(id: string, amount: number): Promise<void>;
+  abstract updateCampaignEmbeddingById(
+    id: string,
+    embedding: number[]
+  ): Promise<void>;
   abstract deleteCampaignCacheById(id: string): Promise<void>;
   abstract existsCampaignCacheById(id: string): Promise<boolean>;
 }
