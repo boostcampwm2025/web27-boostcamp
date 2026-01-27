@@ -5,6 +5,7 @@ import { Button } from '@shared/ui/Button';
 import { TextField } from '@shared/ui/TextField';
 import { useToast } from '@shared/lib/toast/useToast';
 import { formatWithComma } from '@shared/lib/format/formatCurrency';
+import { Icon } from '@shared/ui/Icon';
 
 const PRESET_AMOUNTS = [10000, 30000, 50000, 100000];
 const TOSS_CLIENT_KEY = import.meta.env.VITE_TOSS_CLIENT_KEY;
@@ -101,9 +102,10 @@ export function ChargeAmountSelector() {
           onClick={handleCharge}
           disabled={isCharging || (!selectedAmount && !customAmount)}
         >
-          <span className="text-center">
-            {isCharging ? '충전 중...' : '충전하기'}
-          </span>
+          <div className="flex items-center gap-2">
+            <Icon.Toss className="w-4 h-4" />
+            <span>{isCharging ? '충전 중...' : '토스페이먼츠로 충전'}</span>
+          </div>
         </Button>
       </div>
     </div>
