@@ -109,6 +109,16 @@ export class BlogRedisCacheRepository implements BlogCacheRepository {
     }
   }
 
+  async addBlogToExistsSet(id: number): Promise<void> {
+    try {
+      await this.ioredisClient.sadd(this.BLOG_EXISTS_SET, id.toString());
+      this.logger.debug(`blog:exists:set에 추가: ${id}`);
+    } catch (error) {
+      this.logger.error(`blog:exists:set 추가 실패: ${id}`, error);
+      throw error;
+    }
+  }
+
   private getBlogKey(id: number): string {
     return `${this.KEY_PREFIX}${id}`;
   }
