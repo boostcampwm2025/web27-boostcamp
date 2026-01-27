@@ -12,7 +12,7 @@ export class TransformerMatcher extends Matcher {
   private readonly logger = new Logger(TransformerMatcher.name);
 
   // Vector Search 파라미터
-  private readonly TOP_K = 10; // 상위 10개 캠페인 검색
+  // private readonly TOP_K = 10; // 상위 10개 캠페인 검색
   private readonly INDEX_NAME = 'idx:campaign';
 
   constructor(
@@ -49,9 +49,7 @@ export class TransformerMatcher extends Matcher {
         similarity: 1 - result.score, // COSINE distance를 similarity로 변환 (0~1)
       }));
 
-      this.logger.debug(
-        `Vector Search 결과: ${candidates.length}개 캠페인 (TOP_K: ${this.TOP_K})`
-      );
+      this.logger.debug(`Vector Search 결과: ${candidates.length}개 캠페인`);
 
       return candidates;
     } catch (error) {
