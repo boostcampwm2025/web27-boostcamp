@@ -20,7 +20,7 @@ export function ChargeAmountSelector() {
     const amount = selectedAmount || Number(customAmount);
 
     if (!amount || amount < 1000) {
-      showToast({ message: '1,000원 이상 입력해주세요', type: 'error' });
+      showToast('1,000원 이상 입력해주세요', 'error');
       return;
     }
 
@@ -46,10 +46,7 @@ export function ChargeAmountSelector() {
         throw new Error(message);
       }
 
-      showToast({
-        message: `${amount.toLocaleString()}원이 충전되었습니다`,
-        type: 'success',
-      });
+      showToast(`${amount.toLocaleString()}원이 충전되었습니다`, 'success');
 
       // 잔액 리프레시
       await refetch();
@@ -60,7 +57,7 @@ export function ChargeAmountSelector() {
     } catch (error) {
       const message =
         error instanceof Error ? error.message : '충전에 실패했습니다';
-      showToast({ message, type: 'error' });
+      showToast(message, 'error');
     } finally {
       setIsCharging(false);
     }
