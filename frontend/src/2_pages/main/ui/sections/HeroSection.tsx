@@ -25,7 +25,7 @@ export function HeroSection() {
         </p>
 
         <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
-          <PrimaryButton to="/auth/register">문맥 기반 광고 시작하기</PrimaryButton>
+          <PrimaryButton to="/auth/register">지금 시작하기</PrimaryButton>
           <SecondaryButton href="https://github.com/boostcampwm2025/web27-BoostAD/wiki">
             문서 보기
           </SecondaryButton>
