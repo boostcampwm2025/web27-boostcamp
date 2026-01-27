@@ -36,7 +36,6 @@ export const router = createBrowserRouter([
     element: <Outlet />,
     children: [
       { index: true, element: <MainPage /> },
-      { path: 'main', element: <MainPage /> },
       {
         path: 'auth',
         loader: guestOnlyLoader,
