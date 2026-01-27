@@ -42,6 +42,7 @@ export class TypeOrmCreditHistoryRepository extends CreditHistoryRepository {
       amount: history.amount,
       balanceAfter: history.balanceAfter,
       campaignName: history.campaign?.title || null,
+      description: history.description,
       createdAt: history.createdAt,
     }));
   }

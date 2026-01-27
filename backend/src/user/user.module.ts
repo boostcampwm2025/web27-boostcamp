@@ -20,6 +20,6 @@ import { UserService } from './user.service';
     },
     UserService,
   ],
-  exports: [UserRepository, CreditHistoryRepository],
+  exports: [UserRepository, CreditHistoryRepository, UserService],
 })
 export class UserModule {}
