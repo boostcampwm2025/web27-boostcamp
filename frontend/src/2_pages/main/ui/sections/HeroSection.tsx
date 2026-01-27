@@ -8,7 +8,7 @@ export function HeroSection() {
       <div className="absolute inset-0 opacity-30 bg-[linear-gradient(90deg,rgba(37,99,235,0.06)_0%,transparent_0%),linear-gradient(rgba(37,99,235,0.06)_0%,transparent_0%)]" />
       <div className="absolute inset-0 bg-[linear-gradient(147deg,rgba(59,130,246,0.14)_0%,rgba(37,99,235,0.06)_52%,transparent_100%)]" />
 
-      <div className="relative mx-auto max-w-6xl px-6 pb-20 pt-20 text-center sm:pt-24">
+      <div className="relative mx-auto max-w-6xl px-6 pb-10 pt-12 text-center sm:pt-16">
         <h1 className="mx-auto mt-6 max-w-3xl text-balance text-4xl font-extrabold tracking-[-0.05em] text-gray-900 sm:text-6xl">
           개발자의 '학습 순간'을 연결합니다
         </h1>

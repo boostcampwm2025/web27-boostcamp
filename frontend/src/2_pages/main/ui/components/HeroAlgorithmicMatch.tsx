@@ -67,9 +67,9 @@ export function HeroAlgorithmicMatch() {
   }, []);
 
   return (
-    <div className="relative mx-auto mt-16 h-[400px] w-full max-w-4xl select-none sm:mt-24 sm:h-[480px]">
+    <div className="relative mx-auto mt-10 h-[320px] w-full max-w-4xl select-none sm:mt-12 sm:h-[380px]">
       {/* Background Gradients */}
-      <div className="absolute left-1/2 top-1/2 -z-10 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-500/5 blur-[100px]" />
+      <div className="absolute left-1/2 top-1/2 -z-10 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-500/5 blur-[100px]" />
 
       {/* Center Node: Blog Post */}
       <div className="absolute left-1/2 top-1/2 z-20 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center">
