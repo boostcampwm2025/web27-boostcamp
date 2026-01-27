@@ -10,9 +10,7 @@ const ITEMS_PER_PAGE = 10;
 
 export function RealtimeBidsHistoryPage() {
   const [offset, setOffset] = useState(0);
-  const [selectedCampaignId, setSelectedCampaignId] = useState<
-    number | undefined
-  >(undefined);
+  const [selectedCampaignIds, setSelectedCampaignIds] = useState<number[]>([]);
 
   // 7일 전 날짜 계산 (메모이제이션으로 무한 루프 방지)
   const startDate = useMemo(() => {
@@ -26,7 +24,7 @@ export function RealtimeBidsHistoryPage() {
       limit: ITEMS_PER_PAGE,
       offset,
       startDate,
-      campaignId: selectedCampaignId,
+      campaignIds: selectedCampaignIds,
     });
 
   const currentPage = Math.floor(offset / ITEMS_PER_PAGE) + 1;
@@ -44,8 +42,8 @@ export function RealtimeBidsHistoryPage() {
     }
   };
 
-  const handleCampaignChange = (campaignId: number | undefined) => {
-    setSelectedCampaignId(campaignId);
+  const handleCampaignChange = (campaignIds: number[]) => {
+    setSelectedCampaignIds(campaignIds);
     setOffset(0); // 필터 변경 시 첫 페이지로 이동
   };
 
@@ -56,7 +54,7 @@ export function RealtimeBidsHistoryPage() {
           <div className="p-5 flex flex-row justify-between items-center border-b border-gray-100">
             <div className="flex items-center gap-3">
               <h2 className="text-gray-900 text-xl font-bold">입찰 히스토리</h2>
-              {offset === 0 && !selectedCampaignId && (
+              {offset === 0 && selectedCampaignIds.length === 0 && (
                 <div className="flex items-center gap-2">
                   <div
                     className={`w-2 h-2 rounded-full ${
@@ -80,34 +78,40 @@ export function RealtimeBidsHistoryPage() {
             <div className="p-10 text-center text-gray-500">로딩 중...</div>
           ) : error ? (
             <div className="p-10 text-center text-red-500">{error}</div>
-          ) : bids.length === 0 ? (
-            <div className="p-10 text-center text-gray-500">
-              입찰 기록이 없습니다.
-            </div>
           ) : (
             <>
               <table className="w-full">
                 <RealtimeBidsTableHeader
-                  selectedCampaignId={selectedCampaignId}
+                  selectedCampaignIds={selectedCampaignIds}
                   onCampaignChange={handleCampaignChange}
                 />
                 <tbody>
-                  {bids.map((bid) => (
-                    <RealtimeBidsTableRow key={bid.id} bid={bid} />
-                  ))}
+                  {bids.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="p-10 text-center text-gray-500">
+                        입찰 기록이 없습니다.
+                      </td>
+                    </tr>
+                  ) : (
+                    bids.map((bid) => (
+                      <RealtimeBidsTableRow key={bid.id} bid={bid} />
+                    ))
+                  )}
                 </tbody>
               </table>
 
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                totalItems={total}
-                itemsPerPage={ITEMS_PER_PAGE}
-                offset={offset}
-                hasMore={hasMore}
-                onPrevPage={handlePrevPage}
-                onNextPage={handleNextPage}
-              />
+              {bids.length > 0 && (
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  totalItems={total}
+                  itemsPerPage={ITEMS_PER_PAGE}
+                  offset={offset}
+                  hasMore={hasMore}
+                  onPrevPage={handlePrevPage}
+                  onNextPage={handleNextPage}
+                />
+              )}
             </>
           )}
         </div>
