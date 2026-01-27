@@ -10,7 +10,7 @@ const HERO_BARS = Array.from({ length: 12 }, (_, index) => ({
 export function HeroSection() {
   return (
     <section className="relative overflow-hidden">
-      <div className="absolute inset-0 opacity-30 [background-image:linear-gradient(90deg,rgba(37,99,235,0.06)_0%,transparent_0%),linear-gradient(rgba(37,99,235,0.06)_0%,transparent_0%)]" />
+      <div className="absolute inset-0 opacity-30 bg-[linear-gradient(90deg,rgba(37,99,235,0.06)_0%,transparent_0%),linear-gradient(rgba(37,99,235,0.06)_0%,transparent_0%)]" />
       <div className="absolute inset-0 bg-[linear-gradient(147deg,rgba(59,130,246,0.14)_0%,rgba(37,99,235,0.06)_52%,transparent_100%)]" />
 
       <div className="relative mx-auto max-w-6xl px-6 pb-20 pt-20 text-center sm:pt-24">
@@ -26,12 +26,12 @@ export function HeroSection() {
         </p>
 
         <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
-          <PrimaryButton to="/auth/register">맥락 매칭 시작하기</PrimaryButton>
+          <PrimaryButton to="/auth/register">지금 시작하기</PrimaryButton>
           <SecondaryButton href="">문서 보기</SecondaryButton>
         </div>
 
-        <div className="relative mx-auto mt-14 hidden h-[280px] max-w-4xl md:block">
-          <div className="absolute left-0 top-16 w-[220px] rounded-2xl bg-white p-4 shadow-[0px_10px_30px_rgba(17,24,39,0.08)]">
+        <div className="relative mx-auto mt-14 hidden h-70 max-w-4xl md:block">
+          <div className="absolute left-0 top-16 w-55 rounded-2xl bg-white p-4 shadow-[0px_10px_30px_rgba(17,24,39,0.08)]">
             <div className="flex items-start gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
                 <Icon.Pen className="h-5 w-5" />
