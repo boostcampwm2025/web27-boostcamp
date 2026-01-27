@@ -2,4 +2,4 @@ import type { RedisClientType } from '@keyv/redis';
 import type { Redis } from 'ioredis';
 
 export type AppRedisClient = RedisClientType;
-export type AppRedisJsonClient = Redis;
+export type AppIORedisClient = Redis;

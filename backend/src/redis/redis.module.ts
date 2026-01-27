@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { createClient } from '@keyv/redis';
 import Redis from 'ioredis';
 import { REDIS_CLIENT, IOREDIS_CLIENT } from './redis.constant';
-import type { AppRedisClient, AppRedisJsonClient } from './redis.type';
+import type { AppRedisClient, AppIORedisClient } from './redis.type';
 
 @Module({
   providers: [
@@ -34,7 +34,7 @@ import type { AppRedisClient, AppRedisJsonClient } from './redis.type';
     {
       provide: IOREDIS_CLIENT,
       inject: [ConfigService],
-      useFactory: (configService: ConfigService): AppRedisJsonClient => {
+      useFactory: (configService: ConfigService): AppIORedisClient => {
         const logger = new Logger(
           IOREDIS_CLIENT.description ?? 'IOREDIS_CLIENT'
         );
@@ -69,9 +69,10 @@ export class RedisModule implements OnApplicationShutdown {
   private readonly logger = new Logger(RedisModule.name);
 
   constructor(
-    @Inject(REDIS_CLIENT) private readonly redisClient: AppRedisClient,
+    @Inject(REDIS_CLIENT)
+    private readonly redisClient: AppRedisClient,
     @Inject(IOREDIS_CLIENT)
-    private readonly redisJsonClient: AppRedisJsonClient
+    private readonly ioredisClient: AppIORedisClient
   ) {}
 
   async onApplicationShutdown(signal?: string): Promise<void> {
@@ -87,14 +88,14 @@ export class RedisModule implements OnApplicationShutdown {
     }
 
     // JSON 클라이언트 종료
-    if (this.redisJsonClient?.status === 'ready') {
+    if (this.ioredisClient?.status === 'ready') {
       try {
-        await this.redisJsonClient.quit();
+        await this.ioredisClient.quit();
       } catch (error) {
         this.logger.warn(
           `Redis IOClient quit 실패(signal=${signal ?? 'unknown'}): ${String(error)}`
         );
-        this.redisJsonClient.disconnect();
+        this.ioredisClient.disconnect();
       }
     }
   }
