@@ -31,7 +31,7 @@ export class DecisionAPIClient implements APIClient {
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials:'include', // todo: 제거
+        credentials:'include',
         body: JSON.stringify(requestBody),
       });
 

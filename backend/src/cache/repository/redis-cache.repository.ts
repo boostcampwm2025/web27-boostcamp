@@ -62,11 +62,13 @@ export class RedisCacheRepository extends CacheRepository {
   async setViewIdempotencyKey(
     postUrl: string,
     visitorId: string,
+    isHighIntent: boolean,
     viewId: number,
     ttlMs: number = 60 * 30 * 1000
   ): Promise<void> {
     const hashedUrl = this.hashUrl(postUrl);
-    const key = `dedup:view:post:${hashedUrl}:visitor:${visitorId}`;
+    const intent = isHighIntent ? 'high' : 'normal';
+    const key = `dedup:view:${intent}:post:${hashedUrl}:visitor:${visitorId}`;
     await this.redisClient.set(key, viewId, {
       expiration: { type: 'PX', value: ttlMs },
     });
@@ -75,6 +77,7 @@ export class RedisCacheRepository extends CacheRepository {
   async acquireViewIdempotencyKey(
     postUrl: string,
     visitorId: string,
+    isHighIntent: boolean,
     ttlMs: number = 60 * 30 * 1000
   ): Promise<
     | { status: 'acquired' }
@@ -82,7 +85,8 @@ export class RedisCacheRepository extends CacheRepository {
     | { status: 'locked' }
   > {
     const hashedUrl = this.hashUrl(postUrl);
-    const key = `dedup:view:post:${hashedUrl}:visitor:${visitorId}`;
+    const intent = isHighIntent ? 'high' : 'normal';
+    const key = `dedup:view:${intent}:post:${hashedUrl}:visitor:${visitorId}`;
 
     const result = await this.redisClient.set(key, 'LOCK', {
       expiration: { type: 'PX', value: ttlMs },
@@ -104,10 +108,12 @@ export class RedisCacheRepository extends CacheRepository {
 
   async getViewIdByIdempotencyKey(
     postUrl: string,
-    visitorId: string
+    visitorId: string,
+    isHighIntent: boolean
   ): Promise<number | null> {
     const hashedUrl = this.hashUrl(postUrl);
-    const key = `dedup:view:post:${hashedUrl}:visitor:${visitorId}`;
+    const intent = isHighIntent ? 'high' : 'normal';
+    const key = `dedup:view:${intent}:post:${hashedUrl}:visitor:${visitorId}`;
 
     const value = await this.redisClient.get(key);
     if (!value) return null;
@@ -120,12 +126,10 @@ export class RedisCacheRepository extends CacheRepository {
 
   // 이미 있는 값이면 true, 최초면 false return
   async setClickIdempotencyKey(
-    postUrl: string,
-    visitorId: string,
+    viewId: number,
     ttlMs: number = 60 * 30 * 1000
   ): Promise<boolean> {
-    const hashedUrl = this.hashUrl(postUrl);
-    const key = `dedup:click:post:${hashedUrl}:visitor:${visitorId}`;
+    const key = `dedup:click:view:${viewId}`;
 
     const result = await this.redisClient.set(key, 1, {
       expiration: { type: 'PX', value: ttlMs },
