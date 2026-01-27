@@ -34,6 +34,6 @@ import { RedisModule } from 'src/redis/redis.module';
       useClass: RedisCampaignCacheRepository,
     },
   ],
-  exports: [CampaignRepository],
+  exports: [CampaignRepository, CampaignCacheRepository],
 })
 export class CampaignModule {}
