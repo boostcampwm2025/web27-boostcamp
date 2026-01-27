@@ -12,11 +12,7 @@ export function CreditHistoryTableRow({ history }: CreditHistoryTableRowProps) {
 
   const getDescription = () => {
     if (isCharge) {
-      // campaignName이 "신규 가입 축하 크레딧"이면 그대로 표시
-      if (history.campaignName === '신규 가입 축하 크레딧') {
-        return history.campaignName;
-      }
-      return '충전';
+      return history.description || '충전';
     }
     return history.campaignName ? `${history.campaignName} 캠페인 생성` : '캠페인 생성';
   };

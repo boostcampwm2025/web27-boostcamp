@@ -6,6 +6,7 @@ export interface CreditHistory {
   amount: number;
   balanceAfter: number;
   campaignName?: string;
+  description?: string;
   createdAt: string;
 }
 
