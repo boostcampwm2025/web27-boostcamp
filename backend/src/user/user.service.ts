@@ -3,7 +3,11 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { UserRepository } from './repository/user.repository.interface';
 import { CreditHistoryRepository } from './repository/credit-history.repository.interface';
-import { CreditHistoryType } from './entities/credit-history.entity';
+import {
+  CreditHistoryType,
+  CreditHistoryEntity,
+} from './entities/credit-history.entity';
+import { UserEntity } from './entities/user.entity';
 
 @Injectable()
 export class UserService {
@@ -33,13 +37,11 @@ export class UserService {
   ): Promise<{ balanceAfter: number; historyId: number }> {
     return await this.dataSource.transaction(async (manager) => {
       // 1. 사용자 조회 및 잠금
-      const user = await manager
-        .createQueryBuilder()
-        .select('u')
-        .from('User', 'u')
-        .where('u.id = :userId', { userId })
-        .setLock('pessimistic_write')
-        .getOne();
+      const userRepo = manager.getRepository(UserEntity);
+      const user = await userRepo.findOne({
+        where: { id: userId },
+        lock: { mode: 'pessimistic_write' },
+      });
 
       if (!user) {
         throw new Error('사용자를 찾을 수 없습니다');
@@ -47,30 +49,22 @@ export class UserService {
 
       // 2. 잔액 업데이트
       const newBalance = user.balance + amount;
-      await manager
-        .createQueryBuilder()
-        .update('User')
-        .set({ balance: newBalance })
-        .where('id = :userId', { userId })
-        .execute();
+      user.balance = newBalance;
+      await userRepo.save(user);
 
       // 3. 히스토리 기록
-      const history = await manager
-        .createQueryBuilder()
-        .insert()
-        .into('CreditHistory')
-        .values({
-          userId,
-          type: CreditHistoryType.CHARGE,
-          amount,
-          balanceAfter: newBalance,
-          campaignId: null,
-        })
-        .execute();
+      const historyRepo = manager.getRepository(CreditHistoryEntity);
+      const history = await historyRepo.save({
+        userId,
+        type: CreditHistoryType.CHARGE,
+        amount,
+        balanceAfter: newBalance,
+        campaignId: null,
+      });
 
       return {
         balanceAfter: newBalance,
-        historyId: history.identifiers[0].id,
+        historyId: history.id,
       };
     });
   }
