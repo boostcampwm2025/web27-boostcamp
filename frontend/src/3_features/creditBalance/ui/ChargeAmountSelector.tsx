@@ -1,12 +1,13 @@
 import { useState } from 'react';
+import { loadTossPayments } from '@tosspayments/payment-sdk';
+import { v4 as uuidv4 } from 'uuid';
 import { Button } from '@shared/ui/Button';
 import { TextField } from '@shared/ui/TextField';
 import { useToast } from '@shared/lib/toast/useToast';
-import { API_CONFIG } from '@shared/lib/api';
-import { useAdvertiserBalance } from '@shared/lib/hooks/useAdvertiserBalance';
 import { formatWithComma } from '@shared/lib/format/formatCurrency';
 
 const PRESET_AMOUNTS = [10000, 30000, 50000, 100000];
+const TOSS_CLIENT_KEY = import.meta.env.VITE_TOSS_CLIENT_KEY;
 
 export function ChargeAmountSelector() {
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
@@ -14,7 +15,6 @@ export function ChargeAmountSelector() {
   const [displayAmount, setDisplayAmount] = useState('');
   const [isCharging, setIsCharging] = useState(false);
   const { showToast } = useToast();
-  const { refetch } = useAdvertiserBalance();
 
   const handleCharge = async () => {
     const amount = selectedAmount || Number(customAmount);
@@ -27,38 +27,28 @@ export function ChargeAmountSelector() {
     try {
       setIsCharging(true);
 
-      const response = await fetch(
-        `${API_CONFIG.baseURL}/api/users/me/credit/charge`,
-        {
-          method: 'POST',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ amount }),
-        }
-      );
+      // 토스페이먼츠 SDK 로드
+      const tossPayments = await loadTossPayments(TOSS_CLIENT_KEY);
 
-      const data = await response.json();
+      // 주문 ID 생성
+      const orderId = `ORDER_${uuidv4()}`;
 
-      if (!response.ok || data.status === 'error') {
-        const message = data.message || '충전에 실패했습니다';
-        throw new Error(message);
-      }
+      // 결제창 호출
+      await tossPayments.requestPayment('카드', {
+        amount,
+        orderId,
+        orderName: `광고 크레딧 ${amount.toLocaleString()}원 충전`,
+        customerName: '광고주',
+        successUrl: `${window.location.origin}/payment/success`,
+        failUrl: `${window.location.origin}/payment/fail`,
+      });
 
-      showToast(`${amount.toLocaleString()}원이 충전되었습니다`, 'success');
-
-      // 잔액 리프레시
-      await refetch();
-
-      // 입력 초기화
-      setSelectedAmount(null);
-      setCustomAmount('');
+      // 결제창이 열리면 사용자가 결제 완료할 때까지 대기
+      // successUrl로 리다이렉트됨
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : '충전에 실패했습니다';
+        error instanceof Error ? error.message : '결제에 실패했습니다';
       showToast(message, 'error');
-    } finally {
       setIsCharging(false);
     }
   };
