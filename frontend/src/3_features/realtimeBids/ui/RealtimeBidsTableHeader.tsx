@@ -1,12 +1,31 @@
-export function RealtimeBidsTableHeader() {
+import { CampaignFilterDropdown } from './CampaignFilterDropdown';
+
+interface RealtimeBidsTableHeaderProps {
+  selectedCampaignIds?: number[];
+  onCampaignChange?: (campaignIds: number[]) => void;
+}
+
+export function RealtimeBidsTableHeader({
+  selectedCampaignIds = [],
+  onCampaignChange,
+}: RealtimeBidsTableHeaderProps = {}) {
+
   return (
     <thead className="bg-gray-50 text-sm">
       <tr>
         <th className="px-5 py-3 text-left font-medium text-gray-600 whitespace-nowrap">
           일시
         </th>
-        <th className="px-5 py-3 text-left font-medium text-gray-600 whitespace-nowrap">
-          캠페인
+        <th className="px-5 py-3 text-left font-medium text-gray-600 whitespace-nowrap relative">
+          <div className="flex items-center gap-1">
+            <span>캠페인</span>
+            {onCampaignChange && (
+              <CampaignFilterDropdown
+                selectedCampaignIds={selectedCampaignIds}
+                onApply={onCampaignChange}
+              />
+            )}
+          </div>
         </th>
         <th className="px-5 py-3 text-left font-medium text-gray-600 whitespace-nowrap">
           포스트 URL
