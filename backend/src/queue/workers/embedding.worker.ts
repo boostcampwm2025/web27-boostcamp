@@ -40,14 +40,13 @@ export class EmbeddingWorker extends WorkerHost {
     // 2. Redis JSON에 임베딩 추가
     const key = `campaign:${campaignId}`;
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     await this.redis.call(
       'JSON.SET',
       key,
       '$.embedding',
       JSON.stringify(embedding)
     );
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+
     await this.redis.call(
       'JSON.SET',
       key,
@@ -62,7 +61,6 @@ export class EmbeddingWorker extends WorkerHost {
     const embedding = await this.mlEngine.getEmbedding(text);
     const key = `blog:${blogId}`;
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     await this.redis.call(
       'JSON.SET',
       key,
