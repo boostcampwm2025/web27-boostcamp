@@ -11,14 +11,8 @@ export function CampaignFilterDropdown({
   onApply,
 }: CampaignFilterDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [tempSelected, setTempSelected] =
-    useState<number[]>(selectedCampaignIds);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { data: campaigns, isLoading } = useCampaignList();
-
-  useEffect(() => {
-    setTempSelected(selectedCampaignIds);
-  }, [selectedCampaignIds]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -27,31 +21,23 @@ export function CampaignFilterDropdown({
         !dropdownRef.current.contains(event.target as Node)
       ) {
         setIsOpen(false);
-        setTempSelected(selectedCampaignIds);
       }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [selectedCampaignIds]);
+  }, []);
 
   const handleToggle = (campaignId: number) => {
-    setTempSelected((prev) =>
-      prev.includes(campaignId)
-        ? prev.filter((id) => id !== campaignId)
-        : [...prev, campaignId]
-    );
-  };
+    const newSelected = selectedCampaignIds.includes(campaignId)
+      ? selectedCampaignIds.filter((id) => id !== campaignId)
+      : [...selectedCampaignIds, campaignId];
 
-  const handleApply = () => {
-    onApply(tempSelected);
-    setIsOpen(false);
+    onApply(newSelected);
   };
 
   const handleReset = () => {
-    setTempSelected([]);
     onApply([]);
-    setIsOpen(false);
   };
 
   return (
@@ -102,7 +88,7 @@ export function CampaignFilterDropdown({
                 >
                   <input
                     type="checkbox"
-                    checked={tempSelected.includes(parseInt(campaign.id, 10))}
+                    checked={selectedCampaignIds.includes(parseInt(campaign.id, 10))}
                     onChange={() => handleToggle(parseInt(campaign.id, 10))}
                     className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-0 focus:ring-offset-0"
                   />
@@ -116,24 +102,6 @@ export function CampaignFilterDropdown({
                 캠페인이 없습니다
               </div>
             )}
-          </div>
-
-          <div className="p-2.5 border-t border-gray-200 flex gap-2">
-            <button
-              onClick={() => {
-                setIsOpen(false);
-                setTempSelected(selectedCampaignIds);
-              }}
-              className="flex-1 px-3 py-2 text-sm text-gray-700 bg-white hover:bg-gray-50 border border-gray-300 rounded-md transition-colors font-medium"
-            >
-              취소
-            </button>
-            <button
-              onClick={handleApply}
-              className="flex-1 px-3 py-2 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors font-medium shadow-sm"
-            >
-              적용
-            </button>
           </div>
         </div>
       )}
