@@ -3,6 +3,8 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 import { CampaignRepository } from './repository/campaign.repository.interface';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { UpdateCampaignDto } from './dto/update-campaign.dto';
@@ -14,15 +16,23 @@ import type {
 } from './types/campaign.types';
 import { AVAILABLE_TAGS } from '../common/constants';
 import { UserRepository } from 'src/user/repository/user.repository.interface';
+import { CreditHistoryRepository } from 'src/user/repository/credit-history.repository.interface';
+import { UserEntity } from 'src/user/entities/user.entity';
+import {
+  CreditHistoryEntity,
+  CreditHistoryType,
+} from 'src/user/entities/credit-history.entity';
 
 @Injectable()
 export class CampaignService {
   constructor(
     private readonly campaignRepository: CampaignRepository,
-    private readonly userRepository: UserRepository
+    private readonly userRepository: UserRepository,
+    private readonly creditHistoryRepository: CreditHistoryRepository,
+    @InjectDataSource() private readonly dataSource: DataSource
   ) {}
 
-  // 캠페인 생성 (태그 검증 + 날짜 유효성 체크 + 시작일 기준 상태 설정)
+  // 캠페인 생성 (태그 검증 + 날짜 유효성 체크 + 시작일 기준 상태 설정 + 크레딧 차감)
   async createCampaign(
     userId: number,
     dto: CreateCampaignDto
@@ -36,14 +46,58 @@ export class CampaignService {
     });
     const tagIds = this.validateAndGetTagIds(dto.tags);
 
-    if (new Date(dto.startDate) >= new Date(dto.endDate)) {
+    if (new Date(dto.startDate) > new Date(dto.endDate)) {
       throw new BadRequestException('시작일은 종료일보다 앞서야 합니다.');
     }
 
     // 시작일이 오늘 이하면 ACTIVE, 내일 이상이면 PENDING
     const initialStatus = this.determineInitialStatus(dto.startDate);
 
-    return this.campaignRepository.create(userId, dto, tagIds, initialStatus);
+    // 트랜잭션으로 캠페인 생성과 크레딧 차감을 원자적으로? 처리
+    return await this.dataSource.transaction(async (manager) => {
+      const campaign = await this.campaignRepository.create(
+        userId,
+        dto,
+        tagIds,
+        initialStatus
+      );
+
+      // 2. totalBudget이 있는 경우 크레딧 차감
+      if (dto.totalBudget !== null) {
+        // 2-1. 사용자 조회 및 잠금
+        const userRepo = manager.getRepository(UserEntity);
+        const user = await userRepo.findOne({
+          where: { id: userId },
+          lock: { mode: 'pessimistic_write' },
+        });
+
+        if (!user) {
+          throw new NotFoundException('사용자를 찾을 수 없습니다');
+        }
+
+        // 2-2. 잔액 검증 (이중 체크)
+        if (user.balance < dto.totalBudget) {
+          throw new BadRequestException(
+            '총 예산은 보유 잔액을 초과할 수 없습니다.'
+          );
+        }
+
+        const newBalance = user.balance - dto.totalBudget;
+        user.balance = newBalance;
+        await userRepo.save(user);
+
+        const historyRepo = manager.getRepository(CreditHistoryEntity);
+        await historyRepo.save({
+          userId,
+          type: CreditHistoryType.WITHDRAW,
+          amount: dto.totalBudget,
+          balanceAfter: newBalance,
+          campaignId: campaign.id,
+        });
+      }
+
+      return campaign;
+    });
   }
   private async validateBudget({
     userId,
