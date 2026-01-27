@@ -46,14 +46,6 @@ export function HighIntentSection() {
                   <p className="mt-2 text-sm leading-6 text-gray-600">
                     {step.description}
                   </p>
-                  <div className="mt-4 flex items-center justify-center gap-2 rounded-full bg-gray-50 px-3 py-1">
-                    <span className="text-xs font-medium text-gray-500">
-                      {step.statLabel}
-                    </span>
-                    <span className="text-sm font-bold text-blue-600">
-                      {step.stat}
-                    </span>
-                  </div>
                 </div>
               );
             })}
