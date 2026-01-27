@@ -1,8 +1,9 @@
 import { Inject, Logger, Module, OnApplicationShutdown } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createClient } from '@keyv/redis';
-import { REDIS_CLIENT } from './redis.constant';
-import type { AppRedisClient } from './redis.type';
+import Redis from 'ioredis';
+import { REDIS_CLIENT, IOREDIS_CLIENT } from './redis.constant';
+import type { AppRedisClient, AppRedisJsonClient } from './redis.type';
 
 @Module({
   providers: [
@@ -30,27 +31,71 @@ import type { AppRedisClient } from './redis.type';
         return client as AppRedisClient;
       },
     },
+    {
+      provide: IOREDIS_CLIENT,
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService): AppRedisJsonClient => {
+        const logger = new Logger(
+          IOREDIS_CLIENT.description ?? 'IOREDIS_CLIENT'
+        );
+
+        const host = configService.get<string>('REDIS_HOST', 'localhost');
+        const port = configService.get<number>('REDIS_PORT', 6379);
+
+        const client = new Redis({
+          host,
+          port,
+          retryStrategy: (times) => {
+            const delay = Math.min(times * 50, 2000);
+            return delay;
+          },
+        });
+
+        client.on('error', (error) => {
+          logger.error(`Redis JSON Client error: ${String(error)}`);
+        });
+
+        client.on('connect', () => {
+          logger.log(`✅ Redis JSON Client 연결 성공: ${host}:${port}`);
+        });
+
+        return client;
+      },
+    },
   ],
-  exports: [REDIS_CLIENT],
+  exports: [REDIS_CLIENT, IOREDIS_CLIENT],
 })
 export class RedisModule implements OnApplicationShutdown {
   private readonly logger = new Logger(RedisModule.name);
 
   constructor(
-    @Inject(REDIS_CLIENT) private readonly redisClient: AppRedisClient
+    @Inject(REDIS_CLIENT) private readonly redisClient: AppRedisClient,
+    @Inject(IOREDIS_CLIENT)
+    private readonly redisJsonClient: AppRedisJsonClient
   ) {}
 
   async onApplicationShutdown(signal?: string): Promise<void> {
-    if (!this.redisClient) return;
-    if (!this.redisClient.isOpen) return;
+    if (this.redisClient?.isOpen) {
+      try {
+        await this.redisClient.quit();
+      } catch (error) {
+        this.logger.warn(
+          `Redis quit 실패(signal=${signal ?? 'unknown'}): ${String(error)}`
+        );
+        this.redisClient.destroy();
+      }
+    }
 
-    try {
-      await this.redisClient.quit();
-    } catch (error) {
-      this.logger.warn(
-        `Redis quit 실패(signal=${signal ?? 'unknown'}): ${String(error)}`
-      );
-      this.redisClient.destroy();
+    // JSON 클라이언트 종료
+    if (this.redisJsonClient?.status === 'ready') {
+      try {
+        await this.redisJsonClient.quit();
+      } catch (error) {
+        this.logger.warn(
+          `Redis IOClient quit 실패(signal=${signal ?? 'unknown'}): ${String(error)}`
+        );
+        this.redisJsonClient.disconnect();
+      }
     }
   }
 }
