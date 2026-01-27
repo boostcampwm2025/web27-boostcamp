@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateViewLogDto } from './dto/create-view-log.dto';
 import { LogRepository } from 'src/log/repository/log.repository.interface';
 import { CacheRepository } from 'src/cache/repository/cache.repository.interface';
@@ -11,7 +16,7 @@ export class SdkService {
     private readonly cacheRepository: CacheRepository
   ) {}
 
-  async recordView(dto: CreateViewLogDto) {
+  async recordView(dto: CreateViewLogDto, visitorId: string) {
     const {
       auctionId,
       campaignId,
@@ -27,7 +32,30 @@ export class SdkService {
     }
 
     const { blogId, cost } = auctionData;
-    return await this.logRepository.saveViewLog({
+
+    const dedupResult = await this.cacheRepository.acquireViewIdempotencyKey(
+      postUrl,
+      visitorId,
+      isHighIntent
+    );
+    if (dedupResult.status === 'exists') {
+      return dedupResult.viewId;
+    }
+
+    if (dedupResult.status === 'locked') {
+      const existingViewId =
+        await this.cacheRepository.getViewIdByIdempotencyKey(
+          postUrl,
+          visitorId,
+          isHighIntent
+        );
+      if (existingViewId !== null) {
+        return existingViewId;
+      }
+      throw new ConflictException('중복 요청 처리 중입니다.');
+    }
+
+    const viewId = await this.logRepository.saveViewLog({
       auctionId,
       campaignId,
       blogId,
@@ -37,10 +65,30 @@ export class SdkService {
       isHighIntent,
       behaviorScore,
     });
+
+    await this.cacheRepository.setViewIdempotencyKey(
+      postUrl,
+      visitorId,
+      isHighIntent,
+      viewId
+    );
+
+    return viewId;
   }
 
-  async recordClick(dto: CreateClickLogDto) {
+  async recordClick(dto: CreateClickLogDto): Promise<number | null> {
     const { viewId } = dto;
+    // todo: 어뷰징 방지
+
+    const isDup = await this.cacheRepository.setClickIdempotencyKey(viewId);
+
+    if (isDup) {
+      return null;
+    }
+    const exists = await this.logRepository.existsByViewId(viewId);
+    if (!exists) {
+      throw new BadRequestException('잘못된 요청입니다.');
+    }
     return await this.logRepository.saveClickLog({ viewId });
   }
 }

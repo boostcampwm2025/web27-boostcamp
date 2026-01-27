@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DevAd SDK 자동모드 테스트 - Blog 3</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Serif:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #f6f2ec;
+        --ink: #1f1a14;
+        --sub: #6b6157;
+        --line: #e5dfd6;
+        --accent: #c05a2a;
+        --card: #fffaf3;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+        line-height: 1.7;
+      }
+      .page {
+        max-width: 880px;
+        margin: 0 auto;
+        padding: 48px 24px 80px;
+      }
+      .hero {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 32px 36px;
+        box-shadow: 0 8px 30px rgba(20, 15, 10, 0.08);
+      }
+      .hero .kicker {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--sub);
+        margin-bottom: 10px;
+      }
+      h1 {
+        font-family: 'IBM Plex Serif', serif;
+        font-size: 34px;
+        line-height: 1.2;
+        margin: 0 0 12px;
+      }
+      .meta {
+        color: var(--sub);
+        font-size: 14px;
+      }
+      .content {
+        margin-top: 28px;
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 36px;
+      }
+      .content h2 {
+        font-family: 'IBM Plex Serif', serif;
+        font-size: 22px;
+        margin: 28px 0 12px;
+      }
+      .content p {
+        margin: 0 0 18px;
+        color: #2a231c;
+      }
+      .highlight {
+        background: #fff2e6;
+        border-left: 4px solid var(--accent);
+        padding: 14px 16px;
+        border-radius: 10px;
+        margin: 22px 0;
+        color: #3c2b1f;
+      }
+      .article-footer {
+        margin-top: 28px;
+        padding-top: 18px;
+        border-top: 1px dashed var(--line);
+      }
+      .article-tag {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .article-tag h3 {
+        font-size: 13px;
+        color: var(--sub);
+        margin: 0;
+      }
+      .box-tag a {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: #f2e9df;
+        color: #3a2f26;
+        text-decoration: none;
+        font-size: 13px;
+        border: 1px solid #eadfce;
+      }
+      .box-tag a:hover {
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+      }
+      .note {
+        margin-top: 14px;
+        font-size: 12px;
+        color: var(--sub);
+      }
+      code {
+        background: #f2e9df;
+        padding: 2px 6px;
+        border-radius: 6px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <section class="hero">
+        <div class="kicker">SDK Auto Mode Test</div>
+        <h1>실전형 SDK 자동 노출 테스트 포스트</h1>
+        <div class="meta">작성일: 2026년 1월 25일 · 카테고리: 프론트엔드</div>
+      </section>
+
+      <article class="content">
+        <h2>자동 모드가 동작하는 조건</h2>
+        <p>
+          이 문서는 SDK의 자동 모드가 정상 동작하는지 확인하기 위한 테스트
+          포스트입니다. 자동 모드는 본문 상단에 광고를 삽입하고, 스크롤 행동이
+          누적되면 2차 광고를 요청합니다.
+        </p>
+        <p class="highlight">
+          아래 스크립트에서 <code>window.tistory.type = 'post'</code>를 설정해
+          SDK가 “게시글”로 인식하도록 만들었습니다.
+        </p>
+
+        <h2>텍스트 내 태그 추출 테스트</h2>
+        <p>
+          제목과 본문에는 <strong>TypeScript</strong>, <strong>NestJS</strong>,
+          <strong>Redis</strong> 같은 키워드가 포함되어 있습니다. SDK는 이 텍스트를
+          기반으로 태그를 추출하여 decision 요청에 사용합니다.
+        </p>
+
+        <h2>스크롤 행동 추적</h2>
+        <p>
+          충분히 스크롤하면 행동 점수가 올라가고, High-Intent 상태가 되면 2차
+          광고가 요청됩니다. 스크롤을 천천히 내려보세요.
+        </p>
+        <p>
+          이 테스트 문서는 긴 본문을 흉내 내기 위해 일부 문장이 반복됩니다.
+          TypeScript와 NestJS를 함께 사용하면 대규모 시스템의 유지보수성이 크게
+          개선됩니다. Redis는 캐시와 분산락을 위한 훌륭한 선택지입니다.
+        </p>
+        <p>
+          이 테스트 문서는 긴 본문을 흉내 내기 위해 일부 문장이 반복됩니다.
+          TypeScript와 NestJS를 함께 사용하면 대규모 시스템의 유지보수성이 크게
+          개선됩니다. Redis는 캐시와 분산락을 위한 훌륭한 선택지입니다.
+        </p>
+        <p>
+          이 테스트 문서는 긴 본문을 흉내 내기 위해 일부 문장이 반복됩니다.
+          TypeScript와 NestJS를 함께 사용하면 대규모 시스템의 유지보수성이 크게
+          개선됩니다. Redis는 캐시와 분산락을 위한 훌륭한 선택지입니다.
+        </p>
+
+        <div class="article-footer">
+          <div class="article-tag">
+            <h3>Tag</h3>
+            <div class="box-tag">
+              <a href="/tag/typescript" rel="tag">TypeScript</a>
+              <a href="/tag/nestjs" rel="tag">NestJS</a>
+              <a href="/tag/redis" rel="tag">Redis</a>
+            </div>
+          </div>
+          <div class="note">
+            이 페이지는 자동 모드 테스트용입니다. 광고는 본문 상단에 자동으로
+            삽입되어야 합니다.
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <!-- 자동 모드 인식을 위한 Tistory 전역 모킹 -->
+    <script>
+      window.tistory = { type: 'post' };
+    </script>
+
+    <!-- BoostAD SDK 로드 -->
+    <!-- 로컬: http://localhost:3000/sdk.js -->
+    <!-- 배포: https://kr.object.ncloudstorage.com/boostad-sdk-dev/sdk/sdk.js -->
+    <script
+      src="http://localhost:3000/sdk.js"
+      data-blog-key="test-blog"
+      async
+    ></script>
+  </body>
+</html>

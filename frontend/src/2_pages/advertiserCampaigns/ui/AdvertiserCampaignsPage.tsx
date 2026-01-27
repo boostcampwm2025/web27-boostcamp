@@ -4,6 +4,7 @@ import {
   CampaignStatsTableHeader,
   CampaignStatsTableRow,
 } from '@features/campaignStats';
+import { Pagination } from '@shared/ui/Pagination';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -32,9 +33,10 @@ export function AdvertiserCampaignsPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">캠페인 관리</h1>
-
         <div className="bg-white border border-gray-200 rounded-xl shadow">
+          <div className="p-5 flex flex-row justify-between items-center border-b border-gray-100">
+            <h2 className="text-gray-900 text-xl font-bold">캠페인 관리</h2>
+          </div>
           {isLoading ? (
             <div className="p-10 text-center text-gray-500">로딩 중...</div>
           ) : error ? (
@@ -57,31 +59,16 @@ export function AdvertiserCampaignsPage() {
                 </tbody>
               </table>
 
-              <div className="flex items-center justify-between px-5 py-4 border-t border-gray-100">
-                <div className="text-sm text-gray-600">
-                  전체 {total}개 중 {offset + 1}-
-                  {Math.min(offset + ITEMS_PER_PAGE, total)}개
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={handlePrevPage}
-                    disabled={offset === 0}
-                    className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    이전
-                  </button>
-                  <span className="text-sm text-gray-600">
-                    {currentPage} / {totalPages || 1}
-                  </span>
-                  <button
-                    onClick={handleNextPage}
-                    disabled={!hasMore}
-                    className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    다음
-                  </button>
-                </div>
-              </div>
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalItems={total}
+                itemsPerPage={ITEMS_PER_PAGE}
+                offset={offset}
+                hasMore={hasMore}
+                onPrevPage={handlePrevPage}
+                onNextPage={handleNextPage}
+              />
             </>
           )}
         </div>

@@ -9,6 +9,7 @@ import type {
 } from './types/decision.types';
 import { randomUUID } from 'crypto';
 import { BidLogRepository } from '../bid-log/repositories/bid-log.repository.interface';
+import { BidLogService } from '../bid-log/bid-log.service';
 import { CacheRepository } from '../cache/repository/cache.repository.interface';
 import { BidLog, BidStatus } from '../bid-log/bid-log.types';
 import { BlogRepository } from '../blog/repository/blog.repository.interface';
@@ -25,6 +26,7 @@ export class RTBService {
     private readonly scorer: Scorer,
     private readonly selector: CampaignSelector,
     private readonly bidLogRepository: BidLogRepository,
+    private readonly bidLogService: BidLogService,
     private readonly cacheRepository: CacheRepository,
     private readonly blogRepository: BlogRepository,
     private readonly campaignRepository: CampaignRepository
@@ -142,6 +144,15 @@ export class RTBService {
       this.logger.log(
         `Auction ${auctionId}: ${bidLogs.length}개 BidLog 저장 완료 (WIN: ${result.winner.id})`
       );
+
+      // SSE: 입찰 이벤트 발행 (모든 BidLog에 대해)
+      const savedBids = await this.bidLogRepository.findByAuctionId(auctionId);
+
+      for (const savedBid of savedBids) {
+        if (savedBid.id) {
+          await this.bidLogService.emitBidCreated(savedBid.id);
+        }
+      }
 
       // 6. explain(reason) 생성 추후 로깅용 -> 일단 보류
       // return {

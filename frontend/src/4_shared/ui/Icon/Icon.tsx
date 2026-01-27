@@ -28,6 +28,12 @@ import Close from '@shared/ui/Icon/icons/close.svg?react';
 import ClickLine from '@shared/ui/Icon/icons/clickLine.svg?react';
 import Pen from '@shared/ui/Icon/icons/pen.svg?react';
 import LineLeft from '@shared/ui/Icon/icons/lineLeft.svg?react';
+import Clock from '@shared/ui/Icon/icons/clock.svg?react';
+import Stop2 from '@shared/ui/Icon/icons/stop2.svg?react';
+import Link from '@shared/ui/Icon/icons/link.svg?react';
+import Calendar from '@shared/ui/Icon/icons/calendar.svg?react';
+import Saving from '@shared/ui/Icon/icons/saving.svg?react';
+import BadgeCheck from '@shared/ui/Icon/icons/badgeCheck.svg?react';
 
 export const Icon = {
   ArrowRight,
@@ -60,4 +66,10 @@ export const Icon = {
   ClickLine,
   Pen,
   LineLeft,
+  Clock,
+  Stop2,
+  Link,
+  Calendar,
+  Saving,
+  BadgeCheck,
 };

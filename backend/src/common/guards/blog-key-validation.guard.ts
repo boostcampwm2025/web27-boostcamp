@@ -11,8 +11,9 @@ import { Request } from 'express';
 import { BlogRepository } from '../../blog/repository/blog.repository.interface';
 import type { BlogEntity } from '../../blog/entities/blog.entity';
 
-interface RequestWithBlog extends Request {
+export interface BlogKeyValidatedRequest extends Request {
   blog?: BlogEntity; // TypeORM 엔티티로 변경
+  visitorId?: string;
 }
 
 @Injectable()
@@ -22,8 +23,13 @@ export class BlogKeyValidationGuard implements CanActivate {
   constructor(private readonly blogRepository: BlogRepository) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest<RequestWithBlog>();
-    const { blogKey } = request.body as { blogKey?: string };
+    const request = context
+      .switchToHttp()
+      .getRequest<BlogKeyValidatedRequest>();
+    const { blogKey, postUrl } = request.body as {
+      blogKey?: string;
+      postUrl?: string;
+    };
 
     // blogKey 누락 체크
     if (!blogKey) {
@@ -32,6 +38,21 @@ export class BlogKeyValidationGuard implements CanActivate {
         url: request.url,
       });
       throw new BadRequestException('blogKey가 필요합니다.');
+    }
+
+    if (!postUrl) {
+      this.logger.warn('postUrl 누락된 요청 시도', {
+        ip: request.ip,
+        url: request.url,
+      });
+      throw new BadRequestException('postUrl이 필요합니다.');
+    }
+
+    let requestDomain: string;
+    try {
+      requestDomain = new URL(postUrl).hostname;
+    } catch {
+      throw new BadRequestException('유효한 postUrl이 필요합니다.');
     }
 
     // blogKey 검증 (DB 조회)
@@ -60,6 +81,26 @@ export class BlogKeyValidationGuard implements CanActivate {
       );
     }
 
+    const { domain } = blog;
+
+    if (requestDomain !== domain) {
+      this.logger.warn('blogKey 도메인 불일치', {
+        blogKey,
+        requestDomain,
+        blogDomain: domain,
+        ip: request.ip,
+        url: request.url,
+      });
+      throw new ForbiddenException(
+        '요청 도메인이 blogKey의 도메인과 일치하지 않습니다.'
+      );
+    }
+
+    const visitorId = request.cookies?.visitor_id as string | undefined;
+
+    if (visitorId) {
+      request.visitorId = visitorId;
+    }
     // 요청 객체에 blog 정보 첨부 (후속 로직에서 사용 가능)
     request.blog = blog;
 

@@ -1,7 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, MessageEvent } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Observable } from 'rxjs';
 import { BidStatus } from './bid-log.types';
 import { BidLogRepository } from './repositories/bid-log.repository.interface';
-import { BidLogResponseDto, BidLogItemDto } from './dto/bid-log-response.dto';
+import { BidLogDataDto, BidLogItemDto } from './dto/bid-log-response.dto';
 import { CampaignRepository } from 'src/campaign/repository/campaign.repository.interface';
 import { BlogRepository } from 'src/blog/repository/blog.repository.interface';
 
@@ -10,21 +12,31 @@ export class BidLogService {
   constructor(
     private readonly bidLogRepository: BidLogRepository,
     private readonly campaignRepository: CampaignRepository,
-    private readonly blogRepository: BlogRepository
+    private readonly blogRepository: BlogRepository,
+    private readonly eventEmitter: EventEmitter2
   ) {}
 
   async getRealtimeBidLogs(
     userId: number,
     limit: number,
-    offset: number
-  ): Promise<BidLogResponseDto> {
-    // Repository에서 userId 필터링, 정렬, 페이지네이션을 모두 처리
+    offset: number,
+    startDate?: string,
+    endDate?: string
+  ): Promise<BidLogDataDto> {
+    const total = await this.bidLogRepository.countByUserId(
+      userId,
+      startDate,
+      endDate
+    );
+
     const bidLogs = await this.bidLogRepository.findByUserId(
       userId,
       limit,
       offset,
       'createdAt',
-      'desc'
+      'desc',
+      startDate,
+      endDate
     );
 
     // TODO(후순위): 쿼리 최적화 필요
@@ -55,14 +67,63 @@ export class BidLogService {
       };
     });
 
-    const data: BidLogItemDto[] = await Promise.all(dataPromises);
+    const bids: BidLogItemDto[] = await Promise.all(dataPromises);
 
-    // 8. 최종 응답 형식
+    const hasMore = offset + limit < total;
+
     return {
-      status: 'success',
-      message: '광고주 실시간 입찰 로그입니다.',
-      data,
-      timestamp: new Date().toISOString(),
+      total,
+      hasMore,
+      bids,
     };
+  }
+
+  // SSE: 실시간 입찰 이벤트 구독
+  subscribeToBidEvents(userId: number): Observable<MessageEvent> {
+    return new Observable((observer) => {
+      const listener = (bid: BidLogItemDto) => {
+        observer.next({
+          data: JSON.stringify(bid),
+        } as MessageEvent);
+      };
+
+      this.eventEmitter.on(`bid.created.${userId}`, listener);
+
+      return () => {
+        this.eventEmitter.off(`bid.created.${userId}`, listener);
+      };
+    });
+  }
+
+  // RTB에서 호출할 이벤트 발행 메서드
+  async emitBidCreated(bidLogId: number): Promise<void> {
+    // BidLog 조회 및 DTO 변환
+    const log = await this.bidLogRepository.findById(bidLogId);
+    if (!log) return;
+
+    const [campaign, blog, winAmount] = await Promise.all([
+      this.campaignRepository.getById(log.campaignId),
+      this.blogRepository.findById(log.blogId),
+      this.bidLogRepository.findWinAmountByAuctionId(log.auctionId),
+    ]);
+
+    const bidData: BidLogItemDto = {
+      id: log.id!,
+      createdAt: log.createdAt!,
+      campaignId: log.campaignId,
+      campaignTitle: campaign?.title || 'Unknown Campaign',
+      blogKey: blog?.blogKey || 'Unknown Blog Key',
+      blogName: blog?.name || 'Unknown Blog',
+      postUrl: log.postUrl || blog?.domain || 'unknown.com',
+      bidAmount: log.bidPrice,
+      winAmount: winAmount,
+      isWon: log.status === BidStatus.WIN,
+      isHighIntent: log.isHighIntent,
+      behaviorScore: log.behaviorScore,
+    };
+
+    // userId별로 다른 이벤트 발행 (해당 광고주만 수신)
+    const userId = campaign?.userId || 0;
+    this.eventEmitter.emit(`bid.created.${userId}`, bidData);
   }
 }

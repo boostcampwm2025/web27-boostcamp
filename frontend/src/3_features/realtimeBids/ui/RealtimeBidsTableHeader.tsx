@@ -9,7 +9,7 @@ export function RealtimeBidsTableHeader() {
           캠페인
         </th>
         <th className="px-5 py-3 text-left font-medium text-gray-600 whitespace-nowrap">
-          블로그
+          포스트 URL
         </th>
         <th className="px-5 py-3 text-left font-medium text-gray-600 whitespace-nowrap">
           나의 입찰

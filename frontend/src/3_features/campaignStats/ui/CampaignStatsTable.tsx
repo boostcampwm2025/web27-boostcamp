@@ -13,7 +13,7 @@ export function CampaignStatsTable() {
           <h2 className="text-gray-900 text-xl font-bold">캠페인</h2>
           <Link
             to="/advertiser/dashboard/campaigns"
-            className="text-base font-bold"
+            className="text-base font-bold hover:text-blue-600"
           >
             전체 캠페인 목록 보기 →
           </Link>
@@ -30,7 +30,7 @@ export function CampaignStatsTable() {
           <h2 className="text-gray-900 text-xl font-bold">캠페인</h2>
           <Link
             to="/advertiser/dashboard/campaigns"
-            className="text-base font-bold"
+            className="text-base font-bold hover:text-blue-600"
           >
             전체 캠페인 목록 보기 →
           </Link>
@@ -46,7 +46,7 @@ export function CampaignStatsTable() {
         <h2 className="text-gray-900 text-xl font-bold">캠페인</h2>
         <Link
           to="/advertiser/dashboard/campaigns"
-          className="text-base font-bold"
+          className="text-base font-bold hover:text-blue-600"
         >
           전체 캠페인 목록 보기 →
         </Link>

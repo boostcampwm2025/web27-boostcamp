@@ -1,6 +1,6 @@
 import type { CampaignStats } from '../lib/types';
-import { Icon } from '@shared/ui/Icon';
-import { BudgetProgressBar } from './BudgetProgressBar';
+import { StatusBadge } from '@shared/ui/StatusBadge';
+import { ProgressBar } from '@shared/ui/ProgressBar';
 
 interface CampaignStatsTableRowProps {
   campaign: CampaignStats;
@@ -9,47 +9,14 @@ interface CampaignStatsTableRowProps {
 export function CampaignStatsTableRow({
   campaign,
 }: CampaignStatsTableRowProps) {
-  const getStatusBadge = () => {
-    switch (campaign.status) {
-      case 'ACTIVE':
-        return (
-          <div className="flex flex-row items-center gap-1 px-1.5 py-0.5 bg-green-100 border border-green-300 rounded-lg text-xs font-semibold text-green-500 w-fit">
-            <Icon.Circle className="w-3 h-3 text-green-500" />
-            진행중
-          </div>
-        );
-      case 'PAUSED':
-        return (
-          <div className="flex flex-row items-center gap-1 px-1.5 py-0.5 bg-red-100 border border-red-300 rounded-lg text-xs font-semibold text-red-700 w-fit">
-            <Icon.Circle className="w-3 h-3 text-red-700" />
-            일시정지
-          </div>
-        );
-      case 'PENDING':
-        return (
-          <div className="flex flex-row items-center gap-1 px-1.5 py-0.5 bg-yellow-100 border border-yellow-300 rounded-lg text-xs font-semibold text-yellow-600 w-fit">
-            <Icon.Circle className="w-3 h-3 text-yellow-500" />
-            대기
-          </div>
-        );
-      case 'ENDED':
-        return (
-          <div className="flex flex-row items-center gap-1 px-1.5 py-0.5 bg-gray-100 border border-gray-300 rounded-lg text-xs font-semibold text-gray-500 w-fit">
-            <Icon.Circle className="w-3 h-3 text-gray-500" />
-            종료
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
-
   return (
     <tr className="text-sm border-b border-gray-100">
       <td className="px-5 py-4 text-gray-900 font-semibold">
         {campaign.title}
       </td>
-      <td className="px-5 py-4 whitespace-nowrap">{getStatusBadge()}</td>
+      <td className="px-5 py-4 whitespace-nowrap">
+        <StatusBadge status={campaign.status} />
+      </td>
       <td className="px-5 py-4 text-gray-900 whitespace-nowrap">
         {campaign.impressions}
       </td>
@@ -60,7 +27,7 @@ export function CampaignStatsTableRow({
         {campaign.ctr.toFixed(2)}%
       </td>
       <td className="px-5 py-4 whitespace-nowrap">
-        <BudgetProgressBar percentage={campaign.dailySpentPercent} />
+        <ProgressBar percentage={campaign.dailySpentPercent} />
       </td>
       <td className="px-5 py-4 text-gray-900 whitespace-nowrap">
         {campaign.totalSpentPercent}%

@@ -82,7 +82,8 @@ export class AuthController {
           res.cookie('access_token', result.jwt, {
             httpOnly: true,
             sameSite: 'lax',
-            secure: process.env.NODE_ENV === 'production',
+            // secure: process.env.NODE_ENV === 'production',
+            secure: true,
             maxAge: 15 * 60 * 1000,
           });
         }

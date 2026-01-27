@@ -14,12 +14,14 @@ import type {
   CachedCampaign,
 } from './types/campaign.types';
 import { AVAILABLE_TAGS } from '../common/constants';
+import { UserRepository } from 'src/user/repository/user.repository.interface';
 import { CampaignCacheRepository } from './repository/campaign.cache.repository.interface';
 
 @Injectable()
 export class CampaignService {
   constructor(
     private readonly campaignRepository: CampaignRepository,
+    private readonly userRepository: UserRepository,
     private readonly campaignCacheRepository: CampaignCacheRepository
   ) {}
 
@@ -28,6 +30,13 @@ export class CampaignService {
     userId: number,
     dto: CreateCampaignDto
   ): Promise<CampaignWithTags> {
+    await this.validateBudget({
+      userId,
+      maxCpc: dto.maxCpc,
+      dailyBudget: dto.dailyBudget,
+      totalBudget: dto.totalBudget,
+      checkBalance: true,
+    });
     const tagIds = this.validateAndGetTagIds(dto.tags);
 
     if (new Date(dto.startDate) >= new Date(dto.endDate)) {
@@ -156,7 +165,41 @@ export class CampaignService {
   // ============================================================================
   // 모듈화 된 함수들
   // ============================================================================
+  private async validateBudget({
+    userId,
+    maxCpc,
+    dailyBudget,
+    totalBudget,
+    checkBalance,
+  }: {
+    userId: number;
+    maxCpc: number;
+    dailyBudget: number;
+    totalBudget: number | null;
+    checkBalance?: boolean;
+  }): Promise<void> {
+    if (maxCpc > dailyBudget) {
+      throw new BadRequestException('CPC값은 일 예산을 초과할 수 없습니다.');
+    }
 
+    if (totalBudget !== null && dailyBudget > totalBudget) {
+      throw new BadRequestException('일 예산은 총 예산을 초과할 수 없습니다.');
+    }
+
+    if (checkBalance && totalBudget !== null) {
+      const balance = await this.userRepository.getBalanceById(userId);
+
+      if (balance == null) {
+        throw new NotFoundException();
+      }
+
+      if (totalBudget > balance) {
+        throw new BadRequestException(
+          '총 예산은 보유 잔액을 초과할 수 없습니다.'
+        );
+      }
+    }
+  }
   // 시작일 기준 초기 상태 결정
   private determineInitialStatus(
     startDate: string

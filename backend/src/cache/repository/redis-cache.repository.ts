@@ -4,10 +4,16 @@ import type { Cache } from 'cache-manager';
 import { AuctionData } from '../types/auction-data.type';
 import { CacheRepository } from './cache.repository.interface';
 import { StoredOAuthState } from '../../auth/auth.service';
+import crypto from 'crypto';
+import { REDIS_CLIENT } from 'src/redis/redis.constant';
+import type { AppRedisClient } from 'src/redis/redis.type';
 
 @Injectable()
 export class RedisCacheRepository extends CacheRepository {
-  constructor(@Inject(CACHE_MANAGER) private readonly cacheManager: Cache) {
+  constructor(
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    @Inject(REDIS_CLIENT) private readonly redisClient: AppRedisClient
+  ) {
     super();
   }
 
@@ -53,11 +59,102 @@ export class RedisCacheRepository extends CacheRepository {
     await this.cacheManager.del(key);
   }
 
+  async setViewIdempotencyKey(
+    postUrl: string,
+    visitorId: string,
+    isHighIntent: boolean,
+    viewId: number,
+    ttlMs: number = 60 * 30 * 1000
+  ): Promise<void> {
+    const hashedUrl = this.hashUrl(postUrl);
+    const intent = isHighIntent ? 'high' : 'normal';
+    const key = `dedup:view:${intent}:post:${hashedUrl}:visitor:${visitorId}`;
+    await this.redisClient.set(key, viewId, {
+      expiration: { type: 'PX', value: ttlMs },
+    });
+  }
+
+  async acquireViewIdempotencyKey(
+    postUrl: string,
+    visitorId: string,
+    isHighIntent: boolean,
+    ttlMs: number = 60 * 30 * 1000
+  ): Promise<
+    | { status: 'acquired' }
+    | { status: 'exists'; viewId: number }
+    | { status: 'locked' }
+  > {
+    const hashedUrl = this.hashUrl(postUrl);
+    const intent = isHighIntent ? 'high' : 'normal';
+    const key = `dedup:view:${intent}:post:${hashedUrl}:visitor:${visitorId}`;
+
+    const result = await this.redisClient.set(key, 'LOCK', {
+      expiration: { type: 'PX', value: ttlMs },
+      condition: 'NX',
+    });
+
+    if (result === 'OK') {
+      return { status: 'acquired' };
+    }
+
+    const existingValue = await this.redisClient.get(key);
+    if (!existingValue) return { status: 'locked' };
+
+    const existingViewId = Number(existingValue);
+    if (Number.isNaN(existingViewId)) return { status: 'locked' };
+
+    return { status: 'exists', viewId: existingViewId };
+  }
+
+  async getViewIdByIdempotencyKey(
+    postUrl: string,
+    visitorId: string,
+    isHighIntent: boolean
+  ): Promise<number | null> {
+    const hashedUrl = this.hashUrl(postUrl);
+    const intent = isHighIntent ? 'high' : 'normal';
+    const key = `dedup:view:${intent}:post:${hashedUrl}:visitor:${visitorId}`;
+
+    const value = await this.redisClient.get(key);
+    if (!value) return null;
+
+    const viewId = Number(value);
+    if (Number.isNaN(viewId)) return null;
+
+    return viewId;
+  }
+
+  // 이미 있는 값이면 true, 최초면 false return
+  async setClickIdempotencyKey(
+    viewId: number,
+    ttlMs: number = 60 * 30 * 1000
+  ): Promise<boolean> {
+    const key = `dedup:click:view:${viewId}`;
+
+    const result = await this.redisClient.set(key, 1, {
+      expiration: { type: 'PX', value: ttlMs },
+      condition: 'NX',
+    });
+
+    if (result === 'OK') {
+      return false;
+    }
+
+    const existingValue = await this.redisClient.get(key);
+    if (!existingValue) return false;
+
+    return true;
+  }
+
   private getAuctionKey(auctionId: string): string {
     return `auction:${auctionId}`;
   }
 
   private getOAuthStateKey(state: string): string {
     return `oauth:state:${state}`;
+  }
+
+  private hashUrl(url: string) {
+    return crypto.createHash('sha256').update(url).digest('base64url');
   }
 }

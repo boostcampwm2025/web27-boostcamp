@@ -35,7 +35,14 @@ async function bootstrap() {
   });
 
   const port = process.env.PORT ?? 3000;
-  await app.listen(port);
+  if (process.env.NODE_ENV === 'development') {
+    await app.listen(port, '0.0.0.0');
+    console.log('development mode');
+  } else {
+    await app.listen(port);
+    console.log('production mode');
+  }
+
   console.log(`🚀 Backend running on http://localhost:${port}`);
 }
 

@@ -55,4 +55,17 @@ export class TypeOrmUserRepository extends UserRepository {
 
     return (result.affected ?? 0) > 0;
   }
+
+  async getBalanceById(userId: number): Promise<number | null> {
+    const user = await this.userRepo
+      .createQueryBuilder('u')
+      .where('u.id = :id', { id: userId })
+      .getOne();
+
+    if (!user) {
+      return null;
+    }
+
+    return user.balance;
+  }
 }

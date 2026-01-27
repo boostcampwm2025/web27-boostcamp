@@ -12,12 +12,17 @@ interface SdkCodeSnippetProps {
 export function SdkCodeSnippet({ blogKey, mode }: SdkCodeSnippetProps) {
   const { showToast } = useToast();
 
-  const autoModeSnippet = `<script src="https://kr.object.ncloudstorage.com/boostad-sdk-dev/sdk/sdk.js"
+  const sdkUrl =
+    import.meta.env.MODE === 'development'
+      ? 'https://localhost/sdk/sdk.js'
+      : 'https://kr.object.ncloudstorage.com/boostad-sdk-dev/sdk/sdk.js';
+
+  const autoModeSnippet = `<script src="${sdkUrl}"
           data-blog-key="${blogKey}"
           async
   ></script>`;
 
-  const manualModeSnippet = `<script src="https://kr.object.ncloudstorage.com/boostad-sdk-dev/sdk/sdk.js"
+  const manualModeSnippet = `<script src="${sdkUrl}"
           data-blog-key="${blogKey}"
           data-auto="false"
           async
