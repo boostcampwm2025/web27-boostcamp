@@ -21,13 +21,14 @@ export function HeroSection() {
         <p className="mx-auto mt-6 max-w-2xl text-pretty text-base leading-7 text-gray-600 sm:text-lg sm:leading-8">
           프라이버시를 침해하지 않으면서 오디언스의 의도를 수익으로 전환하세요.
           <br className="hidden sm:block" />
-          개발자 블로그와 기술 문서를 위해 특별히 설계된 맥락 기반
-          광고입니다.
+          개발자 블로그와 기술 문서를 위해 특별히 설계된 맥락 기반 광고입니다.
         </p>
 
         <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
           <PrimaryButton to="/auth/register">지금 시작하기</PrimaryButton>
-          <SecondaryButton href="">문서 보기</SecondaryButton>
+          <SecondaryButton href="https://github.com/boostcampwm2025/web27-BoostAD/wiki">
+            문서 보기
+          </SecondaryButton>
         </div>
 
         <div className="relative mx-auto mt-14 hidden h-70 max-w-4xl md:block">
