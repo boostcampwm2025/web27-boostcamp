@@ -1,16 +1,19 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { REDIS_CLIENT } from 'src/redis/redis.module';
-import { BlogCacheRepository } from './blog-cache.repository';
-import { CachedBlog } from '../types/blog.types';
-import Redis from 'ioredis';
+import { IOREDIS_CLIENT } from 'src/redis/redis.constant';
+import type { AppIORedisClient } from 'src/redis/redis.type';
+import { BlogCacheRepository } from './blog.cache.repository.interface';
+import { CachedBlog } from '../types/blog.type';
 
 @Injectable()
 export class BlogRedisCacheRepository implements BlogCacheRepository {
   private readonly logger = new Logger(BlogRedisCacheRepository.name);
-  private readonly DEFAULT_TTL = 60 * 60; // 1시간
+  private readonly DEFAULT_TTL = 60 * 60 * 24; // 24시간
   private readonly BLOG_EXISTS_SET = 'blog:exists:set';
+  private readonly KEY_PREFIX = 'blog:';
 
-  constructor(@Inject(REDIS_CLIENT) private readonly redis: Redis) {}
+  constructor(
+    @Inject(IOREDIS_CLIENT) private readonly ioredisClient: AppIORedisClient
+  ) {}
 
   async saveBlogCacheById(
     id: number,
@@ -21,24 +24,17 @@ export class BlogRedisCacheRepository implements BlogCacheRepository {
     const expiryTime = ttl ?? this.DEFAULT_TTL;
 
     try {
-      (await this.redis.call(
-        'JSON.SET',
-        key,
-        '$',
-        JSON.stringify(data)
-      )) as Promise<unknown>;
+      // JSON.SET은 cacheManager가 지원 안 해서 redisClient 직접 사용
+      await this.ioredisClient.call('JSON.SET', key, '$', JSON.stringify(data));
 
-      (await this.redis.expire(key, expiryTime)) as Promise<number>;
+      await this.ioredisClient.expire(key, expiryTime);
 
       // exists set에 추가
-      (await this.redis.sadd(
-        this.BLOG_EXISTS_SET,
-        id.toString()
-      )) as Promise<number>;
+      await this.ioredisClient.sadd(this.BLOG_EXISTS_SET, id.toString());
 
-      this.logger.log(`Blog ${id} cached successfully with TTL ${expiryTime}s`);
+      this.logger.log(`블로그 ${id} 캐시 성공 with TTL ${expiryTime}s`);
     } catch (error) {
-      this.logger.error(`Failed to save blog cache ${id}:`, error);
+      this.logger.error(`블로그 ${id} 캐시 실패:`, error);
       throw error;
     }
   }
@@ -47,30 +43,32 @@ export class BlogRedisCacheRepository implements BlogCacheRepository {
     const key = this.getBlogKey(id);
 
     try {
-      const result = (await this.redis.call('JSON.GET', key)) as string | null;
+      const result = await this.ioredisClient.call('JSON.GET', key);
 
-      if (!result) {
-        this.logger.debug(`Blog ${id} not found in cache`);
+      // 타입 가드: string인지 확인
+      if (typeof result !== 'string' || !result) {
+        this.logger.debug(`블로그 캐시 미스: ${id}`);
         return null;
       }
 
+      this.logger.debug(`블로그 캐시 히트: ${id}`);
       return JSON.parse(result) as CachedBlog;
     } catch (error) {
-      this.logger.error(`Failed to find blog cache ${id}:`, error);
+      this.logger.error(`블로그 캐시 조회 실패: ${id}`, error);
       return null;
     }
   }
 
   async existsBlogCacheById(id: number): Promise<boolean> {
     try {
-      const result = (await this.redis.sismember(
+      const result = await this.ioredisClient.sismember(
         this.BLOG_EXISTS_SET,
         id.toString()
-      )) as Promise<number>;
+      );
 
       return result === 1;
     } catch (error) {
-      this.logger.error(`Failed to check blog exists ${id}:`, error);
+      this.logger.error(`블로그 존재 확인 실패: ${id}`, error);
       return false;
     }
   }
@@ -79,15 +77,13 @@ export class BlogRedisCacheRepository implements BlogCacheRepository {
     const key = this.getBlogKey(id);
 
     try {
-      (await this.redis.del(key)) as Promise<number>;
-      (await this.redis.srem(
-        this.BLOG_EXISTS_SET,
-        id.toString()
-      )) as Promise<number>;
+      await this.ioredisClient.del(key);
+      // exists set에서 삭제
+      await this.ioredisClient.srem(this.BLOG_EXISTS_SET, id.toString());
 
-      this.logger.log(`Blog ${id} deleted from cache`);
+      this.logger.debug(`블로그 캐시 삭제: ${id}`);
     } catch (error) {
-      this.logger.error(`Failed to delete blog cache ${id}:`, error);
+      this.logger.error(`블로그 캐시 삭제 실패: ${id}`, error);
       throw error;
     }
   }
@@ -99,21 +95,21 @@ export class BlogRedisCacheRepository implements BlogCacheRepository {
     const key = this.getBlogKey(id);
 
     try {
-      (await this.redis.call(
+      await this.ioredisClient.call(
         'JSON.SET',
         key,
-        '$.embedding',
+        '$.embedding', // embedding속성에 따로 임베딩 값 저장
         JSON.stringify(embedding)
-      )) as Promise<unknown>;
+      );
 
-      this.logger.log(`Blog ${id} embedding updated`);
+      this.logger.debug(`블로그 임베딩 업데이트: ${id}`);
     } catch (error) {
-      this.logger.error(`Failed to update blog embedding ${id}:`, error);
+      this.logger.error(`블로그 임베딩 업데이트 실패 ${id}:`, error);
       throw error;
     }
   }
 
   private getBlogKey(id: number): string {
-    return `blog:${id}`;
+    return `${this.KEY_PREFIX}${id}`;
   }
 }
