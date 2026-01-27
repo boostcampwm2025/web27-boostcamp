@@ -1,36 +1,18 @@
-import { Inject, Logger, Module, OnApplicationShutdown } from '@nestjs/common';
+import {
+  Global,
+  Inject,
+  Logger,
+  Module,
+  OnApplicationShutdown,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { createClient } from '@keyv/redis';
 import Redis from 'ioredis';
-import { REDIS_CLIENT, IOREDIS_CLIENT } from './redis.constant';
-import type { AppRedisClient, AppIORedisClient } from './redis.type';
+import { IOREDIS_CLIENT } from './redis.constant';
+import type { AppIORedisClient } from './redis.type';
 
+@Global()
 @Module({
   providers: [
-    {
-      provide: REDIS_CLIENT,
-      inject: [ConfigService],
-      useFactory: async (
-        configService: ConfigService
-      ): Promise<AppRedisClient> => {
-        const logger = new Logger(REDIS_CLIENT.description ?? 'REDIS_CLIENT');
-
-        const host = configService.get<string>('REDIS_HOST', 'localhost');
-        const port = configService.get<number>('REDIS_PORT', 6379);
-        const url = `redis://${host}:${port}`;
-
-        const client = createClient({ url });
-        client.on('error', (error) => {
-          logger.error(`Redis error: ${String(error)}`);
-        });
-
-        logger.log(`🔄 Redis 연결 시도: ${url}`);
-        await client.connect();
-        logger.log(`✅ Redis 연결 성공: ${url}`);
-
-        return client as AppRedisClient;
-      },
-    },
     {
       provide: IOREDIS_CLIENT,
       inject: [ConfigService],
@@ -40,7 +22,7 @@ import type { AppRedisClient, AppIORedisClient } from './redis.type';
         );
 
         const host = configService.get<string>('REDIS_HOST', 'localhost');
-        const port = configService.get<number>('REDIS_PORT', 6379);
+        const port = configService.get<number>('REDIS_PORT', 16379);
 
         const client = new Redis({
           host,
@@ -52,48 +34,39 @@ import type { AppRedisClient, AppIORedisClient } from './redis.type';
         });
 
         client.on('error', (error) => {
-          logger.error(`Redis JSON Client error: ${String(error)}`);
+          logger.error(`IORedis Client error: ${String(error)}`);
         });
 
-        client.on('connect', () => {
-          logger.log(`✅ Redis JSON Client 연결 성공: ${host}:${port}`);
+        client.on('ready', () => {
+          logger.log(`✅ IORedis Client 연결 성공: ${host}:${port}`);
+        });
+
+        client.on('reconnecting', (delay: number) => {
+          logger.warn(`🔄 IORedis Client 재연결 시도 중... (${delay}ms 후)`);
         });
 
         return client;
       },
     },
   ],
-  exports: [REDIS_CLIENT, IOREDIS_CLIENT],
+  exports: [IOREDIS_CLIENT],
 })
 export class RedisModule implements OnApplicationShutdown {
   private readonly logger = new Logger(RedisModule.name);
 
   constructor(
-    @Inject(REDIS_CLIENT)
-    private readonly redisClient: AppRedisClient,
     @Inject(IOREDIS_CLIENT)
     private readonly ioredisClient: AppIORedisClient
   ) {}
 
   async onApplicationShutdown(signal?: string): Promise<void> {
-    if (this.redisClient?.isOpen) {
-      try {
-        await this.redisClient.quit();
-      } catch (error) {
-        this.logger.warn(
-          `Redis quit 실패(signal=${signal ?? 'unknown'}): ${String(error)}`
-        );
-        this.redisClient.destroy();
-      }
-    }
-
-    // JSON 클라이언트 종료
     if (this.ioredisClient?.status === 'ready') {
       try {
         await this.ioredisClient.quit();
+        this.logger.log('✅ IORedis Client 정상 종료');
       } catch (error) {
         this.logger.warn(
-          `Redis IOClient quit 실패(signal=${signal ?? 'unknown'}): ${String(error)}`
+          `IORedis Client quit 실패(signal=${signal ?? 'unknown'}): ${String(error)}`
         );
         this.ioredisClient.disconnect();
       }
