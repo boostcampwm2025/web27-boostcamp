@@ -1,6 +1,5 @@
 import { Icon } from '@shared/ui/Icon';
 import { MAIN_MONETIZE_POINTS } from '../../model/content';
-import { PrimaryButton } from '../components/PrimaryButton';
 import { ScrollReveal } from '@shared/ui/ScrollReveal';
 
 export function MonetizeSection() {
