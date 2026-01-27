@@ -5,7 +5,7 @@ import { SecondaryButton } from '../components/SecondaryButton';
 
 export function MonetizeSection() {
   return (
-    <section id="pricing" className="bg-gray-50">
+    <section id="pricing" className="bg-white">
       <div className="mx-auto grid max-w-6xl gap-12 px-6 py-20 lg:grid-cols-2 lg:items-center">
         <div>
           <h2 className="text-3xl font-extrabold tracking-[-0.03em] text-gray-900 sm:text-4xl">
