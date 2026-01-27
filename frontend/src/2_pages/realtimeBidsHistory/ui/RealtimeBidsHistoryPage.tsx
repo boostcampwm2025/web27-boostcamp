@@ -10,6 +10,9 @@ const ITEMS_PER_PAGE = 10;
 
 export function RealtimeBidsHistoryPage() {
   const [offset, setOffset] = useState(0);
+  const [selectedCampaignId, setSelectedCampaignId] = useState<
+    number | undefined
+  >(undefined);
 
   // 7일 전 날짜 계산 (메모이제이션으로 무한 루프 방지)
   const startDate = useMemo(() => {
@@ -23,6 +26,7 @@ export function RealtimeBidsHistoryPage() {
       limit: ITEMS_PER_PAGE,
       offset,
       startDate,
+      campaignId: selectedCampaignId,
     });
 
   const currentPage = Math.floor(offset / ITEMS_PER_PAGE) + 1;
@@ -40,6 +44,11 @@ export function RealtimeBidsHistoryPage() {
     }
   };
 
+  const handleCampaignChange = (campaignId: number | undefined) => {
+    setSelectedCampaignId(campaignId);
+    setOffset(0); // 필터 변경 시 첫 페이지로 이동
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 px-8 py-8">
       <div className="w-full">
@@ -47,7 +56,7 @@ export function RealtimeBidsHistoryPage() {
           <div className="p-5 flex flex-row justify-between items-center border-b border-gray-100">
             <div className="flex items-center gap-3">
               <h2 className="text-gray-900 text-xl font-bold">입찰 히스토리</h2>
-              {offset === 0 && (
+              {offset === 0 && !selectedCampaignId && (
                 <div className="flex items-center gap-2">
                   <div
                     className={`w-2 h-2 rounded-full ${
@@ -78,7 +87,10 @@ export function RealtimeBidsHistoryPage() {
           ) : (
             <>
               <table className="w-full">
-                <RealtimeBidsTableHeader />
+                <RealtimeBidsTableHeader
+                  selectedCampaignId={selectedCampaignId}
+                  onCampaignChange={handleCampaignChange}
+                />
                 <tbody>
                   {bids.map((bid) => (
                     <RealtimeBidsTableRow key={bid.id} bid={bid} />
