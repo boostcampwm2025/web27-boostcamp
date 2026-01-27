@@ -54,7 +54,7 @@ export function RealtimeBidsHistoryPage() {
           <div className="p-5 flex flex-row justify-between items-center border-b border-gray-100">
             <div className="flex items-center gap-3">
               <h2 className="text-gray-900 text-xl font-bold">입찰 히스토리</h2>
-              {offset === 0 && selectedCampaignIds.length === 0 && (
+              {offset === 0 && (
                 <div className="flex items-center gap-2">
                   <div
                     className={`w-2 h-2 rounded-full ${

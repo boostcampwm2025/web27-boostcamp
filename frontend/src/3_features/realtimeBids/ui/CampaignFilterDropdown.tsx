@@ -62,29 +62,14 @@ export function CampaignFilterDropdown({
     setIsOpen(false);
   };
 
-  const getDisplayText = () => {
-    if (selectedCampaignIds.length === 0) {
-      return '전체';
-    }
-    if (selectedCampaignIds.length === 1) {
-      const campaign = campaigns?.find(
-        (c) => parseInt(c.id, 10) === selectedCampaignIds[0]
-      );
-      return campaign?.title || '전체';
-    }
-    return `${selectedCampaignIds.length}개 선택됨`;
-  };
-
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative inline-block" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="p-1 hover:bg-gray-200 rounded transition-colors flex items-center gap-1"
+        className="p-0.5 hover:bg-gray-200 rounded transition-colors"
         disabled={isLoading}
+        title="캠페인 필터"
       >
-        <span className="text-xs text-blue-600 font-normal">
-          {getDisplayText()}
-        </span>
         <svg
           className="w-4 h-4 text-gray-500"
           fill="none"
