@@ -12,13 +12,17 @@ import { ImageModule } from '../image/image.module';
 import { CampaignCacheRepository } from './repository/campaign.cache.repository.interface';
 import { RedisCampaignCacheRepository } from './repository/redis-campaign.cache.repository';
 import { UserModule } from 'src/user/user.module';
+import { CacheModule } from 'src/cache/cache.module';
+import { RedisModule } from 'src/redis/redis.module';
 
 @Module({
   imports: [
+    CacheModule,
     TypeOrmModule.forFeature([CampaignEntity, TagEntity]),
     LogModule,
     ImageModule,
     UserModule,
+    RedisModule,
   ],
   controllers: [CampaignController],
   providers: [

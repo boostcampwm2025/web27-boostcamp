@@ -1,18 +1,17 @@
-// src/cache/repository/redis-campaign-cache.repository.ts
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { REDIS_CLIENT } from 'src/redis/redis.module';
-import Redis from 'ioredis';
+import { IOREDIS_CLIENT } from 'src/redis/redis.constant';
+import type { AppIORedisClient } from 'src/redis/redis.type';
 import { CampaignCacheRepository } from './campaign.cache.repository.interface';
 import { CachedCampaign } from '../types/campaign.types';
 
 @Injectable()
-export class RedisCampaignCacheRepository extends CampaignCacheRepository {
+export class RedisCampaignCacheRepository implements CampaignCacheRepository {
   private readonly logger = new Logger(RedisCampaignCacheRepository.name);
   private readonly KEY_PREFIX = 'campaign:';
 
-  constructor(@Inject(REDIS_CLIENT) private readonly redis: Redis) {
-    super();
-  }
+  constructor(
+    @Inject(IOREDIS_CLIENT) private readonly ioredisClient: AppIORedisClient
+  ) {}
 
   async saveCampaignCacheById(
     id: string,
@@ -22,8 +21,8 @@ export class RedisCampaignCacheRepository extends CampaignCacheRepository {
     const key = this.getCampaignCacheKey(id);
 
     try {
-      await this.redis.call('JSON.SET', key, '$', JSON.stringify(data));
-      await this.redis.expire(key, ttl);
+      await this.ioredisClient.call('JSON.SET', key, '$', JSON.stringify(data));
+      await this.ioredisClient.expire(key, ttl);
       this.logger.debug(`캐시 저장 성공: ${id}`);
     } catch (error) {
       this.logger.error(`캐시 저장 실패: ${id}`, error);
@@ -35,7 +34,7 @@ export class RedisCampaignCacheRepository extends CampaignCacheRepository {
     const key = this.getCampaignCacheKey(id);
 
     try {
-      const result = await this.redis.call('JSON.GET', key);
+      const result = await this.ioredisClient.call('JSON.GET', key);
 
       if (!result || typeof result !== 'string') {
         this.logger.debug(`캐시 미스: ${id}`);
@@ -54,7 +53,7 @@ export class RedisCampaignCacheRepository extends CampaignCacheRepository {
     const key = this.getCampaignCacheKey(id);
 
     try {
-      await this.redis.call(
+      await this.ioredisClient.call(
         'JSON.NUMINCRBY', // Redis에게 ADD에 대한 명령을 통한 원자적 연산 수행
         key,
         '$.dailySpent',
@@ -69,13 +68,13 @@ export class RedisCampaignCacheRepository extends CampaignCacheRepository {
 
   async deleteCampaignCacheById(id: string): Promise<void> {
     const key = this.getCampaignCacheKey(id);
-    await this.redis.del(key);
+    await this.ioredisClient.del(key);
     this.logger.debug(`캐시 삭제: ${id}`);
   }
 
   async existsCampaignCacheById(id: string): Promise<boolean> {
     const key = this.getCampaignCacheKey(id);
-    const result = await this.redis.exists(key);
+    const result = await this.ioredisClient.exists(key);
     return result === 1;
   }
 
