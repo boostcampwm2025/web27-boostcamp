@@ -4,13 +4,13 @@ import { MAIN_NAV_ITEMS } from '../../model/content';
 
 export function MainHeader() {
   return (
-    <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/80 backdrop-blur">
+    <header className="border-b border-gray-200 bg-white">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-        <Link to="/main" className="flex items-center gap-3">
-          <span className="flex h-9 w-9 items-center justify-center text-blue-600">
-            <Icon.Logo className="h-5 w-5" />
+        <Link to="/" className="flex items-center gap-3">
+          <span className="flex h-8 w-8 items-center justify-center">
+            <Icon.Logo className="h-8 w-8 text-blue-500" />
           </span>
-          <span className="text-lg font-bold tracking-[-0.3px]">BoostAD</span>
+          <span className="text-lg font-bold">BoostAD</span>
         </Link>
 
         <nav
