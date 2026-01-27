@@ -19,7 +19,7 @@ export function MonetizeSection() {
           <ul className="mt-8 space-y-4">
             {MAIN_MONETIZE_POINTS.map((point) => (
               <li key={point} className="flex items-start gap-3">
-                <span className="mt-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-blue-50 text-blue-600 ring-1 ring-blue-100">
+                <span className="mt-0.5 flex h-6 w-6 items-center justify-center text-blue-600">
                   <Icon.Check className="h-4 w-4" />
                 </span>
                 <span className="text-sm leading-6 text-gray-700">

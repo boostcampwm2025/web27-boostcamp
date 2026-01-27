@@ -37,7 +37,7 @@ export function HighIntentSection() {
                   key={step.title}
                   className="relative flex flex-col items-center rounded-2xl bg-white p-6 text-center shadow-sm ring-1 ring-gray-200 transition-all hover:shadow-lg hover:ring-blue-100"
                 >
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                  <div className="mb-4 flex h-12 w-12 items-center justify-center text-blue-600">
                     <StepIcon className="h-6 w-6" />
                   </div>
                   <h3 className="text-lg font-bold text-gray-900">

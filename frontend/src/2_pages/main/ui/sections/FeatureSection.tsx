@@ -33,7 +33,7 @@ export function FeatureSection() {
                 className="group rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-[0px_18px_55px_rgba(17,24,39,0.08)]"
               >
                 <div className="flex items-start gap-4">
-                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 ring-1 ring-blue-100">
+                  <span className="flex h-12 w-12 items-center justify-center text-blue-600">
                     <StepIcon className="h-6 w-6" />
                   </span>
                   <div>

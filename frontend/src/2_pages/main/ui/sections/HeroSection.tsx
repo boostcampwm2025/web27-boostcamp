@@ -34,7 +34,7 @@ export function HeroSection() {
         <div className="relative mx-auto mt-14 hidden h-70 max-w-4xl md:block">
           <div className="absolute left-0 top-16 w-55 rounded-2xl bg-white p-4 shadow-[0px_10px_30px_rgba(17,24,39,0.08)]">
             <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+              <div className="flex h-10 w-10 items-center justify-center text-blue-600">
                 <Icon.Pen className="h-5 w-5" />
               </div>
               <div className="text-left">
