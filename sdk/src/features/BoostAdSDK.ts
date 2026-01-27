@@ -74,11 +74,10 @@ export class BoostAdSDK {
         isHighIntent
       );
 
-      // 광고 후보가 없는 경우 처리
+      // 광고 후보가 없는 경우 처리 (아무것도 표시하지 않음)
       if (!data || !data.data || !data.data.campaign) {
         console.warn('[BoostAD SDK] 표시할 광고가 없습니다.');
-        container.innerHTML =
-          '<div style="color: #999; font-size: 14px; padding: 20px; text-align: center;">표시할 광고가 없습니다</div>';
+        container.remove(); // 컨테이너 자체를 제거
         return;
       }
 
@@ -92,8 +91,7 @@ export class BoostAdSDK {
       );
     } catch (error) {
       console.error('[BoostAD SDK] 광고 로드 실패:', error);
-      container.innerHTML =
-        '<div style="color: #999; font-size: 14px; padding: 20px; text-align: center;">광고를 불러올 수 없습니다</div>';
+      container.remove(); // 에러 시에도 컨테이너 제거
     }
   }
 
@@ -164,24 +162,55 @@ export class BoostAdSDK {
   }
 
   private isPostPage(): boolean {
+    const pathname = window.location.pathname;
     const tistory = window.tistory;
 
-    // Tistory 블로그인 경우
-    if (tistory) {
+    // Tistory 블로그인 경우 - tistory.type 우선 확인
+    if (tistory && tistory.type) {
       return tistory.type === 'post';
     }
 
-    // 일반 웹페이지인 경우: 제외 목록만 체크
-    const pathname = window.location.pathname;
+    // Tistory 블로그지만 tistory.type이 없는 경우 - URL 기반 판별
+    const isTistoryDomain = window.location.hostname.includes('tistory.com');
 
+    if (isTistoryDomain) {
+      // 티스토리 제외 경로
+      const tistoryExcludePatterns = [
+        '/category',
+        '/tag',
+        '/archive',
+        '/guestbook',
+        '/notice',
+        '/search',
+        '/manage',
+        '/admin',
+      ];
+
+      // 메인 페이지 제외
+      if (pathname === '/' || pathname === '') {
+        return false;
+      }
+
+      // 제외 패턴에 해당하면 false
+      if (tistoryExcludePatterns.some((p) => pathname.startsWith(p))) {
+        return false;
+      }
+
+      // 숫자 ID (/123) 또는 /entry/ 경로는 포스트
+      const isNumericId = /^\/\d+$/.test(pathname);
+      const isEntryPath = pathname.startsWith('/entry/');
+
+      return isNumericId || isEntryPath;
+    }
+
+    // 일반 웹페이지: 제외 목록만 체크
     const excludePatterns = ['/admin', '/manage', '/login', '/signup'];
 
-    // 제외 목록에 있으면 false
     if (excludePatterns.some((p) => pathname.startsWith(p))) {
       return false;
     }
 
-    // 그 외에는 모두 콘텐츠 페이지로 간주
+    // 그 외 모든 페이지는 콘텐츠 페이지로 간주
     return true;
   }
 
