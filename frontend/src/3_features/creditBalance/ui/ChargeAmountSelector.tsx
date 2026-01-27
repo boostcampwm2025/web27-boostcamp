@@ -4,12 +4,14 @@ import { TextField } from '@shared/ui/TextField';
 import { useToast } from '@shared/lib/toast/useToast';
 import { API_CONFIG } from '@shared/lib/api';
 import { useAdvertiserBalance } from '@shared/lib/hooks/useAdvertiserBalance';
+import { formatWithComma } from '@shared/lib/format/formatCurrency';
 
 const PRESET_AMOUNTS = [10000, 30000, 50000, 100000];
 
 export function ChargeAmountSelector() {
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState('');
+  const [displayAmount, setDisplayAmount] = useState('');
   const [isCharging, setIsCharging] = useState(false);
   const { showToast } = useToast();
   const { refetch } = useAdvertiserBalance();
@@ -80,9 +82,11 @@ export function ChargeAmountSelector() {
             onClick={() => {
               setSelectedAmount(amount);
               setCustomAmount('');
+              setDisplayAmount('');
             }}
           >
-            {(amount / 10000).toLocaleString()}만원
+            <span className="mr-1">+</span>
+            {formatWithComma(amount)}원
           </Button>
         ))}
       </div>
@@ -90,15 +94,17 @@ export function ChargeAmountSelector() {
       {/* 직접 입력 */}
       <TextField
         label="직접 입력 (1,000원 단위)"
-        type="number"
-        value={customAmount}
+        type="text"
+        value={displayAmount}
         onChange={(e) => {
-          setCustomAmount(e.target.value);
-          setSelectedAmount(null);
+          const rawValue = e.target.value.replace(/,/g, '');
+          if (/^\d*$/.test(rawValue)) {
+            setCustomAmount(rawValue);
+            setDisplayAmount(rawValue ? formatWithComma(Number(rawValue)) : '');
+            setSelectedAmount(null);
+          }
         }}
         placeholder="금액 입력"
-        min="1000"
-        step="1000"
       />
 
       {/* 충전 버튼 */}
