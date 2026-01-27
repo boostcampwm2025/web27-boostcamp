@@ -6,14 +6,18 @@ import { BlogEntity } from './entities/blog.entity';
 import { UserModule } from 'src/user/user.module';
 import { BlogRepository } from './repository/blog.repository.interface';
 import { TypeOrmBlogRepository } from './repository/typeorm-blog.repository';
+import { RedisModule } from 'src/redis/redis.module';
+import { BlogRedisCacheRepository } from './repository/redis-blog.cache.repository';
+import { BlogCacheRepository } from './repository/blog.cache.repository.interface';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([BlogEntity]), UserModule],
+  imports: [TypeOrmModule.forFeature([BlogEntity]), UserModule, RedisModule],
   controllers: [BlogController],
   providers: [
     BlogService,
     { provide: BlogRepository, useClass: TypeOrmBlogRepository },
+    { provide: BlogCacheRepository, useClass: BlogRedisCacheRepository },
   ],
-  exports: [BlogRepository],
+  exports: [BlogRepository, BlogCacheRepository],
 })
 export class BlogModule {}
