@@ -1,7 +1,7 @@
 export const MAIN_NAV_ITEMS = [
-  { label: '솔루션', href: '#solution' },
-  { label: '개발자', href: '#developer' },
-  { label: '가격', href: '#pricing' },
+  { label: '솔루션', href: 'https://github.com/boostcampwm2025/web27-BoostAD' },
+  { label: '개발자', href: 'https://github.com/boostcampwm2025/web27-BoostAD' },
+  { label: '가격', href: 'https://github.com/boostcampwm2025/web27-BoostAD' },
   {
     label: '공지사항',
     href: 'https://github.com/boostcampwm2025/web27-BoostAD',
@@ -128,9 +128,9 @@ export const MAIN_LOG_ROWS = [
 
 export const MAIN_MONETIZE_POINTS = [
   '빠른 설치: 스크립트 1줄로 시작',
-  '개발자 경험: 명확한 로그와 디버깅',
-  '프라이버시 친화: 쿠키/식별자 최소화',
-  '간편 운영: 슬롯 단위로 실험/롤백',
+  '수익 극대화: 문맥 매칭으로 클릭률(CTR) 상승',
+  '자연스러운 디자인: 위화감 없이 스며드는 광고',
+  '투명한 리포트: 실시간 성과 및 수익 확인',
 ] as const;
 
 export const MAIN_FOOTER_LINK_GROUPS = [
