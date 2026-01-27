@@ -7,7 +7,7 @@ import {
   CreditHistoryType,
   CreditHistoryEntity,
 } from './entities/credit-history.entity';
-import { UserEntity } from './entities/user.entity';
+import { UserEntity, UserRole } from './entities/user.entity';
 
 @Injectable()
 export class UserService {
@@ -20,6 +20,46 @@ export class UserService {
   async handleFirstLogin(userId: number): Promise<boolean> {
     const isFirstLogin =
       await this.userRepository.setFirstLoginAtIfNull(userId);
+
+    // 첫 로그인이고 ADVERTISER인 경우에만 가입 축하 크레딧 지급
+    if (isFirstLogin) {
+      const user = await this.userRepository.getById(userId);
+
+      if (!user) {
+        throw new Error('사용자를 찾을 수 없습니다');
+      }
+
+      // ADVERTISER만 가입 축하 크레딧 지급
+      if (user.role === UserRole.ADVERTISER) {
+        const WELCOME_CREDIT = 1000000; // 1,000,000원
+
+        await this.dataSource.transaction(async (manager) => {
+          const userRepo = manager.getRepository(UserEntity);
+          const userForUpdate = await userRepo.findOne({
+            where: { id: userId },
+            lock: { mode: 'pessimistic_write' },
+          });
+
+          if (!userForUpdate) {
+            throw new Error('사용자를 찾을 수 없습니다');
+          }
+
+          const newBalance = userForUpdate.balance + WELCOME_CREDIT;
+          userForUpdate.balance = newBalance;
+          await userRepo.save(userForUpdate);
+
+          const historyRepo = manager.getRepository(CreditHistoryEntity);
+          await historyRepo.save({
+            userId,
+            type: CreditHistoryType.CHARGE,
+            amount: WELCOME_CREDIT,
+            balanceAfter: newBalance,
+            campaignId: '신규 가입 축하 크레딧', // campaignId를 설명으로 활용
+          });
+        });
+      }
+    }
+
     return isFirstLogin;
   }
 
