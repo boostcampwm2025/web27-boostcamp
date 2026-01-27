@@ -7,6 +7,8 @@ export { useSpendingLog } from './lib/useSpendingLog';
 export { CampaignDetailHeader } from './ui/CampaignDetailHeader';
 export { CampaignInfoCard } from './ui/CampaignInfoCard';
 export { CampaignMetricsCards } from './ui/CampaignMetricsCards';
+export { BudgetStatusCard } from './ui/BudgetStatusCard';
+export { SpendingLogCard } from './ui/SpendingLogCard';
 
 export type {
   CampaignStatus,

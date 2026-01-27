@@ -2,10 +2,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   useCampaignDetail,
   usePauseCampaign,
+  useUpdateBudget,
   CampaignDetailHeader,
   CampaignInfoCard,
   CampaignMetricsCards,
+  BudgetStatusCard,
+  SpendingLogCard,
 } from '@features/campaignDetail';
+import { useAdvertiserBalance } from '@shared/lib/hooks/useAdvertiserBalance';
 import { useToast } from '@shared/lib/toast';
 
 export function CampaignDetailPage() {
@@ -15,6 +19,8 @@ export function CampaignDetailPage() {
 
   const { campaign, isLoading, error, refetch } = useCampaignDetail(id || '');
   const { togglePause, isLoading: isPauseLoading } = usePauseCampaign();
+  const { updateBudget, isLoading: isUpdateBudgetLoading } = useUpdateBudget();
+  const { balance } = useAdvertiserBalance();
 
   const handleBack = () => {
     navigate('/advertiser/dashboard/campaigns');
@@ -40,6 +46,26 @@ export function CampaignDetailPage() {
   const handleEdit = () => {
     // TODO: 수정 모달 열기
     console.log('Edit campaign');
+  };
+
+  const handleChargeBudget = () => {
+    navigate('/advertiser/dashboard/budget');
+  };
+
+  const handleUpdateBudget = async (data: {
+    totalBudget: number;
+    dailyBudget: number;
+    maxCpc: number;
+  }) => {
+    if (!campaign) return;
+
+    try {
+      await updateBudget(campaign.id, data);
+      toast.showToast('예산이 수정되었습니다', 'success');
+      refetch();
+    } catch {
+      toast.showToast('예산 수정에 실패했습니다', 'error');
+    }
   };
 
   if (isLoading) {
@@ -86,8 +112,21 @@ export function CampaignDetailPage() {
         ctr={campaign.ctr}
       />
 
-      {/* TODO: Phase 3 - BudgetStatusCard */}
-      {/* TODO: Phase 4 - SpendingLogCard */}
+      <BudgetStatusCard
+        dailySpent={campaign.dailySpent}
+        dailyBudget={campaign.dailyBudget}
+        dailySpentPercent={campaign.dailySpentPercent}
+        totalSpent={campaign.totalSpent}
+        totalBudget={campaign.totalBudget}
+        totalSpentPercent={campaign.totalSpentPercent}
+        maxCpc={campaign.maxCpc}
+        balance={balance}
+        onChargeBudget={handleChargeBudget}
+        onUpdateBudget={handleUpdateBudget}
+        isUpdateLoading={isUpdateBudgetLoading}
+      />
+
+      <SpendingLogCard />
     </div>
   );
 }
