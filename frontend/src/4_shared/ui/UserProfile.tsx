@@ -19,14 +19,16 @@ export function UserProfile() {
   };
 
   return (
-    <div className="flex items-center gap-2 px-4 py-3 bg-white border-t border-gray-200">
-      <div className="w-8 h-8 shrink-0 rounded-full bg-blue-100 flex items-center justify-center">
-        <span className="text-sm font-semibold text-blue-600">
+    <div className="flex items-center gap-1.5 px-3 py-3 bg-white border-t border-gray-200">
+      <div className="w-6 h-6 shrink-0 rounded-full bg-blue-100 flex items-center justify-center">
+        <span className="text-xs font-semibold text-blue-600">
           {user.email[0].toUpperCase()}
         </span>
       </div>
-      <div className="flex flex-col min-w-0 flex-1">
-        <span className="text-sm font-medium text-gray-900 truncate">{user.email}</span>
+      <div className="flex flex-col min-w-0 flex-1 overflow-hidden">
+        <span className="text-sm font-medium text-gray-900 truncate">
+          {user.email}
+        </span>
         <span className="text-xs text-gray-500">{getRoleLabel(user.role)}</span>
       </div>
     </div>
