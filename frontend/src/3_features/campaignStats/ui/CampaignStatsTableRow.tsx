@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import type { CampaignStats } from '../lib/types';
 import { StatusBadge } from '@shared/ui/StatusBadge';
 import { ProgressBar } from '@shared/ui/ProgressBar';
@@ -9,9 +10,18 @@ interface CampaignStatsTableRowProps {
 export function CampaignStatsTableRow({
   campaign,
 }: CampaignStatsTableRowProps) {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(`/advertiser/dashboard/campaigns/${campaign.id}`);
+  };
+
   return (
-    <tr className="text-sm border-b border-gray-100">
-      <td className="px-5 py-4 text-gray-900 font-semibold">
+    <tr
+      className="text-sm border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
+      onClick={handleClick}
+    >
+      <td className="px-5 py-4 text-blue-600 font-semibold hover:underline">
         {campaign.title}
       </td>
       <td className="px-5 py-4 whitespace-nowrap">

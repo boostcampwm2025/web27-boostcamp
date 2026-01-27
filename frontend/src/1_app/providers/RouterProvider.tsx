@@ -5,6 +5,7 @@ import { AdvertiserDashboardPage } from '@pages/advertiserDashboard';
 import { AdvertiserCampaignsPage } from '@pages/advertiserCampaigns';
 import { AdvertiserBudgetPage } from '@pages/advertiserBudget';
 import { RealtimeBidsHistoryPage } from '@pages/realtimeBidsHistory';
+import { CampaignDetailPage } from '@pages/campaignDetail';
 import { NotFoundPage } from '@pages/notFound';
 import { RegisterPage } from '@pages/auth/ui/RegisterPage';
 import { LoginPage } from '@pages/auth/ui/LoginPage';
@@ -115,6 +116,7 @@ export const router = createBrowserRouter([
         children: [
           { path: 'main', element: <AdvertiserDashboardPage /> },
           { path: 'campaigns', element: <AdvertiserCampaignsPage /> },
+          { path: 'campaigns/:id', element: <CampaignDetailPage /> },
           { path: 'budget', element: <AdvertiserBudgetPage /> },
           { path: 'history', element: <RealtimeBidsHistoryPage /> },
         ],
