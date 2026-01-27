@@ -1,11 +1,6 @@
-import { Icon } from '@shared/ui/Icon';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { SecondaryButton } from '../components/SecondaryButton';
-
-const HERO_BARS = Array.from({ length: 12 }, (_, index) => ({
-  height: 12 + ((index * 7) % 22),
-  fillWidth: 40 + ((index * 19) % 60),
-}));
+import { HeroAlgorithmicMatch } from '../components/HeroAlgorithmicMatch';
 
 export function HeroSection() {
   return (
@@ -31,102 +26,7 @@ export function HeroSection() {
           </SecondaryButton>
         </div>
 
-        <div className="relative mx-auto mt-14 hidden h-70 max-w-4xl md:block">
-          <div className="absolute left-0 top-16 w-55 rounded-2xl bg-white p-4 shadow-[0px_10px_30px_rgba(17,24,39,0.08)]">
-            <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 items-center justify-center text-blue-600">
-                <Icon.Pen className="h-5 w-5" />
-              </div>
-              <div className="text-left">
-                <p className="text-sm font-semibold text-gray-900">블로그</p>
-                <p className="mt-1 text-xs leading-5 text-gray-500">
-                  React · Vite · DX
-                </p>
-              </div>
-            </div>
-            <div className="mt-4 h-2 w-full rounded-full bg-gray-100">
-              <div className="h-2 w-[62%] rounded-full bg-blue-500/70" />
-            </div>
-          </div>
-
-          <div className="absolute left-1/2 top-0 w-[520px] -translate-x-1/2 rounded-2xl border border-gray-200 bg-white p-4 shadow-[0px_18px_55px_rgba(17,24,39,0.12)]">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="h-3 w-3 rounded-full bg-red-400" />
-                <span className="h-3 w-3 rounded-full bg-yellow-400" />
-                <span className="h-3 w-3 rounded-full bg-green-400" />
-              </div>
-              <span className="text-xs font-medium text-gray-500">
-                context-match.ts
-              </span>
-            </div>
-            <pre className="mt-4 overflow-hidden rounded-xl bg-gray-900 px-4 py-4 text-left text-[12px] leading-5 text-gray-100">
-              <code>
-                <span className="text-blue-300">import</span>{' '}
-                <span className="text-gray-100">{'{'}</span>
-                <span className="text-emerald-300"> ContextMatch </span>
-                <span className="text-gray-100">{'}'}</span>{' '}
-                <span className="text-blue-300">from</span>{' '}
-                <span className="text-amber-200">'boostad'</span>
-                {'\n'}
-                {'\n'}
-                <span className="text-blue-300">const</span>{' '}
-                <span className="text-gray-100">match</span>{' '}
-                <span className="text-blue-300">=</span>{' '}
-                <span className="text-gray-100">ContextMatch</span>
-                <span className="text-gray-100">(</span>
-                <span className="text-gray-100">{'{'}</span>
-                {'\n'}
-                {'  '}
-                <span className="text-gray-100">keywords</span>
-                <span className="text-blue-300">:</span>{' '}
-                <span className="text-gray-100">[</span>
-                <span className="text-amber-200">'React'</span>
-                <span className="text-gray-100">, </span>
-                <span className="text-amber-200">'Tailwind CSS'</span>
-                <span className="text-gray-100">]</span>
-                <span className="text-gray-100">,</span>
-                {'\n'}
-                <span className="text-gray-100">{'}'}</span>
-                <span className="text-gray-100">)</span>
-                {'\n'}
-                {'\n'}
-                <span className="text-gray-100">match</span>
-                <span className="text-blue-300">.</span>
-                <span className="text-gray-100">render</span>
-                <span className="text-gray-100">(</span>
-                <span className="text-amber-200">'#ad-slot'</span>
-                <span className="text-gray-100">)</span>
-              </code>
-            </pre>
-          </div>
-
-          <div className="absolute right-0 top-20 w-[240px] rounded-2xl bg-white p-4 shadow-[0px_10px_30px_rgba(17,24,39,0.08)]">
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-semibold text-gray-900">수익 상승</p>
-              <span className="rounded-full bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-600">
-                +24%
-              </span>
-            </div>
-            <div className="mt-4 grid grid-cols-12 items-end gap-1">
-              {HERO_BARS.map((bar, index) => (
-                <div
-                  key={index}
-                  className="rounded-sm bg-blue-500/20"
-                  style={{ height: `${bar.height}px` }}
-                >
-                  <div
-                    className="h-full rounded-sm bg-blue-500/70"
-                    style={{ width: `${bar.fillWidth}%` }}
-                  />
-                </div>
-              ))}
-            </div>
-            <p className="mt-4 text-xs leading-5 text-gray-500">
-              실시간 로그를 보고 즉시 개선해요.
-            </p>
-          </div>
-        </div>
+        <HeroAlgorithmicMatch />
       </div>
     </section>
   );
