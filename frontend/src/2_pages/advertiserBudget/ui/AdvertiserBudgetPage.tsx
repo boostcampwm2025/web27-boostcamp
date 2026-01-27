@@ -1,8 +1,20 @@
+import {
+  CreditBalanceCard,
+  ChargeAmountSelector,
+} from '@features/creditBalance';
+import { CreditHistoryTable } from '@features/creditHistory';
+
 export function AdvertiserBudgetPage() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <h1 className="text-3xl font-bold p-8">예산 관리</h1>
-      <p className="px-8 text-gray-600">Mock 페이지 - 나중에 구현</p>
+    <div className="min-h-screen flex flex-col gap-4 px-8 py-8 bg-gray-50">
+      {/* 크레딧 잔액 */}
+      <CreditBalanceCard />
+
+      {/* 충전 금액 선택 */}
+      <ChargeAmountSelector />
+
+      {/* 크레딧 사용 내역 */}
+      <CreditHistoryTable />
     </div>
   );
 }

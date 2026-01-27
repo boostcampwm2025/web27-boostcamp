@@ -33,11 +33,10 @@ export class RTBController {
     // console.log(`현재 방문자의 visitorId:${visitorId}`); // todo: 제거
 
     if (!visitorId) {
-      const isProd = process.env.NODE_ENV === 'production';
       res.cookie('visitor_id', randomUUID(), {
         httpOnly: true,
-        secure: isProd,
-        sameSite: isProd ? 'none' : 'lax',
+        secure: true,
+        sameSite: 'none',
         maxAge: 1000 * 60 * 60 * 24 * 365, // 1년
         path: '/',
       });

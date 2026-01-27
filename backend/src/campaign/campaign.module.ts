@@ -7,13 +7,20 @@ import { CampaignController } from './campaign.controller';
 import { CampaignCronService } from './campaign-cron.service';
 import { CampaignEntity } from './entities/campaign.entity';
 import { TagEntity } from '../tag/entities/tag.entity';
+import { UserEntity } from '../user/entities/user.entity';
+import { CreditHistoryEntity } from '../user/entities/credit-history.entity';
 import { LogModule } from '../log/log.module';
 import { ImageModule } from '../image/image.module';
 import { UserModule } from 'src/user/user.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([CampaignEntity, TagEntity]),
+    TypeOrmModule.forFeature([
+      CampaignEntity,
+      TagEntity,
+      UserEntity,
+      CreditHistoryEntity,
+    ]),
     LogModule,
     ImageModule,
     UserModule,
