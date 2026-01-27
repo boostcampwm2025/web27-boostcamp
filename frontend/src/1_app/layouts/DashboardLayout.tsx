@@ -13,7 +13,7 @@ export function DashboardLayout() {
     <div className="flex min-h-screen">
       <Sidebar />
 
-      <main className="flex-1 bg-gray-50">
+      <main className="flex-1 bg-gray-50 ml-52">
         <Header
           title={title}
           actions={
