@@ -1,0 +1,56 @@
+import type { ComponentType, SVGProps } from 'react';
+import { Icon } from '@shared/ui/Icon';
+import { MAIN_FEATURE_STEPS } from '../../model/content';
+import type { MainFeatureStepIcon } from '../../model/content';
+
+type SvgIcon = ComponentType<SVGProps<SVGSVGElement>>;
+
+const FEATURE_ICONS = {
+  Stop2: Icon.Stop2,
+  Terminal: Icon.Terminal,
+  ClickLine: Icon.ClickLine,
+  Dollar: Icon.Dollar,
+} satisfies Record<MainFeatureStepIcon, SvgIcon>;
+
+export function FeatureSection() {
+  return (
+    <section id="solution" className="bg-white">
+      <div className="mx-auto max-w-6xl px-6 py-20">
+        <h2 className="text-center text-3xl font-extrabold tracking-[-0.03em] text-gray-900 sm:text-4xl">
+          추적을 멈추고, 매칭을 시작하세요
+        </h2>
+        <p className="mx-auto mt-4 max-w-2xl text-center text-sm leading-6 text-gray-600 sm:text-base">
+          기술 문서·개발자 블로그에 최적화된 맥락 기반 광고로 전환율과 수익을
+          함께 올려보세요.
+        </p>
+
+        <div className="mt-12 grid gap-6 md:grid-cols-2">
+          {MAIN_FEATURE_STEPS.map((step) => {
+            const StepIcon = FEATURE_ICONS[step.icon];
+
+            return (
+              <div
+                key={step.title}
+                className="group rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-[0px_18px_55px_rgba(17,24,39,0.08)]"
+              >
+                <div className="flex items-start gap-4">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 ring-1 ring-blue-100">
+                    <StepIcon className="h-6 w-6" />
+                  </span>
+                  <div>
+                    <h3 className="text-lg font-bold tracking-[-0.02em] text-gray-900">
+                      {step.title}
+                    </h3>
+                    <p className="mt-2 text-sm leading-6 text-gray-600">
+                      {step.description}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
