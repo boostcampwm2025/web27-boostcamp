@@ -35,7 +35,8 @@ export class SdkService {
 
     const dedupResult = await this.cacheRepository.acquireViewIdempotencyKey(
       postUrl,
-      visitorId
+      visitorId,
+      isHighIntent
     );
     if (dedupResult.status === 'exists') {
       return dedupResult.viewId;
@@ -45,7 +46,8 @@ export class SdkService {
       const existingViewId =
         await this.cacheRepository.getViewIdByIdempotencyKey(
           postUrl,
-          visitorId
+          visitorId,
+          isHighIntent
         );
       if (existingViewId !== null) {
         return existingViewId;
@@ -67,23 +69,18 @@ export class SdkService {
     await this.cacheRepository.setViewIdempotencyKey(
       postUrl,
       visitorId,
+      isHighIntent,
       viewId
     );
 
     return viewId;
   }
 
-  async recordClick(
-    dto: CreateClickLogDto,
-    visitorId: string
-  ): Promise<number | null> {
-    const { viewId, postUrl } = dto;
+  async recordClick(dto: CreateClickLogDto): Promise<number | null> {
+    const { viewId } = dto;
     // todo: 어뷰징 방지
 
-    const isDup = await this.cacheRepository.setClickIdempotencyKey(
-      postUrl,
-      visitorId
-    );
+    const isDup = await this.cacheRepository.setClickIdempotencyKey(viewId);
 
     if (isDup) {
       return null;

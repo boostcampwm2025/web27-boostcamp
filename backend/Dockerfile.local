@@ -1,0 +1,2 @@
+# 현재 backend는 아직 docker에 올리는 계획은 없음
+FROM node:24-slim AS deps
