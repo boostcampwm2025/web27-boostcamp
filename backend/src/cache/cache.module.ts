@@ -5,7 +5,6 @@ import { RedisCacheConfig } from 'src/config/redis.config';
 import { RedisModule } from 'src/redis/redis.module';
 import { CacheRepository } from './repository/cache.repository.interface';
 import { RedisCacheRepository } from './repository/redis-cache.repository';
-import { RedisIndexService } from './services/redis-index.service';
 
 @Module({
   imports: [
@@ -19,10 +18,7 @@ import { RedisIndexService } from './services/redis-index.service';
     }),
   ],
   controllers: [],
-  providers: [
-    { provide: CacheRepository, useClass: RedisCacheRepository },
-    RedisIndexService,
-  ],
+  providers: [{ provide: CacheRepository, useClass: RedisCacheRepository }],
   exports: [CacheRepository],
 })
 export class CacheModule {}
