@@ -2,7 +2,11 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  OnModuleInit,
+  Logger,
 } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 import { CampaignRepository } from './repository/campaign.repository.interface';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { UpdateCampaignDto } from './dto/update-campaign.dto';
@@ -18,12 +22,76 @@ import { UserRepository } from 'src/user/repository/user.repository.interface';
 import { CampaignCacheRepository } from './repository/campaign.cache.repository.interface';
 
 @Injectable()
-export class CampaignService {
+export class CampaignService implements OnModuleInit {
+  private readonly logger = new Logger(CampaignService.name);
+
   constructor(
     private readonly campaignRepository: CampaignRepository,
     private readonly userRepository: UserRepository,
-    private readonly campaignCacheRepository: CampaignCacheRepository
+    private readonly campaignCacheRepository: CampaignCacheRepository,
+    @InjectQueue('embedding-queue') private readonly embeddingQueue: Queue
   ) {}
+
+  onModuleInit() {
+    this.logger.log('🚀 Campaign 초기 로딩 시작...');
+
+    // 백그라운드 실행 (await 없음)
+    this.loadAllCampaigns().catch((error) => {
+      this.logger.error('Campaign 초기 로딩 실패:', error);
+    });
+  }
+
+  private async loadAllCampaigns(): Promise<void> {
+    try {
+      const campaigns = await this.campaignRepository.getAll();
+
+      this.logger.log(`📦 총 ${campaigns.length}개 Campaign 로딩 중...`);
+
+      let loaded = 0;
+      let embeddingQueued = 0;
+
+      for (const campaign of campaigns) {
+        // Redis에 캐싱
+        await this.campaignCacheRepository.saveCampaignCacheById(
+          campaign.id,
+          this.convertToCachedCampaignType(campaign)
+        );
+
+        loaded++;
+
+        // 임베딩 생성 큐 추가 (중복 방지)
+        await this.embeddingQueue.add(
+          'generate-campaign-embedding',
+          {
+            campaignId: campaign.id,
+            text: `${campaign.title} ${campaign.content}`,
+          },
+          {
+            jobId: `campaign-embedding-${campaign.id}`,
+            removeOnComplete: true,
+            removeOnFail: false,
+            attempts: 3,
+          }
+        );
+
+        embeddingQueued++;
+
+        // 진행 상황 로깅 (100개당 1번)
+        if (loaded % 100 === 0) {
+          this.logger.log(
+            `📊 Campaign 로딩 진행: ${loaded}/${campaigns.length}`
+          );
+        }
+      }
+
+      this.logger.log(
+        `✅ Campaign 로딩 완료: ${loaded}개, 임베딩 큐: ${embeddingQueued}개`
+      );
+    } catch (error) {
+      this.logger.error('Campaign 로딩 중 에러 발생:', error);
+      throw error;
+    }
+  }
 
   // 캠페인 생성 (태그 검증 + 날짜 유효성 체크 + 시작일 기준 상태 설정)
   async createCampaign(
