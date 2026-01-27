@@ -4,18 +4,108 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  OnModuleInit,
+  Logger,
 } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 import { randomUUID } from 'crypto';
 import { UserRole } from 'src/user/entities/user.entity';
 import { UserRepository } from 'src/user/repository/user.repository.interface';
 import { BlogRepository } from './repository/blog.repository.interface';
+import { BlogCacheRepository } from './repository/blog.cache.repository.interface';
 
 @Injectable()
-export class BlogService {
+export class BlogService implements OnModuleInit {
+  private readonly logger = new Logger(BlogService.name);
+
   constructor(
     private readonly userRepository: UserRepository,
-    private readonly blogRepository: BlogRepository
+    private readonly blogRepository: BlogRepository,
+    private readonly blogCacheRepository: BlogCacheRepository,
+    @InjectQueue('embedding-queue') private readonly embeddingQueue: Queue
   ) {}
+
+  onModuleInit() {
+    this.logger.log('🚀 Blog 초기 로딩 시작...');
+
+    // Phase 1: 즉시 로딩 (blog:exists:set)
+    this.loadBlogExistsSet()
+      .then(() => {
+        // Phase 2: 백그라운드 전체 로딩
+        this.loadAllBlogs().catch((error) => {
+          this.logger.error('Blog 초기 로딩 실패:', error);
+        });
+      })
+      .catch((error) => {
+        this.logger.error('blog:exists:set 생성 실패:', error);
+      });
+  }
+
+  private async loadBlogExistsSet(): Promise<void> {
+    const blogs = await this.blogRepository.getAll();
+
+    for (const blog of blogs) {
+      await this.blogCacheRepository.addBlogToExistsSet(blog.id);
+    }
+
+    this.logger.log(`✅ blog:exists:set 생성 완료: ${blogs.length}개`);
+  }
+
+  private async loadAllBlogs(): Promise<void> {
+    try {
+      const blogs = await this.blogRepository.getAll();
+
+      this.logger.log(`📦 총 ${blogs.length}개 Blog 로딩 중...`);
+
+      let loaded = 0;
+      let embeddingQueued = 0;
+
+      for (const blog of blogs) {
+        // Redis에 캐싱
+        await this.blogCacheRepository.saveBlogCacheById(blog.id, {
+          id: blog.id,
+          userId: blog.userId,
+          domain: blog.domain,
+          name: blog.name,
+          blogKey: blog.blogKey,
+          verified: blog.verified,
+          createdAt: blog.createdAt.toISOString(),
+        });
+
+        loaded++;
+
+        // 임베딩 생성 큐 추가
+        await this.embeddingQueue.add(
+          'generate-blog-embedding',
+          {
+            blogId: blog.id,
+            text: `${blog.name} ${blog.domain}`,
+          },
+          {
+            jobId: `blog-embedding-${blog.id}`,
+            removeOnComplete: true,
+            removeOnFail: false,
+            attempts: 3,
+          }
+        );
+
+        embeddingQueued++;
+
+        if (loaded % 100 === 0) {
+          this.logger.log(`📊 Blog 로딩 진행: ${loaded}/${blogs.length}`);
+        }
+      }
+
+      this.logger.log(
+        `✅ Blog 로딩 완료: ${loaded}개, 임베딩 큐: ${embeddingQueued}개`
+      );
+    } catch (error) {
+      this.logger.error('Blog 로딩 중 에러 발생:', error);
+      throw error;
+    }
+  }
+
   async createBlog(payload: {
     blogName: string;
     blogUrl: string;
