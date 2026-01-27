@@ -101,7 +101,7 @@ export class UserService {
         amount,
         balanceAfter: newBalance,
         campaignId: null,
-        description: '수동 충전',
+        description: '크레딧 충전',
       });
 
       return {
