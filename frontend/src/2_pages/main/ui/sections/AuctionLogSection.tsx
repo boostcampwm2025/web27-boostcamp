@@ -1,4 +1,3 @@
-import { Icon } from '@shared/ui/Icon';
 import { MAIN_LOG_ROWS } from '../../model/content';
 
 export function AuctionLogSection() {

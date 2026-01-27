@@ -4,7 +4,7 @@ import { MAIN_NAV_ITEMS } from '../../model/content';
 
 export function MainHeader() {
   return (
-    <header className="sticky top-0 z-20 border-b border-gray-200 bg-white/80 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/80 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <Link to="/main" className="flex items-center gap-3">
           <span className="flex h-9 w-9 items-center justify-center text-blue-600">
