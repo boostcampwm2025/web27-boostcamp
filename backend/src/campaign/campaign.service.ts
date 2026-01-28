@@ -246,7 +246,7 @@ export class CampaignService {
       newStatus = this.determineInitialStatus(dto.startDate);
     }
 
-    // TODO: 업데이트 시 DB 먼저 할지 고려 필요
+    // TODO: 업데이트 시 Redis먼저가 맞는 거 같음 -> 빨리 status를 Pending으로 변경해야함 -> redis-> db에서 업데이트 이후에 pending다시 해제
     const updatedCampaign = await this.campaignRepository.update(
       campaignId,
       dto,
