@@ -64,7 +64,8 @@ export class TypeOrmBidLogRepository extends BidLogRepository {
     sortBy: 'createdAt' = 'createdAt',
     order: 'asc' | 'desc' = 'desc',
     startDate?: string,
-    endDate?: string
+    endDate?: string,
+    campaignIds?: string[]
   ): Promise<BidLog[]> {
     // DB 레벨에서 JOIN, 필터링, 정렬, 페이지네이션을 한 번에 처리
     // 외래키 제약조건이 제거되었으므로 명시적인 JOIN 조건 사용
@@ -72,6 +73,12 @@ export class TypeOrmBidLogRepository extends BidLogRepository {
       .createQueryBuilder('bidLog')
       .innerJoin('Campaign', 'campaign', 'bidLog.campaign_id = campaign.id')
       .where('campaign.userId = :userId', { userId });
+
+    if (campaignIds && campaignIds.length > 0) {
+      queryBuilder.andWhere('bidLog.campaign_id IN (:...campaignIds)', {
+        campaignIds,
+      });
+    }
 
     if (startDate) {
       queryBuilder.andWhere('bidLog.createdAt >= :startDate', {
@@ -96,12 +103,19 @@ export class TypeOrmBidLogRepository extends BidLogRepository {
   async countByUserId(
     userId: number,
     startDate?: string,
-    endDate?: string
+    endDate?: string,
+    campaignIds?: string[]
   ): Promise<number> {
     const queryBuilder = this.repository
       .createQueryBuilder('bidLog')
       .innerJoin('Campaign', 'campaign', 'bidLog.campaign_id = campaign.id')
       .where('campaign.userId = :userId', { userId });
+
+    if (campaignIds && campaignIds.length > 0) {
+      queryBuilder.andWhere('bidLog.campaign_id IN (:...campaignIds)', {
+        campaignIds,
+      });
+    }
 
     if (startDate) {
       queryBuilder.andWhere('bidLog.createdAt >= :startDate', {

@@ -5,9 +5,11 @@ import { AdvertiserDashboardPage } from '@pages/advertiserDashboard';
 import { AdvertiserCampaignsPage } from '@pages/advertiserCampaigns';
 import { AdvertiserBudgetPage } from '@pages/advertiserBudget';
 import { RealtimeBidsHistoryPage } from '@pages/realtimeBidsHistory';
+import { CampaignDetailPage } from '@pages/campaignDetail';
 import { NotFoundPage } from '@pages/notFound';
 import { RegisterPage } from '@pages/auth/ui/RegisterPage';
 import { LoginPage } from '@pages/auth/ui/LoginPage';
+import { PaymentSuccessPage, PaymentFailPage } from '@pages/payment';
 // import { PublisherDashboardPage } from '@pages/publisherDashboard';
 import { PublisherEarningsPage } from '@pages/publisherEarnings';
 import { PublisherSettingsPage } from '@pages/publisherSettings';
@@ -122,11 +124,22 @@ export const router = createBrowserRouter([
         children: [
           { path: 'main', element: <AdvertiserDashboardPage /> },
           { path: 'campaigns', element: <AdvertiserCampaignsPage /> },
+          { path: 'campaigns/:id', element: <CampaignDetailPage /> },
           { path: 'budget', element: <AdvertiserBudgetPage /> },
           { path: 'history', element: <RealtimeBidsHistoryPage /> },
         ],
       },
     ],
+  },
+
+  // 4. 결제 (Payment) 페이지 - 토스 리다이렉트 처리
+  {
+    path: '/payment/success',
+    element: <PaymentSuccessPage />,
+  },
+  {
+    path: '/payment/fail',
+    element: <PaymentFailPage />,
   },
 
   { path: '*', element: <NotFoundPage /> },

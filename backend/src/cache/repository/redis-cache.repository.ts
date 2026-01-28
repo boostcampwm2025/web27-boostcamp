@@ -1,18 +1,15 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import type { Cache } from 'cache-manager';
 import { AuctionData } from '../types/auction-data.type';
 import { CacheRepository } from './cache.repository.interface';
 import { StoredOAuthState } from '../../auth/auth.service';
 import crypto from 'crypto';
-import { REDIS_CLIENT } from 'src/redis/redis.constant';
-import type { AppRedisClient } from 'src/redis/redis.type';
+import { IOREDIS_CLIENT } from 'src/redis/redis.constant';
+import type { AppIORedisClient } from 'src/redis/redis.type';
 
 @Injectable()
 export class RedisCacheRepository extends CacheRepository {
   constructor(
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
-    @Inject(REDIS_CLIENT) private readonly redisClient: AppRedisClient
+    @Inject(IOREDIS_CLIENT) private readonly redis: AppIORedisClient
   ) {
     super();
   }
@@ -24,18 +21,21 @@ export class RedisCacheRepository extends CacheRepository {
     ttl: number = 24 * 60 * 60 * 1000 // TTL: 24시간 (밀리초 단위)
   ): Promise<void> {
     const key = this.getAuctionKey(auctionId);
-    await this.cacheManager.set(key, auctionData, ttl);
+    const value = JSON.stringify(auctionData);
+    const ttlSeconds = Math.floor(ttl / 1000);
+    await this.redis.setex(key, ttlSeconds, value);
   }
 
   async getAuctionData(auctionId: string): Promise<AuctionData | undefined> {
     const key = this.getAuctionKey(auctionId);
-    const data = await this.cacheManager.get<AuctionData>(key);
-    return data;
+    const value = await this.redis.get(key);
+    if (!value) return undefined;
+    return JSON.parse(value) as AuctionData;
   }
 
   async deleteAuctionData(auctionId: string): Promise<void> {
     const key = this.getAuctionKey(auctionId);
-    await this.cacheManager.del(key);
+    await this.redis.del(key);
   }
 
   // OAuth State 관련 메서드
@@ -45,18 +45,21 @@ export class RedisCacheRepository extends CacheRepository {
     ttl: number
   ): Promise<void> {
     const key = this.getOAuthStateKey(state);
-    await this.cacheManager.set(key, data, ttl);
+    const value = JSON.stringify(data);
+    const ttlSeconds = Math.floor(ttl / 1000);
+    await this.redis.setex(key, ttlSeconds, value);
   }
 
   async getOAuthState(state: string): Promise<StoredOAuthState | undefined> {
     const key = this.getOAuthStateKey(state);
-    const data = await this.cacheManager.get<StoredOAuthState>(key);
-    return data;
+    const value = await this.redis.get(key);
+    if (!value) return undefined;
+    return JSON.parse(value) as StoredOAuthState;
   }
 
   async deleteOAuthState(state: string): Promise<void> {
     const key = this.getOAuthStateKey(state);
-    await this.cacheManager.del(key);
+    await this.redis.del(key);
   }
 
   async setViewIdempotencyKey(
@@ -69,9 +72,7 @@ export class RedisCacheRepository extends CacheRepository {
     const hashedUrl = this.hashUrl(postUrl);
     const intent = isHighIntent ? 'high' : 'normal';
     const key = `dedup:view:${intent}:post:${hashedUrl}:visitor:${visitorId}`;
-    await this.redisClient.set(key, viewId, {
-      expiration: { type: 'PX', value: ttlMs },
-    });
+    await this.redis.set(key, String(viewId), 'PX', ttlMs);
   }
 
   async acquireViewIdempotencyKey(
@@ -88,16 +89,14 @@ export class RedisCacheRepository extends CacheRepository {
     const intent = isHighIntent ? 'high' : 'normal';
     const key = `dedup:view:${intent}:post:${hashedUrl}:visitor:${visitorId}`;
 
-    const result = await this.redisClient.set(key, 'LOCK', {
-      expiration: { type: 'PX', value: ttlMs },
-      condition: 'NX',
-    });
+    // SET key "LOCK" PX ttlMs NX
+    const result = await this.redis.set(key, 'LOCK', 'PX', ttlMs, 'NX');
 
     if (result === 'OK') {
       return { status: 'acquired' };
     }
 
-    const existingValue = await this.redisClient.get(key);
+    const existingValue = await this.redis.get(key);
     if (!existingValue) return { status: 'locked' };
 
     const existingViewId = Number(existingValue);
@@ -115,7 +114,7 @@ export class RedisCacheRepository extends CacheRepository {
     const intent = isHighIntent ? 'high' : 'normal';
     const key = `dedup:view:${intent}:post:${hashedUrl}:visitor:${visitorId}`;
 
-    const value = await this.redisClient.get(key);
+    const value = await this.redis.get(key);
     if (!value) return null;
 
     const viewId = Number(value);
@@ -131,19 +130,17 @@ export class RedisCacheRepository extends CacheRepository {
   ): Promise<boolean> {
     const key = `dedup:click:view:${viewId}`;
 
-    const result = await this.redisClient.set(key, 1, {
-      expiration: { type: 'PX', value: ttlMs },
-      condition: 'NX',
-    });
+    // SET key "1" PX ttlMs NX
+    const result = await this.redis.set(key, '1', 'PX', ttlMs, 'NX');
 
     if (result === 'OK') {
-      return false;
+      return false; // 최초 설정
     }
 
-    const existingValue = await this.redisClient.get(key);
+    const existingValue = await this.redis.get(key);
     if (!existingValue) return false;
 
-    return true;
+    return true; // 이미 존재
   }
 
   private getAuctionKey(auctionId: string): string {

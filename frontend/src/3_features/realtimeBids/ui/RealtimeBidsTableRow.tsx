@@ -37,10 +37,10 @@ export function RealtimeBidsTableRow({ bid }: RealtimeBidsTableRowProps) {
     <tr
       className={`text-sm border-b border-gray-100 ${bid.isWon ? 'bg-green-100/30' : ''}`}
     >
-      <td className="px-5 py-4 text-gray-900 whitespace-nowrap">
+      <td className="px-5 py-4 text-gray-900 whitespace-nowrap w-40">
         {formatDateTime(bid.createdAt)}
       </td>
-      <td className="px-5 py-4 text-gray-900 font-semibold max-w-[200px]">
+      <td className="px-5 py-4 text-gray-900 font-semibold max-w-50">
         <div className="line-clamp-2">{bid.campaignTitle}</div>
       </td>
       <td className="px-5 py-4">

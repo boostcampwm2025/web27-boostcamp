@@ -33,13 +33,15 @@ export abstract class BidLogRepository {
     sortBy?: 'createdAt',
     order?: 'asc' | 'desc',
     startDate?: string,
-    endDate?: string
+    endDate?: string,
+    campaignIds?: string[]
   ): Promise<BidLog[]>;
 
   // userId에 해당하는 캠페인의 입찰 로그 총 개수 조회 (기간 필터 포함)
   abstract countByUserId(
     userId: number,
     startDate?: string,
-    endDate?: string
+    endDate?: string,
+    campaignIds?: string[]
   ): Promise<number>;
 }

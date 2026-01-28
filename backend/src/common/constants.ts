@@ -124,6 +124,16 @@ export const AVAILABLE_TAGS: Tag[] = [
   { id: 100, name: 'Electron' },
   { id: 101, name: 'Tauri' },
 
+  // 네부캠
+  { id: 116, name: '게임' },
+  { id: 117, name: '학습도구' },
+  { id: 118, name: '실시간 협업' },
+  { id: 119, name: '기록/CS' },
+  { id: 120, name: '시뮬레이터' },
+  { id: 121, name: '메타버스' },
+  { id: 122, name: '확장프로그램' },
+  { id: 123, name: '소셜' },
+
   // AI & Machine Learning
   { id: 102, name: 'AI' },
   { id: 103, name: 'Machine Learning' },
