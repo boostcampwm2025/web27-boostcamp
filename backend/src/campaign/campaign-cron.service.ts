@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { ConfigService } from '@nestjs/config';
 import { CampaignRepository } from './repository/campaign.repository.interface';
 import { CampaignStatus } from './entities/campaign.entity';
 import { ImageService } from '../image/image.service';
@@ -7,11 +8,15 @@ import { ImageService } from '../image/image.service';
 @Injectable()
 export class CampaignCronService {
   private readonly logger = new Logger(CampaignCronService.name);
+  private readonly isProduction: boolean;
 
   constructor(
     private readonly campaignRepository: CampaignRepository,
-    private readonly imageService: ImageService
-  ) {}
+    private readonly imageService: ImageService,
+    private readonly configService: ConfigService
+  ) {
+    this.isProduction = this.configService.get('NODE_ENV') === 'production';
+  }
 
   // 매일 자정(00:00)에 상태 자동 업데이트
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
@@ -144,6 +149,12 @@ export class CampaignCronService {
 
   // 고아 이미지 정리: DB에 없는 이미지 삭제
   async cleanupOrphanImages(): Promise<number> {
+    // 개발 환경에서는 이미지 삭제 로직 스킵
+    if (!this.isProduction) {
+      this.logger.log('개발 환경에서는 고아 이미지 정리를 수행하지 않습니다');
+      return 0;
+    }
+
     this.logger.log('고아 이미지 정리 시작');
 
     try {

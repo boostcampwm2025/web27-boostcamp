@@ -19,7 +19,7 @@ import { CampaignRepository } from '../campaign/repository/campaign.repository.i
 export class RTBService {
   private readonly logger = new Logger(RTBService.name);
   private readonly FALLBACK_CAMPAIGN_ID =
-    '54e92912-e23d-471f-b700-81caf834da51';
+    'c1dda7a5-da58-416b-b8fa-20ba8f5535f9';
 
   constructor(
     private readonly matcher: Matcher,
@@ -77,10 +77,7 @@ export class RTBService {
       let candidates: Candidate[] =
         await this.matcher.findCandidatesByTags(context);
 
-      // 2. 캠페인 상태 검증 (ACTIVE + 날짜 범위 + 삭제되지 않음)
-      candidates = this.filterEligibleCampaigns(candidates);
-
-      // 3. 고의도 필터링 (isHighIntent에 따라 광고 분리)
+      // 2. 고의도 필터링 (isHighIntent에 따라 광고 분리)
       if (context.isHighIntent) {
         // 고의도 요청: is_high_intent=true 광고만
         candidates = candidates.filter((c) => c.campaign.isHighIntent === true);
@@ -90,6 +87,10 @@ export class RTBService {
           (c) => c.campaign.isHighIntent === false
         );
       }
+
+      // 3. 캠페인 상태 검증 (ACTIVE + 날짜 범위 + 삭제되지 않음)
+      // todo: active 캠페인들을 redis에 들고있기?
+      candidates = this.filterEligibleCampaigns(candidates);
 
       // 후보가 없으면 fallback 캠페인 조회
       if (candidates.length === 0) {

@@ -21,12 +21,14 @@ export class BidLogService {
     limit: number,
     offset: number,
     startDate?: string,
-    endDate?: string
+    endDate?: string,
+    campaignIds?: string[]
   ): Promise<BidLogDataDto> {
     const total = await this.bidLogRepository.countByUserId(
       userId,
       startDate,
-      endDate
+      endDate,
+      campaignIds
     );
 
     const bidLogs = await this.bidLogRepository.findByUserId(
@@ -36,7 +38,8 @@ export class BidLogService {
       'createdAt',
       'desc',
       startDate,
-      endDate
+      endDate,
+      campaignIds
     );
 
     // TODO(후순위): 쿼리 최적화 필요

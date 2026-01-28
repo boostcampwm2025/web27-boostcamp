@@ -9,12 +9,13 @@ import {
   Min,
   IsOptional,
   IsIn,
+  IsBoolean,
 } from 'class-validator';
 
 export class UpdateCampaignDto {
   @IsOptional()
   @IsString()
-  @MaxLength(20, { message: '제목은 최대 20자까지 입력 가능합니다.' })
+  @MaxLength(30, { message: '제목은 최대 30자까지 입력 가능합니다.' })
   title?: string;
 
   @IsOptional()
@@ -34,6 +35,10 @@ export class UpdateCampaignDto {
   @IsArray()
   @IsString({ each: true })
   tags?: string[];
+
+  @IsOptional()
+  @IsBoolean({ message: '고의도 학습자 여부는 boolean이어야 합니다.' })
+  isHighIntent?: boolean;
 
   @IsOptional()
   @Type(() => Number)

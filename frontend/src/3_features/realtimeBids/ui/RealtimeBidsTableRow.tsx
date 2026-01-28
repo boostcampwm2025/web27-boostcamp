@@ -6,12 +6,15 @@ interface RealtimeBidsTableRowProps {
 }
 
 export function RealtimeBidsTableRow({ bid }: RealtimeBidsTableRowProps) {
-  // 시간 포맷팅 (HH:mm)
-  const formatTime = (timestamp: string) => {
+  // 날짜/시간 포맷팅 (YYYY.MM.DD HH:mm)
+  const formatDateTime = (timestamp: string) => {
     const date = new Date(timestamp);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${hours}:${minutes}`;
+    return `${year}.${month}.${day} ${hours}:${minutes}`;
   };
 
   // 금액 천 단위 콤마
@@ -19,17 +22,28 @@ export function RealtimeBidsTableRow({ bid }: RealtimeBidsTableRowProps) {
     return `${amount.toLocaleString()}원`;
   };
 
+  // URL에서 도메인명만 추출
+  const extractDomain = (url: string) => {
+    try {
+      const fullUrl = url.startsWith('http') ? url : `https://${url}`;
+      const urlObj = new URL(fullUrl);
+      return urlObj.hostname;
+    } catch {
+      return url;
+    }
+  };
+
   return (
     <tr
       className={`text-sm border-b border-gray-100 ${bid.isWon ? 'bg-green-100/30' : ''}`}
     >
-      <td className="px-5 py-4 text-gray-900 whitespace-nowrap">
-        {formatTime(bid.createdAt)}
+      <td className="px-5 py-4 text-gray-900 whitespace-nowrap w-40">
+        {formatDateTime(bid.createdAt)}
       </td>
-      <td className="px-5 py-4 text-gray-900 font-semibold">
-        {bid.campaignTitle}
+      <td className="px-5 py-4 text-gray-900 font-semibold max-w-50">
+        <div className="line-clamp-2">{bid.campaignTitle}</div>
       </td>
-      <td className="px-5 py-4 whitespace-nowrap">
+      <td className="px-5 py-4">
         {bid.postUrl ? (
           <a
             href={
@@ -40,10 +54,9 @@ export function RealtimeBidsTableRow({ bid }: RealtimeBidsTableRowProps) {
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer text-xs"
+            title={bid.postUrl}
           >
-            {bid.postUrl.length > 50
-              ? `${bid.postUrl.substring(0, 50)}...`
-              : bid.postUrl}
+            {extractDomain(bid.postUrl)}
           </a>
         ) : (
           <span className="text-gray-500 text-xs">{bid.blogName}</span>

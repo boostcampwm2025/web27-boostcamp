@@ -19,6 +19,8 @@ import { BlogModule } from './blog/blog.module';
 import { ImageModule } from './image/image.module';
 import { RedisModule } from './redis/redis.module';
 import { QueueModule } from './queue/queue.module';
+import { PaymentModule } from './payment/payment.module';
+// import { QueueModule } from './queue/queue.module';
 
 @Module({
   imports: [
@@ -51,6 +53,8 @@ import { QueueModule } from './queue/queue.module';
     ImageModule,
     RedisModule,
     QueueModule,
+    PaymentModule,
+    // QueueModule,
   ],
   controllers: [],
   providers: [

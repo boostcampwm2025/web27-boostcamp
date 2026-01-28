@@ -1,6 +1,7 @@
 import type { Tag, CampaignCategory } from './types';
 
 export const CAMPAIGN_CATEGORIES: CampaignCategory[] = [
+  '네부캠',
   '언어',
   'FE',
   'BE',
@@ -102,6 +103,16 @@ export const AVAILABLE_TAGS: Tag[] = [
   { id: 99, name: 'Flutter', category: '모바일' },
   { id: 100, name: 'Electron', category: '모바일' },
   { id: 101, name: 'Tauri', category: '모바일' },
+
+  // 네부캠
+  { id: 116, name: '게임', category: '네부캠' },
+  { id: 117, name: '학습도구', category: '네부캠' },
+  { id: 118, name: '실시간 협업', category: '네부캠' },
+  { id: 119, name: '기록/CS', category: '네부캠' },
+  { id: 120, name: '시뮬레이터', category: '네부캠' },
+  { id: 121, name: '메타버스', category: '네부캠' },
+  { id: 122, name: '확장프로그램', category: '네부캠' },
+  { id: 123, name: '소셜', category: '네부캠' },
 
   // 기타
   { id: 63, name: 'Git', category: '기타' },

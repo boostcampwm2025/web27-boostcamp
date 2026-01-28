@@ -1,4 +1,5 @@
 import { TextField } from '@shared/ui/TextField';
+import { TextArea } from '@shared/ui/TextArea';
 import { ContentHeader } from './ContentHeader';
 import { ImageUpload } from './ImageUpload';
 import { KeywordSelector } from './KeywordSelector';
@@ -38,7 +39,7 @@ export function Step1Content({ onImageUpload }: Step1ContentProps) {
     updateCampaignContent({ title: e.target.value });
   };
 
-  const handleContentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     updateCampaignContent({ content: e.target.value });
   };
 
@@ -111,13 +112,14 @@ export function Step1Content({ onImageUpload }: Step1ContentProps) {
         onBlur={handleTitleBlur}
         error={errors.campaignContent?.title}
       />
-      <TextField
+      <TextArea
         label="광고 내용"
         placeholder="Next로 프론트를 배워보고 싶다면 꼭 들어보세요!"
         value={content}
         onChange={handleContentChange}
         onBlur={handleContentBlur}
         error={errors.campaignContent?.content}
+        maxLength={70}
       />
       <TextField
         label="광고 URL"

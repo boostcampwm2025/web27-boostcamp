@@ -11,9 +11,31 @@ import type { CachedCampaign } from '../../campaign/types/campaign.types';
 export class TransformerMatcher extends Matcher {
   private readonly logger = new Logger(TransformerMatcher.name);
 
-  // Vector Search 파라미터
-  // private readonly TOP_K = 10; // 상위 10개 캠페인 검색
-  private readonly INDEX_NAME = 'idx:campaign';
+  // 최종 매칭 점수(0~1) 임계값
+  private readonly SIMILARITY_THRESHOLD = 0.4;
+
+  /**
+   * 고도화된 스코어링(요청 텍스트 vs 캠페인 태그별 유사도 집계)
+   *
+   * - 기존: (캠페인 태그들을 join한 1문장) vs (요청 태그 join 1문장) 단일 비교
+   * - 개선: 캠페인의 "각 태그"를 요청 텍스트와 각각 비교한 뒤, top-k + coverage + exact 보너스로 점수 산정
+   *
+   * 이유:
+   * - 캠페인 태그가 많아질수록 join 문장은 노이즈가 섞여 유사도가 희석될 수 있음
+   * - tag-wise 비교는 "정말 가까운 태그"가 점수에 더 직접 반영됨
+   */
+  private readonly TOP_K = 3;
+  private readonly TOP_K_WEIGHTS = [0.5, 0.3, 0.2] as const;
+  private readonly COVERAGE_THRESHOLD = 0.45;
+  private readonly COVERAGE_SATURATION = 2; // 2개 이상 임계치 넘으면 coverage는 1로 포화
+  private readonly FINAL_WEIGHTS = {
+    top: 0.7,
+    coverage: 0.25,
+    exact: 0.05,
+  } as const;
+
+  // 임베딩은 계산 비용이 높아서(모델 호출), 태그 문자열 기준으로 간단 캐싱합니다.
+  private readonly embeddingCache = new Map<string, number[]>();
 
   constructor(
     private readonly campaignCacheRepository: CampaignCacheRepository,
@@ -33,15 +55,32 @@ export class TransformerMatcher extends Matcher {
       return [];
     }
 
+    const requestText = this.buildRequestText(context.tags);
+    const requestNorm = this.normalizeText(requestText);
+    const requestTokens = new Set(this.tokenizeText(requestText));
+    const allCampaigns = await this.campaignRepo.getAll();
+
+    let requestEmbedding: number[];
     try {
-      // 1. 요청 태그를 텍스트로 변환
-      const requestText = this.buildRequestText(context.tags);
+      // 요청 임베딩은 모든 캠페인 비교에서 공통으로 사용되므로 한 번만 계산합니다.
+      requestEmbedding = await this.mlEngine.getEmbedding(requestText);
+    } catch (error) {
+      this.logger.warn('요청 태그 임베딩 생성에 실패했습니다.', error as Error);
+      return [];
+    }
 
-      // 2. 요청 텍스트의 임베딩 생성
-      const queryEmbedding = await this.mlEngine.getEmbedding(requestText);
-
-      // 3. Redis Vector Search 수행
-      const searchResults = await this.vectorSearch(queryEmbedding);
+    // 모든 캠페인과 스코어 계산 (0~1)
+    const withSimilarity = await Promise.all(
+      allCampaigns.map(async (campaign) => ({
+        campaign,
+        similarity: await this.scoreCampaignByTags(
+          requestEmbedding,
+          requestNorm,
+          requestTokens,
+          campaign
+        ),
+      }))
+    );
 
       // 4. 검색 결과를 Candidate 형식으로 변환
       const candidates = searchResults.map((result) => ({
@@ -58,44 +97,6 @@ export class TransformerMatcher extends Matcher {
     }
   }
 
-  /**
-   * Redis FT.SEARCH를 사용한 유사도 기반 Vector 유사도 검색
-   */
-  private async vectorSearch(
-    queryEmbedding: number[],
-    distanceThreshold: number = 0.6 // COSINE distance 기준 (0.6 = 1- 유사도 0.4)
-  ): Promise<Array<{ campaign: CachedCampaign; score: number }>> {
-    try {
-      const embeddingBlob = Buffer.from(
-        new Float32Array(queryEmbedding).buffer
-      );
-
-      const result = (await this.ioredisClient.call(
-        'FT.SEARCH',
-        this.INDEX_NAME,
-        // Vector Range Query: distance threshold 이내의 모든 결과
-        `@status:{ACTIVE} @embedding:[VECTOR_RANGE ${distanceThreshold} $query_vec]=>{$YIELD_DISTANCE_AS: __embedding_score}`,
-        'PARAMS',
-        '2',
-        'query_vec',
-        embeddingBlob,
-        'SORTBY',
-        '__embedding_score',
-        'ASC', // 거리 오름차순 정렬
-        'RETURN',
-        '2',
-        '$',
-        '__embedding_score',
-        'DIALECT',
-        '2'
-      )) as unknown[];
-
-      return this.parseSearchResults(result);
-    } catch (error) {
-      this.logger.error('FT.SEARCH 실행 실패:', error);
-      return [];
-    }
-  }
 
   /**
    * FT.SEARCH 결과 파싱
@@ -171,46 +172,150 @@ export class TransformerMatcher extends Matcher {
     return tags.join(' ');
   }
 
-  // ============== 보류 ================
+  private normalizeText(text: string): string {
+    return text.toLowerCase().replace(/\s+/g, ' ').trim();
+  }
+
+  // 텍스트를 비교용 토큰으로 분해합니다 (camelCase/구분자 분리 + sql 접미어 분해).
+  // 예) "mongoDb" -> ["mongo","db"], "postgresSql" -> ["postgres","sql"], "mysql" -> ["my","sql"]
+  private tokenizeText(text: string): string[] {
+    const normalized = this.normalizeText(
+      text.replace(/([a-z0-9])([A-Z])/g, '$1 $2').replace(/[_\-/]+/g, ' ')
+    );
+
+    const tokens: string[] = [];
+    for (const raw of normalized.split(' ')) {
+      const t = raw.trim();
+      if (!t) continue;
+
+      if (t.length > 3 && t.endsWith('sql')) {
+        const base = t.slice(0, -3);
+        if (base) tokens.push(base);
+        tokens.push('sql');
+      } else {
+        tokens.push(t);
+      }
+    }
+    return tokens;
+  }
+
+  private hasTokenOverlap(a: Set<string>, b: Set<string>): boolean {
+    for (const t of a) {
+      if (b.has(t)) return true;
+    }
+    return false;
+  }
+
+  private clamp01(n: number): number {
+    if (Number.isNaN(n)) return 0;
+    return Math.max(0, Math.min(1, n));
+  }
+
+  private async getEmbeddingCached(text: string): Promise<number[]> {
+    const key = this.normalizeText(text);
+    const cached = this.embeddingCache.get(key);
+    if (cached) return cached;
+
+    const embedding = await this.mlEngine.getEmbedding(text);
+    this.embeddingCache.set(key, embedding);
+    return embedding;
+  }
+
   /**
-   * Redis FT.SEARCH를 사용한 KNN기반 Vector 유사도 검색
+   * 캠페인 점수 계산
+   *
+   * 1) 캠페인 태그 각각과 요청 텍스트의 유사도(s_i) 산출
+   * 2) top-k(기본 3개) 유사도에 가중치 부여하여 S_top 계산
+   * 3) 임계치(기본 0.45) 이상인 태그 개수로 coverage(S_cov) 계산
+   * 4) exact match(문자열 기반) 보너스(S_exact) 적용
+   * 5) 최종 Score = 0.70*S_top + 0.25*S_cov + 0.05*S_exact
    */
-  // private async vectorSearch(
-  //   queryEmbedding: number[]
-  // ): Promise<Array<{ campaign: CachedCampaign; score: number }>> {
-  //   try {
-  //     // FT.SEARCH 명령어 구성
-  //     const embeddingBlob = Buffer.from(
-  //       new Float32Array(queryEmbedding).buffer
-  //     );
+  private async scoreCampaignByTags(
+    requestEmbedding: number[],
+    requestNorm: string,
+    requestTokens: Set<string>,
+    campaign: CampaignWithTags
+  ): Promise<number> {
+    const tagNames = (campaign.tags ?? [])
+      .map((t) => (t?.name ?? '').trim())
+      .filter(Boolean);
 
-  //     const result = (await this.ioredisClient.call(
-  //       'FT.SEARCH',
-  //       this.INDEX_NAME,
-  //       // KNN 벡터 검색 쿼리: status가 ACTIVE이고 embedding 유사도 상위 K개
-  //       `@status:{ACTIVE} => [KNN ${this.TOP_K} @embedding $query_vec AS __embedding_score]`,
-  //       'PARAMS',
-  //       '2',
-  //       'query_vec',
-  //       embeddingBlob,
-  //       'SORTBY',
-  //       '__embedding_score',
-  //       'LIMIT',
-  //       '0',
-  //       this.TOP_K.toString(),
-  //       'RETURN',
-  //       '2',
-  //       '$',
-  //       '__embedding_score',
-  //       'DIALECT',
-  //       '2'
-  //     )) as unknown[];
+    if (tagNames.length === 0) {
+      return 0;
+    }
 
-  //     // 결과 파싱
-  //     return this.parseSearchResults(result);
-  //   } catch (error) {
-  //     this.logger.error('FT.SEARCH 실행 실패:', error);
-  //     return [];
-  //   }
-  // }
+    const sims: number[] = [];
+    let exactMatch = false;
+
+    for (const tagName of tagNames) {
+      const tagNorm = this.normalizeText(tagName);
+      const tagTokens = new Set(this.tokenizeText(tagName));
+
+      // exact match 보너스는 "비슷한 의미지만 약어라서 임베딩이 흔들리는" 케이스를 조금 보완합니다.
+      // - 토큰 교집합이 있으면(예: 요청 "sql 광고" vs 태그 "mysql") exactMatch로 간주합니다.
+      // - 다만 너무 흔한 토큰이 많아질 경우 가중치/stopword를 추가로 조정할 수 있습니다.
+      if (tagNorm.includes(' ')) {
+        if (requestNorm.includes(tagNorm)) exactMatch = true;
+      } else if (
+        requestTokens.has(tagNorm) ||
+        this.hasTokenOverlap(requestTokens, tagTokens)
+      ) {
+        exactMatch = true;
+      }
+
+      try {
+        const tagEmbedding = await this.getEmbeddingCached(tagName);
+        sims.push(
+          this.mlEngine.calculateSimilarity(requestEmbedding, tagEmbedding)
+        );
+      } catch (error) {
+        // 특정 태그 임베딩이 실패해도 전체 캠페인을 버리진 않고, 해당 태그만 스킵합니다.
+        this.logger.debug(
+          `태그 임베딩 실패로 스킵: "${tagName}" (campaign=${campaign.id})`,
+          error as Error
+        );
+      }
+    }
+
+    if (sims.length === 0) {
+      return 0;
+    }
+
+    sims.sort((a, b) => b - a);
+
+    // top-k 가중 평균: 강한 매칭(top1)을 가장 크게, 나머지는 점진적으로 반영
+    const k = Math.min(this.TOP_K, sims.length);
+    let sTop = 0;
+    let wSum = 0;
+    for (let i = 0; i < k; i++) {
+      const w = this.TOP_K_WEIGHTS[i] ?? 0;
+      wSum += w;
+      sTop += sims[i] * w;
+    }
+    // 태그 수가 1~2개인 캠페인도 과도하게 불리하지 않도록 weight 합으로 정규화합니다.
+    if (wSum > 0) sTop /= wSum;
+    sTop = this.clamp01(sTop);
+
+    // coverage: 임계치 이상으로 "의미 있게" 맞는 태그가 몇 개인지
+    const coverageCount = sims.filter(
+      (s) => s >= this.COVERAGE_THRESHOLD
+    ).length;
+    const sCov = this.clamp01(coverageCount / this.COVERAGE_SATURATION);
+
+    const sExact = exactMatch ? 1 : 0;
+
+    const finalScore =
+      this.FINAL_WEIGHTS.top * sTop +
+      this.FINAL_WEIGHTS.coverage * sCov +
+      this.FINAL_WEIGHTS.exact * sExact;
+
+    // 필요하면 아래 로그를 켜서 캠페인별 breakdown을 확인할 수 있습니다.
+    // this.logger.debug(
+    //   `Campaign ${campaign.id}: top=${sTop.toFixed(3)}, cov=${sCov.toFixed(
+    //     3
+    //   )}, exact=${sExact} => score=${finalScore.toFixed(3)}`
+    // );
+
+    return this.clamp01(finalScore);
+  }
 }

@@ -116,7 +116,7 @@ const allMockKeywords: KeywordStats[] = [
   },
 ];
 
-const LIMIT = 6;
+const LIMIT = 4;
 
 // Mock: 정렬 후 페이지네이션을 위한 코드 (API 연동 시 삭제)
 function getMockKeywords(sortBy: SortBy, offset: number, limit: number) {
@@ -192,7 +192,7 @@ export function KeywordStatsCard() {
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="p-4 flex flex-col gap-2 max-h-72 overflow-y-auto"
+        className="p-4 flex flex-col gap-2 max-h-56.5 overflow-y-auto"
       >
         {keywords.map((keyword, index) => (
           <KeywordStatsItem
