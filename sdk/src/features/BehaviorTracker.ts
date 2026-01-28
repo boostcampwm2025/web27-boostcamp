@@ -65,13 +65,11 @@ export class BehaviorTracker implements BehaviorTrackerInterface {
     this.thresholdCallback = callback;
   }
   private handleDocClick = (e: MouseEvent): void => {
-    const link = (e.target as Element | null)?.closest(
-      'a, .og-image, .og-text'
-    );
+    const link = (e.target as Element | null)?.closest('a');
     if (!link) {
       return;
     }
-    if (link instanceof HTMLAnchorElement && link.target === '_blank') {
+    if (link.target === '_blank') {
       // 새 탭에서 열리는 경우(확인해보니 티스토리에서 글 내부의 링크를 클릭하면 새 탭에서 열림)
       this.metrics.relatedDocClicks++;
       console.log('[BoostAD SDK] 글 내부 링크 클릭 감지 -> +10점');
