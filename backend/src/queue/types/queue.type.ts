@@ -5,7 +5,7 @@ export interface CampaignEmbeddingJobData {
 }
 
 export interface BlogEmbeddingJobData {
-  blogId: string;
+  blogId: number;
   text: string;
 }
 

@@ -9,6 +9,7 @@ import {
 import { OnEvent } from '@nestjs/event-emitter';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
+import type { EmbeddingJobData } from 'src/queue/types/queue.type';
 import { randomUUID } from 'crypto';
 import { UserRole } from 'src/user/entities/user.entity';
 import { UserRepository } from 'src/user/repository/user.repository.interface';
@@ -23,7 +24,8 @@ export class BlogService {
     private readonly userRepository: UserRepository,
     private readonly blogRepository: BlogRepository,
     private readonly blogCacheRepository: BlogCacheRepository,
-    @InjectQueue('embedding-queue') private readonly embeddingQueue: Queue
+    @InjectQueue('embedding-queue')
+    private readonly embeddingQueue: Queue<EmbeddingJobData>
   ) {}
 
   @OnEvent('ml.model.ready')

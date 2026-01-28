@@ -7,6 +7,7 @@ import {
 import { OnEvent } from '@nestjs/event-emitter';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
+import type { EmbeddingJobData } from 'src/queue/types/queue.type';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { CampaignRepository } from './repository/campaign.repository.interface';
@@ -39,7 +40,8 @@ export class CampaignService {
     private readonly campaignCacheRepository: CampaignCacheRepository,
     private readonly creditHistoryRepository: CreditHistoryRepository,
     @InjectDataSource() private readonly dataSource: DataSource,
-    @InjectQueue('embedding-queue') private readonly embeddingQueue: Queue
+    @InjectQueue('embedding-queue')
+    private readonly embeddingQueue: Queue<EmbeddingJobData>
   ) {}
 
   @OnEvent('ml.model.ready')
