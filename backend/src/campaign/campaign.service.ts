@@ -9,7 +9,8 @@ import { CampaignRepository } from './repository/campaign.repository.interface';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { UpdateCampaignDto } from './dto/update-campaign.dto';
 import { GetCampaignListDto } from './dto/get-campaign-list.dto';
-import { CampaignStatus } from './entities/campaign.entity';
+import { CampaignStatus, CampaignEntity } from './entities/campaign.entity';
+import { TagEntity } from '../tag/entities/tag.entity';
 import type {
   CampaignWithTags,
   CampaignWithStats,
@@ -18,12 +19,12 @@ import type {
 import { AVAILABLE_TAGS } from '../common/constants';
 import { UserRepository } from 'src/user/repository/user.repository.interface';
 import { CampaignCacheRepository } from './repository/campaign.cache.repository.interface';
-import { CreditHistoryRepository } from 'src/user/repository/credit-history.repository.interface';
+import { CreditHistoryRepository } from 'src/advertiser/repository/credit-history.repository.interface';
 import { UserEntity } from 'src/user/entities/user.entity';
 import {
   CreditHistoryEntity,
   CreditHistoryType,
-} from 'src/user/entities/credit-history.entity';
+} from 'src/advertiser/entities/credit-history.entity';
 
 @Injectable()
 export class CampaignService {
@@ -176,21 +177,141 @@ export class CampaignService {
       newStatus = this.determineInitialStatus(dto.startDate);
     }
 
-    // TODO: 업데이트 시 DB 먼저 할지 고려 필요
-    const updatedCampaign = await this.campaignRepository.update(
-      campaignId,
-      dto,
-      tagIds,
-      newStatus
-    );
+    // 총 예산 변경에 따른 크레딧 조정
+    return await this.dataSource.transaction(async (manager) => {
+      // totalBudget이 변경되는 경우 크레딧 조정
+      if (
+        dto.totalBudget !== undefined &&
+        dto.totalBudget !== campaign.totalBudget
+      ) {
+        const oldBudget = campaign.totalBudget ?? 0;
+        const newBudget = dto.totalBudget ?? 0;
+        const budgetDiff = newBudget - oldBudget;
 
-    // Redis 캐시 업데이트
-    await this.campaignCacheRepository.saveCampaignCacheById(
-      updatedCampaign.id,
-      this.convertToCachedCampaignType(updatedCampaign)
-    );
+        // 예산 감액은 허용하지 않음
+        if (budgetDiff < 0) {
+          throw new BadRequestException(
+            '캠페인 예산은 감액할 수 없습니다. 기존 예산보다 크거나 같은 값만 설정할 수 있습니다.'
+          );
+        }
 
-    return updatedCampaign;
+        // 예산이 증가하는 경우 (추가 차감)
+        if (budgetDiff > 0) {
+          const userRepo = manager.getRepository(UserEntity);
+          const user = await userRepo.findOne({
+            where: { id: userId },
+            lock: { mode: 'pessimistic_write' },
+          });
+
+          if (!user) {
+            throw new NotFoundException('사용자를 찾을 수 없습니다');
+          }
+
+          // 잔액 검증
+          if (user.balance < budgetDiff) {
+            throw new BadRequestException(
+              `잔액이 부족합니다. 필요 금액: ${budgetDiff}원, 보유 잔액: ${user.balance}원`
+            );
+          }
+
+          const newBalance = user.balance - budgetDiff;
+          user.balance = newBalance;
+          await userRepo.save(user);
+
+          // 크레딧 히스토리 기록 (차감)
+          const historyRepo = manager.getRepository(CreditHistoryEntity);
+          await historyRepo.save({
+            userId,
+            type: CreditHistoryType.WITHDRAW,
+            amount: budgetDiff,
+            balanceAfter: newBalance,
+            campaignId: campaignId,
+            description: `캠페인 예산 추가 (캠페인 ID: ${campaignId})`,
+          });
+        }
+      }
+
+      // 캠페인 업데이트 (트랜잭션 매니저 사용)
+      const campaignRepo = manager.getRepository(CampaignEntity);
+      const campaignToUpdate = await campaignRepo.findOne({
+        where: { id: campaignId },
+        relations: ['tags'],
+      });
+
+      if (!campaignToUpdate) {
+        throw new NotFoundException('캠페인을 찾을 수 없습니다.');
+      }
+
+      // 업데이트 필드 적용
+      if (dto.title !== undefined) campaignToUpdate.title = dto.title;
+      if (dto.content !== undefined) campaignToUpdate.content = dto.content;
+      if (dto.image !== undefined) campaignToUpdate.image = dto.image;
+      if (dto.url !== undefined) campaignToUpdate.url = dto.url;
+      if (dto.isHighIntent !== undefined)
+        campaignToUpdate.isHighIntent = dto.isHighIntent;
+      if (dto.maxCpc !== undefined) campaignToUpdate.maxCpc = dto.maxCpc;
+      if (dto.dailyBudget !== undefined)
+        campaignToUpdate.dailyBudget = dto.dailyBudget;
+      if (dto.totalBudget !== undefined)
+        campaignToUpdate.totalBudget = dto.totalBudget;
+      if (dto.startDate !== undefined)
+        campaignToUpdate.startDate = new Date(dto.startDate);
+      if (dto.endDate !== undefined)
+        campaignToUpdate.endDate = new Date(dto.endDate);
+
+      // 상태 업데이트
+      if (newStatus !== undefined) {
+        campaignToUpdate.status = newStatus;
+      } else if (dto.status !== undefined) {
+        campaignToUpdate.status =
+          dto.status === 'ACTIVE'
+            ? CampaignStatus.ACTIVE
+            : CampaignStatus.PAUSED;
+      }
+
+      // 태그 업데이트
+      if (tagIds) {
+        const tagRepo = manager.getRepository(TagEntity);
+        const tags = await tagRepo.findByIds(tagIds);
+        campaignToUpdate.tags = tags;
+      }
+
+      const savedCampaign = await campaignRepo.save(campaignToUpdate);
+
+      // 변환
+      const updatedCampaign: CampaignWithTags = {
+        id: savedCampaign.id,
+        userId: savedCampaign.userId,
+        title: savedCampaign.title,
+        content: savedCampaign.content,
+        image: savedCampaign.image,
+        url: savedCampaign.url,
+        maxCpc: savedCampaign.maxCpc,
+        dailyBudget: savedCampaign.dailyBudget,
+        totalBudget: savedCampaign.totalBudget,
+        dailySpent: savedCampaign.dailySpent,
+        totalSpent: savedCampaign.totalSpent,
+        lastResetDate: savedCampaign.lastResetDate,
+        isHighIntent: savedCampaign.isHighIntent,
+        status: savedCampaign.status,
+        startDate: savedCampaign.startDate,
+        endDate: savedCampaign.endDate,
+        createdAt: savedCampaign.createdAt,
+        deletedAt: savedCampaign.deletedAt,
+        tags: savedCampaign.tags.map((tag) => ({
+          id: tag.id,
+          name: tag.name,
+        })),
+      };
+
+      // Redis 캐시 업데이트
+      await this.campaignCacheRepository.saveCampaignCacheById(
+        updatedCampaign.id,
+        this.convertToCachedCampaignType(updatedCampaign)
+      );
+
+      return updatedCampaign;
+    });
   }
 
   // 캠페인 삭제 (소프트 삭제, 소유권 검증)
