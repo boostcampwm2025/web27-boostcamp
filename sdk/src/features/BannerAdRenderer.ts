@@ -222,7 +222,7 @@ export class BannerAdRenderer implements AdRenderer {
         <div style="flex: 1; min-width: 0; overflow: hidden;">
           <div style="
             font-size: 13px;
-            font-weight: 600;
+            font-weight: 500;
             color: #333;
             white-space: nowrap;
             overflow: hidden;
@@ -282,7 +282,7 @@ export class BannerAdRenderer implements AdRenderer {
           <div style="font-size: 10px; color: #999; margin-bottom: 4px;">Sponsored</div>
           <div style="
             font-size: 15px;
-            font-weight: 600;
+            font-weight: 500;
             color: #333;
             white-space: nowrap;
             overflow: hidden;
@@ -292,6 +292,7 @@ export class BannerAdRenderer implements AdRenderer {
           <div style="
             font-size: 12px;
             color: #666;
+            font-weight: 400;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -361,7 +362,7 @@ export class BannerAdRenderer implements AdRenderer {
             <h3 style="
               margin: 0 0 12px;
               font-size: 20px;
-              font-weight: 600;
+              font-weight: 500;
               color: #333;
               line-height: 1.4;
             ">${title}</h3>
@@ -370,6 +371,7 @@ export class BannerAdRenderer implements AdRenderer {
               margin: 0 0 24px;
               color: #666;
               font-size: 15px;
+              font-weight: 400;
               line-height: 1.6;
               flex-grow: 1;
             ">${content}</p>
