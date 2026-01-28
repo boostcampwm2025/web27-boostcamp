@@ -78,9 +78,9 @@ export class RedisCampaignCacheRepository implements CampaignCacheRepository {
     return result === 1;
   }
 
-  async updateCampaignEmbeddingById(
+  async updateCampaignEmbeddingTags(
     id: string,
-    embedding: number[]
+    embeddingTags: { [tagName: string]: number[] }
   ): Promise<void> {
     const key = this.getCampaignCacheKey(id);
 
@@ -88,10 +88,12 @@ export class RedisCampaignCacheRepository implements CampaignCacheRepository {
       await this.ioredisClient.call(
         'JSON.SET',
         key,
-        '$.embedding',
-        JSON.stringify(embedding)
+        '$.embeddingTags',
+        JSON.stringify(embeddingTags)
       );
-      this.logger.debug(`캠페인 임베딩 업데이트: ${id}`);
+      this.logger.debug(
+        `캠페인 태그별 임베딩 업데이트: ${id} (${Object.keys(embeddingTags).length}개 태그)`
+      );
     } catch (error) {
       this.logger.error(`캠페인 임베딩 업데이트 실패: ${id}`, error);
       throw error;
