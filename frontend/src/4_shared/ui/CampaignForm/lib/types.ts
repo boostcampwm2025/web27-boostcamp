@@ -5,6 +5,7 @@ export type CampaignCategory =
   | 'DB'
   | '클라우드'
   | '모바일'
+  | '네부캠'
   | '기타';
 
 export interface Tag {

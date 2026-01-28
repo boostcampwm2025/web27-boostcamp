@@ -170,6 +170,7 @@ export class TypeOrmCampaignRepository extends CampaignRepository {
     if (dto.content !== undefined) campaign.content = dto.content;
     if (dto.image !== undefined) campaign.image = dto.image;
     if (dto.url !== undefined) campaign.url = dto.url;
+    if (dto.isHighIntent !== undefined) campaign.isHighIntent = dto.isHighIntent;
     if (dto.maxCpc !== undefined) campaign.maxCpc = dto.maxCpc;
     if (dto.dailyBudget !== undefined) campaign.dailyBudget = dto.dailyBudget;
     if (dto.totalBudget !== undefined) campaign.totalBudget = dto.totalBudget;

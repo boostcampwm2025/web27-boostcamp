@@ -11,10 +11,15 @@ import { UserEntity } from '../user/entities/user.entity';
 import { CreditHistoryEntity } from '../user/entities/credit-history.entity';
 import { LogModule } from '../log/log.module';
 import { ImageModule } from '../image/image.module';
+import { CampaignCacheRepository } from './repository/campaign.cache.repository.interface';
+import { RedisCampaignCacheRepository } from './repository/redis-campaign.cache.repository';
 import { UserModule } from 'src/user/user.module';
+import { CacheModule } from 'src/cache/cache.module';
+import { RedisModule } from 'src/redis/redis.module';
 
 @Module({
   imports: [
+    CacheModule,
     TypeOrmModule.forFeature([
       CampaignEntity,
       TagEntity,
@@ -24,12 +29,17 @@ import { UserModule } from 'src/user/user.module';
     LogModule,
     ImageModule,
     UserModule,
+    RedisModule,
   ],
   controllers: [CampaignController],
   providers: [
     CampaignService,
     CampaignCronService,
     { provide: CampaignRepository, useClass: TypeOrmCampaignRepository },
+    {
+      provide: CampaignCacheRepository,
+      useClass: RedisCampaignCacheRepository,
+    },
   ],
   exports: [CampaignRepository],
 })

@@ -67,7 +67,7 @@ export function FormNavigation({
         </Button>
       </div>
 
-      <p className="text-right text-xs text-gray-500">
+      <p className={`text-right text-xs ${mode === 'edit' ? 'text-white/70' : 'text-gray-500'}`}>
         {hintText}
       </p>
     </div>

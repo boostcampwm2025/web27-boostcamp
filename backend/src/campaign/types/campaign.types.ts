@@ -42,3 +42,24 @@ export type CampaignTag = {
   campaignId: string;
   tagId: number;
 };
+
+export type CachedCampaign = {
+  id: string;
+  userId: number;
+  title: string;
+  content: string;
+  image: string | null;
+  url: string;
+  maxCpc: number;
+  dailyBudget: number;
+  totalBudget: number | null;
+  dailySpent: number;
+  totalSpent: number;
+  lastResetDate: string;
+  isHighIntent: boolean;
+  status: string;
+  startDate: string;
+  endDate: string;
+  createdAt: string;
+  embedding?: number[]; // Worker가 추가할 벡터
+};
