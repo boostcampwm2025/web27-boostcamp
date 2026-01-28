@@ -43,7 +43,7 @@ export class BehaviorTracker implements BehaviorTrackerInterface {
     // 이벤트 리스너 제거
     window.removeEventListener('scroll', this.handleScroll);
     document.removeEventListener('copy', this.handleCopy);
-    document.removeEventListener('click', this.handleDocClick)
+    document.removeEventListener('click', this.handleDocClick);
     // 타이머 정리
     if (this.timerInterval) {
       clearInterval(this.timerInterval);
@@ -64,7 +64,22 @@ export class BehaviorTracker implements BehaviorTrackerInterface {
   onThresholdReached(callback: () => void): void {
     this.thresholdCallback = callback;
   }
-  private handleDocClick = (): void => {};
+  private handleDocClick = (e: MouseEvent): void => {
+    const link = (e.target as Element | null)?.closest(
+      'a, .og-image, .og-text'
+    );
+    if (!link) {
+      return;
+    }
+    if (link instanceof HTMLAnchorElement && link.target === '_blank') {
+      // 새 탭에서 열리는 경우(확인해보니 티스토리에서 글 내부의 링크를 클릭하면 새 탭에서 열림)
+      this.metrics.relatedDocClicks++;
+      console.log('[BoostAD SDK] 글 내부 링크 클릭 감지 -> +10점');
+    }
+
+    this.checkThreshold();
+    return;
+  };
   private handleScroll = (): void => {
     const scrollHeight = document.documentElement.scrollHeight;
     const clientHeight = window.innerHeight;
@@ -166,6 +181,8 @@ export class BehaviorTracker implements BehaviorTrackerInterface {
     // 코드 블록 복사 점수 (1회 = 15점) - 높은 가중치
     score += this.metrics.codeBlockCopies * 15;
 
+    // 내부 문서 링크 클릭 (1회 = 10점)
+    score += this.metrics.relatedDocClicks * 10;
     this.metrics.score = score;
   }
 
