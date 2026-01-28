@@ -68,7 +68,6 @@ export class TransformerMatcher extends Matcher {
       allCampaigns.map(async (campaign) => ({
         campaign,
         similarity: await this.scoreCampaignByTags(
-          requestText,
           requestEmbedding,
           requestNorm,
           requestTokens,
@@ -153,7 +152,6 @@ export class TransformerMatcher extends Matcher {
    * 5) 최종 Score = 0.70*S_top + 0.25*S_cov + 0.05*S_exact
    */
   private async scoreCampaignByTags(
-    requestText: string,
     requestEmbedding: number[],
     requestNorm: string,
     requestTokens: Set<string>,
