@@ -19,9 +19,12 @@ export function KeywordSelector({
   error,
 }: KeywordSelectorProps) {
   const [activeCategory, setActiveCategory] =
-    useState<CampaignCategory>('언어');
+    useState<CampaignCategory>('네부캠');
 
   const selectedTagIds = value.map((tag) => tag.id);
+
+  const hasNebucamTag = value.some((tag) => tag.category === '네부캠');
+  const hasGeneralTag = value.some((tag) => tag.category !== '네부캠');
 
   const isTagSelected = (tagId: number) => {
     return selectedTagIds.includes(tagId);
@@ -32,6 +35,13 @@ export function KeywordSelector({
       return;
     }
     if (isTagSelected(tag.id)) {
+      return;
+    }
+
+    if (tag.category === '네부캠' && hasGeneralTag) {
+      return;
+    }
+    if (tag.category !== '네부캠' && hasNebucamTag) {
       return;
     }
     onChange([...value, tag]);
@@ -92,11 +102,22 @@ export function KeywordSelector({
           ))}
         </div>
 
+        {/* 네부캠 안내 문구 */}
+        {activeCategory === '네부캠' && (
+          <p className="text-xs text-yellow-600 bg-yellow-50 px-3 py-2 rounded-md">
+            네부캠 태그는 기술 태그와 함께 사용할 수 없습니다.
+          </p>
+        )}
+
         {/* 태그 목록 */}
         <div className="flex flex-wrap gap-2">
           {categoryTags.map((tag) => {
             const selected = isTagSelected(tag.id);
-            const disabled = !selected && value.length >= MAX_SELECTED_TAGS;
+            const isMaxReached = value.length >= MAX_SELECTED_TAGS;
+            const isCategoryBlocked =
+              (activeCategory === '네부캠' && hasGeneralTag) ||
+              (activeCategory !== '네부캠' && hasNebucamTag);
+            const disabled = !selected && (isMaxReached || isCategoryBlocked);
 
             return (
               <button
@@ -117,6 +138,18 @@ export function KeywordSelector({
             );
           })}
         </div>
+
+        {/* 혼용 불가 안내 */}
+        {hasNebucamTag && activeCategory !== '네부캠' && (
+          <p className="text-xs text-gray-500">
+            네부캠 태그가 선택되어 있어 기술 태그를 선택할 수 없습니다.
+          </p>
+        )}
+        {hasGeneralTag && activeCategory === '네부캠' && (
+          <p className="text-xs text-gray-500">
+            기술 태그가 선택되어 있어 네부캠 태그를 선택할 수 없습니다.
+          </p>
+        )}
       </div>
 
       {error && <p className="text-sm text-red-500">{error}</p>}
