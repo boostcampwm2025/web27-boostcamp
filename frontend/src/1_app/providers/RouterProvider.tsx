@@ -123,7 +123,7 @@ export const router = createBrowserRouter([
     ],
   },
 
-  // 4. 결제 (Payment) 페이지
+  // 4. 결제 (Payment) 페이지 - 토스 리다이렉트 처리
   {
     path: '/payment/success',
     element: <PaymentSuccessPage />,
