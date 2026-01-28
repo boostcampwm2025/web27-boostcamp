@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   nginx:
     build:
@@ -19,11 +17,11 @@ services:
     image: redis/redis-stack-server:latest
     container_name: boostad-redis-master-local
     ports:
-      - '16379:6379' # 호스트 16379 -> 컨테이너 6379
-    command: redis-server /usr/local/etc/redis/redis.conf
+      - '16379:6379'
+    environment:
+      - REDIS_ARGS=--protected-mode no --appendonly yes --maxmemory 2gb --maxmemory-policy allkeys-lru --save 900 1 --save 300 10 --save 60 10000
     volumes:
       - redis-master-data:/data
-      - ./redis/redis-master.local.conf:/usr/local/etc/redis/redis.conf
     restart: unless-stopped
     networks:
       - boostad-local
