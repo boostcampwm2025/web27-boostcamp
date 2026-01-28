@@ -17,13 +17,25 @@ export class DecisionAPIClient implements APIClient {
     behaviorScore: number = 0,
     isHighIntent: boolean = false
   ): Promise<DecisionResponse> {
-    const requestBody: DecisionRequest = {
-      blogKey: this.config.blogKey,
-      tags: tags.map((tag) => tag.name),
-      postUrl,
-      behaviorScore,
-      isHighIntent,
-    };
+    let requestBody: DecisionRequest;
+
+    if (this.config.context) {
+      requestBody = {
+        blogKey: this.config.blogKey,
+        tags: [this.config.context],
+        postUrl,
+        behaviorScore,
+        isHighIntent,
+      };
+    } else {
+      requestBody = {
+        blogKey: this.config.blogKey,
+        tags: tags.map((tag) => tag.name),
+        postUrl,
+        behaviorScore,
+        isHighIntent,
+      };
+    }
 
     try {
       const response = await fetch(`${API_BASE_URL}/sdk/decision`, {
@@ -31,7 +43,7 @@ export class DecisionAPIClient implements APIClient {
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials:'include',
+        credentials: 'include',
         body: JSON.stringify(requestBody),
       });
 
