@@ -3,7 +3,6 @@ import { Job } from 'bullmq';
 import { Logger } from '@nestjs/common';
 import { MLEngine } from 'src/rtb/ml/mlEngine.interface';
 import { CampaignCacheRepository } from 'src/campaign/repository/campaign.cache.repository.interface';
-import { BlogCacheRepository } from 'src/blog/repository/blog.cache.repository.interface';
 
 @Processor('embedding-queue')
 export class EmbeddingWorker extends WorkerHost {
@@ -11,8 +10,7 @@ export class EmbeddingWorker extends WorkerHost {
 
   constructor(
     private readonly mlEngine: MLEngine,
-    private readonly campaignCacheRepository: CampaignCacheRepository,
-    private readonly blogCacheRepository: BlogCacheRepository
+    private readonly campaignCacheRepository: CampaignCacheRepository
   ) {
     super();
   }
@@ -22,14 +20,12 @@ export class EmbeddingWorker extends WorkerHost {
 
     try {
       if (job.name === 'generate-campaign-embedding') {
-        const { campaignId, text } = job.data as {
+        const { campaignId } = job.data as {
           campaignId: string;
-          text: string;
         };
-        await this.generateCampaignEmbedding(campaignId, text);
-      } else if (job.name === 'generate-blog-embedding') {
-        const { blogId, text } = job.data as { blogId: number; text: string };
-        await this.generateBlogEmbedding(blogId, text);
+        await this.generateCampaignEmbedding(campaignId);
+      } else {
+        this.logger.warn(`Unknown job type: ${job.name}`);
       }
     } catch (error) {
       this.logger.error(`Job ${job.id} failed:`, error);
@@ -37,26 +33,37 @@ export class EmbeddingWorker extends WorkerHost {
     }
   }
 
-  private async generateCampaignEmbedding(campaignId: string, text: string) {
-    // 1. 임베딩 생성
-    const embedding = await this.mlEngine.getEmbedding(text);
+  private async generateCampaignEmbedding(campaignId: string) {
+    // 1. Redis에서 캠페인 정보 조회 (태그 정보 필요)
+    const campaign =
+      await this.campaignCacheRepository.findCampaignCacheById(campaignId);
 
-    // 2. Repository를 통해 Redis에 임베딩 업데이트
-    await this.campaignCacheRepository.updateCampaignEmbeddingById(
+    if (!campaign) {
+      this.logger.warn(`Campaign ${campaignId}를 찾을 수 없습니다.`);
+      return;
+    }
+
+    if (!campaign.tags || campaign.tags.length === 0) {
+      this.logger.warn(`Campaign ${campaignId}에 태그가 없습니다.`);
+      return;
+    }
+
+    // 2. 각 태그별로 임베딩 생성
+    const embeddingTags: { [tagName: string]: number[] } = {};
+
+    for (const tagName of campaign.tags) {
+      const embedding = await this.mlEngine.getEmbedding(tagName);
+      embeddingTags[tagName] = embedding;
+    }
+
+    // 3. Redis에 태그별 임베딩 저장
+    await this.campaignCacheRepository.updateCampaignEmbeddingTags(
       campaignId,
-      embedding
+      embeddingTags
     );
 
-    this.logger.log(`Generated embedding for campaign ${campaignId}`);
-  }
-
-  private async generateBlogEmbedding(blogId: number, text: string) {
-    // 1. 임베딩 생성
-    const embedding = await this.mlEngine.getEmbedding(text);
-
-    // 2. Repository를 통해 Redis에 임베딩 업데이트
-    await this.blogCacheRepository.updateBlogEmbeddingById(blogId, embedding);
-
-    this.logger.log(`Generated embedding for blog ${blogId}`);
+    this.logger.log(
+      `✅ Campaign ${campaignId} 태그별 임베딩 생성 완료 (${campaign.tags.length}개 태그)`
+    );
   }
 }

@@ -7,9 +7,6 @@ import {
   Logger,
 } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { InjectQueue } from '@nestjs/bullmq';
-import { Queue } from 'bullmq';
-import type { EmbeddingJobData } from 'src/queue/types/queue.type';
 import { randomUUID } from 'crypto';
 import { UserRole } from 'src/user/entities/user.entity';
 import { UserRepository } from 'src/user/repository/user.repository.interface';
@@ -24,9 +21,7 @@ export class BlogService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly blogRepository: BlogRepository,
-    private readonly blogCacheRepository: BlogCacheRepository,
-    @InjectQueue('embedding-queue')
-    private readonly embeddingQueue: Queue<EmbeddingJobData>
+    private readonly blogCacheRepository: BlogCacheRepository
   ) {}
 
   @OnEvent('ml.model.ready')
@@ -46,7 +41,6 @@ export class BlogService {
       this.logger.log(`📦 총 ${blogs.length}개 Blog 로딩 중...`);
 
       let loaded = 0;
-      let embeddingQueued = 0;
 
       for (const blog of blogs) {
         // 1. Redis에 캐싱
@@ -60,31 +54,12 @@ export class BlogService {
 
         loaded++;
 
-        // 3. 임베딩 생성 큐 추가
-        await this.embeddingQueue.add(
-          'generate-blog-embedding',
-          {
-            blogId: blog.id,
-            text: `${blog.name} ${blog.domain}`,
-          },
-          {
-            jobId: `blog-embedding-${blog.id}`,
-            removeOnComplete: true,
-            removeOnFail: false,
-            attempts: 3,
-          }
-        );
-
-        embeddingQueued++;
-
         if (loaded % 100 === 0) {
           this.logger.log(`📊 Blog 로딩 진행: ${loaded}/${blogs.length}`);
         }
       }
 
-      this.logger.log(
-        `✅ Blog 로딩 완료: ${loaded}개, 임베딩 큐: ${embeddingQueued}개`
-      );
+      this.logger.log(`✅ Blog 로딩 완료: ${loaded}개 (임베딩 생성 안 함)`);
     } catch (error) {
       this.logger.error('Blog 로딩 중 에러 발생:', error);
       throw error;
