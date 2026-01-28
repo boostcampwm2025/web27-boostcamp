@@ -15,6 +15,7 @@ import { UserRole } from 'src/user/entities/user.entity';
 import { UserRepository } from 'src/user/repository/user.repository.interface';
 import { BlogRepository } from './repository/blog.repository.interface';
 import { BlogCacheRepository } from './repository/blog.cache.repository.interface';
+import { BlogEntity } from './entities/blog.entity';
 
 @Injectable()
 export class BlogService {
@@ -32,27 +33,10 @@ export class BlogService {
   onModelReady(): void {
     this.logger.log('🚀 Blog 초기 로딩 시작 (ML 모델 준비 완료)');
 
-    // Phase 1: 즉시 로딩 (blog:exists:set)
-    this.loadBlogExistsSet()
-      .then(() => {
-        // Phase 2: 백그라운드 전체 로딩
-        this.loadAllBlogs().catch((error) => {
-          this.logger.error('Blog 초기 로딩 실패:', error);
-        });
-      })
-      .catch((error) => {
-        this.logger.error('blog:exists:set 생성 실패:', error);
-      });
-  }
-
-  private async loadBlogExistsSet(): Promise<void> {
-    const blogs = await this.blogRepository.getAll();
-
-    for (const blog of blogs) {
-      await this.blogCacheRepository.addBlogToExistsSet(blog.id);
-    }
-
-    this.logger.log(`✅ blog:exists:set 생성 완료: ${blogs.length}개`);
+    // 백그라운드 전체 로딩 (캐싱 + exists set 추가 동시 처리)
+    this.loadAllBlogs().catch((error) => {
+      this.logger.error('Blog 초기 로딩 실패:', error);
+    });
   }
 
   private async loadAllBlogs(): Promise<void> {
@@ -65,20 +49,18 @@ export class BlogService {
       let embeddingQueued = 0;
 
       for (const blog of blogs) {
-        // Redis에 캐싱
-        await this.blogCacheRepository.saveBlogCacheById(blog.id, {
-          id: blog.id,
-          userId: blog.userId,
-          domain: blog.domain,
-          name: blog.name,
-          blogKey: blog.blogKey,
-          verified: blog.verified,
-          createdAt: blog.createdAt.toISOString(),
-        });
+        // 1. Redis에 캐싱
+        await this.blogCacheRepository.saveBlogCacheById(
+          blog.id,
+          this.convertToCachedBlogType(blog)
+        );
+
+        // 2. blog:exists:set에 추가 (캐싱과 동시에 처리)
+        await this.blogCacheRepository.addBlogToExistsSet(blog.id);
 
         loaded++;
 
-        // 임베딩 생성 큐 추가
+        // 3. 임베딩 생성 큐 추가
         await this.embeddingQueue.add(
           'generate-blog-embedding',
           {
@@ -107,6 +89,20 @@ export class BlogService {
       this.logger.error('Blog 로딩 중 에러 발생:', error);
       throw error;
     }
+  }
+
+  // BlogEntity를 CachedBlog 타입으로 변환
+  private convertToCachedBlogType(blog: BlogEntity) {
+    return {
+      id: blog.id,
+      userId: blog.userId,
+      domain: blog.domain,
+      name: blog.name,
+      blogKey: blog.blogKey,
+      verified: blog.verified,
+      createdAt: blog.createdAt.toISOString(),
+      // embedding은 Worker가 나중에 추가
+    };
   }
 
   async createBlog(payload: {
