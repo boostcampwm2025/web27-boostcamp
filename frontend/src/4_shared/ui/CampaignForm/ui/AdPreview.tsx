@@ -43,9 +43,9 @@ export function AdPreview({ title, content, imageUrl }: AdPreviewProps) {
               {content || '광고 내용이 여기에 표시됩니다.'}
             </p>
 
-            <div className="mt-auto flex items-center justify-between gap-3 pt-4">
-              <span className="inline-block cursor-not-allowed whitespace-nowrap rounded-lg bg-linear-to-br from-[#667eea] to-[#764ba2] px-6 py-3 text-sm font-semibold text-white opacity-80">
-                자세히 보기 →
+            <div className="mt-auto flex items-center justify-between gap-3 mb-3">
+              <span className="inline-block cursor-not-allowed whitespace-nowrap rounded-lg b pr-6 py-3 text-sm font-semibold text-[#155dfc] opacity-80">
+                더 알아보기 →
               </span>
 
               <span className="whitespace-nowrap text-[11px] text-gray-400">
