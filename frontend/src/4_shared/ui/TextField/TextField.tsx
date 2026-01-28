@@ -7,6 +7,7 @@ type Props = InputHTMLAttributes<HTMLInputElement> & {
 
 export function TextField({ label, error, id, className, ...rest }: Props) {
   const inputId = id ?? rest.name;
+  const isDisabled = rest.disabled;
   return (
     <div className="flex flex-col gap-3">
       {label ? (
@@ -20,6 +21,10 @@ export function TextField({ label, error, id, className, ...rest }: Props) {
           error
             ? 'border-red-300 focus:ring-2 focus:ring-red-200'
             : 'border-gray-200 focus:ring-2 focus:ring-blue-200'
+        } ${
+          isDisabled
+            ? 'bg-gray-100 text-gray-400 placeholder:text-gray-300 cursor-not-allowed'
+            : ''
         } ${className ?? ''}`}
         {...rest}
       />

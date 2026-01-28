@@ -1,11 +1,13 @@
-# web27-boostcamp
+# web27-BoostAD🔥
+
+![banner3](https://github.com/user-attachments/assets/a1d7d818-8d00-42ab-8812-2e7e0a5b7db1)
+
 
 > **"광고가 정보가 되는 경험"**  
 > 개발자 기술 블로그의 **맥락(Context)** + **학습 의도(Intent)** 를 기반으로, 크리에이터가 **입찰(RTB)** 해 노출되는 투명한 광고·추천 플랫폼  
 > **Google Ads/Meta 같은 메인 광고 플랫폼을 대체하기보다**, 메인 채널이 놓치기 쉬운 **고의도·콘텐츠 맥락 구간**을 위한 *추가 채널*을 지향합니다.
 <br/>
 <br/>
-
 
 ## 🧐 문제 인식 (Why)
 
@@ -162,6 +164,11 @@ https://github.com/boostcampwm2025/web27-BoostAD/wiki/CICD-%ED%8C%8C%EC%9D%B4%ED
 
 <br/>
 <br/>
+
+## BoostAD와 협업 중인 다른 프로젝트도 살펴보세요!
+- WEB01 BoostUS: https://boostus.site
+- WEB04 우리 모두 다빈치: https://we-are-all-davinci.netlify.app/
+- WEB11 말만해: https://malmanhae.com/
 
 
 
