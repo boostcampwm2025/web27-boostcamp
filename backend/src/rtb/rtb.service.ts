@@ -77,10 +77,7 @@ export class RTBService {
       let candidates: Candidate[] =
         await this.matcher.findCandidatesByTags(context);
 
-      // 2. 캠페인 상태 검증 (ACTIVE + 날짜 범위 + 삭제되지 않음)
-      candidates = this.filterEligibleCampaigns(candidates);
-
-      // 3. 고의도 필터링 (isHighIntent에 따라 광고 분리)
+      // 2. 고의도 필터링 (isHighIntent에 따라 광고 분리)
       if (context.isHighIntent) {
         // 고의도 요청: is_high_intent=true 광고만
         candidates = candidates.filter((c) => c.campaign.isHighIntent === true);
@@ -90,6 +87,10 @@ export class RTBService {
           (c) => c.campaign.isHighIntent === false
         );
       }
+
+      // 3. 캠페인 상태 검증 (ACTIVE + 날짜 범위 + 삭제되지 않음)
+      // todo: active 캠페인들을 redis에 들고있기?
+      candidates = this.filterEligibleCampaigns(candidates);
 
       // 후보가 없으면 fallback 캠페인 조회
       if (candidates.length === 0) {

@@ -4,13 +4,20 @@ import { useNavigate } from 'react-router-dom';
 export function OnboardingHeader() {
   const navigate = useNavigate();
   return (
-    <header className="flex items-center w-full h-16 bg-white border-b border-gray-200 px-6 text-2xl font-bold text-gray-900 whitespace-nowrap">
-      <div
-        onClick={()=>{navigate('/')}}
-        className="flex flex-row h-16 items-center gap-3 border-b border-gray-200 text-gray-900 text-lg font-bold cursor-pointer"
-      >
-        <Icon.Logo className="w-8 h-8 text-blue-500" />
-        BoostAD
+    <header className="flex h-16 w-full items-center border-b border-gray-200 bg-white">
+      <div className="mx-auto flex h-16 w-full max-w-6xl items-center px-6">
+        <button
+          type="button"
+          onClick={() => {
+            navigate('/');
+          }}
+          className="flex items-center gap-3 text-lg font-bold text-gray-900"
+        >
+          <span className="flex h-8 w-8 items-center justify-center">
+            <Icon.Logo className="h-8 w-8 text-blue-500" />
+          </span>
+          BoostAD
+        </button>
       </div>
     </header>
   );
