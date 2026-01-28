@@ -94,6 +94,52 @@ export class RedisCampaignCacheRepository implements CampaignCacheRepository {
     }
   }
 
+  // RTB 비딩용: Redis에서 모든 캠페인 조회
+  async getAllCampaigns(): Promise<CachedCampaign[]> {
+    try {
+      const pattern = `${this.KEY_PREFIX}*`;
+      const keys: string[] = [];
+
+      // SCAN으로 모든 campaign:* 키 조회
+      let cursor = '0';
+      do {
+        const result = await this.ioredisClient.scan(
+          cursor,
+          'MATCH',
+          pattern,
+          'COUNT',
+          100
+        );
+        cursor = result[0];
+        keys.push(...result[1]);
+      } while (cursor !== '0');
+
+      if (keys.length === 0) {
+        return [];
+      }
+
+      // 각 키에 대해 JSON.GET 수행
+      const campaigns: CachedCampaign[] = [];
+
+      for (const key of keys) {
+        try {
+          const result = await this.ioredisClient.call('JSON.GET', key);
+          if (result && typeof result === 'string') {
+            campaigns.push(JSON.parse(result) as CachedCampaign);
+          }
+        } catch (error) {
+          this.logger.warn(`캠페인 조회 실패: ${key}`, error);
+          // 개별 캠페인 조회 실패는 스킵
+        }
+      }
+
+      return campaigns;
+    } catch (error) {
+      this.logger.error('모든 캠페인 조회 실패', error);
+      return [];
+    }
+  }
+
   private getCampaignCacheKey(id: string): string {
     return `${this.KEY_PREFIX}${id}`;
   }
