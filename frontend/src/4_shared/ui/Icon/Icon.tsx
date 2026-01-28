@@ -34,6 +34,7 @@ import Link from '@shared/ui/Icon/icons/link.svg?react';
 import Calendar from '@shared/ui/Icon/icons/calendar.svg?react';
 import Saving from '@shared/ui/Icon/icons/saving.svg?react';
 import BadgeCheck from '@shared/ui/Icon/icons/badgeCheck.svg?react';
+import Toss from '@shared/ui/Icon/icons/toss.svg?react';
 
 export const Icon = {
   ArrowRight,
@@ -72,4 +73,5 @@ export const Icon = {
   Calendar,
   Saving,
   BadgeCheck,
+  Toss,
 };

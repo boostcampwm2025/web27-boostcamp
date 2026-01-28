@@ -18,6 +18,7 @@ import { JwtCookieGuard } from './auth/guards/jwt-cookie.guard';
 import { BlogModule } from './blog/blog.module';
 import { ImageModule } from './image/image.module';
 import { RedisModule } from './redis/redis.module';
+import { PaymentModule } from './payment/payment.module';
 // import { QueueModule } from './queue/queue.module';
 
 @Module({
@@ -50,6 +51,7 @@ import { RedisModule } from './redis/redis.module';
     BlogModule,
     ImageModule,
     RedisModule,
+    PaymentModule,
     // QueueModule,
   ],
   controllers: [],

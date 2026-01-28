@@ -18,18 +18,23 @@ export class BidLogController {
     @Query('limit') limit?: string,
     @Query('offset') offset?: string,
     @Query('startDate') startDate?: string,
-    @Query('endDate') endDate?: string
+    @Query('endDate') endDate?: string,
+    @Query('campaignIds') campaignIds?: string
   ): Promise<SuccessResponse<BidLogDataDto>> {
     const userId = req.user.userId;
     const parsedLimit = limit ? parseInt(limit, 10) : 3;
     const parsedOffset = offset ? parseInt(offset, 10) : 0;
+    const parsedCampaignIds = campaignIds
+      ? campaignIds.split(',').map((id) => id.trim())
+      : undefined;
 
     const data = await this.bidLogService.getRealtimeBidLogs(
       userId,
       parsedLimit,
       parsedOffset,
       startDate,
-      endDate
+      endDate,
+      parsedCampaignIds
     );
 
     return successResponse(data, '광고주 실시간 입찰 로그입니다.');

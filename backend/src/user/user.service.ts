@@ -74,7 +74,8 @@ export class UserService {
 
   async chargeCredit(
     userId: number,
-    amount: number
+    amount: number,
+    description: string = '크레딧 충전'
   ): Promise<{ balanceAfter: number; historyId: number }> {
     return await this.dataSource.transaction(async (manager) => {
       // 1. 사용자 조회 및 잠금
@@ -101,7 +102,7 @@ export class UserService {
         amount,
         balanceAfter: newBalance,
         campaignId: null,
-        description: '수동 충전',
+        description,
       });
 
       return {
