@@ -27,8 +27,11 @@ export function SdkInfoBox({ mode }: SdkInfoBoxProps) {
           <code className="font-mono bg-yellow-200 px-1 rounded">
             data-boostad-zone
           </code>{' '}
-          속성이 포함된 요소 내에만 표시되며, 행동 데이터(클릭, 스크롤 등)는
-          수집되지 않습니다.
+          속성이 포함된 요소 내에만 표시됩니다.{' '}
+          <code className="font-mono bg-yellow-200 px-1 rounded">
+            data-context
+          </code>{' '}
+          속성으로 페이지 문맥을 명시하면 해당 문맥에 맞는 광고가 매칭됩니다.
         </p>
       </div>
     );
