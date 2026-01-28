@@ -26,12 +26,12 @@ export function SdkCodeSnippet({ blogKey, mode }: SdkCodeSnippetProps) {
 
   const manualModeSnippet = `<script src="${sdkUrl}"
           data-blog-key="${blogKey}"
-          data-auto="false"
+          data-auto="false"${contextValue ? `\n          data-context="${contextValue}"` : ''}
           async
   ></script>
 
 // 광고를 노출할 위치에 추가하세요
-<div data-boostad-zone${contextValue ? ` data-context="${contextValue}"` : ''}></div>`;
+<div data-boostad-zone></div>`;
 
   const codeSnippet = mode === 'auto' ? autoModeSnippet : manualModeSnippet;
 
