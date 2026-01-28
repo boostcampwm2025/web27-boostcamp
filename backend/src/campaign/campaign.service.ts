@@ -219,13 +219,17 @@ export class CampaignService {
     return this.addStatsToCampaign(campaign);
   }
 
-  // 캠페인 수정 (Redis First + 보상 트랜잭션)
-  // 즉시 RTB 반영을 위해 Redis 먼저 업데이트, DB 실패 시 롤백
+  // 캠페인 수정 (Redis PAUSED 빠른 변경 → DB 업데이트 → Redis 동기화)
+  // 1. Redis 상태만 PAUSED로 빠르게 변경 (비딩 즉시 중단, embeddingTags 보존)
+  // 2. DB 업데이트 (Repository 메서드 사용)
+  // 3. Redis 전체 동기화 (DB 결과 반영, 요청한 상태로 복원)
+  // 4. 태그 변경 시 임베딩 재생성
   async updateCampaign(
     campaignId: string,
     userId: number,
     dto: UpdateCampaignDto
   ): Promise<CampaignWithTags> {
+    // TODO: 여기서 Redis에서 조회하도록 수정 필요할듯
     const campaign = await this.campaignRepository.findOne(campaignId, userId);
 
     if (!campaign) {
@@ -247,29 +251,15 @@ export class CampaignService {
       newStatus = this.determineInitialStatus(dto.startDate);
     }
 
-    // 보상 트랜잭션을 위해 기존 캐시 백업
-    const originalCached =
-      await this.campaignCacheRepository.findCampaignCacheById(campaignId);
+    // 1. Redis 상태만 PAUSED로 빠르게 변경 (비딩 즉시 중단, embeddingTags 보존)
+    await this.campaignCacheRepository.updateCampaignStatus(
+      campaignId,
+      CampaignStatus.PAUSED
+    );
+    this.logger.log(`캠페인 ${campaignId} Redis 상태 → PAUSED (비딩 중단)`);
 
     try {
-      // 1. Redis 먼저 업데이트 (RTB에 즉시 반영)
-      const previewCampaign: CampaignWithTags = {
-        ...campaign,
-        ...dto,
-        startDate: dto.startDate ? new Date(dto.startDate) : campaign.startDate,
-        endDate: dto.endDate ? new Date(dto.endDate) : campaign.endDate,
-        status: (newStatus as CampaignStatus) ?? campaign.status,
-        tags: dto.tags
-          ? dto.tags.map((name, idx) => ({ id: idx, name }))
-          : campaign.tags,
-      };
-
-      await this.campaignCacheRepository.saveCampaignCacheById(
-        campaignId,
-        this.convertToCachedCampaignType(previewCampaign)
-      );
-
-      // 2. DB 업데이트
+      // 2. DB 업데이트 (Repository 메서드 사용)
       const updatedCampaign = await this.campaignRepository.update(
         campaignId,
         dto,
@@ -277,38 +267,44 @@ export class CampaignService {
         newStatus
       );
 
-      // 3. Redis 최종 동기화 (DB의 정확한 데이터로)
-      // TODO: 이렇게 짜긴 했으나 Redis최종 동기화 과정에서 비딩이 또 일어나게 된다면??
+      // 3. Redis 전체 동기화 (DB 결과 반영, 요청한 상태로 복원)
       await this.campaignCacheRepository.saveCampaignCacheById(
         updatedCampaign.id,
         this.convertToCachedCampaignType(updatedCampaign)
       );
+      this.logger.log(
+        `캠페인 ${campaignId} Redis 최종 동기화 완료 (상태: ${updatedCampaign.status})`
+      );
 
-      // 4. 태그 변경 시 임베딩 재생성
-      if (dto.tags) {
-        await this.embeddingQueue.add('generate-campaign-embedding', {
-          campaignId,
-        });
-        this.logger.log(
-          `캠페인 ${campaignId} 태그 변경으로 임베딩 재생성 큐 추가`
-        );
-      }
+      // 4. 태그 변경과 상관 없이 임베딩 재생성
+      // TODO: 하 근데 이거 dto.tags 변경 없을 시 임베딩 재적용 안 하도록 수정되어야 성능 개선의 의미가 있을 듯
+      await this.embeddingQueue.add('generate-campaign-embedding', {
+        campaignId,
+      });
+      this.logger.log(`캠페인 ${campaignId} 임베딩 재생성 큐 추가`);
 
       return updatedCampaign;
     } catch (error) {
-      // 보상 트랜잭션: DB 실패 시 Redis 롤백
+      // DB 업데이트 실패 시 Redis 상태 복원
       this.logger.warn(
-        `캠페인 ${campaignId} 수정 실패, Redis 롤백 시도`,
+        `캠페인 ${campaignId} 수정 실패, Redis 상태 복원 시도`,
         error
       );
 
-      if (originalCached) {
-        await this.campaignCacheRepository.saveCampaignCacheById(
-          campaignId,
-          originalCached
-        );
-        this.logger.log(`캠페인 ${campaignId} Redis 롤백 완료`);
-      }
+      // 요청한 상태로 복원 (dto.status가 있으면 그걸로, 없으면 원래 상태)
+      const restoreStatus = dto.status
+        ? dto.status === 'ACTIVE'
+          ? CampaignStatus.ACTIVE
+          : CampaignStatus.PAUSED
+        : campaign.status;
+
+      await this.campaignCacheRepository.updateCampaignStatus(
+        campaignId,
+        restoreStatus
+      );
+      this.logger.log(
+        `캠페인 ${campaignId} Redis 상태 복원 → ${restoreStatus}`
+      );
 
       throw error;
     }
