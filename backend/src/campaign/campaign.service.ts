@@ -175,6 +175,11 @@ export class CampaignService {
         this.convertToCachedCampaignType(campaign)
       );
 
+      await this.embeddingQueue.add('generate-campaign-embedding', {
+        campaignId: campaign.id,
+      });
+      this.logger.log(`캠페인 ${campaign.id} 임베딩 재생성 큐 추가`);
+
       return campaign;
     });
   }
@@ -209,6 +214,7 @@ export class CampaignService {
     campaignId: string,
     userId: number
   ): Promise<CampaignWithStats> {
+    // NOTICE : 이 부분은 RTB에 영향 없는 대쉬보드의 요청이기 때문에 바로 DB로 트랜젝션 굳이 수정할 필요 없을 거 같음
     const campaign = await this.campaignRepository.findOne(campaignId, userId);
 
     if (!campaign) {
@@ -312,6 +318,7 @@ export class CampaignService {
 
   // 캠페인 삭제 (소프트 삭제, 소유권 검증)
   async deleteCampaign(campaignId: string, userId: number): Promise<void> {
+    // TODO: 이부분도 Redis로 교체 필요
     const campaign = await this.campaignRepository.findOne(campaignId, userId);
 
     if (!campaign) {
