@@ -23,14 +23,15 @@ export function isEndDateBeforeStartDate(startDate: string, endDate: string) {
   return endDate < startDate;
 }
 
-export function validateStartDate(startDate: string) {
+export function validateStartDate(startDate: string, isEditMode = false) {
   if (!startDate) {
     return '시작일을 입력해주세요.';
   }
   if (!isValidDateFormat(startDate)) {
     return '올바른 날짜 형식이 아닙니다';
   }
-  if (isDateInPast(startDate)) {
+  // 수정 모드에서는 이미 시작된 캠페인의 시작일이 과거일 수 있으므로 체크 건너뛰도록...!
+  if (!isEditMode && isDateInPast(startDate)) {
     return '시작일은 오늘 이후여야 합니다';
   }
   return null;
@@ -93,7 +94,8 @@ export function validateDailyBudget(
 export function validateTotalBudget(
   totalBudget: number,
   dailyBudget: number,
-  balance: number | null
+  balance: number | null,
+  initialTotalBudget?: number
 ) {
   if (totalBudget <= 0) {
     return '총 예산을 입력해주세요.';
@@ -103,6 +105,10 @@ export function validateTotalBudget(
   }
   if (balance !== null && totalBudget > balance) {
     return '총 예산은 보유 잔액을 초과할 수 없습니다.';
+  }
+  // 수정 모드에서 초기값보다 적게 수정 불가하는 validaiton 추가!
+  if (initialTotalBudget !== undefined && totalBudget < initialTotalBudget) {
+    return `총 예산은 기존 예산(${initialTotalBudget.toLocaleString()}원) 이상이어야 합니다.`;
   }
   return null;
 }
@@ -114,17 +120,19 @@ interface Step2ValidationParams {
   maxCpc: number;
   startDate: string;
   endDate: string;
+  isEditMode?: boolean;
+  initialTotalBudget?: number;
 }
 
 export function isStep2Valid(params: Step2ValidationParams) {
-  const { maxCpc, dailyBudget, totalBudget, startDate, endDate, balance } =
+  const { maxCpc, dailyBudget, totalBudget, startDate, endDate, balance, isEditMode = false, initialTotalBudget } =
     params;
 
   return (
     validateMaxCpc(maxCpc, dailyBudget) === null &&
     validateDailyBudget(dailyBudget, totalBudget, maxCpc) === null &&
-    validateTotalBudget(totalBudget, dailyBudget, balance) === null &&
-    validateStartDate(startDate) === null &&
+    validateTotalBudget(totalBudget, dailyBudget, balance, isEditMode ? initialTotalBudget : undefined) === null &&
+    validateStartDate(startDate, isEditMode) === null &&
     validateEndDate(startDate, endDate) === null
   );
 }
