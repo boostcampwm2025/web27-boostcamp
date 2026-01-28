@@ -40,7 +40,7 @@ export function RealtimeBidsTableRow({ bid }: RealtimeBidsTableRowProps) {
       <td className="px-5 py-4 text-gray-900 whitespace-nowrap">
         {formatDateTime(bid.createdAt)}
       </td>
-      <td className="px-5 py-4 text-gray-900 font-semibold max-w-[200px]">
+      <td className="px-5 py-4 text-gray-900 font-semibold max-w-50">
         <div className="line-clamp-2">{bid.campaignTitle}</div>
       </td>
       <td className="px-5 py-4">

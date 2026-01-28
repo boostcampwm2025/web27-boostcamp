@@ -12,10 +12,11 @@ import {
 } from '../lib/step2Validation';
 
 export function Step2Content() {
-  const { formData, updateBudgetSettings, errors, setErrors, balance } =
+  const { formData, updateBudgetSettings, errors, setErrors, balance, mode, initialTotalBudget } =
     useCampaignFormStore();
   const { dailyBudget, totalBudget, maxCpc, startDate, endDate } =
     formData.budgetSettings;
+  const isEditMode = mode === 'edit';
 
   const totalBudgetHint =
     balance !== null
@@ -55,7 +56,12 @@ export function Step2Content() {
   };
 
   const handleTotalBudgetBlur = () => {
-    const error = validateTotalBudget(totalBudget, dailyBudget, balance);
+    const error = validateTotalBudget(
+      totalBudget,
+      dailyBudget,
+      balance,
+      isEditMode ? (initialTotalBudget ?? undefined) : undefined
+    );
     setErrors({
       budgetSettings: {
         ...errors.budgetSettings,
@@ -73,7 +79,7 @@ export function Step2Content() {
   };
 
   const handleStartDateBlur = () => {
-    const error = validateStartDate(startDate);
+    const error = validateStartDate(startDate, isEditMode);
     setErrors({
       budgetSettings: {
         ...errors.budgetSettings,

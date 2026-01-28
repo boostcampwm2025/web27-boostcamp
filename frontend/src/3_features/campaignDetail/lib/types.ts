@@ -39,6 +39,7 @@ export interface UpdateCampaignRequest {
   image?: string;
   url?: string;
   tags?: string[];
+  isHighIntent?: boolean;
   maxCpc?: number;
   dailyBudget?: number;
   totalBudget?: number;
