@@ -13,6 +13,9 @@ export const getTypeOrmConfig = (
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
   autoLoadEntities: false,
   synchronize: configService.get<string>('NODE_ENV') !== 'production', // 개발 시에만 자동 동기화
-  logging: configService.get<string>('NODE_ENV') === 'development',
+  logging:
+    configService.get<string>('NODE_ENV') === 'development'
+      ? ['error', 'warn']
+      : false,
   timezone: '+09:00', // KST
 });

@@ -1,15 +1,14 @@
 import { CampaignFilterDropdown } from './CampaignFilterDropdown';
 
 interface RealtimeBidsTableHeaderProps {
-  selectedCampaignIds?: number[];
-  onCampaignChange?: (campaignIds: number[]) => void;
+  selectedCampaignIds?: string[];
+  onCampaignChange?: (campaignIds: string[]) => void;
 }
 
 export function RealtimeBidsTableHeader({
   selectedCampaignIds = [],
   onCampaignChange,
 }: RealtimeBidsTableHeaderProps = {}) {
-
   return (
     <thead className="bg-gray-50 text-sm">
       <tr>

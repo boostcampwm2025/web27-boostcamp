@@ -25,7 +25,7 @@ export class BidLogController {
     const parsedLimit = limit ? parseInt(limit, 10) : 3;
     const parsedOffset = offset ? parseInt(offset, 10) : 0;
     const parsedCampaignIds = campaignIds
-      ? campaignIds.split(',').map((id) => parseInt(id.trim(), 10))
+      ? campaignIds.split(',').map((id) => id.trim())
       : undefined;
 
     const data = await this.bidLogService.getRealtimeBidLogs(

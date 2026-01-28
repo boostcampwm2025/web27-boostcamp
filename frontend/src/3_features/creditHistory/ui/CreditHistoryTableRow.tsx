@@ -12,9 +12,11 @@ export function CreditHistoryTableRow({ history }: CreditHistoryTableRowProps) {
 
   const getDescription = () => {
     if (isCharge) {
-      return history.description || '충전';
+      return history.description || '크레딧 충전';
     }
-    return history.campaignName ? `${history.campaignName} 캠페인 생성` : '캠페인 생성';
+    return history.campaignName
+      ? `${history.campaignName} 캠페인 생성`
+      : '캠페인 생성';
   };
 
   return (
@@ -27,7 +29,9 @@ export function CreditHistoryTableRow({ history }: CreditHistoryTableRowProps) {
         })}
       </td>
       <td className="px-5 py-4 text-gray-900">{getDescription()}</td>
-      <td className={`px-5 py-4 text-right font-semibold whitespace-nowrap ${amountColor}`}>
+      <td
+        className={`px-5 py-4 text-right font-semibold whitespace-nowrap ${amountColor}`}
+      >
         {amountPrefix}
         {formatWithComma(history.amount)}원
       </td>
