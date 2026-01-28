@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Icon } from '@shared/ui/Icon';
 import { useToast } from '@shared/lib/toast';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -11,6 +12,7 @@ interface SdkCodeSnippetProps {
 
 export function SdkCodeSnippet({ blogKey, mode }: SdkCodeSnippetProps) {
   const { showToast } = useToast();
+  const [contextValue, setContextValue] = useState('');
 
   const sdkUrl =
     import.meta.env.MODE === 'development'
@@ -29,7 +31,7 @@ export function SdkCodeSnippet({ blogKey, mode }: SdkCodeSnippetProps) {
   ></script>
 
 // 광고를 노출할 위치에 추가하세요
-<div data-boostad-zone></div>`;
+<div data-boostad-zone${contextValue ? ` data-context="${contextValue}"` : ''}></div>`;
 
   const codeSnippet = mode === 'auto' ? autoModeSnippet : manualModeSnippet;
 
@@ -80,6 +82,24 @@ export function SdkCodeSnippet({ blogKey, mode }: SdkCodeSnippetProps) {
       <p className="text-xs font-normal whitespace-nowrap text-gray-500">
         SDK가 자동으로 행동 추적 시작 (쿠키 미사용)
       </p>
+
+      {mode === 'manual' && (
+        <div className="flex flex-col w-full gap-2 mb-4">
+          <label className="text-sm font-medium text-gray-700">
+            광고 컨텍스트 (선택)
+          </label>
+          <input
+            type="text"
+            value={contextValue}
+            onChange={(e) => setContextValue(e.target.value)}
+            placeholder="예: 가볍게 즐길 수 있는 퍼즐 게임"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
+          />
+          <p className="text-xs text-gray-500">
+            입력한 내용이 위 코드의 data-context 속성에 반영됩니다.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
