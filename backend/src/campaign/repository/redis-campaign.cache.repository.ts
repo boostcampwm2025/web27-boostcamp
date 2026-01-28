@@ -23,7 +23,6 @@ export class RedisCampaignCacheRepository implements CampaignCacheRepository {
     try {
       await this.ioredisClient.call('JSON.SET', key, '$', JSON.stringify(data));
       await this.ioredisClient.expire(key, ttl);
-      this.logger.debug(`캐시 저장 성공: ${id}`);
     } catch (error) {
       this.logger.error(`캐시 저장 실패: ${id}`, error);
       throw error;
@@ -41,7 +40,6 @@ export class RedisCampaignCacheRepository implements CampaignCacheRepository {
         return null;
       }
 
-      this.logger.debug(`캐시 히트: ${id}`);
       return JSON.parse(result) as CachedCampaign;
     } catch (error) {
       this.logger.error(`캐시 조회 실패: ${id}`, error);
@@ -59,7 +57,6 @@ export class RedisCampaignCacheRepository implements CampaignCacheRepository {
         '$.dailySpent',
         amount.toString()
       );
-      this.logger.debug(`dailySpent 증가: ${id} (+${amount})`);
     } catch (error) {
       this.logger.error(`dailySpent 업데이트 실패: ${id}`, error);
       throw error;
@@ -90,9 +87,6 @@ export class RedisCampaignCacheRepository implements CampaignCacheRepository {
         key,
         '$.embeddingTags',
         JSON.stringify(embeddingTags)
-      );
-      this.logger.debug(
-        `캠페인 태그별 임베딩 업데이트: ${id} (${Object.keys(embeddingTags).length}개 태그)`
       );
     } catch (error) {
       this.logger.error(`캠페인 임베딩 업데이트 실패: ${id}`, error);

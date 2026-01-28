@@ -16,7 +16,7 @@ export class EmbeddingWorker extends WorkerHost {
   }
 
   async process(job: Job): Promise<void> {
-    this.logger.log(`Processing job ${job.id} of type ${job.name}`);
+    this.logger.debug(`Processing job ${job.id} of type ${job.name}`);
 
     try {
       if (job.name === 'generate-campaign-embedding') {
@@ -63,7 +63,7 @@ export class EmbeddingWorker extends WorkerHost {
     );
 
     this.logger.log(
-      `✅ Campaign ${campaignId} 태그별 임베딩 생성 완료 (${campaign.tags.length}개 태그)`
+      `✅ ID:${campaignId.slice(0, 8)}... title:${campaign.title.slice(0, 15)}... 임베딩 생성 완료 (${campaign.tags.length}개 태그)`
     );
   }
 }
