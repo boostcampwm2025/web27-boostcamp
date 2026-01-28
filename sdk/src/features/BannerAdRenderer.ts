@@ -140,7 +140,7 @@ export class BannerAdRenderer implements AdRenderer {
   }
 
   private renderEmptyState(): string {
-    return `
+    return /*html*/ `
       <div style="
         padding: 10px;
         text-align: center;
@@ -196,7 +196,7 @@ export class BannerAdRenderer implements AdRenderer {
     url: string,
     image: string
   ): string {
-    return `
+    return /*html*/ `
       <a href="${url}" class="boostad-link" target="_blank" rel="noopener noreferrer" style="
         display: flex;
         align-items: center;
@@ -211,7 +211,7 @@ export class BannerAdRenderer implements AdRenderer {
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
         transition: box-shadow 0.2s;
         box-sizing: border-box;
-      " onmouseover="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.12)';" onmouseout="this.style.boxShadow='0 1px 4px rgba(0,0,0,0.08)';">
+      " onmouseover="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.12)'; const cta=this.querySelector('.boostad-cta'); if(cta){cta.style.textDecorationColor='#155dfc';}" onmouseout="this.style.boxShadow='0 1px 4px rgba(0,0,0,0.08)'; const cta=this.querySelector('.boostad-cta'); if(cta){cta.style.textDecorationColor='transparent';}">
         <img src="${image}" alt="${title}" style="
           width: 48px;
           height: 48px;
@@ -230,16 +230,22 @@ export class BannerAdRenderer implements AdRenderer {
           ">${title}</div>
           <div style="font-size: 10px; color: #999; margin-top: 2px;">Sponsored by BoostAD</div>
         </div>
-        <span style="
-          padding: 6px 12px;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          color: white;
+        <span class="boostad-cta" style="
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 6px 8px;
+          color: #155dfc;
           border-radius: 6px;
           font-size: 12px;
-          font-weight: 600;
+          font-weight: 400;
           white-space: nowrap;
           flex-shrink: 0;
-        ">보기</span>
+          transition: text-decoration-color 0.2s;
+          text-decoration: underline;
+          text-decoration-color: transparent;
+          text-underline-offset: 3px;
+        ">더 알아보기 →</span>
       </a>
     `;
   }
@@ -251,7 +257,7 @@ export class BannerAdRenderer implements AdRenderer {
     url: string,
     image: string
   ): string {
-    return `
+    return /*html*/ `
       <div class="boostad-widget" style="
         display: flex;
         align-items: center;
@@ -292,16 +298,22 @@ export class BannerAdRenderer implements AdRenderer {
           ">${content}</div>
         </div>
         <a href="${url}" class="boostad-link" target="_blank" rel="noopener noreferrer" style="
-          padding: 10px 20px;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          color: white;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 8px 10px 8px 0;
+          color: #155dfc;
           text-decoration: none;
           border-radius: 8px;
-          font-size: 13px;
-          font-weight: 600;
+          font-size: 12px;
+          font-weight: 400;
           white-space: nowrap;
           flex-shrink: 0;
-        ">자세히 보기</a>
+          transition: box-shadow 0.2s, text-decoration-color 0.2s;
+          text-decoration: underline;
+          text-decoration-color: transparent;
+          text-underline-offset: 3px;
+        " onmouseover="this.style.textDecorationColor='#155dfc';" onmouseout="this.style.textDecorationColor='transparent';" onfocus="this.style.boxShadow='0 0 0 3px rgba(21,93,252,0.25)'; this.style.textDecorationColor='#155dfc';" onblur="this.style.boxShadow='none'; this.style.textDecorationColor='transparent';">더 알아보기 →</a>
       </div>
     `;
   }
@@ -313,7 +325,7 @@ export class BannerAdRenderer implements AdRenderer {
     url: string,
     image: string
   ): string {
-    return `
+    return /*html*/ `
       <div class="boostad-widget" style="
         border: 1px solid #e0e0e0;
         border-radius: 12px;
@@ -371,22 +383,26 @@ export class BannerAdRenderer implements AdRenderer {
               gap: 12px;
             ">
               <a href="${url}" class="boostad-link" target="_blank" rel="noopener noreferrer" style="
-                display: inline-block;
-                padding: 12px 24px;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                padding: 8px 10px 8px 0;
+                color: #155dfc;
                 text-decoration: none;
                 border-radius: 8px;
-                font-size: 14px;
-                font-weight: 600;
-                transition: opacity 0.2s;
+                font-size: 12px;
+                font-weight: 400;
+                transition: box-shadow 0.2s, text-decoration-color 0.2s;
                 cursor: pointer;
                 white-space: nowrap;
-              " onmouseover="this.style.opacity='0.9';" onmouseout="this.style.opacity='1';">
-                자세히 보기 →
+                text-decoration: underline;
+                text-decoration-color: transparent;
+                text-underline-offset: 3px;
+              " onmouseover="this.style.textDecorationColor='#155dfc';" onmouseout="this.style.textDecorationColor='transparent';" onfocus="this.style.boxShadow='0 0 0 3px rgba(21,93,252,0.25)'; this.style.textDecorationColor='#155dfc';" onblur="this.style.boxShadow='none'; this.style.textDecorationColor='transparent';">
+                더 알아보기 →
               </a>
 
-              <span style="font-size: 11px; color: #aaa; white-space: nowrap;">
+              <span style="font-size: 11px; color: #99a1af; white-space: nowrap;">
                 by <strong>BoostAD</strong>
               </span>
             </div>
