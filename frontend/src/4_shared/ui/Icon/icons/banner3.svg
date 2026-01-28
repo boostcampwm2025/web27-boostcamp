@@ -36,7 +36,7 @@
 
   <style>
     /* 기본 스타일 */
-    .bg-rect { fill: url(#bgGradient); }
+    .bg-rect { fill: #ffffff; }
     .main-title { font-family: system-ui, -apple-system, sans-serif; font-weight: 900; font-size: 56px; fill: #1e293b; }
     .sub-slogan { font-family: system-ui, -apple-system, sans-serif; font-weight: 500; font-size: 20px; fill: #475569; letter-spacing: 0.5px; }
 
