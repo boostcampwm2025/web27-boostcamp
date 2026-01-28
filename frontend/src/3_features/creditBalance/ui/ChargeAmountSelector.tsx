@@ -5,7 +5,7 @@ import { Button } from '@shared/ui/Button';
 import { TextField } from '@shared/ui/TextField';
 import { useToast } from '@shared/lib/toast/useToast';
 import { formatWithComma } from '@shared/lib/format/formatCurrency';
-import { Icon } from '@shared/ui/Icon';
+import tossLogo from '@shared/ui/Icon/icons/toss.png';
 
 const PRESET_AMOUNTS = [10000, 30000, 50000, 100000];
 const TOSS_CLIENT_KEY = import.meta.env.VITE_TOSS_CLIENT_KEY;
@@ -97,17 +97,21 @@ export function ChargeAmountSelector() {
 
       {/* 충전 버튼 */}
       <div className="mt-4 flex justify-end">
-        <Button
-          variant="blue"
+        <button
           onClick={handleCharge}
           disabled={isCharging || (!selectedAmount && !customAmount)}
+          className="h-10 w-32 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed rounded-lg transition-colors flex items-center justify-center"
         >
           {isCharging ? (
-            <span>충전 중...</span>
+            <span className="text-white text-sm">충전 중...</span>
           ) : (
-            <Icon.Toss className="h-6 w-auto" />
+            <img
+              src={tossLogo}
+              alt="Toss Payments"
+              className="h-full w-full object-contain"
+            />
           )}
-        </Button>
+        </button>
       </div>
     </div>
   );
