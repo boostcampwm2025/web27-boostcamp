@@ -1,25 +1,36 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   useCampaignDetail,
   usePauseCampaign,
   useUpdateBudget,
+  useUpdateCampaign,
   CampaignDetailHeader,
   CampaignInfoCard,
   CampaignMetricsCards,
   BudgetStatusCard,
   SpendingLogCard,
+  CampaignEditModal,
 } from '@features/campaignDetail';
 import { useAdvertiserBalance } from '@shared/lib/hooks/useAdvertiserBalance';
 import { useToast } from '@shared/lib/toast';
+import type { CampaignFormData } from '@shared/ui/CampaignForm';
 
 export function CampaignDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const toast = useToast();
 
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
   const { campaign, isLoading, error, refetch } = useCampaignDetail(id || '');
   const { togglePause, isLoading: isPauseLoading } = usePauseCampaign();
   const { updateBudget, isLoading: isUpdateBudgetLoading } = useUpdateBudget();
+  const {
+    updateCampaign,
+    isLoading: isUpdateCampaignLoading,
+    error: updateCampaignError,
+  } = useUpdateCampaign();
   const { balance } = useAdvertiserBalance();
 
   const handleBack = () => {
@@ -44,8 +55,35 @@ export function CampaignDetailPage() {
   };
 
   const handleEdit = () => {
-    // TODO: 수정 모달 열기
-    console.log('Edit campaign');
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditModalClose = () => {
+    setIsEditModalOpen(false);
+  };
+
+  const handleEditSubmit = async (formData: CampaignFormData) => {
+    if (!campaign) return;
+
+    try {
+      await updateCampaign(campaign.id, {
+        title: formData.campaignContent.title,
+        content: formData.campaignContent.content,
+        url: formData.campaignContent.url,
+        image: formData.campaignContent.image || undefined,
+        tags: formData.campaignContent.tags.map((tag) => tag.name),
+        isHighIntent: formData.campaignContent.isHighIntent,
+        maxCpc: formData.budgetSettings.maxCpc,
+        dailyBudget: formData.budgetSettings.dailyBudget,
+        totalBudget: formData.budgetSettings.totalBudget,
+        endDate: formData.budgetSettings.endDate,
+      });
+      toast.showToast('캠페인이 수정되었습니다', 'success');
+      setIsEditModalOpen(false);
+      refetch();
+    } catch {
+      toast.showToast('캠페인 수정에 실패했습니다', 'error');
+    }
   };
 
   const handleChargeBudget = () => {
@@ -127,6 +165,29 @@ export function CampaignDetailPage() {
       />
 
       <SpendingLogCard />
+
+      {/* 캠페인 수정 모달 */}
+      <CampaignEditModal
+        isOpen={isEditModalOpen}
+        onClose={handleEditModalClose}
+        onSubmit={handleEditSubmit}
+        isSubmitting={isUpdateCampaignLoading}
+        initialData={{
+          title: campaign.title,
+          content: campaign.content,
+          url: campaign.url,
+          tags: campaign.tags,
+          isHighIntent: campaign.isHighIntent,
+          image: campaign.image,
+          dailyBudget: campaign.dailyBudget,
+          totalBudget: campaign.totalBudget,
+          maxCpc: campaign.maxCpc,
+          startDate: campaign.startDate,
+          endDate: campaign.endDate,
+        }}
+        balance={balance}
+        error={updateCampaignError}
+      />
     </div>
   );
 }
