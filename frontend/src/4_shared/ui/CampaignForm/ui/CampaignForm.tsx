@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Modal } from '@shared/ui/Modal';
 import { useCampaignFormStore } from '../lib/campaignFormStore';
 import { isStep1Valid } from '../lib/step1Validation';
@@ -19,7 +20,9 @@ export function CampaignForm({
   isSubmitting = false,
   maxContentHeight,
 }: CampaignFormProps) {
-  const { currentStep, setStep, formData, balance, mode, initialTotalBudget } = useCampaignFormStore();
+  const navigate = useNavigate();
+  const { currentStep, setStep, formData, balance, mode, initialTotalBudget } =
+    useCampaignFormStore();
 
   const isNextDisabled = () => {
     if (isSubmitting) return true;
@@ -55,13 +58,25 @@ export function CampaignForm({
     }
   };
 
+  const handleBack = () => {
+    navigate(-1);
+  };
+
   return (
     <div className="flex w-150 flex-col gap-4">
-      <StepIndicator currentStep={currentStep} mode={mode} />
+      <StepIndicator
+        currentStep={currentStep}
+        mode={mode}
+        onBack={handleBack}
+      />
       <Modal showHeader={false}>
         <div
           className="p-6"
-          style={maxContentHeight ? { maxHeight: maxContentHeight, overflowY: 'auto' } : undefined}
+          style={
+            maxContentHeight
+              ? { maxHeight: maxContentHeight, overflowY: 'auto' }
+              : undefined
+          }
         >
           {children}
         </div>
