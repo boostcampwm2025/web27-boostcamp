@@ -86,7 +86,7 @@ export function SdkCodeSnippet({ blogKey, mode }: SdkCodeSnippetProps) {
       {mode === 'manual' && (
         <div className="flex flex-col w-full gap-2 mb-4">
           <label className="text-sm font-medium text-gray-700">
-            광고 컨텍스트 (선택)
+            광고 컨텍스트 (필수)
           </label>
           <input
             type="text"
