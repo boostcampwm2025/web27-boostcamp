@@ -1,8 +1,4 @@
-import type {
-  CampaignWithTags,
-  CachedCampaign,
-  Tag,
-} from '../../campaign/types/campaign.types';
+import type { CachedCampaign, Tag } from '../../campaign/types/campaign.types';
 
 export interface Campaign {
   id: string;
@@ -40,7 +36,7 @@ export interface Candidate {
   similarity: number;
 }
 
-export interface ScoredCandidate extends CampaignWithTags {
+export interface ScoredCandidate extends CachedCampaign {
   score: number;
 }
 
