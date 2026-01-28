@@ -22,7 +22,7 @@ export class BidLogService {
     offset: number,
     startDate?: string,
     endDate?: string,
-    campaignIds?: number[]
+    campaignIds?: string[]
   ): Promise<BidLogDataDto> {
     const total = await this.bidLogRepository.countByUserId(
       userId,

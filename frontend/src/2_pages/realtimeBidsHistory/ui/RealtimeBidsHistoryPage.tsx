@@ -10,7 +10,7 @@ const ITEMS_PER_PAGE = 10;
 
 export function RealtimeBidsHistoryPage() {
   const [offset, setOffset] = useState(0);
-  const [selectedCampaignIds, setSelectedCampaignIds] = useState<number[]>([]);
+  const [selectedCampaignIds, setSelectedCampaignIds] = useState<string[]>([]);
 
   // 7일 전 날짜 계산 (메모이제이션으로 무한 루프 방지)
   const startDate = useMemo(() => {
@@ -42,7 +42,7 @@ export function RealtimeBidsHistoryPage() {
     }
   };
 
-  const handleCampaignChange = (campaignIds: number[]) => {
+  const handleCampaignChange = (campaignIds: string[]) => {
     setSelectedCampaignIds(campaignIds);
     setOffset(0); // 필터 변경 시 첫 페이지로 이동
   };
@@ -88,7 +88,10 @@ export function RealtimeBidsHistoryPage() {
                 <tbody>
                   {bids.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="p-10 text-center text-gray-500">
+                      <td
+                        colSpan={7}
+                        className="p-10 text-center text-gray-500"
+                      >
                         입찰 기록이 없습니다.
                       </td>
                     </tr>

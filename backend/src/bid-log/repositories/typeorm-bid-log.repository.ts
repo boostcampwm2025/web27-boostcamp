@@ -65,7 +65,7 @@ export class TypeOrmBidLogRepository extends BidLogRepository {
     order: 'asc' | 'desc' = 'desc',
     startDate?: string,
     endDate?: string,
-    campaignIds?: number[]
+    campaignIds?: string[]
   ): Promise<BidLog[]> {
     // DB 레벨에서 JOIN, 필터링, 정렬, 페이지네이션을 한 번에 처리
     // 외래키 제약조건이 제거되었으므로 명시적인 JOIN 조건 사용
@@ -104,7 +104,7 @@ export class TypeOrmBidLogRepository extends BidLogRepository {
     userId: number,
     startDate?: string,
     endDate?: string,
-    campaignIds?: number[]
+    campaignIds?: string[]
   ): Promise<number> {
     const queryBuilder = this.repository
       .createQueryBuilder('bidLog')

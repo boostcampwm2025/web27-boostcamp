@@ -2,8 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { useCampaignList } from '../lib/useCampaignList';
 
 interface CampaignFilterDropdownProps {
-  selectedCampaignIds: number[];
-  onApply: (campaignIds: number[]) => void;
+  selectedCampaignIds: string[];
+  onApply: (campaignIds: string[]) => void;
 }
 
 export function CampaignFilterDropdown({
@@ -28,7 +28,7 @@ export function CampaignFilterDropdown({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleToggle = (campaignId: number) => {
+  const handleToggle = (campaignId: string) => {
     const newSelected = selectedCampaignIds.includes(campaignId)
       ? selectedCampaignIds.filter((id) => id !== campaignId)
       : [...selectedCampaignIds, campaignId];
@@ -88,8 +88,8 @@ export function CampaignFilterDropdown({
                 >
                   <input
                     type="checkbox"
-                    checked={selectedCampaignIds.includes(parseInt(campaign.id, 10))}
-                    onChange={() => handleToggle(parseInt(campaign.id, 10))}
+                    checked={selectedCampaignIds.includes(campaign.id)}
+                    onChange={() => handleToggle(campaign.id)}
                     className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-0 focus:ring-offset-0"
                   />
                   <span className="text-sm text-gray-700 flex-1 truncate">

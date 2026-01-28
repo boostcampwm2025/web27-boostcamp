@@ -9,7 +9,6 @@ export function RealtimeBidsTableHeader({
   selectedCampaignIds = [],
   onCampaignChange,
 }: RealtimeBidsTableHeaderProps = {}) {
-
   return (
     <thead className="bg-gray-50 text-sm">
       <tr>

@@ -8,7 +8,7 @@ interface UseRealtimeBidsParams {
   offset?: number;
   startDate?: string;
   endDate?: string;
-  campaignIds?: number[];
+  campaignIds?: string[];
 }
 
 interface UseRealtimeBidsReturn {
