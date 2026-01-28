@@ -102,10 +102,11 @@ export function ChargeAmountSelector() {
           onClick={handleCharge}
           disabled={isCharging || (!selectedAmount && !customAmount)}
         >
-          <div className="flex items-center gap-2">
-            <Icon.Toss className="w-4 h-4" />
-            <span>{isCharging ? '충전 중...' : '토스페이먼츠로 충전'}</span>
-          </div>
+          {isCharging ? (
+            <span>충전 중...</span>
+          ) : (
+            <Icon.Toss className="h-6 w-auto" />
+          )}
         </Button>
       </div>
     </div>
