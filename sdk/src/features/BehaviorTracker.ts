@@ -6,6 +6,7 @@ export class BehaviorTracker implements BehaviorTrackerInterface {
     scrollDepth: 0,
     timeOnPage: 0,
     copyEvents: 0,
+    relatedDocClicks: 0,
     codeBlockCopies: 0,
     score: 0,
   };
@@ -20,6 +21,9 @@ export class BehaviorTracker implements BehaviorTrackerInterface {
 
     // 스크롤 이벤트 리스너 등록
     window.addEventListener('scroll', this.handleScroll);
+
+    // 클릭 이벤트 리스너 등록
+    document.addEventListener('click', this.handleDocClick);
 
     // 복사 이벤트 리스너 등록
     document.addEventListener('copy', this.handleCopy);
@@ -39,7 +43,7 @@ export class BehaviorTracker implements BehaviorTrackerInterface {
     // 이벤트 리스너 제거
     window.removeEventListener('scroll', this.handleScroll);
     document.removeEventListener('copy', this.handleCopy);
-
+    document.removeEventListener('click', this.handleDocClick)
     // 타이머 정리
     if (this.timerInterval) {
       clearInterval(this.timerInterval);
@@ -60,7 +64,7 @@ export class BehaviorTracker implements BehaviorTrackerInterface {
   onThresholdReached(callback: () => void): void {
     this.thresholdCallback = callback;
   }
-
+  private handleDocClick = (): void => {};
   private handleScroll = (): void => {
     const scrollHeight = document.documentElement.scrollHeight;
     const clientHeight = window.innerHeight;
