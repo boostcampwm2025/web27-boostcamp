@@ -3,7 +3,7 @@ export function RealtimeBidsTableHeader() {
     <thead className="bg-gray-50 text-sm">
       <tr>
         <th className="px-5 py-3 text-left font-medium text-gray-600 whitespace-nowrap">
-          시간
+          일시
         </th>
         <th className="px-5 py-3 text-left font-medium text-gray-600 whitespace-nowrap">
           캠페인

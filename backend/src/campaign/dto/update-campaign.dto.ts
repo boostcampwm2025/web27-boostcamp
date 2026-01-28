@@ -14,7 +14,7 @@ import {
 export class UpdateCampaignDto {
   @IsOptional()
   @IsString()
-  @MaxLength(20, { message: '제목은 최대 20자까지 입력 가능합니다.' })
+  @MaxLength(30, { message: '제목은 최대 30자까지 입력 가능합니다.' })
   title?: string;
 
   @IsOptional()

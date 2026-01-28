@@ -3,7 +3,7 @@ export function CampaignStatsTableHeader() {
     <thead className="bg-gray-50 text-sm">
       <tr>
         <th className="px-5 py-3 text-left font-medium text-gray-600 whitespace-nowrap">
-          캠페인 명
+          캠페인
         </th>
         <th className="px-5 py-3 text-left font-medium text-gray-600 whitespace-nowrap">
           상태

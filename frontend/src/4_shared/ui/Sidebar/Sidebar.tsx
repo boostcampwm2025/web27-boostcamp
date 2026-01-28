@@ -1,5 +1,6 @@
 import { Icon } from '@shared/ui/Icon';
 import { NavLink, useLocation } from 'react-router-dom';
+import { UserProfile } from '@shared/ui/UserProfile';
 
 interface MenuItem {
   id: string;
@@ -64,7 +65,7 @@ export function Sidebar() {
 
   return (
     <aside
-      className="flex flex-col w-52 shrink-0 bg-white border-r border-gray-200"
+      className="flex flex-col w-52 shrink-0 bg-white border-r border-gray-200 h-screen fixed left-0 top-0"
       role="navigation"
       aria-label="Main navigation"
     >
@@ -73,7 +74,7 @@ export function Sidebar() {
         BoostAD
       </header>
 
-      <nav className="p-4">
+      <nav className="p-4 flex-1">
         <ul className="flex flex-col gap-1">
           {menuItems.map((item) => {
             const IconComponent = Icon[item.icon];
@@ -97,6 +98,8 @@ export function Sidebar() {
           })}
         </ul>
       </nav>
+
+      <UserProfile />
     </aside>
   );
 }

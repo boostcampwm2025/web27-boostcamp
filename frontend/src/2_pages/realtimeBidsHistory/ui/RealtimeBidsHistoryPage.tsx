@@ -41,8 +41,8 @@ export function RealtimeBidsHistoryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gray-50 px-8 py-8">
+      <div className="w-full">
         <div className="bg-white border border-gray-200 rounded-xl shadow">
           <div className="p-5 flex flex-row justify-between items-center border-b border-gray-100">
             <div className="flex items-center gap-3">

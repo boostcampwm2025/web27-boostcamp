@@ -5,7 +5,8 @@ import { RealtimeBidsTable } from '@features/realtimeBids';
 
 export function AdvertiserDashboardPage() {
   return (
-    <div className="flex flex-col gap-4 px-8 py-8 bg-gray-100">
+    <div className="min-h-screen flex flex-col gap-4 px-8 py-8 bg-gray-50">
+      {' '}
       <AccountSummaryCardList />
       <CampaignStatsTable />
       <div className="flex flex-row gap-4">
