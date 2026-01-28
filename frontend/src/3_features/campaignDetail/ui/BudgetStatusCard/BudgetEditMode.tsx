@@ -68,7 +68,7 @@ export function BudgetEditMode({
 
           {/* 추가 예산 입력 */}
           <div className="bg-white">
-            <CurrencyField value={addBudget} onChange={setAddBudget} />
+            <CurrencyField value={addBudget} onChange={setAddBudget} prefix="+" />
           </div>
 
           {/* 퀵버튼 */}
