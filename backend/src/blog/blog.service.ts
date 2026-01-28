@@ -109,15 +109,40 @@ export class BlogService {
     if (await this.blogRepository.existsBlogByDomain(domain)) {
       throw new ConflictException('이미 등록된 도메인입니다.');
     }
+
     try {
-      await this.blogRepository.createBlog(userId, domain, blogName, blogKey);
-    } catch {
+      // 1. DB 블로그 생성
+      const blogId = await this.blogRepository.createBlog(
+        userId,
+        domain,
+        blogName,
+        blogKey
+      );
+
+      // 2. 생성된 블로그 조회
+      const createdBlog = await this.blogRepository.findById(blogId);
+
+      if (!createdBlog) {
+        throw new InternalServerErrorException(
+          '생성된 블로그를 찾을 수 없습니다.'
+        );
+      }
+
+      // 3. Redis 캐시 저장 + exists set 추가
+      await this.blogCacheRepository.saveBlogCacheById(
+        createdBlog.id,
+        this.convertToCachedBlogType(createdBlog)
+      );
+
+      this.logger.log(`✅ 블로그 생성 완료 (ID: ${blogId}, Redis 동기화 완료)`);
+
+      return blogKey;
+    } catch (error) {
+      this.logger.error('블로그 생성 중 에러:', error);
       throw new InternalServerErrorException(
         '블로그 생성중 문제가 발생했습니다.'
       );
     }
-
-    return blogKey;
   }
 
   async getMyBlogExists(userId: number): Promise<boolean> {
