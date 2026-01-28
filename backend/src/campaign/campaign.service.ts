@@ -2,7 +2,12 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
+import type { EmbeddingJobData } from 'src/queue/types/queue.type';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { CampaignRepository } from './repository/campaign.repository.interface';
@@ -28,13 +33,78 @@ import {
 
 @Injectable()
 export class CampaignService {
+  private readonly logger = new Logger(CampaignService.name);
+
   constructor(
     private readonly campaignRepository: CampaignRepository,
     private readonly userRepository: UserRepository,
     private readonly campaignCacheRepository: CampaignCacheRepository,
     private readonly creditHistoryRepository: CreditHistoryRepository,
-    @InjectDataSource() private readonly dataSource: DataSource
+    @InjectDataSource() private readonly dataSource: DataSource,
+    @InjectQueue('embedding-queue')
+    private readonly embeddingQueue: Queue<EmbeddingJobData>
   ) {}
+
+  @OnEvent('ml.model.ready')
+  onModelReady(): void {
+    this.logger.log('🚀 Campaign 초기 로딩 시작 (ML 모델 준비 완료)');
+
+    // 백그라운드 실행 (await 없음)
+    this.loadAllCampaigns().catch((error) => {
+      this.logger.error('Campaign 초기 로딩 실패:', error);
+    });
+  }
+
+  private async loadAllCampaigns(): Promise<void> {
+    try {
+      const campaigns = await this.campaignRepository.getAll();
+
+      this.logger.log(`📦 총 ${campaigns.length}개 Campaign 로딩 중...`);
+
+      let loaded = 0;
+      let embeddingQueued = 0;
+
+      for (const campaign of campaigns) {
+        // Redis에 캐싱
+        await this.campaignCacheRepository.saveCampaignCacheById(
+          campaign.id,
+          this.convertToCachedCampaignType(campaign)
+        );
+
+        loaded++;
+
+        // 임베딩 생성 큐 추가 (campaignId만 전달, Worker가 Redis에서 태그 조회)
+        await this.embeddingQueue.add(
+          'generate-campaign-embedding',
+          {
+            campaignId: campaign.id,
+          },
+          {
+            jobId: `campaign-embedding-${campaign.id}`,
+            removeOnComplete: true,
+            removeOnFail: false,
+            attempts: 3,
+          }
+        );
+
+        embeddingQueued++;
+
+        // 진행 상황 로깅 (100개당 1번)
+        if (loaded % 100 === 0) {
+          this.logger.log(
+            `📊 Campaign 로딩 진행: ${loaded}/${campaigns.length}`
+          );
+        }
+      }
+
+      this.logger.log(
+        `✅ Campaign 로딩 완료: ${loaded}개, 임베딩 큐: ${embeddingQueued}개`
+      );
+    } catch (error) {
+      this.logger.error('Campaign 로딩 중 에러 발생:', error);
+      throw error;
+    }
+  }
 
   // 캠페인 생성 (태그 검증 + 날짜 유효성 체크 + 시작일 기준 상태 설정 + 크레딧 차감)
   async createCampaign(
@@ -106,6 +176,11 @@ export class CampaignService {
         this.convertToCachedCampaignType(campaign)
       );
 
+      await this.embeddingQueue.add('generate-campaign-embedding', {
+        campaignId: campaign.id,
+      });
+      this.logger.log(`캠페인 ${campaign.id} 임베딩 재생성 큐 추가`);
+
       return campaign;
     });
   }
@@ -140,6 +215,7 @@ export class CampaignService {
     campaignId: string,
     userId: number
   ): Promise<CampaignWithStats> {
+    // NOTICE : 이 부분은 RTB에 영향 없는 대쉬보드의 요청이기 때문에 바로 DB로 트랜젝션 굳이 수정할 필요 없을 거 같음
     const campaign = await this.campaignRepository.findOne(campaignId, userId);
 
     if (!campaign) {
@@ -150,12 +226,17 @@ export class CampaignService {
     return this.addStatsToCampaign(campaign);
   }
 
-  // 캠페인 수정 (소유권 + 날짜 + 태그 검증 + 시작일 변경 시 상태 재결정)
+  // 캠페인 수정 (Redis PAUSED 빠른 변경 → DB 업데이트 → Redis 동기화)
+  // 1. Redis 상태만 PAUSED로 빠르게 변경 (비딩 즉시 중단, embeddingTags 보존)
+  // 2. DB 업데이트 (Repository 메서드 사용)
+  // 3. Redis 전체 동기화 (DB 결과 반영, 요청한 상태로 복원)
+  // 4. 태그 변경 시 임베딩 재생성
   async updateCampaign(
     campaignId: string,
     userId: number,
     dto: UpdateCampaignDto
   ): Promise<CampaignWithTags> {
+    // TODO: 여기서 Redis에서 조회하도록 수정 필요할듯
     const campaign = await this.campaignRepository.findOne(campaignId, userId);
 
     if (!campaign) {
@@ -177,145 +258,192 @@ export class CampaignService {
       newStatus = this.determineInitialStatus(dto.startDate);
     }
 
-    // 총 예산 변경에 따른 크레딧 조정
-    return await this.dataSource.transaction(async (manager) => {
-      // totalBudget이 변경되는 경우 크레딧 조정
-      if (
-        dto.totalBudget !== undefined &&
-        dto.totalBudget !== campaign.totalBudget
-      ) {
-        const oldBudget = campaign.totalBudget ?? 0;
-        const newBudget = dto.totalBudget ?? 0;
-        const budgetDiff = newBudget - oldBudget;
+    // 1. Redis 상태만 PAUSED로 빠르게 변경 (비딩 즉시 중단, embeddingTags 보존)
+    await this.campaignCacheRepository.updateCampaignStatus(
+      campaignId,
+      CampaignStatus.PAUSED
+    );
+    this.logger.log(`캠페인 ${campaignId} Redis 상태 → PAUSED (비딩 중단)`);
 
-        // 예산 감액은 허용하지 않음
-        if (budgetDiff < 0) {
-          throw new BadRequestException(
-            '캠페인 예산은 감액할 수 없습니다. 기존 예산보다 크거나 같은 값만 설정할 수 있습니다.'
-          );
-        }
+    try {
+      // 2. 총 예산 변경에 따른 크레딧 조정 + DB 업데이트 (트랜잭션)
+      const updatedCampaign = await this.dataSource.transaction(
+        async (manager) => {
+          // totalBudget이 변경되는 경우 크레딧 조정
+          if (
+            dto.totalBudget !== undefined &&
+            dto.totalBudget !== campaign.totalBudget
+          ) {
+            const oldBudget = campaign.totalBudget ?? 0;
+            const newBudget = dto.totalBudget ?? 0;
+            const budgetDiff = newBudget - oldBudget;
 
-        // 예산이 증가하는 경우 (추가 차감)
-        if (budgetDiff > 0) {
-          const userRepo = manager.getRepository(UserEntity);
-          const user = await userRepo.findOne({
-            where: { id: userId },
-            lock: { mode: 'pessimistic_write' },
-          });
+            // 예산 감액은 허용하지 않음
+            if (budgetDiff < 0) {
+              throw new BadRequestException(
+                '캠페인 예산은 감액할 수 없습니다. 기존 예산보다 크거나 같은 값만 설정할 수 있습니다.'
+              );
+            }
 
-          if (!user) {
-            throw new NotFoundException('사용자를 찾을 수 없습니다');
+            // 예산이 증가하는 경우 (추가 차감)
+            if (budgetDiff > 0) {
+              const userRepo = manager.getRepository(UserEntity);
+              const user = await userRepo.findOne({
+                where: { id: userId },
+                lock: { mode: 'pessimistic_write' },
+              });
+
+              if (!user) {
+                throw new NotFoundException('사용자를 찾을 수 없습니다');
+              }
+
+              // 잔액 검증
+              if (user.balance < budgetDiff) {
+                throw new BadRequestException(
+                  `잔액이 부족합니다. 필요 금액: ${budgetDiff}원, 보유 잔액: ${user.balance}원`
+                );
+              }
+
+              const newBalance = user.balance - budgetDiff;
+              user.balance = newBalance;
+              await userRepo.save(user);
+
+              // 크레딧 히스토리 기록 (차감)
+              const historyRepo = manager.getRepository(CreditHistoryEntity);
+              await historyRepo.save({
+                userId,
+                type: CreditHistoryType.WITHDRAW,
+                amount: budgetDiff,
+                balanceAfter: newBalance,
+                campaignId: campaignId,
+                description: `'${campaign.title}' 캠페인 예산 추가`,
+              });
+            }
           }
 
-          // 잔액 검증
-          if (user.balance < budgetDiff) {
-            throw new BadRequestException(
-              `잔액이 부족합니다. 필요 금액: ${budgetDiff}원, 보유 잔액: ${user.balance}원`
-            );
+          // 캠페인 업데이트 (트랜잭션 매니저 사용)
+          const campaignRepo = manager.getRepository(CampaignEntity);
+          const campaignToUpdate = await campaignRepo.findOne({
+            where: { id: campaignId },
+            relations: ['tags'],
+          });
+
+          if (!campaignToUpdate) {
+            throw new NotFoundException('캠페인을 찾을 수 없습니다.');
           }
 
-          const newBalance = user.balance - budgetDiff;
-          user.balance = newBalance;
-          await userRepo.save(user);
+          // 업데이트 필드 적용
+          if (dto.title !== undefined) campaignToUpdate.title = dto.title;
+          if (dto.content !== undefined) campaignToUpdate.content = dto.content;
+          if (dto.image !== undefined) campaignToUpdate.image = dto.image;
+          if (dto.url !== undefined) campaignToUpdate.url = dto.url;
+          if (dto.isHighIntent !== undefined)
+            campaignToUpdate.isHighIntent = dto.isHighIntent;
+          if (dto.maxCpc !== undefined) campaignToUpdate.maxCpc = dto.maxCpc;
+          if (dto.dailyBudget !== undefined)
+            campaignToUpdate.dailyBudget = dto.dailyBudget;
+          if (dto.totalBudget !== undefined)
+            campaignToUpdate.totalBudget = dto.totalBudget;
+          if (dto.startDate !== undefined)
+            campaignToUpdate.startDate = new Date(dto.startDate);
+          if (dto.endDate !== undefined)
+            campaignToUpdate.endDate = new Date(dto.endDate);
 
-          // 크레딧 히스토리 기록 (차감)
-          const historyRepo = manager.getRepository(CreditHistoryEntity);
-          await historyRepo.save({
-            userId,
-            type: CreditHistoryType.WITHDRAW,
-            amount: budgetDiff,
-            balanceAfter: newBalance,
-            campaignId: campaignId,
-            description: `'${campaign.title}' 캠페인 예산 추가`,
-          });
+          // 상태 업데이트
+          if (newStatus !== undefined) {
+            campaignToUpdate.status = newStatus;
+          } else if (dto.status !== undefined) {
+            campaignToUpdate.status =
+              dto.status === 'ACTIVE'
+                ? CampaignStatus.ACTIVE
+                : CampaignStatus.PAUSED;
+          }
+
+          // 태그 업데이트
+          if (tagIds) {
+            const tagRepo = manager.getRepository(TagEntity);
+            const tags = await tagRepo.findByIds(tagIds);
+            campaignToUpdate.tags = tags;
+          }
+
+          const savedCampaign = await campaignRepo.save(campaignToUpdate);
+
+          // 변환
+          const updatedCampaign: CampaignWithTags = {
+            id: savedCampaign.id,
+            userId: savedCampaign.userId,
+            title: savedCampaign.title,
+            content: savedCampaign.content,
+            image: savedCampaign.image,
+            url: savedCampaign.url,
+            maxCpc: savedCampaign.maxCpc,
+            dailyBudget: savedCampaign.dailyBudget,
+            totalBudget: savedCampaign.totalBudget,
+            dailySpent: savedCampaign.dailySpent,
+            totalSpent: savedCampaign.totalSpent,
+            lastResetDate: savedCampaign.lastResetDate,
+            isHighIntent: savedCampaign.isHighIntent,
+            status: savedCampaign.status,
+            startDate: savedCampaign.startDate,
+            endDate: savedCampaign.endDate,
+            createdAt: savedCampaign.createdAt,
+            deletedAt: savedCampaign.deletedAt,
+            tags: savedCampaign.tags.map((tag) => ({
+              id: tag.id,
+              name: tag.name,
+            })),
+          };
+
+          return updatedCampaign;
         }
-      }
+      );
 
-      // 캠페인 업데이트 (트랜잭션 매니저 사용)
-      const campaignRepo = manager.getRepository(CampaignEntity);
-      const campaignToUpdate = await campaignRepo.findOne({
-        where: { id: campaignId },
-        relations: ['tags'],
-      });
-
-      if (!campaignToUpdate) {
-        throw new NotFoundException('캠페인을 찾을 수 없습니다.');
-      }
-
-      // 업데이트 필드 적용
-      if (dto.title !== undefined) campaignToUpdate.title = dto.title;
-      if (dto.content !== undefined) campaignToUpdate.content = dto.content;
-      if (dto.image !== undefined) campaignToUpdate.image = dto.image;
-      if (dto.url !== undefined) campaignToUpdate.url = dto.url;
-      if (dto.isHighIntent !== undefined)
-        campaignToUpdate.isHighIntent = dto.isHighIntent;
-      if (dto.maxCpc !== undefined) campaignToUpdate.maxCpc = dto.maxCpc;
-      if (dto.dailyBudget !== undefined)
-        campaignToUpdate.dailyBudget = dto.dailyBudget;
-      if (dto.totalBudget !== undefined)
-        campaignToUpdate.totalBudget = dto.totalBudget;
-      if (dto.startDate !== undefined)
-        campaignToUpdate.startDate = new Date(dto.startDate);
-      if (dto.endDate !== undefined)
-        campaignToUpdate.endDate = new Date(dto.endDate);
-
-      // 상태 업데이트
-      if (newStatus !== undefined) {
-        campaignToUpdate.status = newStatus;
-      } else if (dto.status !== undefined) {
-        campaignToUpdate.status =
-          dto.status === 'ACTIVE'
-            ? CampaignStatus.ACTIVE
-            : CampaignStatus.PAUSED;
-      }
-
-      // 태그 업데이트
-      if (tagIds) {
-        const tagRepo = manager.getRepository(TagEntity);
-        const tags = await tagRepo.findByIds(tagIds);
-        campaignToUpdate.tags = tags;
-      }
-
-      const savedCampaign = await campaignRepo.save(campaignToUpdate);
-
-      // 변환
-      const updatedCampaign: CampaignWithTags = {
-        id: savedCampaign.id,
-        userId: savedCampaign.userId,
-        title: savedCampaign.title,
-        content: savedCampaign.content,
-        image: savedCampaign.image,
-        url: savedCampaign.url,
-        maxCpc: savedCampaign.maxCpc,
-        dailyBudget: savedCampaign.dailyBudget,
-        totalBudget: savedCampaign.totalBudget,
-        dailySpent: savedCampaign.dailySpent,
-        totalSpent: savedCampaign.totalSpent,
-        lastResetDate: savedCampaign.lastResetDate,
-        isHighIntent: savedCampaign.isHighIntent,
-        status: savedCampaign.status,
-        startDate: savedCampaign.startDate,
-        endDate: savedCampaign.endDate,
-        createdAt: savedCampaign.createdAt,
-        deletedAt: savedCampaign.deletedAt,
-        tags: savedCampaign.tags.map((tag) => ({
-          id: tag.id,
-          name: tag.name,
-        })),
-      };
-
-      // Redis 캐시 업데이트
+      // 3. Redis 전체 동기화 (DB 결과 반영, 요청한 상태로 복원)
       await this.campaignCacheRepository.saveCampaignCacheById(
         updatedCampaign.id,
         this.convertToCachedCampaignType(updatedCampaign)
       );
+      this.logger.log(
+        `캠페인 ${campaignId} Redis 최종 동기화 완료 (상태: ${updatedCampaign.status})`
+      );
+
+      // 4. 태그 변경과 상관 없이 임베딩 재생성
+      // TODO: 하 근데 이거 dto.tags 변경 없을 시 임베딩 재적용 안 하도록 수정되어야 성능 개선의 의미가 있을 듯
+      await this.embeddingQueue.add('generate-campaign-embedding', {
+        campaignId,
+      });
+      this.logger.log(`캠페인 ${campaignId} 임베딩 재생성 큐 추가`);
 
       return updatedCampaign;
-    });
+    } catch (error) {
+      // DB 업데이트 실패 시 Redis 상태 복원
+      this.logger.warn(
+        `캠페인 ${campaignId} 수정 실패, Redis 상태 복원 시도`,
+        error
+      );
+
+      // 요청한 상태로 복원 (dto.status가 있으면 그걸로, 없으면 원래 상태)
+      const restoreStatus = dto.status
+        ? dto.status === 'ACTIVE'
+          ? CampaignStatus.ACTIVE
+          : CampaignStatus.PAUSED
+        : campaign.status;
+
+      await this.campaignCacheRepository.updateCampaignStatus(
+        campaignId,
+        restoreStatus
+      );
+      this.logger.log(
+        `캠페인 ${campaignId} Redis 상태 복원 → ${restoreStatus}`
+      );
+
+      throw error;
+    }
   }
 
   // 캠페인 삭제 (소프트 삭제, 소유권 검증)
   async deleteCampaign(campaignId: string, userId: number): Promise<void> {
+    // TODO: 이부분도 Redis로 교체 필요
     const campaign = await this.campaignRepository.findOne(campaignId, userId);
 
     if (!campaign) {
@@ -494,7 +622,12 @@ export class CampaignService {
       startDate: campaign.startDate.toISOString(),
       endDate: campaign.endDate.toISOString(),
       createdAt: campaign.createdAt.toISOString(),
-      // embedding은 Worker가 나중에 추가
+      deletedAt: campaign.deletedAt ? campaign.deletedAt.toISOString() : null,
+
+      // 태그 이름 배열 추가
+      tags: campaign.tags.map((t) => t.name),
+
+      // embeddingTags는 Worker가 나중에 추가
     };
   }
 }

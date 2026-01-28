@@ -18,4 +18,7 @@ export abstract class BlogCacheRepository {
     id: number,
     embedding: number[]
   ): Promise<void>;
+
+  // blog:exists:set 관리
+  abstract addBlogToExistsSet(id: number): Promise<void>;
 }

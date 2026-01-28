@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { ConfigService } from '@nestjs/config';
 import { CampaignRepository } from './repository/campaign.repository.interface';
+import { CampaignCacheRepository } from './repository/campaign.cache.repository.interface';
 import { CampaignStatus } from './entities/campaign.entity';
 import { ImageService } from '../image/image.service';
 
@@ -12,6 +13,7 @@ export class CampaignCronService {
 
   constructor(
     private readonly campaignRepository: CampaignRepository,
+    private readonly campaignCacheRepository: CampaignCacheRepository,
     private readonly imageService: ImageService,
     private readonly configService: ConfigService
   ) {
@@ -55,12 +57,17 @@ export class CampaignCronService {
           now >= startDate &&
           now < endDate
         ) {
+          // DB 업데이트
           await this.campaignRepository.updateStatus(
             campaign.id,
             CampaignStatus.ACTIVE
           );
+          // Redis 동기화
+          await this.syncCacheStatus(campaign.id, CampaignStatus.ACTIVE);
           pendingToActive++;
-          this.logger.log(`캠페인 ${campaign.id} 상태 변경: PENDING -> ACTIVE`);
+          this.logger.log(
+            `캠페인 ${campaign.id} 상태 변경: PENDING -> ACTIVE (DB + Redis)`
+          );
         }
 
         // ACTIVE -> ENDED: 종료일이 지났을 때
@@ -69,8 +76,11 @@ export class CampaignCronService {
             campaign.id,
             CampaignStatus.ENDED
           );
+          await this.syncCacheStatus(campaign.id, CampaignStatus.ENDED);
           activeToEnded++;
-          this.logger.log(`캠페인 ${campaign.id} 상태 변경: ACTIVE -> ENDED`);
+          this.logger.log(
+            `캠페인 ${campaign.id} 상태 변경: ACTIVE -> ENDED (DB + Redis)`
+          );
         }
 
         // PAUSED -> ENDED: 종료일이 지났을 때
@@ -79,8 +89,11 @@ export class CampaignCronService {
             campaign.id,
             CampaignStatus.ENDED
           );
+          await this.syncCacheStatus(campaign.id, CampaignStatus.ENDED);
           pausedToEnded++;
-          this.logger.log(`캠페인 ${campaign.id} 상태 변경: PAUSED -> ENDED`);
+          this.logger.log(
+            `캠페인 ${campaign.id} 상태 변경: PAUSED -> ENDED (DB + Redis)`
+          );
         }
       }
 
@@ -104,16 +117,67 @@ export class CampaignCronService {
     await this.resetDailyBudgets();
   }
 
-  // 일일 예산 리셋 (수동 실행 가능)
+  // @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  // async scheduledCleanupOrphanImages(): Promise<void> {
+  //   await this.cleanupOrphanImages();
+  // }
+
+  // 일일 예산 리셋 + Redis 동기화
   async resetDailyBudgets(): Promise<void> {
-    this.logger.log('일일 예산 리셋 시작');
+    this.logger.log('일일 예산 리셋 시작 (DB + Redis)');
 
     try {
+      // 1. DB 리셋
       await this.campaignRepository.resetAllDailySpent();
-      this.logger.log('모든 캠페인의 일일 예산이 리셋되었습니다');
+
+      // 2. Redis 동기화
+      const allCampaigns = await this.campaignRepository.getAll();
+      let syncCount = 0;
+
+      for (const campaign of allCampaigns) {
+        if (campaign.deletedAt) continue;
+
+        const cached = await this.campaignCacheRepository.findCampaignCacheById(
+          campaign.id
+        );
+
+        if (cached) {
+          cached.dailySpent = 0;
+          cached.lastResetDate = new Date().toISOString();
+          await this.campaignCacheRepository.saveCampaignCacheById(
+            campaign.id,
+            cached
+          );
+          syncCount++;
+        }
+      }
+
+      this.logger.log(`일일 예산 리셋 완료 (DB + Redis ${syncCount}건 동기화)`);
     } catch (error) {
       this.logger.error('일일 예산 리셋 중 오류 발생', error);
       throw error;
+    }
+  }
+
+  // Redis 캐시 상태 동기화 헬퍼
+  private async syncCacheStatus(
+    campaignId: string,
+    newStatus: CampaignStatus
+  ): Promise<void> {
+    try {
+      const cached =
+        await this.campaignCacheRepository.findCampaignCacheById(campaignId);
+
+      if (cached) {
+        cached.status = newStatus;
+        await this.campaignCacheRepository.saveCampaignCacheById(
+          campaignId,
+          cached
+        );
+      }
+    } catch (error) {
+      this.logger.warn(`캠페인 ${campaignId} Redis 상태 동기화 실패`, error);
+      // Redis 동기화 실패해도 Cron 전체가 실패하지 않도록
     }
   }
 

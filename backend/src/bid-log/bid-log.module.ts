@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { EventEmitterModule } from '@nestjs/event-emitter';
 import { BidLogController } from './bid-log.controller';
 import { BidLogService } from './bid-log.service';
 import { BidLogRepository } from './repositories/bid-log.repository.interface';
@@ -13,7 +12,7 @@ import { BlogModule } from 'src/blog/blog.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([BidLogEntity]),
-    EventEmitterModule.forRoot(),
+    // EventEmitterModule은 AppModule에서 전역 등록됨
     CampaignModule,
     BlogModule,
   ],

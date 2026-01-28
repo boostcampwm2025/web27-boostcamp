@@ -65,6 +65,6 @@ import { BlogModule } from '../blog/blog.module';
       useClass: XenovaMLEngine,
     },
   ],
-  exports: [RTBService],
+  exports: [RTBService, MLEngine],
 })
 export class RTBModule {}

@@ -23,7 +23,6 @@ export class RedisCampaignCacheRepository implements CampaignCacheRepository {
     try {
       await this.ioredisClient.call('JSON.SET', key, '$', JSON.stringify(data));
       await this.ioredisClient.expire(key, ttl);
-      this.logger.debug(`캐시 저장 성공: ${id}`);
     } catch (error) {
       this.logger.error(`캐시 저장 실패: ${id}`, error);
       throw error;
@@ -41,11 +40,27 @@ export class RedisCampaignCacheRepository implements CampaignCacheRepository {
         return null;
       }
 
-      this.logger.debug(`캐시 히트: ${id}`);
       return JSON.parse(result) as CachedCampaign;
     } catch (error) {
       this.logger.error(`캐시 조회 실패: ${id}`, error);
       return null;
+    }
+  }
+
+  // 상태만 업데이트
+  async updateCampaignStatus(id: string, status: string): Promise<void> {
+    const key = this.getCampaignCacheKey(id);
+
+    try {
+      await this.ioredisClient.call(
+        'JSON.SET',
+        key,
+        '$.status',
+        JSON.stringify(status)
+      );
+    } catch (error) {
+      this.logger.error(`캠페인 상태 업데이트 실패: ${id}`, error);
+      throw error;
     }
   }
 
@@ -59,7 +74,6 @@ export class RedisCampaignCacheRepository implements CampaignCacheRepository {
         '$.dailySpent',
         amount.toString()
       );
-      this.logger.debug(`dailySpent 증가: ${id} (+${amount})`);
     } catch (error) {
       this.logger.error(`dailySpent 업데이트 실패: ${id}`, error);
       throw error;
@@ -76,6 +90,71 @@ export class RedisCampaignCacheRepository implements CampaignCacheRepository {
     const key = this.getCampaignCacheKey(id);
     const result = await this.ioredisClient.exists(key);
     return result === 1;
+  }
+
+  async updateCampaignEmbeddingTags(
+    id: string,
+    embeddingTags: { [tagName: string]: number[] }
+  ): Promise<void> {
+    const key = this.getCampaignCacheKey(id);
+
+    try {
+      await this.ioredisClient.call(
+        'JSON.SET',
+        key,
+        '$.embeddingTags',
+        JSON.stringify(embeddingTags)
+      );
+    } catch (error) {
+      this.logger.error(`캠페인 임베딩 업데이트 실패: ${id}`, error);
+      throw error;
+    }
+  }
+
+  // RTB 비딩용: Redis에서 모든 캠페인 조회
+  async getAllCampaigns(): Promise<CachedCampaign[]> {
+    try {
+      const pattern = `${this.KEY_PREFIX}*`;
+      const keys: string[] = [];
+
+      // SCAN으로 모든 campaign:* 키 조회
+      let cursor = '0';
+      do {
+        const result = await this.ioredisClient.scan(
+          cursor,
+          'MATCH',
+          pattern,
+          'COUNT',
+          100
+        );
+        cursor = result[0];
+        keys.push(...result[1]);
+      } while (cursor !== '0');
+
+      if (keys.length === 0) {
+        return [];
+      }
+
+      // 각 키에 대해 JSON.GET 수행
+      const campaigns: CachedCampaign[] = [];
+
+      for (const key of keys) {
+        try {
+          const result = await this.ioredisClient.call('JSON.GET', key);
+          if (result && typeof result === 'string') {
+            campaigns.push(JSON.parse(result) as CachedCampaign);
+          }
+        } catch (error) {
+          this.logger.warn(`캠페인 조회 실패: ${key}`, error);
+          // 개별 캠페인 조회 실패는 스킵
+        }
+      }
+
+      return campaigns;
+    } catch (error) {
+      this.logger.error('모든 캠페인 조회 실패', error);
+      return [];
+    }
   }
 
   private getCampaignCacheKey(id: string): string {
