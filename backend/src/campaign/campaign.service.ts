@@ -219,7 +219,8 @@ export class CampaignService {
     return this.addStatsToCampaign(campaign);
   }
 
-  // 캠페인 수정 (소유권 + 날짜 + 태그 검증 + 시작일 변경 시 상태 재결정)
+  // 캠페인 수정 (Redis First + 보상 트랜잭션)
+  // 즉시 RTB 반영을 위해 Redis 먼저 업데이트, DB 실패 시 롤백
   async updateCampaign(
     campaignId: string,
     userId: number,
@@ -246,21 +247,71 @@ export class CampaignService {
       newStatus = this.determineInitialStatus(dto.startDate);
     }
 
-    // TODO: 업데이트 시 Redis먼저가 맞는 거 같음 -> 빨리 status를 Pending으로 변경해야함 -> redis-> db에서 업데이트 이후에 pending다시 해제
-    const updatedCampaign = await this.campaignRepository.update(
-      campaignId,
-      dto,
-      tagIds,
-      newStatus
-    );
+    // 보상 트랜잭션을 위해 기존 캐시 백업
+    const originalCached =
+      await this.campaignCacheRepository.findCampaignCacheById(campaignId);
 
-    // Redis 캐시 업데이트
-    await this.campaignCacheRepository.saveCampaignCacheById(
-      updatedCampaign.id,
-      this.convertToCachedCampaignType(updatedCampaign)
-    );
+    try {
+      // 1. Redis 먼저 업데이트 (RTB에 즉시 반영)
+      const previewCampaign: CampaignWithTags = {
+        ...campaign,
+        ...dto,
+        startDate: dto.startDate ? new Date(dto.startDate) : campaign.startDate,
+        endDate: dto.endDate ? new Date(dto.endDate) : campaign.endDate,
+        status: (newStatus as CampaignStatus) ?? campaign.status,
+        tags: dto.tags
+          ? dto.tags.map((name, idx) => ({ id: idx, name }))
+          : campaign.tags,
+      };
 
-    return updatedCampaign;
+      await this.campaignCacheRepository.saveCampaignCacheById(
+        campaignId,
+        this.convertToCachedCampaignType(previewCampaign)
+      );
+
+      // 2. DB 업데이트
+      const updatedCampaign = await this.campaignRepository.update(
+        campaignId,
+        dto,
+        tagIds,
+        newStatus
+      );
+
+      // 3. Redis 최종 동기화 (DB의 정확한 데이터로)
+      // TODO: 이렇게 짜긴 했으나 Redis최종 동기화 과정에서 비딩이 또 일어나게 된다면??
+      await this.campaignCacheRepository.saveCampaignCacheById(
+        updatedCampaign.id,
+        this.convertToCachedCampaignType(updatedCampaign)
+      );
+
+      // 4. 태그 변경 시 임베딩 재생성
+      if (dto.tags) {
+        await this.embeddingQueue.add('generate-campaign-embedding', {
+          campaignId,
+        });
+        this.logger.log(
+          `캠페인 ${campaignId} 태그 변경으로 임베딩 재생성 큐 추가`
+        );
+      }
+
+      return updatedCampaign;
+    } catch (error) {
+      // 보상 트랜잭션: DB 실패 시 Redis 롤백
+      this.logger.warn(
+        `캠페인 ${campaignId} 수정 실패, Redis 롤백 시도`,
+        error
+      );
+
+      if (originalCached) {
+        await this.campaignCacheRepository.saveCampaignCacheById(
+          campaignId,
+          originalCached
+        );
+        this.logger.log(`캠페인 ${campaignId} Redis 롤백 완료`);
+      }
+
+      throw error;
+    }
   }
 
   // 캠페인 삭제 (소프트 삭제, 소유권 검증)
