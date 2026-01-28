@@ -46,7 +46,7 @@ export function PaymentSuccessPage() {
         }
 
         showToast(`${Number(amount).toLocaleString()}원 충전 완료!`, 'success');
-        setTimeout(() => navigate('/advertiser/dashboard/budget'), 2000);
+        navigate('/advertiser/dashboard/budget');
       } catch (error) {
         const message =
           error instanceof Error ? error.message : '결제 승인에 실패했습니다';
@@ -58,7 +58,6 @@ export function PaymentSuccessPage() {
     confirmPayment();
   }, [searchParams, navigate, showToast]);
 
-  // 로딩 화면만 간단하게
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="text-center">
