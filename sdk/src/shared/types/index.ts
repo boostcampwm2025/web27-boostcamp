@@ -2,6 +2,7 @@
 export interface SDKConfig {
   blogKey: string;
   auto: boolean; // true: 자동 모드 (블로그), false: 수동 모드 (광고존 직접 지정)
+  context?: string;
 }
 
 // 태그 타입
