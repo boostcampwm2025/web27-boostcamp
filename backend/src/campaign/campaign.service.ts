@@ -226,7 +226,7 @@ export class CampaignService {
             amount: budgetDiff,
             balanceAfter: newBalance,
             campaignId: campaignId,
-            description: `캠페인 예산 추가 (캠페인 ID: ${campaignId})`,
+            description: `'${campaign.title}' 캠페인 예산 추가`,
           });
         }
       }
