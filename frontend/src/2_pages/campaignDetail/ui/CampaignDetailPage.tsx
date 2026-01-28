@@ -34,7 +34,7 @@ export function CampaignDetailPage() {
   const { balance } = useAdvertiserBalance();
 
   const handleBack = () => {
-    navigate('/advertiser/dashboard/campaigns');
+    navigate(-1);
   };
 
   const handlePause = async () => {
@@ -117,7 +117,9 @@ export function CampaignDetailPage() {
   if (error || !campaign) {
     return (
       <div className="flex items-center justify-center min-h-96">
-        <div className="text-red-500">{error || '캠페인을 찾을 수 없습니다'}</div>
+        <div className="text-red-500">
+          {error || '캠페인을 찾을 수 없습니다'}
+        </div>
       </div>
     );
   }
