@@ -313,7 +313,7 @@ export class BannerAdRenderer implements AdRenderer {
           text-decoration: underline;
           text-decoration-color: transparent;
           text-underline-offset: 3px;
-        " onmouseover="this.style.textDecorationColor='#155dfc';" onmouseout="this.style.textDecorationColor='transparent';" onfocus="this.style.boxShadow='0 0 0 3px rgba(21,93,252,0.25)'; this.style.textDecorationColor='#155dfc';" onblur="this.style.boxShadow='none'; this.style.textDecorationColor='transparent';">더 알아보기 →</a>
+        " onmouseover="this.style.textDecorationColor='#155dfc';" onmouseout="this.style.textDecorationColor='transparent';" onfocus="this.style.textDecorationColor='#155dfc';" onblur="this.style.textDecorationColor='transparent';">더 알아보기 →</a>
       </div>
     `;
   }
@@ -398,7 +398,7 @@ export class BannerAdRenderer implements AdRenderer {
                 text-decoration: underline;
                 text-decoration-color: transparent;
                 text-underline-offset: 3px;
-              " onmouseover="this.style.textDecorationColor='#155dfc';" onmouseout="this.style.textDecorationColor='transparent';" onfocus="this.style.boxShadow='0 0 0 3px rgba(21,93,252,0.25)'; this.style.textDecorationColor='#155dfc';" onblur="this.style.boxShadow='none'; this.style.textDecorationColor='transparent';">
+              " onmouseover="this.style.textDecorationColor='#155dfc';" onmouseout="this.style.textDecorationColor='transparent';" onfocus="this.style.textDecorationColor='#155dfc';" onblur="this.style.textDecorationColor='transparent';">
                 더 알아보기 →
               </a>
 
