@@ -8,6 +8,7 @@ interface StatCardProps {
 }
 
 export function StatCard({ title, value, change, icon }: StatCardProps) {
+  const isZeroChange = change && parseFloat(change) === 0;
   const isPositiveChange = change && !change.startsWith('-');
 
   return (
@@ -18,18 +19,18 @@ export function StatCard({ title, value, change, icon }: StatCardProps) {
       </div>
       <div className="flex flex-row items-baseline gap-4 pt-4">
         <div className="text-4xl font-bold text-gray-900">{value}</div>
-        {change && (
+        {change && !isZeroChange && (
           <div
             className={`flex flex-row items-center gap-1 px-1.5 py-0.5 rounded-lg text-xs font-semibold ${
               isPositiveChange
                 ? 'bg-green-100 border border-green-300 text-green-500'
-                : 'bg-red-100 border border-red-300 text-red-500'
+                : 'bg-red-100 border border-red-500 text-red-700'
             }`}
           >
             {isPositiveChange ? (
               <Icon.ArrowUp className="w-2.5 text-green-500" />
             ) : (
-              <Icon.ArrowUp className="w-2.5 text-red-500" />
+              <Icon.ArrowDown className="w-2.5 text-red-700" />
             )}
             {change}
           </div>
