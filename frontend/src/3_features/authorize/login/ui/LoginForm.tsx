@@ -43,7 +43,7 @@ export function LoginForm() {
       <button
         type="submit"
         disabled={true}
-        className="h-11 rounded-lg bg-blue-600 text-base font-semibold text-white hover:bg-blue-700 cursor-not-allowed"
+        className="h-11 rounded-lg bg-blue-500 text-base font-semibold text-white hover:bg-blue-600 cursor-not-allowed"
       >
         로그인
       </button>
