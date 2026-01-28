@@ -1,11 +1,11 @@
-import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
+import { Injectable, OnApplicationBootstrap, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import { MLEngine } from './mlEngine.interface';
 import { pipeline, Pipeline, Tensor } from '@xenova/transformers';
 
 @Injectable()
-export class XenovaMLEngine extends MLEngine implements OnModuleInit {
+export class XenovaMLEngine extends MLEngine implements OnApplicationBootstrap {
   private readonly logger = new Logger(XenovaMLEngine.name);
   private embedder: Pipeline | null = null;
   private modelReady = false;
@@ -18,8 +18,8 @@ export class XenovaMLEngine extends MLEngine implements OnModuleInit {
     super();
   }
 
-  // 모듈 초기화 시 모델을 로드합니다.
-  async onModuleInit() {
+  // 애플리케이션 부트스트랩 시 모델 로드 (모든 모듈 초기화 완료 후)
+  async onApplicationBootstrap() {
     this.logger.log('🔄 Transformer 모델 로딩 중');
     try {
       await this.loadModel();
@@ -28,7 +28,7 @@ export class XenovaMLEngine extends MLEngine implements OnModuleInit {
         `✅ ${XenovaMLEngine.MODEL}이 성공적으로 로드 되었습니다!`
       );
 
-      // 모델 로딩 완료 이벤트 발행
+      // 모델 로딩 완료 이벤트 발행 (모든 리스너가 등록된 후)
       this.eventEmitter.emit('ml.model.ready');
       this.logger.log('📢 ml.model.ready 이벤트 발행 완료');
     } catch (error) {
