@@ -1,13 +1,13 @@
 import type { Tag, CampaignCategory } from './types';
 
 export const CAMPAIGN_CATEGORIES: CampaignCategory[] = [
+  '네부캠',
   '언어',
   'FE',
   'BE',
   'DB',
   '클라우드',
   '모바일',
-  '네부캠',
   '기타',
 ];
 
