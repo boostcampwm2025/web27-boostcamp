@@ -6,7 +6,6 @@
 <br/>
 <br/>
 
-
 ## 🧐 문제 인식 (Why)
 
 1. **맥락 없는 광고 노출**
@@ -162,6 +161,11 @@ https://github.com/boostcampwm2025/web27-BoostAD/wiki/CICD-%ED%8C%8C%EC%9D%B4%ED
 
 <br/>
 <br/>
+
+## BoostAD와 협업 중인 다른 프로젝트도 살펴보세요!
+- WEB01 BoostUS: https://boostus.site
+- WEB04 우리 모두 다빈치: https://we-are-all-davinci.netlify.app/
+- WEB11 말만해: https://malmanhae.com/
 
 
 
