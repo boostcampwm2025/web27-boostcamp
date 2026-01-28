@@ -9,6 +9,7 @@ interface CurrencyFieldProps {
   error?: string;
   placeholder?: string;
   unit?: string;
+  prefix?: string;
 }
 
 export function CurrencyField({
@@ -20,6 +21,7 @@ export function CurrencyField({
   error,
   placeholder = '0',
   unit = '원',
+  prefix,
 }: CurrencyFieldProps) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const numberValue = parseNumber(e.target.value);
@@ -43,6 +45,7 @@ export function CurrencyField({
             : 'border-gray-200 focus-within:ring-blue-200'
         }`}
       >
+        {prefix && <span className="text-sm text-gray-500 mr-1">{prefix}</span>}
         <input
           type="text"
           inputMode="numeric"

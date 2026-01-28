@@ -53,7 +53,7 @@ export function SdkInstallGuideList({ mode }: SdkInstallGuideListProps) {
       stepNumber: 3,
       title: '광고 영역 정의',
       description:
-        '광고가 노출되기를 원하는 위치에 data-boostad-zone 속성을 가진 div 요소를 생성해줍니다.',
+        '광고가 노출되기를 원하는 위치에 data-boostad-zone 속성을 가진 div 요소를 생성합니다. data-context 속성에 페이지의 문맥을 명시하면 해당 문맥에 맞는 광고가 매칭됩니다.',
       imageSrc: undefined,
     },
     {

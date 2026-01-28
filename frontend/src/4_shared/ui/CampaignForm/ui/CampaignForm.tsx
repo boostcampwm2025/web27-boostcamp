@@ -10,14 +10,16 @@ interface CampaignFormProps {
   children?: ReactNode;
   onSubmit?: () => void;
   isSubmitting?: boolean;
+  maxContentHeight?: string;
 }
 
 export function CampaignForm({
   children,
   onSubmit,
   isSubmitting = false,
+  maxContentHeight,
 }: CampaignFormProps) {
-  const { currentStep, setStep, formData, balance, mode } = useCampaignFormStore();
+  const { currentStep, setStep, formData, balance, mode, initialTotalBudget } = useCampaignFormStore();
 
   const isNextDisabled = () => {
     if (isSubmitting) return true;
@@ -25,7 +27,12 @@ export function CampaignForm({
       return !isStep1Valid(formData.campaignContent);
     }
     if (currentStep === 2) {
-      return !isStep2Valid({ ...formData.budgetSettings, balance });
+      return !isStep2Valid({
+        ...formData.budgetSettings,
+        balance,
+        isEditMode: mode === 'edit',
+        initialTotalBudget: initialTotalBudget ?? undefined,
+      });
     }
     return false;
   };
@@ -50,9 +57,14 @@ export function CampaignForm({
 
   return (
     <div className="flex w-150 flex-col gap-4">
-      <StepIndicator currentStep={currentStep} />
+      <StepIndicator currentStep={currentStep} mode={mode} />
       <Modal showHeader={false}>
-        <div className="p-6">{children}</div>
+        <div
+          className="p-6"
+          style={maxContentHeight ? { maxHeight: maxContentHeight, overflowY: 'auto' } : undefined}
+        >
+          {children}
+        </div>
       </Modal>
       <FormNavigation
         currentStep={currentStep}
