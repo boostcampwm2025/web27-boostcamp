@@ -9,6 +9,7 @@ import {
   Min,
   IsOptional,
   IsIn,
+  IsBoolean,
 } from 'class-validator';
 
 export class UpdateCampaignDto {
@@ -34,6 +35,10 @@ export class UpdateCampaignDto {
   @IsArray()
   @IsString({ each: true })
   tags?: string[];
+
+  @IsOptional()
+  @IsBoolean({ message: '고의도 학습자 여부는 boolean이어야 합니다.' })
+  isHighIntent?: boolean;
 
   @IsOptional()
   @Type(() => Number)
