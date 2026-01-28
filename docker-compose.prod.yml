@@ -39,6 +39,7 @@ services:
       NCP_BUCKET: ${NCP_BUCKET:-boostadad-campaign-images}
       REDIS_HOST: ${REDIS_HOST:-localhost}
       REDIS_PORT: ${REDIS_PORT:-6379}
+      TOSS_SECRET_KEY: ${TOSS_SECRET_KEY}
     expose:
       - '3000'
     restart: unless-stopped

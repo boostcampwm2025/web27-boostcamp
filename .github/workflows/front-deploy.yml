@@ -41,6 +41,7 @@ jobs:
         env:
           VITE_API_URL: ${{ vars.VITE_API_URL || 'http://localhost:3000' }}
           VITE_SDK_URL: ${{ vars.VITE_SDK_URL }}
+          VITE_TOSS_CLIENT_KEY: ${{ secrets.VITE_TOSS_CLIENT_KEY }}
         run: npm run build
 
       # 3. NCP Object Storage 업로드

@@ -96,7 +96,7 @@ jobs:
 
             export REDIS_HOST="${{secrets.REDIS_HOST}}"
             export REDIS_PORT="${{secrets.REDIS_PORT}}"
-            # 추후 Redis Password도 추가 예정
+            export TOSS_SECRET_KEY="${{secrets.TOSS_SECRET_KEY}}"
 
             echo "${{ secrets.NCP_SECRET_KEY }}" | docker login \
               -u "${{ secrets.NCP_ACCESS_KEY }}" \
