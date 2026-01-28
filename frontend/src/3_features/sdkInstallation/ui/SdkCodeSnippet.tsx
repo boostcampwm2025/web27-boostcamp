@@ -26,7 +26,7 @@ export function SdkCodeSnippet({ blogKey, mode }: SdkCodeSnippetProps) {
 
   const manualModeSnippet = `<script src="${sdkUrl}"
           data-blog-key="${blogKey}"
-          data-auto="false"${contextValue ? `\n          data-context="${contextValue}"` : ''}
+          data-auto="false"${contextValue ? `\n          data-context="${contextValue}"` : '\n          data-context="아래 필드에서 입력해주세요🔻"'}
           async
   ></script>
 
@@ -86,14 +86,14 @@ export function SdkCodeSnippet({ blogKey, mode }: SdkCodeSnippetProps) {
       {mode === 'manual' && (
         <div className="flex flex-col w-full gap-2 mb-4">
           <label className="text-sm font-medium text-gray-700">
-            광고 컨텍스트 (필수)
+            광고 컨텍스트 <span className='text-red-700'>(*필수)</span>
           </label>
           <input
             type="text"
             value={contextValue}
             onChange={(e) => setContextValue(e.target.value)}
-            placeholder="예: 가볍게 즐길 수 있는 퍼즐 게임"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
+            placeholder="예: 실시간 협업 도구"
+            className="w-full px-3 py-2 border border-gray-300 bg-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
           />
           <p className="text-xs text-gray-500">
             입력한 내용이 위 코드의 data-context 속성에 반영됩니다.
