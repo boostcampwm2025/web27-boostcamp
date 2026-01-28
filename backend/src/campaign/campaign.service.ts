@@ -72,12 +72,11 @@ export class CampaignService {
 
         loaded++;
 
-        // 임베딩 생성 큐 추가 (중복 방지)
+        // 임베딩 생성 큐 추가 (campaignId만 전달, Worker가 Redis에서 태그 조회)
         await this.embeddingQueue.add(
           'generate-campaign-embedding',
           {
             campaignId: campaign.id,
-            text: `${campaign.title} ${campaign.content}`,
           },
           {
             jobId: `campaign-embedding-${campaign.id}`,
@@ -444,7 +443,11 @@ export class CampaignService {
       startDate: campaign.startDate.toISOString(),
       endDate: campaign.endDate.toISOString(),
       createdAt: campaign.createdAt.toISOString(),
-      // embedding은 Worker가 나중에 추가
+
+      // 태그 이름 배열 추가
+      tags: campaign.tags.map((t) => t.name),
+
+      // embeddingTags는 Worker가 나중에 추가
     };
   }
 }
