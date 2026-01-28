@@ -61,6 +61,7 @@ export type CachedCampaign = {
   startDate: string;
   endDate: string;
   createdAt: string;
+  deletedAt: string | null;
 
   // 태그 정보 (매칭용)
   tags?: string[];
