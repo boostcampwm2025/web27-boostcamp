@@ -443,6 +443,7 @@ export class CampaignService {
       startDate: campaign.startDate.toISOString(),
       endDate: campaign.endDate.toISOString(),
       createdAt: campaign.createdAt.toISOString(),
+      deletedAt: campaign.deletedAt ? campaign.deletedAt.toISOString() : null,
 
       // 태그 이름 배열 추가
       tags: campaign.tags.map((t) => t.name),
