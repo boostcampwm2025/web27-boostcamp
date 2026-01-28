@@ -4,7 +4,7 @@ import { useRealtimeBids } from '../lib/useRealtimeBids';
 import { Link } from 'react-router-dom';
 
 export function RealtimeBidsTable() {
-  const { bids, isLoading, error, isConnected } = useRealtimeBids({ limit: 5 });
+  const { bids, isLoading, error, isConnected } = useRealtimeBids({ limit: 3 });
 
   if (isLoading) {
     return (
