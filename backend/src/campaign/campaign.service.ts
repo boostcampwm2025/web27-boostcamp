@@ -2,9 +2,9 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
-  OnModuleInit,
   Logger,
 } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { InjectDataSource } from '@nestjs/typeorm';
@@ -30,7 +30,7 @@ import {
 } from 'src/user/entities/credit-history.entity';
 
 @Injectable()
-export class CampaignService implements OnModuleInit {
+export class CampaignService {
   private readonly logger = new Logger(CampaignService.name);
 
   constructor(
@@ -42,8 +42,9 @@ export class CampaignService implements OnModuleInit {
     @InjectQueue('embedding-queue') private readonly embeddingQueue: Queue
   ) {}
 
-  onModuleInit() {
-    this.logger.log('🚀 Campaign 초기 로딩 시작...');
+  @OnEvent('ml.model.ready')
+  onModelReady(): void {
+    this.logger.log('🚀 Campaign 초기 로딩 시작 (ML 모델 준비 완료)');
 
     // 백그라운드 실행 (await 없음)
     this.loadAllCampaigns().catch((error) => {

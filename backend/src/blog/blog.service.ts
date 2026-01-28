@@ -4,9 +4,9 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
-  OnModuleInit,
   Logger,
 } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { randomUUID } from 'crypto';
@@ -16,7 +16,7 @@ import { BlogRepository } from './repository/blog.repository.interface';
 import { BlogCacheRepository } from './repository/blog.cache.repository.interface';
 
 @Injectable()
-export class BlogService implements OnModuleInit {
+export class BlogService {
   private readonly logger = new Logger(BlogService.name);
 
   constructor(
@@ -26,8 +26,9 @@ export class BlogService implements OnModuleInit {
     @InjectQueue('embedding-queue') private readonly embeddingQueue: Queue
   ) {}
 
-  onModuleInit() {
-    this.logger.log('🚀 Blog 초기 로딩 시작...');
+  @OnEvent('ml.model.ready')
+  onModelReady(): void {
+    this.logger.log('🚀 Blog 초기 로딩 시작 (ML 모델 준비 완료)');
 
     // Phase 1: 즉시 로딩 (blog:exists:set)
     this.loadBlogExistsSet()
