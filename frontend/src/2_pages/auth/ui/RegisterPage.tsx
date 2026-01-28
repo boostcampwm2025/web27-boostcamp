@@ -10,7 +10,7 @@ export function RegisterPage() {
     <div className="relative flex min-h-screen w-full items-center justify-center bg-[#F6F6F8] overflow-hidden">
       {AUTH_BG === 'banners' ? <DiagonalBannersBackground /> : null}
       <div className="relative z-10">
-        <Modal height="h-[900px]">
+        <Modal height="h-[950px]">
           <div className="flex flex-col gap-3">
             <RegisterForm />
             <div className="flex items-center justify-center text-sm gap-1 ">

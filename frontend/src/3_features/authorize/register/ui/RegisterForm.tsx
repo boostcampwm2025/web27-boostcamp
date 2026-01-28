@@ -37,23 +37,30 @@ export function RegisterForm() {
 
         <FormDivider />
 
+        <div className="rounded-md text-center py-2 text-sm text-[#7A8699]">
+          로컬 회원가입은 준비 중입니다. 현재는 Google로만 가입할 수 있어요.
+        </div>
+
         <TextField
           name="email"
           type="email"
           label="이메일"
           placeholder="exmaple@email.com"
+          disabled
         />
         <TextField
           name="password"
           type="password"
           label="비밀번호"
           placeholder="••••••••"
+          disabled
         />
         <TextField
           name="passwordConfirm"
           type="password"
           label="비밀번호 확인"
           placeholder="••••••••"
+          disabled
         />
       </div>
       <button

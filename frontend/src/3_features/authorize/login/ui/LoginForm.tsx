@@ -28,17 +28,23 @@ export function LoginForm() {
 
       <FormDivider />
 
+      <div className="rounded-md text-center py-2 text-sm text-[#7A8699]">
+        로컬 로그인은 준비 중입니다. 현재는 Google 로그인만 가능합니다.
+      </div>
+
       <TextField
         name="email"
         type="email"
         label="이메일"
         placeholder="example@email.com"
+        disabled
       />
       <TextField
         name="password"
         type="password"
         label="비밀번호"
         placeholder="••••••••"
+        disabled
       />
       <button
         type="submit"
