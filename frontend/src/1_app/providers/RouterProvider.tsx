@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, Outlet } from 'react-router-dom';
 import { DashboardLayout, OnboardingLayout } from '@app/layouts';
 import { AdvertiserDashboardPage } from '@pages/advertiserDashboard';
 import { AdvertiserCampaignsPage } from '@pages/advertiserCampaigns';
@@ -21,6 +21,7 @@ import {
   publisherGateLoader,
   advertiserGateLoader,
 } from '../lib';
+import { MainPage } from '@pages/main';
 
 const OnboardingSdkGuidePage = lazy(() =>
   import('@pages/onboardingSdkGuide').then((m) => ({
@@ -32,15 +33,21 @@ export const router = createBrowserRouter([
   // 1. 공통 (로그인 등) - 여긴 역할 구분이 없으므로 최상위 유지
   {
     path: '/',
-    loader: guestOnlyLoader,
-    element: <OnboardingLayout />,
+    element: <Outlet />,
     children: [
-      { index: true, element: <LoginPage /> },
-      { path: 'auth/login', element: <LoginPage /> },
-      { path: 'auth/register', element: <RegisterPage /> },
+      { index: true, element: <MainPage /> },
+      {
+        path: 'auth',
+        loader: guestOnlyLoader,
+        element: <OnboardingLayout />,
+        children: [
+          { index: true, element: <LoginPage /> },
+          { path: 'login', element: <LoginPage /> },
+          { path: 'register', element: <RegisterPage /> },
+        ],
+      },
     ],
   },
-
   // 2. 퍼블리셔 (Publisher) 그룹
   {
     path: '/publisher', // 👈 URL 접두사 역할만 수행 (Layout 없음)

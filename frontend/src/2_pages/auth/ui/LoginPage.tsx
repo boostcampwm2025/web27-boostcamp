@@ -1,7 +1,5 @@
 import { Modal } from '@shared/ui/Modal';
-import {
-  DiagonalBannersBackground,
-} from '@shared/ui/Background';
+import { DiagonalBannersBackground } from '@shared/ui/Background';
 import { LoginForm } from '@features/authorize/login/ui/LoginForm';
 import { Link } from 'react-router-dom';
 
@@ -13,10 +11,12 @@ export function LoginPage() {
       {AUTH_BG === 'banners' ? <DiagonalBannersBackground /> : null}
       <div className="relative z-10">
         <Modal height="h-[700px]">
-          <LoginForm />
-          <div className="flex items-center justify-center text-sm gap-1 ">
-            <p className="text-[#616E89]">계정이 없나요?</p>
-            <Link to={'/auth/register'}>회원가입</Link>
+          <div className="flex flex-col gap-3">
+            <LoginForm />
+            <div className="flex items-center justify-center gap-1 text-sm">
+              <p className="text-[#616E89]">계정이 없나요?</p>
+              <Link to={'/auth/register'}>회원가입</Link>
+            </div>
           </div>
         </Modal>
       </div>
