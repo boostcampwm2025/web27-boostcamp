@@ -100,7 +100,7 @@ export function ChargeAmountSelector() {
         <button
           onClick={handleCharge}
           disabled={isCharging || (!selectedAmount && !customAmount)}
-          className="h-10 pr-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed rounded-lg transition-colors flex items-center justify-center"
+          className="h-10 pr-4 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed rounded-lg transition-colors flex items-center justify-center"
         >
           {isCharging ? (
             <span className="text-white text-sm">충전 중...</span>

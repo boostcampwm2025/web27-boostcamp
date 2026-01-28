@@ -46,7 +46,7 @@ export function AdmissionForm() {
         />
         <button
           type="submit"
-          className="h-11 rounded-lg bg-blue-600 text-base font-semibold text-white hover:bg-blue-700"
+          className="h-11 rounded-lg bg-blue-500 text-base font-semibold text-white hover:bg-blue-600"
         >
           시작하기
         </button>
