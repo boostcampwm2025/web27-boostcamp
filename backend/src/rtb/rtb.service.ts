@@ -19,7 +19,7 @@ import { CampaignRepository } from '../campaign/repository/campaign.repository.i
 export class RTBService {
   private readonly logger = new Logger(RTBService.name);
   private readonly FALLBACK_CAMPAIGN_ID =
-    '54e92912-e23d-471f-b700-81caf834da51';
+    'c1dda7a5-da58-416b-b8fa-20ba8f5535f9';
 
   constructor(
     private readonly matcher: Matcher,
