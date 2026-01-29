@@ -68,7 +68,11 @@ export function BudgetEditMode({
 
           {/* 추가 예산 입력 */}
           <div className="bg-white">
-            <CurrencyField value={addBudget} onChange={setAddBudget} prefix="+" />
+            <CurrencyField
+              value={addBudget}
+              onChange={setAddBudget}
+              prefix="+"
+            />
           </div>
 
           {/* 퀵버튼 */}
@@ -133,11 +137,6 @@ export function BudgetEditMode({
           </button>
         </div>
       </div>
-
-      {/* 안내 문구 */}
-      <span className="text-xs font-bold text-slate-400 uppercase w-full text-right">
-        일일 예산, CPC값은 다음 날부터 적용됩니다.
-      </span>
     </div>
   );
 }
