@@ -25,6 +25,7 @@ export class BoostAdSDK {
   private behaviorTrackerStarted = false; // 행동 추적 시작 여부
   private debounceTimer: ReturnType<typeof setTimeout> | null = null; // DOM 변화 감지 디바운스
   private readonly CONTENT_SELECTORS = [
+    '#article',
     '#area_view',
     '#article-view',
     '#mArticle',
