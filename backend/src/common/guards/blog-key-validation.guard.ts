@@ -16,6 +16,14 @@ export interface BlogKeyValidatedRequest extends Request {
   visitorId?: string;
 }
 
+function normalizeHostname(hostname: string): string {
+  const lower = hostname.trim().toLowerCase();
+  const withoutTrailingDot = lower.endsWith('.') ? lower.slice(0, -1) : lower;
+  return withoutTrailingDot.startsWith('www.')
+    ? withoutTrailingDot.slice('www.'.length)
+    : withoutTrailingDot;
+}
+
 @Injectable()
 export class BlogKeyValidationGuard implements CanActivate {
   private readonly logger = new Logger(BlogKeyValidationGuard.name);
@@ -82,12 +90,16 @@ export class BlogKeyValidationGuard implements CanActivate {
     }
 
     const { domain } = blog;
+    const normalizedRequestDomain = normalizeHostname(requestDomain);
+    const normalizedBlogDomain = normalizeHostname(domain);
 
-    if (requestDomain !== domain) {
+    if (normalizedRequestDomain !== normalizedBlogDomain) {
       this.logger.warn('blogKey 도메인 불일치', {
         blogKey,
         requestDomain,
         blogDomain: domain,
+        normalizedRequestDomain,
+        normalizedBlogDomain,
         ip: request.ip,
         url: request.url,
       });
