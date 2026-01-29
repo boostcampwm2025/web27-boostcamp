@@ -175,6 +175,11 @@ export class CampaignService {
         this.convertToCachedCampaignType(campaign)
       );
 
+      await this.embeddingQueue.add('generate-campaign-embedding', {
+        campaignId: campaign.id,
+      });
+      this.logger.log(`캠페인 ${campaign.id} 임베딩 재생성 큐 추가`);
+
       return campaign;
     });
   }
@@ -209,6 +214,7 @@ export class CampaignService {
     campaignId: string,
     userId: number
   ): Promise<CampaignWithStats> {
+    // NOTICE : 이 부분은 RTB에 영향 없는 대쉬보드의 요청이기 때문에 바로 DB로 트랜젝션 굳이 수정할 필요 없을 거 같음
     const campaign = await this.campaignRepository.findOne(campaignId, userId);
 
     if (!campaign) {
@@ -219,12 +225,17 @@ export class CampaignService {
     return this.addStatsToCampaign(campaign);
   }
 
-  // 캠페인 수정 (소유권 + 날짜 + 태그 검증 + 시작일 변경 시 상태 재결정)
+  // 캠페인 수정 (Redis PAUSED 빠른 변경 → DB 업데이트 → Redis 동기화)
+  // 1. Redis 상태만 PAUSED로 빠르게 변경 (비딩 즉시 중단, embeddingTags 보존)
+  // 2. DB 업데이트 (Repository 메서드 사용)
+  // 3. Redis 전체 동기화 (DB 결과 반영, 요청한 상태로 복원)
+  // 4. 태그 변경 시 임베딩 재생성
   async updateCampaign(
     campaignId: string,
     userId: number,
     dto: UpdateCampaignDto
   ): Promise<CampaignWithTags> {
+    // TODO: (캐싱은 정상 동작) 여기서 Redis에서 조회하도록 수정 필요할듯
     const campaign = await this.campaignRepository.findOne(campaignId, userId);
 
     if (!campaign) {
@@ -246,25 +257,68 @@ export class CampaignService {
       newStatus = this.determineInitialStatus(dto.startDate);
     }
 
-    // TODO: 업데이트 시 DB 먼저 할지 고려 필요
-    const updatedCampaign = await this.campaignRepository.update(
+    // 1. Redis 상태만 PAUSED로 빠르게 변경 (비딩 즉시 중단, embeddingTags 보존)
+    await this.campaignCacheRepository.updateCampaignStatus(
       campaignId,
-      dto,
-      tagIds,
-      newStatus
+      CampaignStatus.PAUSED
     );
+    this.logger.log(`캠페인 ${campaignId} Redis 상태 → PAUSED (비딩 중단)`);
 
-    // Redis 캐시 업데이트
-    await this.campaignCacheRepository.saveCampaignCacheById(
-      updatedCampaign.id,
-      this.convertToCachedCampaignType(updatedCampaign)
-    );
+    try {
+      // 2. DB 업데이트 (Repository 메서드 사용)
+      const updatedCampaign = await this.campaignRepository.update(
+        campaignId,
+        dto,
+        tagIds,
+        newStatus
+      );
 
-    return updatedCampaign;
+      // 3. Redis 전체 동기화 (DB 결과 반영, 요청한 상태로 복원)
+      await this.campaignCacheRepository.saveCampaignCacheById(
+        updatedCampaign.id,
+        this.convertToCachedCampaignType(updatedCampaign)
+      );
+      this.logger.log(
+        `캠페인 ${campaignId} Redis 최종 동기화 완료 (상태: ${updatedCampaign.status})`
+      );
+
+      // 4. 태그 변경과 상관 없이 임베딩 재생성
+      // TODO: (임베딩은 정상 동작) 하 근데 이거 dto.tags 변경 없을 시 임베딩 재적용 안 하도록 수정되어야 성능 개선의 의미가 있을 듯
+      await this.embeddingQueue.add('generate-campaign-embedding', {
+        campaignId,
+      });
+      this.logger.log(`캠페인 ${campaignId} 임베딩 재생성 큐 추가`);
+
+      return updatedCampaign;
+    } catch (error) {
+      // DB 업데이트 실패 시 Redis 상태 복원
+      this.logger.warn(
+        `캠페인 ${campaignId} 수정 실패, Redis 상태 복원 시도`,
+        error
+      );
+
+      // 요청한 상태로 복원 (dto.status가 있으면 그걸로, 없으면 원래 상태)
+      const restoreStatus = dto.status
+        ? dto.status === 'ACTIVE'
+          ? CampaignStatus.ACTIVE
+          : CampaignStatus.PAUSED
+        : campaign.status;
+
+      await this.campaignCacheRepository.updateCampaignStatus(
+        campaignId,
+        restoreStatus
+      );
+      this.logger.log(
+        `캠페인 ${campaignId} Redis 상태 복원 → ${restoreStatus}`
+      );
+
+      throw error;
+    }
   }
 
   // 캠페인 삭제 (소프트 삭제, 소유권 검증)
   async deleteCampaign(campaignId: string, userId: number): Promise<void> {
+    // TODO: (캐싱은 정상 동작) 이부분도 Redis로 교체 필요
     const campaign = await this.campaignRepository.findOne(campaignId, userId);
 
     if (!campaign) {

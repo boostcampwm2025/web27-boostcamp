@@ -23,6 +23,7 @@ export class BlogRedisCacheRepository implements BlogCacheRepository {
     const key = this.getBlogKey(id);
     const expiryTime = ttl ?? this.DEFAULT_TTL;
 
+    // TODO: 블로그 삭제 로직 부재 따라서 없어진 블로그에 대해서 거르는 로직을 구현할 수가 없음
     try {
       // JSON.SET은 cacheManager가 지원 안 해서 redisClient 직접 사용
       await this.ioredisClient.call('JSON.SET', key, '$', JSON.stringify(data));

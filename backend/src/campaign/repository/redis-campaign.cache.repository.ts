@@ -47,6 +47,23 @@ export class RedisCampaignCacheRepository implements CampaignCacheRepository {
     }
   }
 
+  // 상태만 업데이트
+  async updateCampaignStatus(id: string, status: string): Promise<void> {
+    const key = this.getCampaignCacheKey(id);
+
+    try {
+      await this.ioredisClient.call(
+        'JSON.SET',
+        key,
+        '$.status',
+        JSON.stringify(status)
+      );
+    } catch (error) {
+      this.logger.error(`캠페인 상태 업데이트 실패: ${id}`, error);
+      throw error;
+    }
+  }
+
   async updateDailySpentCacheById(id: string, amount: number): Promise<void> {
     const key = this.getCampaignCacheKey(id);
 
