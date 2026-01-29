@@ -32,7 +32,7 @@ export function useCreditHistory(
         setError(null);
 
         const response = await apiClient<CreditHistoryResponse>(
-          `/api/users/me/credit/history?limit=${limit}&offset=${offset}`
+          `/api/advertiser/credit/history?limit=${limit}&offset=${offset}`
         );
 
         setHistories(response.histories);

@@ -31,7 +31,11 @@ export function SdkInfoBox({ mode }: SdkInfoBoxProps) {
           <code className="font-mono bg-yellow-200 px-1 rounded">
             data-context
           </code>{' '}
-          속성으로 페이지 문맥을 명시하면 해당 문맥에 맞는 광고가 매칭됩니다.
+          속성으로 페이지 문맥을 명시하면 해당 문맥에 맞는 광고가 매칭됩니다.{' '}
+          <br />
+          <br />
+          (ex. 난 게임 프로젝트라 게임 프로젝트끼리 서로 홍보하면 시너지가 날 것 같아! ➡️
+          data-context="게임" )
         </p>
       </div>
     );

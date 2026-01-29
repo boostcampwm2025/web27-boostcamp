@@ -14,8 +14,13 @@ export function CreditHistoryTableRow({ history }: CreditHistoryTableRowProps) {
     if (isCharge) {
       return history.description || '크레딧 충전';
     }
+    // description이 있으면 우선 사용
+    if (history.description) {
+      return history.description;
+    }
+    // description이 없으면 캠페인명 기반 폴백
     return history.campaignName
-      ? `${history.campaignName} 캠페인 생성`
+      ? `'${history.campaignName}' 캠페인 생성`
       : '캠페인 생성';
   };
 

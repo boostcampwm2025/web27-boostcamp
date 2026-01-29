@@ -31,7 +31,7 @@ export function CampaignDetailPage() {
     isLoading: isUpdateCampaignLoading,
     error: updateCampaignError,
   } = useUpdateCampaign();
-  const { balance } = useAdvertiserBalance();
+  const { balance, refetch: refetchBalance } = useAdvertiserBalance();
 
   const handleBack = () => {
     navigate(-1);
@@ -81,6 +81,7 @@ export function CampaignDetailPage() {
       toast.showToast('캠페인이 수정되었습니다', 'success');
       setIsEditModalOpen(false);
       refetch();
+      refetchBalance();
     } catch {
       toast.showToast('캠페인 수정에 실패했습니다', 'error');
     }
@@ -101,6 +102,7 @@ export function CampaignDetailPage() {
       await updateBudget(campaign.id, data);
       toast.showToast('예산이 수정되었습니다', 'success');
       refetch();
+      refetchBalance();
     } catch {
       toast.showToast('예산 수정에 실패했습니다', 'error');
     }

@@ -26,6 +26,7 @@ export function CampaignStatsTableHeader() {
         <th className="px-5 py-3 text-left font-medium text-gray-600 whitespace-nowrap">
           전략
         </th>
+        <th className="px-5 py-3 w-10" aria-label="상세보기"></th>
       </tr>
     </thead>
   );

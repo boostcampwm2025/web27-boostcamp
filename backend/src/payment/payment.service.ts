@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { UserService } from '../user/user.service';
+import { AdvertiserService } from '../advertiser/advertiser.service';
 import { TossPaymentConfirmResponse } from './dto/toss-payment.dto';
 
 const MIN_CHARGE_AMOUNT = 1000;
@@ -13,7 +13,7 @@ export class PaymentService {
 
   constructor(
     private readonly configService: ConfigService,
-    private readonly userService: UserService
+    private readonly advertiserService: AdvertiserService
   ) {
     this.tossSecretKey =
       this.configService.get<string>('TOSS_SECRET_KEY') || '';
@@ -78,7 +78,7 @@ export class PaymentService {
 
     // 크레딧 충전
     if (paymentData.status === 'DONE') {
-      await this.userService.chargeCredit(userId, amount, '크레딧 충전');
+      await this.advertiserService.chargeCredit(userId, amount, '크레딧 충전');
       this.logger.log(`[결제 완료] userId: ${userId}, amount: ${amount}`);
     } else {
       throw new BadRequestException(

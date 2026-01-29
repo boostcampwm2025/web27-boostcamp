@@ -11,7 +11,7 @@ import { BlogEntity } from '../../blog/entities/blog.entity';
 import { CampaignEntity } from '../../campaign/entities/campaign.entity';
 import { OAuthAccountEntity } from '../../auth/entities/oauth-account.entity';
 import { UserCredentialEntity } from '../../auth/entities/user-credential.entity';
-import { CreditHistoryEntity } from './credit-history.entity';
+import { CreditHistoryEntity } from '../../advertiser/entities/credit-history.entity';
 
 export enum UserRole {
   PUBLISHER = 'PUBLISHER',

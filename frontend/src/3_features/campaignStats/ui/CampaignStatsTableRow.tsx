@@ -18,12 +18,10 @@ export function CampaignStatsTableRow({
 
   return (
     <tr
-      className="text-sm border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
+      className="text-sm border-b border-gray-100 hover:bg-blue-50 cursor-pointer transition-colors group"
       onClick={handleClick}
     >
-      <td className="px-5 py-4 text-gray-900 font-semibold">
-        {campaign.title}
-      </td>
+      <td className="px-5 py-4 text-gray-900 font-medium">{campaign.title}</td>
       <td className="px-5 py-4 whitespace-nowrap">
         <StatusBadge status={campaign.status} />
       </td>
@@ -44,6 +42,21 @@ export function CampaignStatsTableRow({
       </td>
       <td className="px-5 py-4 text-gray-900 text-sm whitespace-nowrap">
         {campaign.isHighIntent ? '고의도 학습자' : '모든 학습자'}
+      </td>
+      <td className="px-5 py-4 text-gray-400 whitespace-nowrap">
+        <svg
+          className="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M9 5l7 7-7 7"
+          />
+        </svg>
       </td>
     </tr>
   );

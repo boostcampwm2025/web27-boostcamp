@@ -56,4 +56,9 @@ export class TypeOrmBlogRepository extends BlogRepository {
 
     return false;
   }
+
+  // 모든 블로그 조회 (초기 로딩용)
+  async getAll(): Promise<BlogEntity[]> {
+    return await this.blogRepo.find();
+  }
 }

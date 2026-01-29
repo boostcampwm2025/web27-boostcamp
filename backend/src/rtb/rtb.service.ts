@@ -13,7 +13,7 @@ import { BidLogService } from '../bid-log/bid-log.service';
 import { CacheRepository } from '../cache/repository/cache.repository.interface';
 import { BidLog, BidStatus } from '../bid-log/bid-log.types';
 import { BlogRepository } from '../blog/repository/blog.repository.interface';
-import { CampaignRepository } from '../campaign/repository/campaign.repository.interface';
+import { CampaignCacheRepository } from '../campaign/repository/campaign.cache.repository.interface';
 
 @Injectable()
 export class RTBService {
@@ -29,38 +29,8 @@ export class RTBService {
     private readonly bidLogService: BidLogService,
     private readonly cacheRepository: CacheRepository,
     private readonly blogRepository: BlogRepository,
-    private readonly campaignRepository: CampaignRepository
+    private readonly campaignCacheRepository: CampaignCacheRepository
   ) {}
-
-  // cache 문제로 인한 무의미한 주석
-  // 경매 참여 가능한 캠페인만 필터링
-  private filterEligibleCampaigns(candidates: Candidate[]): Candidate[] {
-    const now = new Date();
-
-    return candidates.filter((candidate) => {
-      const campaign = candidate.campaign;
-
-      // 삭제된 캠페인 제외
-      if (campaign.deletedAt) {
-        return false;
-      }
-
-      // ACTIVE 상태만 허용
-      if (campaign.status !== 'ACTIVE') {
-        return false;
-      }
-
-      // 날짜 범위 검증
-      const startDate = new Date(campaign.startDate);
-      const endDate = new Date(campaign.endDate);
-
-      if (now < startDate || now >= endDate) {
-        return false;
-      }
-
-      return true;
-    });
-  }
 
   async runAuction(context: DecisionContext) {
     try {
@@ -74,33 +44,36 @@ export class RTBService {
       const blogId = blog.id;
 
       // 1. 후보 필터링
+      // TODO(추후 고려 사항): 여기서도 embedding, deleteAt,active, isHighIntent 속성 반환이 필요한가? -> 아 bidLog기록을 위해서는 isHighIntent 속성은 필요할 거 같음
       let candidates: Candidate[] =
         await this.matcher.findCandidatesByTags(context);
 
+      // ======= 일단 혹시 모르니깐 주석 처리 =======
       // 2. 고의도 필터링 (isHighIntent에 따라 광고 분리)
-      if (context.isHighIntent) {
-        // 고의도 요청: is_high_intent=true 광고만
-        candidates = candidates.filter((c) => c.campaign.isHighIntent === true);
-      } else {
-        // 일반 요청: is_high_intent=false 광고만
-        candidates = candidates.filter(
-          (c) => c.campaign.isHighIntent === false
-        );
-      }
+      // if (context.isHighIntent) {
+      //   // 고의도 요청: is_high_intent=true 광고만
+      //   candidates = candidates.filter((c) => c.campaign.isHighIntent === true);
+      // } else {
+      //   // 일반 요청: is_high_intent=false 광고만
+      //   candidates = candidates.filter(
+      //     (c) => c.campaign.isHighIntent === false
+      //   );
+      // }
 
       // 3. 캠페인 상태 검증 (ACTIVE + 날짜 범위 + 삭제되지 않음)
-      // todo: active 캠페인들을 redis에 들고있기?
-      candidates = this.filterEligibleCampaigns(candidates);
+      // candidates = this.filterEligibleCampaigns(candidates);
+      // ======= 일단 혹시 모르니깐 주석 처리 =======
 
-      // 후보가 없으면 fallback 캠페인 조회
+      // 후보가 없으면 fallback 캠페인 조회 (캐시에서)
       if (candidates.length === 0) {
         this.logger.warn(
           `후보가 없습니다. Fallback 캠페인 조회: ${this.FALLBACK_CAMPAIGN_ID}`
         );
 
-        const fallbackCampaign = await this.campaignRepository.getById(
-          this.FALLBACK_CAMPAIGN_ID
-        );
+        const fallbackCampaign =
+          await this.campaignCacheRepository.findCampaignCacheById(
+            this.FALLBACK_CAMPAIGN_ID
+          );
 
         if (fallbackCampaign) {
           candidates = [
@@ -128,6 +101,7 @@ export class RTBService {
       });
 
       // 5. BidLog 저장 (모든 참여 캠페인의 입찰 기록)
+      // TODO(추후 고려 사항): 속성값 고민 및 reason 필드에 대한 고민 그리고 로그 데이터는 RedisStream으로 큐를 통한 배치처리가 고려되면 좋을 거 같음
       const bidLogs: BidLog[] = result.candidates.map((candidate) => ({
         auctionId,
         campaignId: candidate.id,
@@ -200,4 +174,34 @@ export class RTBService {
       };
     }
   }
+
+  // cache 문제로 인한 무의미한 주석
+  // 경매 참여 가능한 캠페인만 필터링
+  // private filterEligibleCampaigns(candidates: Candidate[]): Candidate[] {
+  //   const now = new Date();
+
+  //   return candidates.filter((candidate) => {
+  //     const campaign = candidate.campaign;
+
+  //     // 삭제된 캠페인 제외
+  //     if (campaign.deletedAt) {
+  //       return false;
+  //     }
+
+  //     // ACTIVE 상태만 허용
+  //     if (campaign.status !== 'ACTIVE') {
+  //       return false;
+  //     }
+
+  //     // 날짜 범위 검증
+  //     const startDate = new Date(campaign.startDate);
+  //     const endDate = new Date(campaign.endDate);
+
+  //     if (now < startDate || now >= endDate) {
+  //       return false;
+  //     }
+
+  //     return true;
+  //   });
+  // }
 }

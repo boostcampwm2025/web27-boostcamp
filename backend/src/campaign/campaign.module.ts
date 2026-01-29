@@ -1,5 +1,6 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { BullModule } from '@nestjs/bullmq';
 import { CampaignRepository } from './repository/campaign.repository.interface';
 import { TypeOrmCampaignRepository } from './repository/typeorm-campaign.repository';
 import { CampaignService } from './campaign.service';
@@ -8,12 +9,13 @@ import { CampaignCronService } from './campaign-cron.service';
 import { CampaignEntity } from './entities/campaign.entity';
 import { TagEntity } from '../tag/entities/tag.entity';
 import { UserEntity } from '../user/entities/user.entity';
-import { CreditHistoryEntity } from '../user/entities/credit-history.entity';
+import { CreditHistoryEntity } from '../advertiser/entities/credit-history.entity';
 import { LogModule } from '../log/log.module';
 import { ImageModule } from '../image/image.module';
 import { CampaignCacheRepository } from './repository/campaign.cache.repository.interface';
 import { RedisCampaignCacheRepository } from './repository/redis-campaign.cache.repository';
 import { UserModule } from 'src/user/user.module';
+import { AdvertiserModule } from 'src/advertiser/advertiser.module';
 import { CacheModule } from 'src/cache/cache.module';
 import { RedisModule } from 'src/redis/redis.module';
 
@@ -29,7 +31,11 @@ import { RedisModule } from 'src/redis/redis.module';
     LogModule,
     ImageModule,
     UserModule,
+    forwardRef(() => AdvertiserModule),
     RedisModule,
+    BullModule.registerQueue({
+      name: 'embedding-queue',
+    }),
   ],
   controllers: [CampaignController],
   providers: [
@@ -41,6 +47,6 @@ import { RedisModule } from 'src/redis/redis.module';
       useClass: RedisCampaignCacheRepository,
     },
   ],
-  exports: [CampaignRepository],
+  exports: [CampaignRepository, CampaignCacheRepository],
 })
 export class CampaignModule {}

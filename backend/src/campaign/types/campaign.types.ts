@@ -61,5 +61,11 @@ export type CachedCampaign = {
   startDate: string;
   endDate: string;
   createdAt: string;
-  embedding?: number[]; // Worker가 추가할 벡터
+  deletedAt: string | null;
+
+  // 태그 정보 (매칭용)
+  tags?: string[];
+
+  // 태그별 임베딩 (Worker가 추가)
+  embeddingTags?: { [tagName: string]: number[] };
 };

@@ -23,6 +23,7 @@ export class BlogRedisCacheRepository implements BlogCacheRepository {
     const key = this.getBlogKey(id);
     const expiryTime = ttl ?? this.DEFAULT_TTL;
 
+    // TODO: 블로그 삭제 로직 부재 따라서 없어진 블로그에 대해서 거르는 로직을 구현할 수가 없음
     try {
       // JSON.SET은 cacheManager가 지원 안 해서 redisClient 직접 사용
       await this.ioredisClient.call('JSON.SET', key, '$', JSON.stringify(data));
@@ -31,8 +32,6 @@ export class BlogRedisCacheRepository implements BlogCacheRepository {
 
       // exists set에 추가
       await this.ioredisClient.sadd(this.BLOG_EXISTS_SET, id.toString());
-
-      this.logger.log(`블로그 ${id} 캐시 성공 with TTL ${expiryTime}s`);
     } catch (error) {
       this.logger.error(`블로그 ${id} 캐시 실패:`, error);
       throw error;
@@ -51,7 +50,6 @@ export class BlogRedisCacheRepository implements BlogCacheRepository {
         return null;
       }
 
-      this.logger.debug(`블로그 캐시 히트: ${id}`);
       return JSON.parse(result) as CachedBlog;
     } catch (error) {
       this.logger.error(`블로그 캐시 조회 실패: ${id}`, error);
@@ -80,8 +78,6 @@ export class BlogRedisCacheRepository implements BlogCacheRepository {
       await this.ioredisClient.del(key);
       // exists set에서 삭제
       await this.ioredisClient.srem(this.BLOG_EXISTS_SET, id.toString());
-
-      this.logger.debug(`블로그 캐시 삭제: ${id}`);
     } catch (error) {
       this.logger.error(`블로그 캐시 삭제 실패: ${id}`, error);
       throw error;
@@ -101,10 +97,17 @@ export class BlogRedisCacheRepository implements BlogCacheRepository {
         '$.embedding', // embedding속성에 따로 임베딩 값 저장
         JSON.stringify(embedding)
       );
-
-      this.logger.debug(`블로그 임베딩 업데이트: ${id}`);
     } catch (error) {
       this.logger.error(`블로그 임베딩 업데이트 실패 ${id}:`, error);
+      throw error;
+    }
+  }
+
+  async addBlogToExistsSet(id: number): Promise<void> {
+    try {
+      await this.ioredisClient.sadd(this.BLOG_EXISTS_SET, id.toString());
+    } catch (error) {
+      this.logger.error(`blog:exists:set 추가 실패: ${id}`, error);
       throw error;
     }
   }
