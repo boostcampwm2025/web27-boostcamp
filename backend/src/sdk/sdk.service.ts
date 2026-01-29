@@ -78,7 +78,6 @@ export class SdkService {
 
   async recordClick(dto: CreateClickLogDto): Promise<number | null> {
     const { viewId } = dto;
-    // todo: 어뷰징 방지
 
     const isDup = await this.cacheRepository.setClickIdempotencyKey(viewId);
 
