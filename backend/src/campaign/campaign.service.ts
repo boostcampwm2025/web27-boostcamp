@@ -236,7 +236,7 @@ export class CampaignService {
     userId: number,
     dto: UpdateCampaignDto
   ): Promise<CampaignWithTags> {
-    // TODO: 여기서 Redis에서 조회하도록 수정 필요할듯
+    // TODO: (캐싱은 정상 동작) 여기서 Redis에서 조회하도록 수정 필요할듯
     const campaign = await this.campaignRepository.findOne(campaignId, userId);
 
     if (!campaign) {
@@ -408,7 +408,7 @@ export class CampaignService {
       );
 
       // 4. 태그 변경과 상관 없이 임베딩 재생성
-      // TODO: 하 근데 이거 dto.tags 변경 없을 시 임베딩 재적용 안 하도록 수정되어야 성능 개선의 의미가 있을 듯
+      // TODO: (임베딩은 정상 동작) 하 근데 이거 dto.tags 변경 없을 시 임베딩 재적용 안 하도록 수정되어야 성능 개선의 의미가 있을 듯
       await this.embeddingQueue.add('generate-campaign-embedding', {
         campaignId,
       });
@@ -443,7 +443,7 @@ export class CampaignService {
 
   // 캠페인 삭제 (소프트 삭제, 소유권 검증)
   async deleteCampaign(campaignId: string, userId: number): Promise<void> {
-    // TODO: 이부분도 Redis로 교체 필요
+    // TODO: (캐싱은 정상 동작) 이부분도 Redis로 교체 필요
     const campaign = await this.campaignRepository.findOne(campaignId, userId);
 
     if (!campaign) {

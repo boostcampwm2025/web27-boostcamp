@@ -129,6 +129,7 @@ export class BlogService {
       }
 
       // 3. Redis 캐시 저장 + exists set 추가
+      // TODO: 근데 verified 는 언제 쓰이는 거지??!?!
       await this.blogCacheRepository.saveBlogCacheById(
         createdBlog.id,
         this.convertToCachedBlogType(createdBlog)
