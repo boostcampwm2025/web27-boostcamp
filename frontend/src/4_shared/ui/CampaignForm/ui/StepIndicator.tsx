@@ -10,13 +10,25 @@ interface StepIndicatorProps {
 
 export function StepIndicator({
   currentStep,
-  totalSteps = 3,
+  totalSteps: totalStepsProp = 3,
   mode = 'create',
   onBack,
 }: StepIndicatorProps) {
-  const progressPercentage = (currentStep / totalSteps) * 100;
+  const isEditMode = mode === 'edit';
+  const totalSteps = isEditMode ? 2 : totalStepsProp;
+
+  // 수정 모드에서는 step 1 → step 3으로 가도록 step 계산
+  const displayStep = isEditMode && currentStep === 3 ? 2 : currentStep;
+  const progressPercentage = (displayStep / totalSteps) * 100;
 
   const getStepTitle = (step: FormStep) => {
+    if (isEditMode) {
+      const editTitles: Record<number, string> = {
+        1: '광고 내용 및 기간',
+        3: '확인',
+      };
+      return editTitles[step] || '';
+    }
     const titles = {
       1: '광고 내용',
       2: '예산 설정',
@@ -39,7 +51,7 @@ export function StepIndicator({
               <Icon.ArrowLeft className="w-5 h-5 text-gray-600" />
             </button>
             <span className="text-sm font-medium text-gray-900">
-              STEP {currentStep} OF {totalSteps}
+              STEP {displayStep} OF {totalSteps}
               <span className="pl-2 text-gray-500">
                 {getStepTitle(currentStep)}
               </span>
@@ -47,7 +59,7 @@ export function StepIndicator({
           </div>
         ) : (
           <span className="text-sm font-medium text-gray-900">
-            STEP {currentStep} OF {totalSteps}
+            STEP {displayStep} OF {totalSteps}
             <span className="pl-2 text-gray-500">
               {getStepTitle(currentStep)}
             </span>
