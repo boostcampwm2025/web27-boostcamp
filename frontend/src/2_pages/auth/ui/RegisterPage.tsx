@@ -2,10 +2,12 @@ import { Modal } from '@shared/ui/Modal';
 import { DiagonalBannersBackground } from '@shared/ui/Background';
 import { RegisterForm } from '@features/authorize/register/ui/RegisterForm';
 import { Link } from 'react-router-dom';
+import { useDocumentTitle } from '@shared/lib/hooks';
 
 const AUTH_BG: 'banners' | 'lines' | 'none' = 'banners'; // 쉽게 제거/비활성화 가능
 
 export function RegisterPage() {
+  useDocumentTitle('회원가입');
   return (
     <div className="relative flex min-h-screen w-full items-center justify-center bg-[#F6F6F8] overflow-hidden">
       {AUTH_BG === 'banners' ? <DiagonalBannersBackground /> : null}

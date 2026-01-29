@@ -1,4 +1,7 @@
+import { useDocumentTitle } from '@shared/lib/hooks';
+
 export function PublisherEarningsPage() {
+  useDocumentTitle('수익 관리');
   return (
     <div className="min-h-screen bg-gray-50">
       <h1 className="text-3xl font-bold p-8">퍼블리셔 수익 관리</h1>

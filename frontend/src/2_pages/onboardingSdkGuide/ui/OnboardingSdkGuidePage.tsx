@@ -11,8 +11,10 @@ import {
 import type { SdkMode } from '@features/sdkInstallation';
 import { useBlogKey } from '@/3_features/sdkInstallation/lib/useBlogKey';
 import { OnboardingSdkGuidePageSkeleton } from './OnboardingSdkGuidePageSkeleton';
+import { useDocumentTitle } from '@shared/lib/hooks';
 
 export function OnboardingSdkGuidePage() {
+  useDocumentTitle('SDK 설치 가이드');
   const navigate = useNavigate();
   const [mode, setMode] = useState<SdkMode>('auto');
   const { data, isPending, isError, error } = useBlogKey();

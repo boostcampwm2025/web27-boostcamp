@@ -1,4 +1,7 @@
+import { useDocumentTitle } from '@shared/lib/hooks';
+
 export function PublisherSettingsPage() {
+  useDocumentTitle('광고 설정');
   return (
     <div className="min-h-screen bg-gray-50">
       <h1 className="text-3xl font-bold p-8">퍼블리셔 광고 설정</h1>

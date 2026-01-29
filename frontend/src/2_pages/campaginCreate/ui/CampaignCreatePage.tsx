@@ -11,9 +11,11 @@ import { useCreateCampaign } from '@features/campaignCreation';
 import {
   useAdvertiserBalance,
   useImageUpload,
+  useDocumentTitle,
 } from '@shared/lib/hooks';
 
 export function CampaignCreatePage() {
+  useDocumentTitle('캠페인 생성');
   const navigate = useNavigate();
   const { currentStep, formData, resetForm, setBalance } =
     useCampaignFormStore();
