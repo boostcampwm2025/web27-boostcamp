@@ -24,7 +24,7 @@ export function StatCard({ title, value, change, icon }: StatCardProps) {
             className={`flex flex-row items-center gap-1 px-1.5 py-0.5 rounded-lg text-xs font-semibold ${
               isPositiveChange
                 ? 'bg-green-100 border border-green-300 text-green-500'
-                : 'bg-red-100 border border-red-500 text-red-700'
+                : 'bg-red-100 border border-red-300 text-red-700'
             }`}
           >
             {isPositiveChange ? (
