@@ -90,7 +90,16 @@ export function CampaignEditModal({
         },
       });
     }
-  }, [isOpen, initialData, balance, setMode, setStep, setFormData, setBalance, setInitialTotalBudget]);
+  }, [
+    isOpen,
+    initialData,
+    balance,
+    setMode,
+    setStep,
+    setFormData,
+    setBalance,
+    setInitialTotalBudget,
+  ]);
 
   const handleSubmit = async () => {
     await onSubmit(formData);
@@ -117,13 +126,13 @@ export function CampaignEditModal({
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-8"
       onClick={handleBackdropClick}
     >
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 bg-white/90 p-4 rounded-xl">
         {/* 닫기 버튼 */}
         <div className="flex justify-end">
           <button
             type="button"
             onClick={handleClose}
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-400 hover:bg-blue-500/80 transition-colors cursor-pointer"
             disabled={isSubmitting}
           >
             <span className="text-white text-lg">✕</span>

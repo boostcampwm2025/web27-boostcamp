@@ -35,9 +35,10 @@ export function FormNavigation({
     return '다음';
   };
 
-  const hintText = mode === 'edit'
-    ? '수정 사항을 확인해주세요'
-    : '광고 시작 전 언제든 수정 가능합니다';
+  const hintText =
+    mode === 'edit'
+      ? '수정 사항을 확인해주세요'
+      : '광고 시작 전 언제든 수정 가능합니다';
 
   return (
     <div className="flex flex-col gap-2">
@@ -67,9 +68,7 @@ export function FormNavigation({
         </Button>
       </div>
 
-      <p className={`text-right text-xs ${mode === 'edit' ? 'text-white/70' : 'text-gray-500'}`}>
-        {hintText}
-      </p>
+      <p className={`text-right text-xs text-gray-500`}>{hintText}</p>
     </div>
   );
 }

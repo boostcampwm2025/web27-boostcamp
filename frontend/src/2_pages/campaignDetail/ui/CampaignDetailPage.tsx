@@ -34,7 +34,7 @@ export function CampaignDetailPage() {
   const { balance, refetch: refetchBalance } = useAdvertiserBalance();
 
   const handleBack = () => {
-    navigate('/advertiser/dashboard/campaigns');
+    navigate(-1);
   };
 
   const handlePause = async () => {
