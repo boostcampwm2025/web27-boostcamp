@@ -4,6 +4,7 @@ import { successResponse } from 'src/common/response/success-response';
 import { type AuthenticatedRequest } from 'src/types/authenticated-request';
 import { KeywordStatsRequestDto } from './dto/keyword-stats-request.dto';
 import { ChargeCreditDto, GetCreditHistoryDto } from './dto/credit.dto';
+// import { Public } from 'src/auth/decorators/public.decorator';
 
 @Controller('advertiser')
 export class AdvertiserController {
@@ -61,7 +62,8 @@ export class AdvertiserController {
     @Req() req: AuthenticatedRequest,
     @Query() query: KeywordStatsRequestDto
   ) {
-    const userId = req.user.userId;
+    const userId = 1;
+    // const userId = req.user.userId;
     const { limit, offset, sortBy, order } = query;
 
     const result = await this.advertiserService.getKeywordStats(
