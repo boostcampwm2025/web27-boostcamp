@@ -117,10 +117,10 @@ export class CampaignCronService {
     await this.resetDailyBudgets();
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
-  async scheduledCleanupOrphanImages(): Promise<void> {
-    await this.cleanupOrphanImages();
-  }
+  // @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  // async scheduledCleanupOrphanImages(): Promise<void> {
+  //   await this.cleanupOrphanImages();
+  // }
 
   // 일일 예산 리셋 + Redis 동기화
   async resetDailyBudgets(): Promise<void> {
