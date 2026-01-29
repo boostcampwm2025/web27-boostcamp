@@ -21,7 +21,7 @@ export function CampaignStatsTableRow({
       className="text-sm border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
       onClick={handleClick}
     >
-      <td className="px-5 py-4 text-gray-900 font-semibold hover:text-blue-600">
+      <td className="px-5 py-4 text-gray-900 font-semibold">
         {campaign.title}
       </td>
       <td className="px-5 py-4 whitespace-nowrap">
