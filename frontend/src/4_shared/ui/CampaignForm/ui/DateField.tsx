@@ -8,6 +8,7 @@ interface DateFieldProps {
   hint?: string;
   error?: string;
   min?: string;
+  disabled?: boolean;
 }
 
 export function DateField({
@@ -18,6 +19,7 @@ export function DateField({
   hint,
   error,
   min,
+  disabled = false,
 }: DateFieldProps) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(e.target.value);
@@ -41,6 +43,7 @@ export function DateField({
         onChange={handleChange}
         onBlur={handleBlur}
         min={minDate}
+        disabled={disabled}
         className={`h-11 rounded-lg border px-3 outline-none focus:ring-2 [&::-webkit-calendar-picker-indicator]:cursor-pointer ${
           value
             ? 'text-gray-900'
@@ -49,6 +52,10 @@ export function DateField({
           error
             ? 'border-red-300 focus:ring-red-200'
             : 'border-gray-200 focus:ring-blue-200'
+        } ${
+          disabled
+            ? 'bg-gray-100 cursor-not-allowed opacity-60'
+            : ''
         }`}
       />
 
