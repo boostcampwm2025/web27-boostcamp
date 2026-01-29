@@ -1,9 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Matcher } from './matcher.interface';
-import { CampaignRepository } from '../../campaign/repository/campaign.repository.interface';
+import { CampaignCacheRepository } from '../../campaign/repository/campaign.cache.repository.interface';
 import { MLEngine } from '../ml/mlEngine.interface';
 import type { Candidate, DecisionContext } from '../types/decision.types';
-import type { CampaignWithTags } from '../../campaign/types/campaign.types';
+import type { CachedCampaign } from '../../campaign/types/campaign.types';
 @Injectable()
 export class TransformerMatcher extends Matcher {
   private readonly logger = new Logger(TransformerMatcher.name);
@@ -35,7 +35,7 @@ export class TransformerMatcher extends Matcher {
   private readonly embeddingCache = new Map<string, number[]>();
 
   constructor(
-    private readonly campaignRepo: CampaignRepository,
+    private readonly campaignCacheRepo: CampaignCacheRepository,
     private readonly mlEngine: MLEngine
   ) {
     super();
@@ -52,7 +52,20 @@ export class TransformerMatcher extends Matcher {
     const requestText = this.buildRequestText(context.tags);
     const requestNorm = this.normalizeText(requestText);
     const requestTokens = new Set(this.tokenizeText(requestText));
-    const allCampaigns = await this.campaignRepo.getAll();
+
+    // Redis에서 모든 캠페인 조회 (캐시 우선 전략)
+    const allCampaigns = await this.campaignCacheRepo.getAllCampaigns();
+
+    // 비딩 자격 필터링: ACTIVE + 날짜 범위 + deletedAt + embeddingTags + isHighIntent 존재
+    const eligibleCampaigns = this.filterEligibleCampaigns(
+      allCampaigns,
+      context.isHighIntent
+    );
+
+    if (eligibleCampaigns.length === 0) {
+      this.logger.debug('비딩 가능한 캠페인이 없습니다.');
+      return [];
+    }
 
     let requestEmbedding: number[];
     try {
@@ -63,9 +76,9 @@ export class TransformerMatcher extends Matcher {
       return [];
     }
 
-    // 모든 캠페인과 스코어 계산 (0~1)
+    // 자격 있는 캠페인과 스코어 계산 (0~1)
     const withSimilarity = await Promise.all(
-      allCampaigns.map(async (campaign) => ({
+      eligibleCampaigns.map(async (campaign) => ({
         campaign,
         similarity: await this.scoreCampaignByTags(
           requestEmbedding,
@@ -91,6 +104,49 @@ export class TransformerMatcher extends Matcher {
   // 요청 태그 배열을 임베딩을 위한 단일 텍스트로 변환합니다.
   private buildRequestText(tags: string[]): string {
     return tags.join(' ');
+  }
+
+  // 비딩 자격 필터링: ACTIVE + 날짜 범위 + deletedAt + embeddingTags 존재
+  private filterEligibleCampaigns(
+    campaigns: CachedCampaign[],
+    isHighIntent: boolean
+  ): CachedCampaign[] {
+    const now = new Date();
+
+    return campaigns.filter((campaign) => {
+      // 삭제된 캠페인 제외
+      if (campaign.deletedAt) {
+        return false;
+      }
+
+      // ACTIVE 상태만 허용
+      if (campaign.status !== 'ACTIVE') {
+        return false;
+      }
+
+      // 날짜 범위 검증
+      const startDate = new Date(campaign.startDate);
+      const endDate = new Date(campaign.endDate);
+
+      if (now < startDate || now >= endDate) {
+        return false;
+      }
+
+      // embeddingTags 존재 여부 (임베딩 없으면 유사도 계산 불가)
+      if (
+        !campaign.embeddingTags ||
+        Object.keys(campaign.embeddingTags).length === 0
+      ) {
+        return false;
+      }
+
+      // isHighIntert가 일치하는지 여부
+      if (isHighIntent !== campaign.isHighIntent) {
+        return false;
+      }
+
+      return true;
+    });
   }
 
   private normalizeText(text: string): string {
@@ -155,11 +211,10 @@ export class TransformerMatcher extends Matcher {
     requestEmbedding: number[],
     requestNorm: string,
     requestTokens: Set<string>,
-    campaign: CampaignWithTags
+    campaign: CachedCampaign
   ): Promise<number> {
-    const tagNames = (campaign.tags ?? [])
-      .map((t) => (t?.name ?? '').trim())
-      .filter(Boolean);
+    // CachedCampaign의 tags는 string[] 형태
+    const tagNames = (campaign.tags ?? []).filter(Boolean);
 
     if (tagNames.length === 0) {
       return 0;

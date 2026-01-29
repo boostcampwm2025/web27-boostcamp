@@ -1,7 +1,4 @@
-import type {
-  CampaignWithTags,
-  Tag,
-} from '../../campaign/types/campaign.types';
+import type { CachedCampaign, Tag } from '../../campaign/types/campaign.types';
 
 export interface Campaign {
   id: string;
@@ -35,11 +32,11 @@ export interface DecisionContext {
 // }
 
 export interface Candidate {
-  campaign: CampaignWithTags;
+  campaign: CachedCampaign; // Matcher가 Redis에서 조회한 CachedCampaign 반환
   similarity: number;
 }
 
-export interface ScoredCandidate extends CampaignWithTags {
+export interface ScoredCandidate extends CachedCampaign {
   score: number;
 }
 

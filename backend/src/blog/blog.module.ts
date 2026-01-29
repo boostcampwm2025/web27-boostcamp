@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { BlogService } from './blog.service';
 import { BlogController } from './blog.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { BullModule } from '@nestjs/bullmq';
 import { BlogEntity } from './entities/blog.entity';
 import { UserModule } from 'src/user/user.module';
 import { BlogRepository } from './repository/blog.repository.interface';
@@ -11,7 +12,14 @@ import { BlogRedisCacheRepository } from './repository/redis-blog.cache.reposito
 import { BlogCacheRepository } from './repository/blog.cache.repository.interface';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([BlogEntity]), UserModule, RedisModule],
+  imports: [
+    TypeOrmModule.forFeature([BlogEntity]),
+    UserModule,
+    RedisModule,
+    BullModule.registerQueue({
+      name: 'embedding-queue',
+    }),
+  ],
   controllers: [BlogController],
   providers: [
     BlogService,
