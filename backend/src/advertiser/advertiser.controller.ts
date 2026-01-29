@@ -62,8 +62,8 @@ export class AdvertiserController {
     @Req() req: AuthenticatedRequest,
     @Query() query: KeywordStatsRequestDto
   ) {
-    const userId = 1;
-    // const userId = req.user.userId;
+    // const userId = 1;
+    const userId = req.user.userId;
     const { limit, offset, sortBy, order } = query;
 
     const result = await this.advertiserService.getKeywordStats(
