@@ -1,0 +1,13 @@
+# BoostAD robots.txt
+User-agent: *
+Allow: /
+
+# 비공개 페이지 크롤링 제외
+Disallow: /advertiser/dashboard/
+Disallow: /advertiser/campaign-create
+Disallow: /publisher/dashboard/
+Disallow: /publisher/onboarding/
+Disallow: /payment/
+
+# Sitemap 위치
+Sitemap: https://www.boostad.site/sitemap.xml
