@@ -198,6 +198,92 @@ export class AdvertiserService {
       hasMore,
     };
   }
+
+  // 광고주 키워드 통계 목록 조회 - 테스트 필요
+  async getKeywordStats(
+    userId: number,
+    limit: number = 20,
+    offset: number = 0,
+    sortBy: 'avgCtr' | 'totalImpressions' | 'totalClicks' = 'avgCtr',
+    order: 'asc' | 'desc' = 'desc'
+  ) {
+    const isAdvertiser = await this.userRepository.verifyRole(
+      userId,
+      UserRole.ADVERTISER
+    );
+
+    if (!isAdvertiser) {
+      throw new ForbiddenException();
+    }
+
+    // 1. userId로 캠페인 목록 조회 (tags relation 포함)
+    const campaigns = await this.campaignRepository.listByUserId(userId);
+    const campaignIds = campaigns.map((c) => c.id);
+
+    if (campaignIds.length === 0) {
+      return { total: 0, hasMore: false, keywords: [] };
+    }
+
+    // 2. 캠페인별 ViewLog, ClickLog 집계 (기존 Repository 메서드 활용)
+    const viewCounts =
+      await this.campaignRepository.getViewCountsByCampaignIds(campaignIds);
+    const clickCounts =
+      await this.campaignRepository.getClickCountsByCampaignIds(campaignIds);
+
+    // 3. Tag별로 노출/클릭 합산
+    const tagStatsMap = new Map<
+      number,
+      {
+        id: number;
+        name: string;
+        totalImpressions: number;
+        totalClicks: number;
+      }
+    >();
+
+    for (const campaign of campaigns) {
+      const impressions = viewCounts.get(campaign.id) ?? 0;
+      const clicks = clickCounts.get(campaign.id) ?? 0;
+
+      for (const tag of campaign.tags) {
+        const existing = tagStatsMap.get(tag.id);
+        if (existing) {
+          existing.totalImpressions += impressions;
+          existing.totalClicks += clicks;
+        } else {
+          tagStatsMap.set(tag.id, {
+            id: tag.id,
+            name: tag.name,
+            totalImpressions: impressions,
+            totalClicks: clicks,
+          });
+        }
+      }
+    }
+
+    // 4. avgCtr 계산 및 배열로 변환
+    const tagStats = Array.from(tagStatsMap.values()).map((stat) => ({
+      ...stat,
+      avgCtr:
+        stat.totalImpressions > 0
+          ? roundTo1Decimal((stat.totalClicks / stat.totalImpressions) * 100)
+          : 0,
+    }));
+
+    // 5. 정렬
+    tagStats.sort((a, b) => {
+      const aVal = a[sortBy];
+      const bVal = b[sortBy];
+      return order === 'desc' ? bVal - aVal : aVal - bVal;
+    });
+
+    // 6. 페이지네이션
+    const total = tagStats.length;
+    const paginatedKeywords = tagStats.slice(offset, offset + limit);
+    const hasMore = offset + limit < total;
+
+    return { total, hasMore, keywords: paginatedKeywords };
+  }
 }
 
 const roundTo1Decimal = (v: number) => Math.round(v * 10) / 10;
