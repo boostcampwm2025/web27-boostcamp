@@ -36,6 +36,7 @@ import Saving from '@shared/ui/Icon/icons/saving.svg?react';
 import BadgeCheck from '@shared/ui/Icon/icons/badgeCheck.svg?react';
 import Toss from '@shared/ui/Icon/icons/toss.svg?react';
 import ArrowDown from '@shared/ui/Icon/icons/arrowDown.svg?react';
+import Play from '@shared/ui/Icon/icons/play.svg?react';
 
 export const Icon = {
   ArrowRight,
@@ -76,4 +77,5 @@ export const Icon = {
   BadgeCheck,
   Toss,
   ArrowDown,
+  Play,
 };

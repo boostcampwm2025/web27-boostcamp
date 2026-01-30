@@ -21,7 +21,9 @@ export function CampaignDetailHeader({
   isPauseLoading = false,
 }: CampaignDetailHeaderProps) {
   const canPause = status === 'ACTIVE' || status === 'PAUSED';
-  const pauseButtonText = status === 'ACTIVE' ? '일시정지' : '재개';
+  const isActive = status === 'ACTIVE';
+  const pauseButtonText = isActive ? '일시정지' : '재개';
+  const PauseIcon = isActive ? Icon.Stop2 : Icon.Play;
 
   return (
     <div className="flex items-center justify-between">
@@ -41,7 +43,7 @@ export function CampaignDetailHeader({
           <Button
             variant="white"
             size="sm"
-            icon={<Icon.Stop2 className="w-4 h-4" />}
+            icon={<PauseIcon className="w-4 h-4" />}
             iconPosition="left"
             onClick={onPause}
             disabled={isPauseLoading}
