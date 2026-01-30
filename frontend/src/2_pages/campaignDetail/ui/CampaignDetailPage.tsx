@@ -13,10 +13,12 @@ import {
   CampaignEditModal,
 } from '@features/campaignDetail';
 import { useAdvertiserBalance } from '@shared/lib/hooks/useAdvertiserBalance';
+import { useDocumentTitle } from '@shared/lib/hooks';
 import { useToast } from '@shared/lib/toast';
 import type { CampaignFormData } from '@shared/ui/CampaignForm';
 
 export function CampaignDetailPage() {
+  useDocumentTitle('캠페인 상세');
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const toast = useToast();

@@ -9,8 +9,10 @@ import { MainFooter } from './sections/MainFooter';
 import { RoleToggle } from './components/RoleToggle';
 import type { RoleType } from './components/RoleToggle';
 import { ScrollReveal } from '@shared/ui/ScrollReveal';
+import { useDocumentTitle } from '@shared/lib/hooks';
 
 export function MainPage() {
+  useDocumentTitle();
   const [role, setRole] = useState<RoleType>('advertiser');
 
   return (

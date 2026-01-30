@@ -5,10 +5,12 @@ import {
   useRealtimeBids,
 } from '@features/realtimeBids';
 import { Pagination } from '@shared/ui/Pagination';
+import { useDocumentTitle } from '@shared/lib/hooks';
 
 const ITEMS_PER_PAGE = 10;
 
 export function RealtimeBidsHistoryPage() {
+  useDocumentTitle('입찰 히스토리');
   const [offset, setOffset] = useState(0);
   const [selectedCampaignIds, setSelectedCampaignIds] = useState<string[]>([]);
 

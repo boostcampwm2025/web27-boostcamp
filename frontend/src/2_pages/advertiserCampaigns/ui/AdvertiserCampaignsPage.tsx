@@ -5,10 +5,12 @@ import {
   CampaignStatsTableRow,
 } from '@features/campaignStats';
 import { Pagination } from '@shared/ui/Pagination';
+import { useDocumentTitle } from '@shared/lib/hooks';
 
 const ITEMS_PER_PAGE = 10;
 
 export function AdvertiserCampaignsPage() {
+  useDocumentTitle('캠페인 관리');
   const [offset, setOffset] = useState(0);
   const { campaigns, total, hasMore, isLoading, error } = useCampaignStats({
     limit: ITEMS_PER_PAGE,
