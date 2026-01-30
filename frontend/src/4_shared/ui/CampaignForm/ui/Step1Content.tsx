@@ -4,6 +4,7 @@ import { ContentHeader } from './ContentHeader';
 import { ImageUpload } from './ImageUpload';
 import { KeywordSelector } from './KeywordSelector';
 import { AdvancedSettings } from './AdvancedSettings';
+import { DateField } from './DateField';
 import { useCampaignFormStore } from '../lib/campaignFormStore';
 import {
   validateImage,
@@ -12,6 +13,11 @@ import {
   validateUrl,
   validateTags,
 } from '../lib/step1Validation';
+import {
+  validateStartDate,
+  validateEndDate,
+  getToday,
+} from '../lib/step2Validation';
 import type { Tag } from '../lib/types';
 
 interface Step1ContentProps {
@@ -19,10 +25,22 @@ interface Step1ContentProps {
 }
 
 export function Step1Content({ onImageUpload }: Step1ContentProps) {
-  const { formData, updateCampaignContent, errors, setErrors } =
-    useCampaignFormStore();
+  const {
+    formData,
+    updateCampaignContent,
+    updateBudgetSettings,
+    errors,
+    setErrors,
+    mode,
+  } = useCampaignFormStore();
   const { title, content, url, tags, isHighIntent, image } =
     formData.campaignContent;
+  const { startDate, endDate } = formData.budgetSettings;
+  const isEditMode = mode === 'edit';
+
+  const today = getToday();
+  const isStartDatePassed = startDate < today; // 시작일이 오늘 이전이면 이미 시작된 캠페인!
+  const isEndDatePassed = endDate < today; // 종료일이 오늘 이전이면 이미 종료된 캠페인!
 
   const handleImageChange = (imageUrl: string | null) => {
     updateCampaignContent({ image: imageUrl });
@@ -92,6 +110,34 @@ export function Step1Content({ onImageUpload }: Step1ContentProps) {
     });
   };
 
+  const handleStartDateChange = (value: string) => {
+    updateBudgetSettings({ startDate: value });
+  };
+
+  const handleEndDateChange = (value: string) => {
+    updateBudgetSettings({ endDate: value });
+  };
+
+  const handleStartDateBlur = () => {
+    const error = validateStartDate(startDate, isEditMode);
+    setErrors({
+      budgetSettings: {
+        ...errors.budgetSettings,
+        startDate: error || undefined,
+      },
+    });
+  };
+
+  const handleEndDateBlur = () => {
+    const error = validateEndDate(startDate, endDate);
+    setErrors({
+      budgetSettings: {
+        ...errors.budgetSettings,
+        endDate: error || undefined,
+      },
+    });
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <ContentHeader
@@ -138,6 +184,39 @@ export function Step1Content({ onImageUpload }: Step1ContentProps) {
         isHighIntent={isHighIntent}
         onChange={handleHighIntentChange}
       />
+
+      {isEditMode && (
+        <div className="flex flex-col gap-4">
+          <div className="border-t border-gray-200 pt-6">
+            <h3 className="text-sm font-bold text-gray-900 mb-4">기간 설정</h3>
+          </div>
+          {isEndDatePassed ? (
+            <p className="text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">
+              이미 종료된 캠페인은 기간을 수정할 수 없습니다.
+            </p>
+          ) : (
+            <div className="grid grid-cols-2 gap-4">
+              <DateField
+                label="시작일"
+                value={startDate}
+                onChange={handleStartDateChange}
+                onBlur={handleStartDateBlur}
+                error={errors.budgetSettings?.startDate}
+                disabled={isStartDatePassed}
+                hint={isStartDatePassed ? '이미 시작된 캠페인' : undefined}
+              />
+              <DateField
+                label="종료일"
+                value={endDate}
+                onChange={handleEndDateChange}
+                onBlur={handleEndDateBlur}
+                min={isStartDatePassed ? today : startDate}
+                error={errors.budgetSettings?.endDate}
+              />
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

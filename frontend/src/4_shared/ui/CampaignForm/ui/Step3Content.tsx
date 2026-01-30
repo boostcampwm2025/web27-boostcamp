@@ -60,6 +60,8 @@ export function Step3Content() {
     setStep(2);
   };
 
+  const isEditMode = mode === 'edit';
+
   const headerTitle = mode === 'edit' ? '캠페인 수정 확인' : '광고 캠페인 확인';
   const headerDescription = mode === 'edit'
     ? '수정된 내용을 확인하고 저장하세요'
@@ -112,7 +114,10 @@ export function Step3Content() {
       </ConfirmCard>
 
       {/* 예산 및 기간 */}
-      <ConfirmCard title="예산 및 기간" onEdit={handleEditBudget}>
+      <ConfirmCard
+        title="예산 및 기간"
+        onEdit={isEditMode ? undefined : handleEditBudget}
+      >
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-2 gap-4">
             {budgetGridItems.map((item) => (
@@ -136,6 +141,11 @@ export function Step3Content() {
               />
             ))}
           </div>
+          {isEditMode && (
+            <p className="text-xs text-gray-500 bg-gray-50 p-3 rounded-lg">
+              💡 예산 수정은 캠페인 상세 페이지의 예산 수정 버튼을 이용해주세요.
+            </p>
+          )}
         </div>
       </ConfirmCard>
 

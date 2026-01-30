@@ -24,16 +24,25 @@ export function CampaignForm({
   const { currentStep, setStep, formData, balance, mode, initialTotalBudget } =
     useCampaignFormStore();
 
+  const isEditMode = mode === 'edit';
+
   const isNextDisabled = () => {
     if (isSubmitting) return true;
     if (currentStep === 1) {
-      return !isStep1Valid(formData.campaignContent);
+      const isContentValid = isStep1Valid(formData.campaignContent);
+      if (isEditMode) {
+        const { startDate, endDate } = formData.budgetSettings;
+        const isDateValid =
+          startDate !== '' && endDate !== '' && endDate >= startDate;
+        return !isContentValid || !isDateValid;
+      }
+      return !isContentValid;
     }
     if (currentStep === 2) {
       return !isStep2Valid({
         ...formData.budgetSettings,
         balance,
-        isEditMode: mode === 'edit',
+        isEditMode,
         initialTotalBudget: initialTotalBudget ?? undefined,
       });
     }
@@ -44,13 +53,13 @@ export function CampaignForm({
     if (currentStep === 2) {
       setStep(1);
     } else if (currentStep === 3) {
-      setStep(2);
+      setStep(isEditMode ? 1 : 2);
     }
   };
 
   const handleNext = () => {
     if (currentStep === 1) {
-      setStep(2);
+      setStep(isEditMode ? 3 : 2);
     } else if (currentStep === 2) {
       setStep(3);
     } else if (currentStep === 3 && onSubmit) {
