@@ -30,6 +30,12 @@
       <td align="center"><a href="https://github.com/tomass22">J209_이정훈</a></td>
       <td align="center"><a href="https://github.com/chazicer">J266_차태훈</a></td>
     </tr>
+    <tr>
+      <td align="center"><b>Ash</b></td>
+      <td align="center"><b>Jerry</b></td>
+      <td align="center"><b>Tomas</b></td>
+      <td align="center"><b>Huni</b></td>
+    </tr>
   </tbody>
 </table>
 
