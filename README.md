@@ -9,6 +9,31 @@
 <br/>
 <br/>
 
+## 팀원 소개
+<table>
+  <tbody>
+    <tr>
+      <td align="center"><img src="https://github.com/kitae9999.png" width="100px;" alt=""/></td>
+      <td align="center"><img src="https://github.com/2seb2.png" width="100px;" alt=""/></td>
+      <td align="center"><img src="https://github.com/tomass22.png" width="100px;" alt=""/></td>
+      <td align="center"><img src="https://github.com/chazicer.png" width="100px;" alt=""/></td>
+    </tr>
+    <tr>
+      <td align="center"><b>Ash</b></td>
+      <td align="center"><b>Jerry</b></td>
+      <td align="center"><b>Tomas</b></td>
+      <td align="center"><b>Huni</b></td>
+    </tr>
+    <tr>
+      <td align="center"><a href="https://github.com/kitae9999">J103_박기태</a></td>
+      <td align="center"><a href="https://github.com/2seb2">J188_이세비</a></td>
+      <td align="center"><a href="https://github.com/tomass22">J209_이정훈</a></td>
+      <td align="center"><a href="https://github.com/chazicer">J266_차태훈</a></td>
+    </tr>
+  </tbody>
+</table>
+
+
 ## 🧐 문제 인식 (Why)
 
 1. **맥락 없는 광고 노출**
