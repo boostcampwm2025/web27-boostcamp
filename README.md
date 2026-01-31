@@ -31,10 +31,10 @@
       <td align="center"><a href="https://github.com/chazicer">J266_차태훈</a></td>
     </tr>
     <tr>
-      <td align="center"><b>Ash</b></td>
-      <td align="center"><b>Jerry</b></td>
-      <td align="center"><b>Tomas</b></td>
-      <td align="center"><b>Huni</b></td>
+      <td align="center">역할</td>
+      <td align="center">역할</td>
+      <td align="center">역할</td>
+      <td align="center">역할</td>
     </tr>
   </tbody>
 </table>
