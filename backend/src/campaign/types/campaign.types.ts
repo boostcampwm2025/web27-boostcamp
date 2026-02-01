@@ -69,3 +69,8 @@ export type CachedCampaign = {
   // 태그별 임베딩 (Worker가 추가)
   embeddingTags?: { [tagName: string]: number[] };
 };
+
+export type CachedCampaignWithoutSpent = Omit<
+  CachedCampaign,
+  'dailySpent' | 'totalSpent'
+>;
