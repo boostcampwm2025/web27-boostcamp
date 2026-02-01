@@ -39,7 +39,7 @@ export class CampaignService {
     private readonly campaignRepository: CampaignRepository,
     private readonly userRepository: UserRepository,
     private readonly campaignCacheRepository: CampaignCacheRepository,
-    private readonly creditHistoryRepository: CreditHistoryRepository,
+    private readonly creditHistoryRepository: CreditHistoryRepository, // TODO: 이거는 언제 쓰이는 걸까
     @InjectDataSource() private readonly dataSource: DataSource,
     @InjectQueue('embedding-queue')
     private readonly embeddingQueue: Queue<EmbeddingJobData>
@@ -236,26 +236,18 @@ export class CampaignService {
     userId: number,
     dto: UpdateCampaignDto
   ): Promise<CampaignWithTags> {
-    // TODO: (캐싱은 정상 동작) 여기서 Redis에서 조회하도록 수정 필요할듯
-    const campaign = await this.campaignRepository.findOne(campaignId, userId);
+    // const campaign = await this.campaignRepository.findOne(campaignId, userId); A/B campaign
+    const cachedCampaign =
+      await this.campaignCacheRepository.findCampaignCacheById(campaignId);
 
-    if (!campaign) {
+    if (!cachedCampaign) {
+      // A/B campaign
       throw new NotFoundException('캠페인을 찾을 수 없습니다.');
     }
 
-    if (dto.endDate && new Date(dto.endDate) <= campaign.startDate) {
+    if (dto.endDate && dto.endDate <= cachedCampaign.startDate) {
+      // A/B campaign
       throw new BadRequestException('종료일은 시작일보다 이후여야 합니다.');
-    }
-
-    const tagIds = dto.tags ? this.validateAndGetTagIds(dto.tags) : undefined;
-
-    // 시작일이 변경된 경우, 상태 재결정 (PENDING/ACTIVE 상태인 경우에만)
-    let newStatus: CampaignStatus | undefined;
-    if (
-      dto.startDate &&
-      (campaign.status === 'PENDING' || campaign.status === 'ACTIVE')
-    ) {
-      newStatus = this.determineInitialStatus(dto.startDate);
     }
 
     // 1. Redis 상태만 PAUSED로 빠르게 변경 (비딩 즉시 중단, embeddingTags 보존)
@@ -265,6 +257,18 @@ export class CampaignService {
     );
     this.logger.log(`캠페인 ${campaignId} Redis 상태 → PAUSED (비딩 중단)`);
 
+    const tagIds = dto.tags ? this.validateAndGetTagIds(dto.tags) : undefined;
+
+    // 시작일이 변경된 경우, 상태 재결정 (PENDING/ACTIVE 상태인 경우에만)
+    let newStatus: CampaignStatus | undefined;
+    if (
+      dto.startDate && // A/B campaign
+      (cachedCampaign.status === 'PENDING' ||
+        cachedCampaign.status === 'ACTIVE')
+    ) {
+      newStatus = this.determineInitialStatus(dto.startDate);
+    }
+
     try {
       // 2. 총 예산 변경에 따른 크레딧 조정 + DB 업데이트 (트랜잭션)
       const updatedCampaign = await this.dataSource.transaction(
@@ -272,9 +276,9 @@ export class CampaignService {
           // totalBudget이 변경되는 경우 크레딧 조정
           if (
             dto.totalBudget !== undefined &&
-            dto.totalBudget !== campaign.totalBudget
+            dto.totalBudget !== cachedCampaign.totalBudget // A/B campaign
           ) {
-            const oldBudget = campaign.totalBudget ?? 0;
+            const oldBudget = cachedCampaign.totalBudget ?? 0; // A/B campaign
             const newBudget = dto.totalBudget ?? 0;
             const budgetDiff = newBudget - oldBudget;
 
@@ -316,7 +320,7 @@ export class CampaignService {
                 amount: budgetDiff,
                 balanceAfter: newBalance,
                 campaignId: campaignId,
-                description: `'${campaign.title}' 캠페인 예산 추가`,
+                description: `'${cachedCampaign.title}' 캠페인 예산 추가`, // A/B campaign
               });
             }
           }
@@ -408,7 +412,7 @@ export class CampaignService {
       );
 
       // 4. 태그 변경과 상관 없이 임베딩 재생성
-      // TODO: (임베딩은 정상 동작) 하 근데 이거 dto.tags 변경 없을 시 임베딩 재적용 안 하도록 수정되어야 성능 개선의 의미가 있을 듯
+      // TODO: (임베딩은 정상 동작) dto.tags 변경 없을 시 임베딩 재적용 안 하도록 수정되면 성능 개선의 의미가 존재할 듯 -> 전용 메서드 만들어야되어서 추후 적용 고려
       await this.embeddingQueue.add('generate-campaign-embedding', {
         campaignId,
       });
@@ -427,7 +431,7 @@ export class CampaignService {
         ? dto.status === 'ACTIVE'
           ? CampaignStatus.ACTIVE
           : CampaignStatus.PAUSED
-        : campaign.status;
+        : cachedCampaign.status; // A/B campaign
 
       await this.campaignCacheRepository.updateCampaignStatus(
         campaignId,
@@ -509,6 +513,7 @@ export class CampaignService {
   }
 
   // 태그 이름 배열을 태그 ID 배열로 변환
+  // TODO: tag부분도 Redis캐싱을 해야 하는가?
   private validateAndGetTagIds(tagNames: string[]): number[] {
     const tagIds: number[] = [];
 
