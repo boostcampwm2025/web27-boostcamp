@@ -238,9 +238,6 @@ export class CampaignService {
     userId: number,
     dto: UpdateCampaignDto
   ): Promise<CampaignWithTags> {
-    // 1. Redis 상태만 PAUSED로 빠르게 변경 (비딩 즉시 중단, embeddingTags 보존)
-    await this.updateCampaignStatus(campaignId, CampaignStatus.PAUSED);
-
     // const campaign = await this.campaignRepository.findOne(campaignId, userId); A/B campaign
     const cachedCampaign =
       await this.campaignCacheRepository.findCampaignCacheById(campaignId);
@@ -250,6 +247,9 @@ export class CampaignService {
       await this.updateCampaignStatus(campaignId, CampaignStatus.ACTIVE);
       throw new NotFoundException('캠페인을 찾을 수 없습니다.');
     }
+
+    // Redis 상태만 PAUSED로 빠르게 변경 (비딩 즉시 중단, embeddingTags 보존)
+    await this.updateCampaignStatus(campaignId, CampaignStatus.PAUSED);
 
     // 소유권 검증 추가
     if (cachedCampaign.userId !== userId) {
@@ -459,21 +459,64 @@ export class CampaignService {
       throw new NotFoundException('캠페인을 찾을 수 없습니다.');
     }
 
+    await this.updateCampaignStatus(campaignId, CampaignStatus.PAUSED);
+
     // 소유권 검증 추가
     if (cachedCampaign.userId !== userId) {
+      await this.updateCampaignStatus(campaignId, CampaignStatus.ACTIVE);
       throw new ForbiddenException('해당 캠페인에 접근할 수 없습니다.');
     }
 
-    // Redis 먼저 삭제 (캠페인 내 돈 관련 부분에 대한 빠른 업데이트)
+    // Redis 먼저 삭제 (RTB 비딩 중단)
     await this.campaignCacheRepository.deleteCampaignCacheById(campaignId);
 
-    // DB 삭제 (Soft Delete)
-    await this.campaignRepository.delete(campaignId);
+    // 트랜잭션으로 DB 삭제 + 예산 환불 처리
+    await this.dataSource.transaction(async (manager) => {
+      // DB 삭제 (Soft Delete)
+      await this.campaignRepository.delete(campaignId);
 
-    // TODO: Campaign에서 남은 Budget -> Balance로 반환하는 로직 필요
-    // 1. Redis에서 남은 Budget 가져오기 -> totalBudget -totalSpent
-    // 2. DB에서 남은 Budget 가져오기 -> totalBudget -totalSpent
-    // 3. 두 값 비교 후 다르면 ClickLog
+      // 남은 예산 환불 처리 (totalBudget이 설정된 경우만)
+      if (
+        cachedCampaign.totalBudget !== null &&
+        cachedCampaign.totalBudget > 0
+      ) {
+        const remainingBudget =
+          cachedCampaign.totalBudget - cachedCampaign.totalSpent;
+
+        // 남은 예산이 있는 경우에만 환불
+        if (remainingBudget > 0) {
+          const userRepo = manager.getRepository(UserEntity);
+          const user = await userRepo.findOne({
+            where: { id: userId },
+            lock: { mode: 'pessimistic_write' },
+          });
+
+          if (!user) {
+            throw new NotFoundException('사용자를 찾을 수 없습니다');
+          }
+
+          // 잔액 환불
+          const newBalance = user.balance + remainingBudget;
+          user.balance = newBalance;
+          await userRepo.save(user);
+
+          // 크레딧 히스토리 기록 (환불)
+          const historyRepo = manager.getRepository(CreditHistoryEntity);
+          await historyRepo.save({
+            userId,
+            type: CreditHistoryType.CHARGE,
+            amount: remainingBudget,
+            balanceAfter: newBalance,
+            campaignId: campaignId,
+            description: `'${cachedCampaign.title}' 캠페인 삭제 - 남은 예산 환불`,
+          });
+
+          this.logger.log(
+            `캠페인 ${campaignId} 삭제 - 남은 예산 ${remainingBudget}원 환불 완료`
+          );
+        }
+      }
+    });
   }
 
   // ============================================================================
@@ -528,7 +571,7 @@ export class CampaignService {
   }
 
   // 태그 이름 배열을 태그 ID 배열로 변환
-  // TODO: tag부분도 Redis캐싱을 해야 하는가?
+  // TODO: tag부분도 Redis캐싱을 필요할듯
   private validateAndGetTagIds(tagNames: string[]): number[] {
     const tagIds: number[] = [];
 
