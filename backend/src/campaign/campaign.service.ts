@@ -20,6 +20,7 @@ import type {
   CampaignWithTags,
   CampaignWithStats,
   CachedCampaign,
+  CachedCampaignWithoutSpent,
 } from './types/campaign.types';
 import { AVAILABLE_TAGS } from '../common/constants';
 import { UserRepository } from 'src/user/repository/user.repository.interface';
@@ -403,9 +404,9 @@ export class CampaignService {
       );
 
       // 3. Redis 전체 동기화 (DB 결과 반영, 요청한 상태로 복원)
-      await this.campaignCacheRepository.saveCampaignCacheById(
+      await this.campaignCacheRepository.updateCampaignCacheWithoutSpentById(
         updatedCampaign.id,
-        this.convertToCachedCampaignType(updatedCampaign)
+        this.convertToCachedCampaignTypeWithoutSpent(updatedCampaign)
       );
       this.logger.log(
         `캠페인 ${campaignId} Redis 최종 동기화 완료 (상태: ${updatedCampaign.status})`
@@ -413,10 +414,12 @@ export class CampaignService {
 
       // 4. 태그 변경과 상관 없이 임베딩 재생성
       // TODO: (임베딩은 정상 동작) dto.tags 변경 없을 시 임베딩 재적용 안 하도록 수정되면 성능 개선의 의미가 존재할 듯 -> 전용 메서드 만들어야되어서 추후 적용 고려
-      await this.embeddingQueue.add('generate-campaign-embedding', {
-        campaignId,
-      });
-      this.logger.log(`캠페인 ${campaignId} 임베딩 재생성 큐 추가`);
+      if (dto.tags) {
+        await this.embeddingQueue.add('generate-campaign-embedding', {
+          campaignId,
+        });
+        this.logger.log(`캠페인 ${campaignId} 임베딩 재생성 큐 추가`);
+      }
 
       return updatedCampaign;
     } catch (error) {
@@ -633,6 +636,32 @@ export class CampaignService {
       tags: campaign.tags.map((t) => t.name),
 
       // embeddingTags는 Worker가 나중에 추가
+    };
+  }
+
+  private convertToCachedCampaignTypeWithoutSpent(
+    campaign: CampaignWithTags
+  ): CachedCampaignWithoutSpent {
+    return {
+      id: campaign.id,
+      userId: campaign.userId,
+      title: campaign.title,
+      content: campaign.content,
+      image: campaign.image,
+      url: campaign.url,
+      maxCpc: campaign.maxCpc,
+      dailyBudget: campaign.dailyBudget,
+      totalBudget: campaign.totalBudget ?? null,
+      lastResetDate: campaign.lastResetDate.toISOString(),
+      isHighIntent: campaign.isHighIntent,
+      status: campaign.status,
+      startDate: campaign.startDate.toISOString(),
+      endDate: campaign.endDate.toISOString(),
+      createdAt: campaign.createdAt.toISOString(),
+      deletedAt: campaign.deletedAt ? campaign.deletedAt.toISOString() : null,
+
+      // 태그 이름 배열 추가
+      tags: campaign.tags.map((t) => t.name),
     };
   }
 }
