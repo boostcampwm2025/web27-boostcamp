@@ -57,7 +57,7 @@ export type CachedCampaign = {
   totalSpent: number;
   lastResetDate: string;
   isHighIntent: boolean;
-  status: string;
+  status: CampaignStatus;
   startDate: string;
   endDate: string;
   createdAt: string;

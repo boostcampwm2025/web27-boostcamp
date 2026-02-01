@@ -440,15 +440,9 @@ export class CampaignService {
         ? dto.status === 'ACTIVE'
           ? CampaignStatus.ACTIVE
           : CampaignStatus.PAUSED
-        : cachedCampaign.status; // A/B campaign
+        : (cachedCampaign.status as CampaignStatus); // A/B campaign
 
-      await this.campaignCacheRepository.updateCampaignStatus(
-        campaignId,
-        restoreStatus
-      );
-      this.logger.log(
-        `캠페인 ${campaignId} Redis 상태 복원 → ${restoreStatus}`
-      );
+      await this.updateCampaignStatus(campaignId, restoreStatus);
 
       throw error;
     }
