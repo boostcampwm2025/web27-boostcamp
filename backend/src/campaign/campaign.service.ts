@@ -238,31 +238,31 @@ export class CampaignService {
     userId: number,
     dto: UpdateCampaignDto
   ): Promise<CampaignWithTags> {
+    // 1. Redis 상태만 PAUSED로 빠르게 변경 (비딩 즉시 중단, embeddingTags 보존)
+    await this.updateCampaignStatus(campaignId, CampaignStatus.PAUSED);
+
     // const campaign = await this.campaignRepository.findOne(campaignId, userId); A/B campaign
     const cachedCampaign =
       await this.campaignCacheRepository.findCampaignCacheById(campaignId);
 
     if (!cachedCampaign) {
       // A/B campaign
+      await this.updateCampaignStatus(campaignId, CampaignStatus.ACTIVE);
       throw new NotFoundException('캠페인을 찾을 수 없습니다.');
     }
 
     // 소유권 검증 추가
     if (cachedCampaign.userId !== userId) {
+      // A/B campaign
+      await this.updateCampaignStatus(campaignId, CampaignStatus.ACTIVE);
       throw new ForbiddenException('해당 캠페인에 접근할 수 없습니다.');
     }
 
     if (dto.endDate && dto.endDate <= cachedCampaign.startDate) {
       // A/B campaign
+      await this.updateCampaignStatus(campaignId, CampaignStatus.ACTIVE);
       throw new BadRequestException('종료일은 시작일보다 이후여야 합니다.');
     }
-
-    // 1. Redis 상태만 PAUSED로 빠르게 변경 (비딩 즉시 중단, embeddingTags 보존)
-    await this.campaignCacheRepository.updateCampaignStatus(
-      campaignId,
-      CampaignStatus.PAUSED
-    );
-    this.logger.log(`캠페인 ${campaignId} Redis 상태 → PAUSED (비딩 중단)`);
 
     const tagIds = dto.tags ? this.validateAndGetTagIds(dto.tags) : undefined;
 
@@ -477,6 +477,9 @@ export class CampaignService {
     await this.campaignRepository.delete(campaignId);
 
     // TODO: Campaign에서 남은 Budget -> Balance로 반환하는 로직 필요
+    // 1. Redis에서 남은 Budget 가져오기 -> totalBudget -totalSpent
+    // 2. DB에서 남은 Budget 가져오기 -> totalBudget -totalSpent
+    // 3. 두 값 비교 후 다르면 ClickLog
   }
 
   // ============================================================================
@@ -678,5 +681,13 @@ export class CampaignService {
       // 태그 이름 배열 추가
       tags: campaign.tags.map((t) => t.name),
     };
+  }
+
+  private async updateCampaignStatus(
+    campaignId: string,
+    status: CampaignStatus
+  ) {
+    await this.campaignCacheRepository.updateCampaignStatus(campaignId, status);
+    this.logger.log(`캠페인 ${campaignId} Redis 상태 → ${status}`);
   }
 }
