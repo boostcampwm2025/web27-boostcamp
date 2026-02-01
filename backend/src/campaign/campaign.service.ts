@@ -420,7 +420,11 @@ export class CampaignService {
 
       // 4. 태그 변경과 상관 없이 임베딩 재생성
       // TODO: (임베딩은 정상 동작) dto.tags 변경 없을 시 임베딩 재적용 안 하도록 수정되면 성능 개선의 의미가 존재할 듯 -> 전용 메서드 만들어야되어서 추후 적용 고려
-      if (dto.tags) {
+      if (
+        dto.tags &&
+        cachedCampaign.tags &&
+        !this.areTagsEqual(dto.tags, cachedCampaign.tags)
+      ) {
         await this.embeddingQueue.add('generate-campaign-embedding', {
           campaignId,
         });
@@ -726,5 +730,16 @@ export class CampaignService {
   ) {
     await this.campaignCacheRepository.updateCampaignStatus(campaignId, status);
     this.logger.log(`캠페인 ${campaignId} Redis 상태 → ${status}`);
+  }
+
+  private areTagsEqual(dtoTags: string[], redisTags: string[]): boolean {
+    // 1. 개수 비교
+    if (dtoTags.length !== redisTags.length) {
+      return false;
+    }
+
+    // 2. Set을 이용한 비교
+    const dtoSet = new Set(dtoTags);
+    return redisTags.every((tag) => dtoSet.has(tag));
   }
 }
