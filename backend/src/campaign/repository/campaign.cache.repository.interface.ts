@@ -22,6 +22,9 @@ export abstract class CampaignCacheRepository {
 
   abstract updateDailySpentCacheById(id: string, amount: number): Promise<void>;
 
+  // 태그 변경 시 임베딩 비우기
+  abstract deleteCampaignEmbeddingById(id: string): Promise<void>;
+
   // 태그별 임베딩 업데이트
   abstract updateCampaignEmbeddingTags(
     id: string,

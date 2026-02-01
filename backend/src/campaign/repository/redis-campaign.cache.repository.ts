@@ -91,6 +91,22 @@ export class RedisCampaignCacheRepository implements CampaignCacheRepository {
     }
   }
 
+  // 태그 변경 시 임베딩 비우기
+  async deleteCampaignEmbeddingById(id: string): Promise<void> {
+    const key = this.getCampaignCacheKey(id);
+    try {
+      await this.ioredisClient.call(
+        'JSON.SET',
+        key,
+        '$.embeddingTags',
+        JSON.stringify({})
+      );
+    } catch (error) {
+      this.logger.error(`임베딩 삭제 실패: ${id}`, error);
+      throw error;
+    }
+  }
+
   async updateDailySpentCacheById(id: string, amount: number): Promise<void> {
     const key = this.getCampaignCacheKey(id);
 
