@@ -410,7 +410,6 @@ export class CampaignService {
       );
 
       // 4. 태그 변경과 상관 없이 임베딩 재생성
-      // TODO: (임베딩은 정상 동작) dto.tags 변경 없을 시 임베딩 재적용 안 하도록 수정되면 성능 개선의 의미가 존재할 듯 -> 전용 메서드 만들어야되어서 추후 적용 고려
       if (
         dto.tags &&
         cachedCampaign.tags &&
