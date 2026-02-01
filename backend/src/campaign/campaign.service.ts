@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ForbiddenException,
   Logger,
 } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
@@ -246,6 +247,11 @@ export class CampaignService {
       throw new NotFoundException('캠페인을 찾을 수 없습니다.');
     }
 
+    // 소유권 검증 추가
+    if (cachedCampaign.userId !== userId) {
+      throw new ForbiddenException('해당 캠페인에 접근할 수 없습니다.');
+    }
+
     if (dto.endDate && dto.endDate <= cachedCampaign.startDate) {
       // A/B campaign
       throw new BadRequestException('종료일은 시작일보다 이후여야 합니다.');
@@ -450,11 +456,18 @@ export class CampaignService {
 
   // 캠페인 삭제 (소프트 삭제, 소유권 검증)
   async deleteCampaign(campaignId: string, userId: number): Promise<void> {
-    // TODO: (캐싱은 정상 동작) 이부분도 Redis로 교체 필요
-    const campaign = await this.campaignRepository.findOne(campaignId, userId);
+    // const campaign = await this.campaignRepository.findOne(campaignId, userId); A/B campaign
+    const cachedCampaign =
+      await this.campaignCacheRepository.findCampaignCacheById(campaignId);
 
-    if (!campaign) {
+    if (!cachedCampaign) {
+      // A/B campaign
       throw new NotFoundException('캠페인을 찾을 수 없습니다.');
+    }
+
+    // 소유권 검증 추가
+    if (cachedCampaign.userId !== userId) {
+      throw new ForbiddenException('해당 캠페인에 접근할 수 없습니다.');
     }
 
     // Redis 먼저 삭제 (캠페인 내 돈 관련 부분에 대한 빠른 업데이트)
@@ -462,6 +475,8 @@ export class CampaignService {
 
     // DB 삭제 (Soft Delete)
     await this.campaignRepository.delete(campaignId);
+
+    // TODO: Campaign에서 남은 Budget -> Balance로 반환하는 로직 필요
   }
 
   // ============================================================================
