@@ -155,7 +155,11 @@ export class AdTracker {
   // 상태 초기화 (새 광고 렌더링 시)
   reset(): void {
     // 이전 광고 Dismiss 처리
-    if (this.currentViewId !== null && !this.hasClicked && !this.hasSentDismiss) {
+    if (
+      this.currentViewId !== null &&
+      !this.hasClicked &&
+      !this.hasSentDismiss
+    ) {
       console.log(
         `[BoostAD SDK] 새 광고 렌더링 전 이전 광고 Dismiss: viewId=${this.currentViewId}`
       );
@@ -178,7 +182,18 @@ export class AdTracker {
     // visibilitychange: 탭 전환, 백그라운드 전환 (모든 브라우저)
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'hidden') {
+        // 탭 전환 시 Dismiss 전송
         this.sendDismissBeacon();
+      } else if (document.visibilityState === 'visible') {
+        // 탭 복귀 시 상태 리셋 (다시 닫을 때를 대비)
+        if (this.hasSentDismiss && !this.hasClicked) {
+          console.log(
+            '[BoostAD SDK] 탭 복귀 감지: hasSentDismiss 리셋 (viewId=' +
+              this.currentViewId +
+              ')'
+          );
+          this.hasSentDismiss = false;
+        }
       }
     });
 
