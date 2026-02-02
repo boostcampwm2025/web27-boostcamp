@@ -45,7 +45,22 @@ export class SdkService {
       isHighIntent
     );
     if (dedupResult.status === 'exists') {
-      return dedupResult.viewId;
+      const existingViewId = dedupResult.viewId;
+
+      // 중복 viewId의 경우 Rollback 정보가 없을 수 있으므로 재생성
+      const existingRollback = await this.cacheRepository.getRollbackInfo(existingViewId);
+      if (!existingRollback) {
+        this.logger.debug(
+          `[SDK ViewLog] 중복 viewId=${existingViewId} Rollback 정보 재생성: campaign=${campaignId}, cost=${cost}`
+        );
+        await this.cacheRepository.setRollbackInfo(existingViewId, {
+          campaignId,
+          cost,
+          createdAt: new Date().toISOString(),
+        });
+      }
+
+      return existingViewId;
     }
 
     if (dedupResult.status === 'locked') {
