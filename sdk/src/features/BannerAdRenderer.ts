@@ -29,6 +29,20 @@ export class BannerAdRenderer implements AdRenderer {
     behaviorScore?: number,
     isHighIntent?: boolean
   ): void {
+    console.log(
+      `[BoostAD SDK] render() 호출: campaign=${campaign ? campaign.id : 'null'}, 이전 viewId=${this.currentViewId}`
+    );
+
+    // 🔧 새 광고 렌더링 전에 이전 광고 Dismiss 처리
+    if (this.currentViewId !== null && !this.hasClicked && !this.hasSentDismiss) {
+      console.log(
+        `[BoostAD SDK] 새 광고 렌더링 전 이전 광고 Dismiss: viewId=${this.currentViewId}`
+      );
+      this.sendDismissBeacon();
+    }
+
+    // 새 광고 렌더링 시 상태 초기화
+    this.currentViewId = null;
     this.hasClicked = false;
     this.hasSentDismiss = false;
 
@@ -54,6 +68,8 @@ export class BannerAdRenderer implements AdRenderer {
         behaviorScore || 0,
         isHighIntent || false
       );
+    } else {
+      console.log('[BoostAD SDK] 광고 없음 → viewId null 유지');
     }
   }
 
