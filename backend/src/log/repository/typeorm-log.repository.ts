@@ -110,6 +110,69 @@ export class TypeOrmLogRepository extends LogRepository {
     return counts;
   }
 
+  async getClickHistoryByCampaignId(
+    campaignId: string,
+    limit: number,
+    offset: number
+  ): Promise<{
+    logs: Array<{
+      id: number;
+      createdAt: Date;
+      postUrl: string | null;
+      blogName: string;
+      cost: number;
+      behaviorScore: number | null;
+      isHighIntent: boolean;
+    }>;
+    total: number;
+  }> {
+    // ClickLog -> ViewLog -> Blog JOIN하여 클릭 히스토리 조회
+    const queryBuilder = this.clickLogRepository
+      .createQueryBuilder('click_log')
+      .innerJoin('click_log.viewLog', 'view_log')
+      .innerJoin('Blog', 'blog', 'blog.id = view_log.blog_id')
+      .where('view_log.campaign_id = :campaignId', { campaignId })
+      .orderBy('click_log.created_at', 'DESC');
+
+    // Total count
+    const total = await queryBuilder.getCount();
+
+    // Paginated logs
+    const results = await queryBuilder
+      .skip(offset)
+      .take(limit)
+      .select([
+        'click_log.id',
+        'click_log.created_at',
+        'view_log.post_url',
+        'view_log.cost',
+        'view_log.behavior_score',
+        'view_log.is_high_intent',
+        'blog.name',
+      ])
+      .getRawMany<{
+        click_log_id: number;
+        click_log_created_at: Date;
+        view_log_post_url: string | null;
+        view_log_cost: number;
+        view_log_behavior_score: number | null;
+        view_log_is_high_intent: boolean;
+        blog_name: string;
+      }>();
+
+    const logs = results.map((row) => ({
+      id: row.click_log_id,
+      createdAt: new Date(row.click_log_created_at),
+      postUrl: row.view_log_post_url,
+      blogName: row.blog_name,
+      cost: row.view_log_cost,
+      behaviorScore: row.view_log_behavior_score,
+      isHighIntent: row.view_log_is_high_intent,
+    }));
+
+    return { logs, total };
+  }
+
   async existsByViewId(viewId: number): Promise<boolean> {
     const viewLog = await this.viewLogRepository
       .createQueryBuilder('v')

@@ -26,5 +26,23 @@ export abstract class LogRepository {
     campaignIds: string[]
   ): Promise<Map<string, number>>;
 
+  // 클릭 히스토리 조회 (캠페인 상세 페이지용)
+  abstract getClickHistoryByCampaignId(
+    campaignId: string,
+    limit: number,
+    offset: number
+  ): Promise<{
+    logs: Array<{
+      id: number;
+      createdAt: Date;
+      postUrl: string | null;
+      blogName: string;
+      cost: number;
+      behaviorScore: number | null;
+      isHighIntent: boolean;
+    }>;
+    total: number;
+  }>;
+
   abstract existsByViewId(viewId: number): Promise<boolean>;
 }
