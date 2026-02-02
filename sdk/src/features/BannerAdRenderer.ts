@@ -156,6 +156,37 @@ export class BannerAdRenderer implements AdRenderer {
     `;
   }
 
+  private isMobileDevice(): boolean {
+    // 1. User-Agent 체크
+    const userAgent = navigator.userAgent.toLowerCase();
+    const mobilePatterns = [
+      /android/i,
+      /webos/i,
+      /iphone/i,
+      /ipad/i,
+      /ipod/i,
+      /blackberry/i,
+      /windows phone/i,
+    ];
+    const isMobileUA = mobilePatterns.some((pattern) =>
+      pattern.test(userAgent)
+    );
+
+    // 2. Touch 지원 체크
+    const isTouchDevice =
+      'ontouchstart' in window ||
+      navigator.maxTouchPoints > 0 ||
+      ('msMaxTouchPoints' in navigator &&
+        (navigator as { msMaxTouchPoints: number }).msMaxTouchPoints > 0);
+
+    // 3. 화면 크기 체크
+    const screenWidth = window.innerWidth;
+    const isSmallScreen = screenWidth <= 768;
+
+    // 복합 판단: (모바일 UA || 터치 지원) && 작은 화면
+    return (isMobileUA || isTouchDevice) && isSmallScreen;
+  }
+
   private renderAdWidget(campaign: Campaign, container: HTMLElement): string {
     // XSS 방지: 모든 사용자 입력 데이터 이스케이프
     const safeTitle = this.escapeHtml(campaign.title);
@@ -164,11 +195,9 @@ export class BannerAdRenderer implements AdRenderer {
     const safeImage = this.escapeHtml(campaign.image);
 
     const containerHeight = container.offsetHeight || container.clientHeight;
-    const screenWidth = window.innerWidth;
-    const isMobile = screenWidth <= 768;
 
-    // 모바일: 화면 너비가 768px 이하일 때
-    if (isMobile) {
+    // 모바일 디바이스 감지 (User-Agent + Touch + 화면 크기)
+    if (this.isMobileDevice()) {
       return this.renderMobileWidget(
         safeTitle,
         safeContent,
