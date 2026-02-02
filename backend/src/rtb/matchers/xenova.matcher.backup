@@ -240,20 +240,7 @@ export class TransformerMatcher extends Matcher {
       }
 
       try {
-        // Redis에 이미 캐싱된 임베딩을 우선 사용 (Worker가 생성)
-        let tagEmbedding: number[];
-
-        if (campaign.embeddingTags && campaign.embeddingTags[tagName]) {
-          // Redis에 이미 임베딩이 있으면 바로 사용
-          tagEmbedding = campaign.embeddingTags[tagName];
-        } else {
-          // 없으면 새로 생성 (fallback)
-          tagEmbedding = await this.getEmbeddingCached(tagName);
-          this.logger.debug(
-            `Redis 캐시 미스 - 태그 임베딩 새로 생성: "${tagName}" (campaign=${campaign.id})`
-          );
-        }
-
+        const tagEmbedding = await this.getEmbeddingCached(tagName);
         sims.push(
           this.mlEngine.calculateSimilarity(requestEmbedding, tagEmbedding)
         );

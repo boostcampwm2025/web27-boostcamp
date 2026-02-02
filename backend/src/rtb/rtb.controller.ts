@@ -30,7 +30,6 @@ export class RTBController {
     @Res({ passthrough: true }) res: Response
   ) {
     const visitorId = req.visitorId;
-    // console.log(`현재 방문자의 visitorId:${visitorId}`); // todo: 제거
 
     if (!visitorId) {
       res.cookie('visitor_id', randomUUID(), {
@@ -40,7 +39,6 @@ export class RTBController {
         maxAge: 1000 * 60 * 60 * 24 * 365, // 1년
         path: '/',
       });
-      // console.log(`visitorId가 생성되었습니다: ${visitorId}`); // todo: 제거
     }
 
     const context: DecisionContext = {

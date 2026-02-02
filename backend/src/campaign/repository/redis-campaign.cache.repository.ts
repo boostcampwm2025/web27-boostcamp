@@ -2,7 +2,10 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { IOREDIS_CLIENT } from 'src/redis/redis.constant';
 import type { AppIORedisClient } from 'src/redis/redis.type';
 import { CampaignCacheRepository } from './campaign.cache.repository.interface';
-import { CachedCampaign } from '../types/campaign.types';
+import {
+  CachedCampaign,
+  CachedCampaignWithoutSpent,
+} from '../types/campaign.types';
 
 @Injectable()
 export class RedisCampaignCacheRepository implements CampaignCacheRepository {
@@ -47,6 +50,30 @@ export class RedisCampaignCacheRepository implements CampaignCacheRepository {
     }
   }
 
+  // 동시성 이슈가 있을 수 있는 Spent를 제외한 나머지 필드 업데이트
+  async updateCampaignCacheWithoutSpentById(
+    id: string,
+    data: CachedCampaignWithoutSpent
+  ): Promise<void> {
+    const key = this.getCampaignCacheKey(id);
+
+    try {
+      const updatePromises = Object.entries(data).map(([field, value]) =>
+        this.ioredisClient.call(
+          'JSON.SET',
+          key,
+          `$.${field}`,
+          JSON.stringify(value)
+        )
+      );
+
+      await Promise.all(updatePromises);
+    } catch (error) {
+      this.logger.error(`캐시 저장 실패: ${id}`, error);
+      throw error;
+    }
+  }
+
   // 상태만 업데이트
   async updateCampaignStatus(id: string, status: string): Promise<void> {
     const key = this.getCampaignCacheKey(id);
@@ -60,6 +87,22 @@ export class RedisCampaignCacheRepository implements CampaignCacheRepository {
       );
     } catch (error) {
       this.logger.error(`캠페인 상태 업데이트 실패: ${id}`, error);
+      throw error;
+    }
+  }
+
+  // 태그 변경 시 임베딩 비우기
+  async deleteCampaignEmbeddingById(id: string): Promise<void> {
+    const key = this.getCampaignCacheKey(id);
+    try {
+      await this.ioredisClient.call(
+        'JSON.SET',
+        key,
+        '$.embeddingTags',
+        JSON.stringify({})
+      );
+    } catch (error) {
+      this.logger.error(`임베딩 삭제 실패: ${id}`, error);
       throw error;
     }
   }
