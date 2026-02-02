@@ -15,12 +15,14 @@ import { CacheRepository } from '../cache/repository/cache.repository.interface'
 import { BidLog, BidStatus } from '../bid-log/bid-log.types';
 import { BlogRepository } from '../blog/repository/blog.repository.interface';
 import { CampaignCacheRepository } from '../campaign/repository/campaign.cache.repository.interface';
+import pLimit from 'p-limit';
 
 @Injectable()
 export class RTBService {
   private readonly logger = new Logger(RTBService.name);
   private readonly FALLBACK_CAMPAIGN_ID =
     'c1dda7a5-da58-416b-b8fa-20ba8f5535f9';
+  private readonly limit = pLimit(5);
 
   constructor(
     private readonly matcher: Matcher,
@@ -161,23 +163,27 @@ export class RTBService {
       (candidate) => candidate.id !== result.winner.id
     );
 
-    for (const loser of losers) {
-      try {
-        await this.campaignCacheRepository.decrementSpent(
-          loser.id,
-          loser.maxCpc
-        );
-        this.logger.debug(
-          `Auction ${auctionId}: 패배 캠페인 ${loser.id} Spent 롤백 완료`
-        );
-      } catch (error) {
-        // 롤백 실패는 로깅만 (과다 차감은 안전한 방향)
-        this.logger.warn(
-          `Auction ${auctionId}: 패배 캠페인 ${loser.id} Spent 롤백 실패`,
-          error
-        );
-      }
-    }
+    // 병렬 처리 - p-limit 사용
+    await Promise.allSettled(
+      losers.map((loser) =>
+        this.limit(async () => {
+          try {
+            await this.campaignCacheRepository.decrementSpent(
+              loser.id,
+              loser.maxCpc
+            );
+            this.logger.debug(
+              `Auction ${auctionId}: 패배 캠페인 ${loser.id} Spent 롤백 완료`
+            );
+          } catch (error) {
+            this.logger.warn(
+              `Auction ${auctionId}: 패배 캠페인 ${loser.id} Spent 롤백 실패`,
+              error
+            );
+          }
+        })
+      )
+    );
   }
 
   // cache 문제로 인한 무의미한 주석
