@@ -130,25 +130,30 @@ export function CampaignDetailPage() {
 
   return (
     <div className="flex flex-col gap-6 px-8 py-8 bg-gray-100 min-h-screen">
-      <CampaignDetailHeader
-        title={campaign.title}
-        status={campaign.status}
-        onBack={handleBack}
-        onPause={handlePause}
-        onEdit={handleEdit}
-        isPauseLoading={isPauseLoading}
-      />
-
-      <CampaignInfoCard
-        image={campaign.image}
-        title={campaign.title}
-        content={campaign.content}
-        tags={campaign.tags}
-        url={campaign.url}
-        isHighIntent={campaign.isHighIntent}
-        startDate={campaign.startDate}
-        endDate={campaign.endDate}
-      />
+      {/* 헤더 + 기본정보 카드를 하나의 카드로 묶기 */}
+      <div className="bg-white rounded-2xl shadow-sm">
+        <div className="px-6 py-3 border-b border-gray-100">
+          <CampaignDetailHeader
+            title={campaign.title}
+            status={campaign.status}
+            onBack={handleBack}
+            onPause={handlePause}
+            onEdit={handleEdit}
+            isPauseLoading={isPauseLoading}
+          />
+        </div>
+        <CampaignInfoCard
+          image={campaign.image}
+          title={campaign.title}
+          content={campaign.content}
+          tags={campaign.tags}
+          url={campaign.url}
+          isHighIntent={campaign.isHighIntent}
+          startDate={campaign.startDate}
+          endDate={campaign.endDate}
+          noBorder
+        />
+      </div>
 
       <CampaignMetricsCards
         clicks={campaign.clicks}
