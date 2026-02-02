@@ -5,11 +5,13 @@ import {
   UseGuards,
   Req,
   BadRequestException,
+  HttpCode,
 } from '@nestjs/common';
 import { SdkService } from './sdk.service';
 import { CreateViewLogDto } from './dto/create-view-log.dto';
 import { successResponse } from 'src/common/response/success-response';
 import { CreateClickLogDto } from './dto/create-click-log.dto';
+import { CreateDismissLogDto } from './dto/create-dismiss-log.dto';
 import { Public } from 'src/auth/decorators/public.decorator';
 import {
   type BlogKeyValidatedRequest,
@@ -59,5 +61,12 @@ export class SdkController {
       { clickId },
       '캠페인 클릭 로그가 성공적으로 저장되었습니다.'
     );
+  }
+
+  @Public()
+  @Post('campaign-dismiss')
+  @HttpCode(204)
+  async recordDismiss(@Body() createDismissLogDto: CreateDismissLogDto) {
+    await this.sdkService.recordDismiss(createDismissLogDto);
   }
 }
