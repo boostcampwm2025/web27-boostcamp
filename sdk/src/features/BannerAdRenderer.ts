@@ -572,16 +572,34 @@ export class BannerAdRenderer implements AdRenderer {
 
   // Beacon 이벤트 리스너 등록
   private registerBeaconListeners(): void {
-    // visibilitychange: 탭 닫기, 새로고침, 뒤로가기, 탭 전환 (메인 이벤트)
+    // beforeunload: 페이지 닫기, 새로고침, 뒤로가기 (Chrome, Firefox)
+    window.addEventListener('beforeunload', () => {
+      this.sendDismissBeacon();
+    });
+
+    // visibilitychange: 탭 전환, 백그라운드 전환 (모든 브라우저)
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'hidden') {
         this.sendDismissBeacon();
       }
     });
 
-    // pagehide: iOS Safari 호환성 (백업 레이어)
-    window.addEventListener('pagehide', () => {
-      this.sendDismissBeacon();
+    // pagehide: 탭 닫기, 새로고침 (Chrome + Safari 보조)
+    // persisted=true면 bfcache 저장 (진짜 종료 아님)
+    window.addEventListener('pagehide', (event) => {
+      if (!event.persisted) {
+        // 진짜 페이지 종료
+        this.sendDismissBeacon();
+      }
+    });
+
+    // pageshow: bfcache에서 복원 시 상태 리셋 (Safari 호환)
+    window.addEventListener('pageshow', (event) => {
+      if (event.persisted) {
+        // bfcache에서 복원됨 → 상태 리셋
+        console.log('[BoostAD SDK] bfcache 복원 감지: hasSentDismiss 리셋');
+        this.hasSentDismiss = false;
+      }
     });
   }
 

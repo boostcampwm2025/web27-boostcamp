@@ -4,7 +4,7 @@
   "description": "RTB 광고 플랫폼",
   "private": true,
   "scripts": {
-    "dev": "cd sdk && npm run build && cd .. && concurrently \"cd backend && npm run start:dev\" \"cd frontend && npm run dev\"",
+    "dev": "concurrently \"cd sdk && npm run dev\" \"cd backend && npm run start:dev\" \"cd frontend && npm run dev\"",
     "build": "cd frontend && npm run build && cd ../backend && npm run build",
     "build:sdk": "cd sdk && npm run build",
     "lint": "cd backend && npm run lint && cd ../frontend && npm run lint && cd ../sdk && npm run lint",
