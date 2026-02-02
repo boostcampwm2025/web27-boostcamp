@@ -17,8 +17,8 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.DEPLOY_MONITORING_HOST }}
-          username: ${{ secrets.DEPLOY_MONITORING_USER }}
-          key: ${{ secrets.DEPLOY_MONITORING_SSH_KEY }}
+          username: ${{ secrets.DEPLOY_MONITORING_USER || secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_MONITORING_SSH_KEY || secrets.DEPLOY_SSH_KEY }}
           port: ${{ secrets.DEPLOY_MONITORING_PORT || secrets.DEPLOY_PORT || '22' }}
           proxy_host: ${{ secrets.DEPLOY_HOST }}
           proxy_username: ${{ secrets.DEPLOY_USER }}
