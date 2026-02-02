@@ -15,7 +15,7 @@ export class RedisCacheRepository extends CacheRepository {
   }
 
   private readonly AUCTION_CACHE_TTL = 15 * 60;
-  private readonly ROLLBACK_CACHE_TTL = 5 * 60;
+  private readonly ROLLBACK_CACHE_TTL = 5 * 60; // 1 * 30 테스트 용으로 추천
   private readonly VIEW_IDEMPOTENCY_TTL_MS = 30 * 60 * 1000; // 30분 (밀리초 단위)
   private readonly CLICK_IDEMPOTENCY_TTL_MS = 30 * 60 * 1000; // 30분 (밀리초 단위)
 
