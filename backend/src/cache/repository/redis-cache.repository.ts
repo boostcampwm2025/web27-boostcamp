@@ -14,16 +14,18 @@ export class RedisCacheRepository extends CacheRepository {
     super();
   }
 
+  private readonly AUCTION_CACHE_TTL = 15 * 60;
+  private readonly ROLLBACK_CACHE_TTL = 5 * 60;
+
   // Auction 관련 메서드
   async setAuctionData(
     auctionId: string,
     auctionData: AuctionData,
-    ttl: number = 24 * 60 * 60 * 1000 // TTL: 24시간 (밀리초 단위)
+    ttl: number = this.AUCTION_CACHE_TTL // TTL: 15분 (초 단위)
   ): Promise<void> {
     const key = this.getAuctionKey(auctionId);
     const value = JSON.stringify(auctionData);
-    const ttlSeconds = Math.floor(ttl / 1000);
-    await this.redis.setex(key, ttlSeconds, value);
+    await this.redis.setex(key, ttl, value);
   }
 
   async getAuctionData(auctionId: string): Promise<AuctionData | undefined> {
@@ -46,8 +48,7 @@ export class RedisCacheRepository extends CacheRepository {
   ): Promise<void> {
     const key = this.getOAuthStateKey(state);
     const value = JSON.stringify(data);
-    const ttlSeconds = Math.floor(ttl / 1000);
-    await this.redis.setex(key, ttlSeconds, value);
+    await this.redis.setex(key, ttl, value);
   }
 
   async getOAuthState(state: string): Promise<StoredOAuthState | undefined> {
@@ -147,7 +148,7 @@ export class RedisCacheRepository extends CacheRepository {
   async setRollbackInfo(
     viewId: number,
     rollbackInfo: RollbackInfo,
-    ttl: number = 300 // 5분 (초 단위)
+    ttl: number = this.ROLLBACK_CACHE_TTL // 5분 (초 단위)
   ): Promise<void> {
     const key = `rollback:view:${viewId}`;
     await this.redis.setex(key, ttl, JSON.stringify(rollbackInfo));

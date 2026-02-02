@@ -75,6 +75,8 @@ export class OAuthService {
     private readonly userService: UserService
   ) {}
 
+  private readonly OAUTH_STATE_CACHE_TTL = 15 * 60;
+
   async getGoogleAuthUrl(intent: AuthIntent, role?: UserRole): Promise<string> {
     const { GOOGLE_CLIENT_ID: clientId, GOOGLE_REDIRECT_URI: redirectUri } =
       process.env;
@@ -102,7 +104,7 @@ export class OAuthService {
       await this.cacheRepository.setOAuthState(
         state,
         stateData,
-        15 * 60 * 1000
+        this.OAUTH_STATE_CACHE_TTL
       );
     } else {
       const stateData: StoredOAuthState = {
@@ -113,7 +115,7 @@ export class OAuthService {
       await this.cacheRepository.setOAuthState(
         state,
         stateData,
-        15 * 60 * 1000
+        this.OAUTH_STATE_CACHE_TTL
       );
     }
 
