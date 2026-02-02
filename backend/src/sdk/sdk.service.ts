@@ -48,7 +48,8 @@ export class SdkService {
       const existingViewId = dedupResult.viewId;
 
       // 중복 viewId의 경우 Rollback 정보가 없을 수 있으므로 재생성
-      const existingRollback = await this.cacheRepository.getRollbackInfo(existingViewId);
+      const existingRollback =
+        await this.cacheRepository.getRollbackInfo(existingViewId);
       if (!existingRollback) {
         this.logger.debug(
           `[SDK ViewLog] 중복 viewId=${existingViewId} Rollback 정보 재생성: campaign=${campaignId}, cost=${cost}`
@@ -101,8 +102,15 @@ export class SdkService {
       createdAt: new Date().toISOString(),
     });
 
+    // Rollback 백업 정보 저장 (TTL 없음 - Worker용) - TTL 만료로 인한 삭제시 이벤트 명만 발생하면서 삭제 -> 그 이벤트 명에 맞는 RollBack 백업 정보 필요
+    await this.cacheRepository.setRollbackBackup(viewId, {
+      campaignId,
+      cost,
+      createdAt: new Date().toISOString(),
+    });
+
     this.logger.debug(
-      `[SDK ViewLog] Rollback 정보 저장: viewId=${viewId}, campaign=${campaignId}, cost=${cost} (TTL 5분)`
+      `[SDK ViewLog] Rollback 정보 저장: viewId=${viewId}, campaign=${campaignId}, cost=${cost} (TTL 5분 + Backup)`
     );
 
     return viewId;
@@ -125,11 +133,12 @@ export class SdkService {
 
     const clickId = await this.logRepository.saveClickLog({ viewId });
 
-    // 클릭 시 Rollback 정보 삭제 (Dismiss Beacon이 와도 무시되도록)
+    // 클릭 시 Rollback 정보 + 백업 삭제 (Dismiss Beacon이 와도 무시되도록)
     await this.cacheRepository.deleteRollbackInfo(viewId);
+    await this.cacheRepository.deleteRollbackBackup(viewId);
 
     this.logger.log(
-      `[SDK ClickLog] 클릭 기록 완료: viewId=${viewId}, clickId=${clickId} (Rollback 정보 삭제 → Spent 유지)`
+      `[SDK ClickLog] 클릭 기록 완료: viewId=${viewId}, clickId=${clickId} (Rollback 정보 + Backup 삭제 → Spent 유지)`
     );
 
     return clickId;
@@ -160,8 +169,9 @@ export class SdkService {
     // 2. Spent 롤백 (Phase 2에서 구현된 메서드 사용)
     await this.campaignCacheRepository.decrementSpent(campaignId, cost);
 
-    // 3. Redis에서 Rollback 정보 삭제 (중복 방지)
+    // 3. Redis에서 Rollback 정보 + 백업 삭제 (중복 방지)
     await this.cacheRepository.deleteRollbackInfo(viewId);
+    await this.cacheRepository.deleteRollbackBackup(viewId);
 
     this.logger.log(
       `[SDK Dismiss] 롤백 완료: viewId=${viewId}, campaign=${campaignId}, cost=-${cost} (일일/총), elapsed=${Math.floor(elapsedMs / 1000)}s`
