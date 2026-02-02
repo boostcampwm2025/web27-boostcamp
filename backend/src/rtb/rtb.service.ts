@@ -212,10 +212,7 @@ export class RTBService {
               );
             }
           } catch (error) {
-            this.logger.error(
-              `캠페인 ${campaign.id} 예산 확보 중 오류 발생 - 후보에서 제외`,
-              error
-            );
+            this.logger.warn(`캠페인 ${campaign.id} 후보에서 제외`, error);
           }
         })
       )
