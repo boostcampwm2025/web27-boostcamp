@@ -94,6 +94,7 @@ export class RTBService {
       });
 
       // 7. BidLog 저장 (모든 참여 캠페인의 입찰 기록)
+      // --------------------------------------------------------------------------------------------------------------------------------------
       // TODO(추후 고려 사항): 속성값 고민 및 reason 필드에 대한 고민 그리고 로그 데이터는 RedisStream으로 큐를 통한 배치처리가 고려되면 좋을 거 같음
       const bidLogs: BidLog[] = result.candidates.map((candidate) => ({
         auctionId,
@@ -121,6 +122,7 @@ export class RTBService {
           await this.bidLogService.emitBidCreated(savedBid.id);
         }
       }
+      // --------------------------------------------------------------------------------------------------------------------------------------
 
       // TODO: 7. explain(reason) 생성 로직 필요 -> 일단 보류
 
