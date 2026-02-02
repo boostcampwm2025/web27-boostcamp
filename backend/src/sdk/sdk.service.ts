@@ -59,6 +59,13 @@ export class SdkService {
           cost,
           createdAt: new Date().toISOString(),
         });
+
+        // Rollback 백업 정보 저장 (TTL 없음 - Worker용) - TTL 만료로 인한 삭제시 이벤트 명만 발생하면서 삭제 -> 그 이벤트 명에 맞는 RollBack 백업 정보 필요
+        await this.cacheRepository.setRollbackBackup(existingViewId, {
+          campaignId,
+          cost,
+          createdAt: new Date().toISOString(),
+        });
       }
 
       return existingViewId;
