@@ -1,6 +1,12 @@
 import { AuctionData } from '../types/auction-data.type';
 import { StoredOAuthState } from '../../auth/auth.service';
 
+export interface RollbackInfo {
+  campaignId: string;
+  cost: number;
+  createdAt: string;
+}
+
 export abstract class CacheRepository {
   // Auction 관련 메서드
   abstract setAuctionData(
@@ -49,4 +55,15 @@ export abstract class CacheRepository {
     viewId: number,
     ttlMs?: number
   ): Promise<boolean>;
+
+  // Rollback 정보 관련 메서드
+  abstract setRollbackInfo(
+    viewId: number,
+    rollbackInfo: RollbackInfo,
+    ttl?: number
+  ): Promise<void>;
+
+  abstract getRollbackInfo(viewId: number): Promise<RollbackInfo | null>;
+
+  abstract deleteRollbackInfo(viewId: number): Promise<void>;
 }

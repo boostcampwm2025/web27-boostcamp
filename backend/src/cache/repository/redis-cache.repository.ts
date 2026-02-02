@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { AuctionData } from '../types/auction-data.type';
-import { CacheRepository } from './cache.repository.interface';
+import { CacheRepository, RollbackInfo } from './cache.repository.interface';
 import { StoredOAuthState } from '../../auth/auth.service';
 import crypto from 'crypto';
 import { IOREDIS_CLIENT } from 'src/redis/redis.constant';
@@ -141,6 +141,27 @@ export class RedisCacheRepository extends CacheRepository {
     if (!existingValue) return false;
 
     return true; // 이미 존재
+  }
+
+  // Rollback 정보 관련 메서드
+  async setRollbackInfo(
+    viewId: number,
+    rollbackInfo: RollbackInfo,
+    ttl: number = 300 // 5분 (초 단위)
+  ): Promise<void> {
+    const key = `rollback:view:${viewId}`;
+    await this.redis.setex(key, ttl, JSON.stringify(rollbackInfo));
+  }
+
+  async getRollbackInfo(viewId: number): Promise<RollbackInfo | null> {
+    const key = `rollback:view:${viewId}`;
+    const data = await this.redis.get(key);
+    return data ? (JSON.parse(data) as RollbackInfo) : null;
+  }
+
+  async deleteRollbackInfo(viewId: number): Promise<void> {
+    const key = `rollback:view:${viewId}`;
+    await this.redis.del(key);
   }
 
   private getAuctionKey(auctionId: string): string {
