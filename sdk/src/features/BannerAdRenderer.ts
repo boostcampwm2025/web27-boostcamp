@@ -1,24 +1,12 @@
-import type {
-  AdRenderer,
-  Campaign,
-  ViewLogRequest,
-  ViewLogResponse,
-  ClickLogRequest,
-  ClickLogResponse,
-  DismissLogRequest,
-} from '@shared/types';
-import { API_BASE_URL } from '@shared/config/constants';
+import type { AdRenderer, Campaign } from '@shared/types';
+import { AdTracker } from './AdTracker';
 
-// 배너 광고 렌더러
+// 배너 광고 렌더러 (UI 렌더링만 담당)
 export class BannerAdRenderer implements AdRenderer {
-  private currentViewId: number | null = null;
-  private currentAdUrl: string | null = null;
-  private hasClicked: boolean = false;
-  private hasSentDismiss: boolean = false;
+  private tracker: AdTracker;
 
-  constructor(private readonly blogKey: string) {
-    // Beacon 이벤트 리스너 등록
-    this.registerBeaconListeners();
+  constructor(blogKey: string) {
+    this.tracker = new AdTracker(blogKey);
   }
 
   render(
@@ -29,26 +17,7 @@ export class BannerAdRenderer implements AdRenderer {
     behaviorScore?: number,
     isHighIntent?: boolean
   ): void {
-    console.log(
-      `[BoostAD SDK] render() 호출: campaign=${campaign ? campaign.id : 'null'}, 이전 viewId=${this.currentViewId}`
-    );
-
-    // 🔧 새 광고 렌더링 전에 이전 광고 Dismiss 처리
-    if (
-      this.currentViewId !== null &&
-      !this.hasClicked &&
-      !this.hasSentDismiss
-    ) {
-      console.log(
-        `[BoostAD SDK] 새 광고 렌더링 전 이전 광고 Dismiss: viewId=${this.currentViewId}`
-      );
-      this.sendDismissBeacon();
-    }
-
-    // 새 광고 렌더링 시 상태 초기화
-    this.currentViewId = null;
-    this.hasClicked = false;
-    this.hasSentDismiss = false;
+    this.tracker.reset();
 
     container.innerHTML = campaign
       ? this.renderAdWidget(campaign, container)
@@ -56,7 +25,7 @@ export class BannerAdRenderer implements AdRenderer {
 
     if (campaign) {
       // 광고 URL 저장 (클릭 시 사용)
-      this.currentAdUrl = campaign.url;
+      this.tracker.setAdUrl(campaign.url);
 
       const link = container.querySelector('.boostad-link');
       link?.addEventListener('click', (e) => {
@@ -65,104 +34,18 @@ export class BannerAdRenderer implements AdRenderer {
       });
 
       // 광고 렌더링 성공 시 ViewLog 기록
-      this.trackCampaignView(
+      this.tracker.trackView(
         auctionId,
         campaign.id,
         postUrl || window.location.href,
         behaviorScore || 0,
         isHighIntent || false
       );
-    } else {
-      console.log('[BoostAD SDK] 광고 없음 → viewId null 유지');
-    }
-  }
-
-  private async trackCampaignView(
-    auctionId: string,
-    campaignId: string,
-    postUrl: string,
-    behaviorScore: number,
-    isHighIntent: boolean
-  ): Promise<void> {
-    try {
-      const requestBody: ViewLogRequest = {
-        blogKey: this.blogKey,
-        auctionId,
-        campaignId,
-        postUrl,
-        isHighIntent,
-        behaviorScore,
-        positionRatio: null, // 일단 null로 전송
-      };
-
-      const response = await fetch(`${API_BASE_URL}/sdk/campaign-view`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(requestBody),
-      });
-
-      if (response.ok) {
-        const data: ViewLogResponse = await response.json();
-        this.currentViewId = data.data.viewId;
-        console.log('[BoostAD SDK] ViewLog 기록 성공:', data.data.viewId);
-      } else {
-        console.warn('[BoostAD SDK] ViewLog 기록 실패:', response.status);
-      }
-    } catch (error) {
-      console.error('[BoostAD SDK] ViewLog API 호출 실패:', error);
     }
   }
 
   private async handleAdClick(): Promise<void> {
-    // 클릭 시 hasClicked 플래그 설정
-    this.hasClicked = true;
-
-    if (this.currentViewId === null) {
-      console.warn(
-        '[BoostAD SDK] ViewLog가 아직 기록되지 않았습니다. ClickLog를 기록하지 않습니다.'
-      );
-      return;
-    }
-
-    try {
-      const requestBody: ClickLogRequest = {
-        viewId: this.currentViewId,
-        blogKey: this.blogKey,
-        postUrl: window.location.href,
-      };
-
-      const response = await fetch(`${API_BASE_URL}/sdk/campaign-click`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(requestBody),
-      });
-
-      if (response.ok) {
-        const data: ClickLogResponse = await response.json();
-        if (!data.data.clickId) {
-          console.log(
-            '[BoostAD SDK] 중복 클릭으로 판단되어 예산이 차감되지 않습니다.'
-          );
-        } else {
-          console.log('[BoostAD SDK] ClickLog 기록 성공:', data.data.clickId);
-        }
-      } else {
-        console.warn('[BoostAD SDK] ClickLog 기록 실패:', response.status);
-      }
-
-      // 클릭 로그 성공/실패 여부와 관계없이 광고 페이지 열기
-      if (this.currentAdUrl) {
-        window.open(this.currentAdUrl, '_blank');
-      }
-    } catch (error) {
-      console.error('[BoostAD SDK] ClickLog API 호출 실패:', error);
-      // API 실패 시에도 광고 페이지는 열기
-      if (this.currentAdUrl) {
-        window.open(this.currentAdUrl, '_blank');
-      }
-    }
+    await this.tracker.trackClick();
   }
 
   private escapeHtml(text: string): string {
@@ -568,94 +451,5 @@ export class BannerAdRenderer implements AdRenderer {
         </div>
       </div>
     `;
-  }
-
-  // Beacon 이벤트 리스너 등록
-  private registerBeaconListeners(): void {
-    // beforeunload: 페이지 닫기, 새로고침, 뒤로가기 (Chrome, Firefox)
-    window.addEventListener('beforeunload', () => {
-      this.sendDismissBeacon();
-    });
-
-    // visibilitychange: 탭 전환, 백그라운드 전환 (모든 브라우저)
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'hidden') {
-        this.sendDismissBeacon();
-      }
-    });
-
-    // pagehide: 탭 닫기, 새로고침 (Chrome + Safari 보조)
-    // persisted=true면 bfcache 저장 (진짜 종료 아님)
-    window.addEventListener('pagehide', (event) => {
-      if (!event.persisted) {
-        // 진짜 페이지 종료
-        this.sendDismissBeacon();
-      }
-    });
-
-    // pageshow: bfcache에서 복원 시 상태 리셋 (Safari 호환)
-    window.addEventListener('pageshow', (event) => {
-      if (event.persisted) {
-        // bfcache에서 복원됨 → 상태 리셋
-        console.log('[BoostAD SDK] bfcache 복원 감지: hasSentDismiss 리셋');
-        this.hasSentDismiss = false;
-      }
-    });
-  }
-
-  // Dismiss Beacon 전송
-  private sendDismissBeacon(): void {
-    // 클릭했거나 이미 전송했으면 무시
-    if (this.hasClicked) {
-      console.log('[BoostAD SDK] Beacon 전송 스킵: 광고 클릭됨 (Spent 유지)');
-      return;
-    }
-
-    if (this.hasSentDismiss) {
-      console.log('[BoostAD SDK] Beacon 전송 스킵: 이미 전송됨 (중복 방지)');
-      return;
-    }
-
-    if (this.currentViewId === null) {
-      console.log(
-        '[BoostAD SDK] Beacon 전송 스킵: viewId 없음 (광고 미렌더링)'
-      );
-      return;
-    }
-
-    this.hasSentDismiss = true;
-
-    const payload: DismissLogRequest = {
-      viewId: this.currentViewId,
-      blogKey: this.blogKey,
-      postUrl: window.location.href,
-    };
-
-    console.log(
-      `[BoostAD SDK] Beacon 전송 시도: viewId=${this.currentViewId}, url=${window.location.href}`
-    );
-
-    const blob = new Blob([JSON.stringify(payload)], {
-      type: 'application/json',
-    });
-    const url = `${API_BASE_URL}/sdk/campaign-dismiss`;
-
-    if (navigator.sendBeacon) {
-      const sent = navigator.sendBeacon(url, blob);
-      console.log(
-        `[BoostAD SDK] Beacon 전송 결과: ${sent ? '성공' : '실패'} (viewId=${this.currentViewId})`
-      );
-    } else {
-      // Fallback: fetch with keepalive (구형 브라우저)
-      console.log('[BoostAD SDK] Beacon fallback 사용 (구형 브라우저)');
-      fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-        keepalive: true,
-      }).catch((err) => {
-        console.error('[BoostAD SDK] Beacon fallback 실패:', err);
-      });
-    }
   }
 }
