@@ -3,14 +3,13 @@ name: monitoring-deploy
 on:
   workflow_dispatch:
   push:
-    branches:
-      - deploy/monitoring
     paths:
       - monitoring/**
       - .github/workflows/monitoring-deploy.yml
 
 jobs:
   deploy:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.ref_name == 'develop' }}
     runs-on: ubuntu-latest
     steps:
       - name: Deploy monitoring via SSH (pull + up)
@@ -27,7 +26,7 @@ jobs:
           script: |
             set -euo pipefail
 
-            DEPLOY_BRANCH="deploy/monitoring"
+            DEPLOY_BRANCH="${{ github.ref_name }}"
             DEPLOY_PATH="${{ secrets.DEPLOY_MONITORING_PATH || secrets.DEPLOY_PATH }}"
             if [ -z "$DEPLOY_PATH" ]; then
               echo "Missing DEPLOY_MONITORING_PATH (or DEPLOY_PATH) secret."
