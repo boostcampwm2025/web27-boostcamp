@@ -15,8 +15,22 @@ interface SpendingLogTableRowProps {
   log: SpendingLogRowData;
 }
 
-function formatDateTime(timestamp: string): string {
-  const date = new Date(timestamp);
+function formatDateTime(timestamp: string | null): string {
+  if (!timestamp) {
+    return '-';
+  }
+
+  // ISO 8601 형식이 아닌 경우 (MySQL DATETIME) 'T'를 추가하여 파싱
+  const isoString = timestamp.includes('T')
+    ? timestamp
+    : timestamp.replace(' ', 'T');
+  const date = new Date(isoString);
+
+  // Invalid Date 체크
+  if (isNaN(date.getTime())) {
+    return '-';
+  }
+
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
