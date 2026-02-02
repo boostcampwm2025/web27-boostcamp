@@ -34,7 +34,11 @@ export class BannerAdRenderer implements AdRenderer {
     );
 
     // 🔧 새 광고 렌더링 전에 이전 광고 Dismiss 처리
-    if (this.currentViewId !== null && !this.hasClicked && !this.hasSentDismiss) {
+    if (
+      this.currentViewId !== null &&
+      !this.hasClicked &&
+      !this.hasSentDismiss
+    ) {
       console.log(
         `[BoostAD SDK] 새 광고 렌더링 전 이전 광고 Dismiss: viewId=${this.currentViewId}`
       );
@@ -568,19 +572,14 @@ export class BannerAdRenderer implements AdRenderer {
 
   // Beacon 이벤트 리스너 등록
   private registerBeaconListeners(): void {
-    // beforeunload: 페이지 닫기, 새로고침, 뒤로가기
-    window.addEventListener('beforeunload', () => {
-      this.sendDismissBeacon();
-    });
-
-    // visibilitychange: 탭 전환, 백그라운드 전환
+    // visibilitychange: 탭 닫기, 새로고침, 뒤로가기, 탭 전환 (메인 이벤트)
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'hidden') {
         this.sendDismissBeacon();
       }
     });
 
-    // pagehide: iOS Safari 호환성
+    // pagehide: iOS Safari 호환성 (백업 레이어)
     window.addEventListener('pagehide', () => {
       this.sendDismissBeacon();
     });
@@ -590,9 +589,7 @@ export class BannerAdRenderer implements AdRenderer {
   private sendDismissBeacon(): void {
     // 클릭했거나 이미 전송했으면 무시
     if (this.hasClicked) {
-      console.log(
-        '[BoostAD SDK] Beacon 전송 스킵: 광고 클릭됨 (Spent 유지)'
-      );
+      console.log('[BoostAD SDK] Beacon 전송 스킵: 광고 클릭됨 (Spent 유지)');
       return;
     }
 
@@ -602,7 +599,9 @@ export class BannerAdRenderer implements AdRenderer {
     }
 
     if (this.currentViewId === null) {
-      console.log('[BoostAD SDK] Beacon 전송 스킵: viewId 없음 (광고 미렌더링)');
+      console.log(
+        '[BoostAD SDK] Beacon 전송 스킵: viewId 없음 (광고 미렌더링)'
+      );
       return;
     }
 
