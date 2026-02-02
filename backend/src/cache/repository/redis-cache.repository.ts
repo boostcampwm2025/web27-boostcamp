@@ -14,16 +14,20 @@ export class RedisCacheRepository extends CacheRepository {
     super();
   }
 
+  private readonly AUCTION_CACHE_TTL = 15 * 60;
+  private readonly ROLLBACK_CACHE_TTL = 5 * 60; // 1 * 30 테스트 용으로 추천
+  private readonly VIEW_IDEMPOTENCY_TTL_MS = 30 * 60 * 1000; // 30분 (밀리초 단위)
+  private readonly CLICK_IDEMPOTENCY_TTL_MS = 30 * 60 * 1000; // 30분 (밀리초 단위)
+
   // Auction 관련 메서드
   async setAuctionData(
     auctionId: string,
     auctionData: AuctionData,
-    ttl: number = 24 * 60 * 60 * 1000 // TTL: 24시간 (밀리초 단위)
+    ttl: number = this.AUCTION_CACHE_TTL // TTL: 15분 (초 단위)
   ): Promise<void> {
     const key = this.getAuctionKey(auctionId);
     const value = JSON.stringify(auctionData);
-    const ttlSeconds = Math.floor(ttl / 1000);
-    await this.redis.setex(key, ttlSeconds, value);
+    await this.redis.setex(key, ttl, value);
   }
 
   async getAuctionData(auctionId: string): Promise<AuctionData | undefined> {
@@ -46,8 +50,7 @@ export class RedisCacheRepository extends CacheRepository {
   ): Promise<void> {
     const key = this.getOAuthStateKey(state);
     const value = JSON.stringify(data);
-    const ttlSeconds = Math.floor(ttl / 1000);
-    await this.redis.setex(key, ttlSeconds, value);
+    await this.redis.setex(key, ttl, value);
   }
 
   async getOAuthState(state: string): Promise<StoredOAuthState | undefined> {
@@ -67,7 +70,7 @@ export class RedisCacheRepository extends CacheRepository {
     visitorId: string,
     isHighIntent: boolean,
     viewId: number,
-    ttlMs: number = 60 * 30 * 1000
+    ttlMs: number = this.VIEW_IDEMPOTENCY_TTL_MS
   ): Promise<void> {
     const hashedUrl = this.hashUrl(postUrl);
     const intent = isHighIntent ? 'high' : 'normal';
@@ -79,7 +82,7 @@ export class RedisCacheRepository extends CacheRepository {
     postUrl: string,
     visitorId: string,
     isHighIntent: boolean,
-    ttlMs: number = 60 * 30 * 1000
+    ttlMs: number = this.VIEW_IDEMPOTENCY_TTL_MS
   ): Promise<
     | { status: 'acquired' }
     | { status: 'exists'; viewId: number }
@@ -126,7 +129,7 @@ export class RedisCacheRepository extends CacheRepository {
   // 이미 있는 값이면 true, 최초면 false return
   async setClickIdempotencyKey(
     viewId: number,
-    ttlMs: number = 60 * 30 * 1000
+    ttlMs: number = this.CLICK_IDEMPOTENCY_TTL_MS
   ): Promise<boolean> {
     const key = `dedup:click:view:${viewId}`;
 
@@ -147,7 +150,7 @@ export class RedisCacheRepository extends CacheRepository {
   async setRollbackInfo(
     viewId: number,
     rollbackInfo: RollbackInfo,
-    ttl: number = 300 // 5분 (초 단위)
+    ttl: number = this.ROLLBACK_CACHE_TTL // 5분 (초 단위)
   ): Promise<void> {
     const key = `rollback:view:${viewId}`;
     await this.redis.setex(key, ttl, JSON.stringify(rollbackInfo));
@@ -161,6 +164,26 @@ export class RedisCacheRepository extends CacheRepository {
 
   async deleteRollbackInfo(viewId: number): Promise<void> {
     const key = `rollback:view:${viewId}`;
+    await this.redis.del(key);
+  }
+
+  // Rollback 백업 관련 메서드 (TTL 없음 - Worker용)
+  async setRollbackBackup(
+    viewId: number,
+    rollbackInfo: RollbackInfo
+  ): Promise<void> {
+    const key = `backup:rollback:view:${viewId}`;
+    await this.redis.set(key, JSON.stringify(rollbackInfo)); // TTL 없음
+  }
+
+  async getRollbackBackup(viewId: number): Promise<RollbackInfo | null> {
+    const key = `backup:rollback:view:${viewId}`;
+    const data = await this.redis.get(key);
+    return data ? (JSON.parse(data) as RollbackInfo) : null;
+  }
+
+  async deleteRollbackBackup(viewId: number): Promise<void> {
+    const key = `backup:rollback:view:${viewId}`;
     await this.redis.del(key);
   }
 

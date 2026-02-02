@@ -15,6 +15,7 @@ import {
 export class RedisCampaignCacheRepository implements CampaignCacheRepository {
   private readonly logger = new Logger(RedisCampaignCacheRepository.name);
   private readonly KEY_PREFIX = 'campaign:';
+  private readonly CAMPAIGN_CACHE_TTL = 60 * 60 * 24;
 
   constructor(
     @Inject(IOREDIS_CLIENT) private readonly ioredisClient: AppIORedisClient
@@ -23,7 +24,7 @@ export class RedisCampaignCacheRepository implements CampaignCacheRepository {
   async saveCampaignCacheById(
     id: string,
     data: CachedCampaign,
-    ttl = 60 * 60 * 24
+    ttl = this.CAMPAIGN_CACHE_TTL
   ): Promise<void> {
     const key = this.getCampaignCacheKey(id);
 

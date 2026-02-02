@@ -66,4 +66,14 @@ export abstract class CacheRepository {
   abstract getRollbackInfo(viewId: number): Promise<RollbackInfo | null>;
 
   abstract deleteRollbackInfo(viewId: number): Promise<void>;
+
+  // Rollback 백업 관련 메서드 (TTL 없음 - Worker용)
+  abstract setRollbackBackup(
+    viewId: number,
+    rollbackInfo: RollbackInfo
+  ): Promise<void>;
+
+  abstract getRollbackBackup(viewId: number): Promise<RollbackInfo | null>;
+
+  abstract deleteRollbackBackup(viewId: number): Promise<void>;
 }
