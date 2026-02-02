@@ -6,6 +6,7 @@ import type {
   DecisionContext,
   Candidate,
   ScoredCandidate,
+  SelectionResult,
 } from './types/decision.types';
 import { randomUUID } from 'crypto';
 import { BidLogRepository } from '../bid-log/repositories/bid-log.repository.interface';
@@ -43,26 +44,10 @@ export class RTBService {
       }
       const blogId = blog.id;
 
-      // 1. 후보 필터링
+      // 1. 후보 불러오기 및 필터링
       // TODO(추후 고려 사항): 여기서도 embedding, deleteAt,active, isHighIntent 속성 반환이 필요한가? -> 아 bidLog기록을 위해서는 isHighIntent 속성은 필요할 거 같음
       let candidates: Candidate[] =
         await this.matcher.findCandidatesByTags(context);
-
-      // ======= 일단 혹시 모르니깐 주석 처리 =======
-      // 2. 고의도 필터링 (isHighIntent에 따라 광고 분리)
-      // if (context.isHighIntent) {
-      //   // 고의도 요청: is_high_intent=true 광고만
-      //   candidates = candidates.filter((c) => c.campaign.isHighIntent === true);
-      // } else {
-      //   // 일반 요청: is_high_intent=false 광고만
-      //   candidates = candidates.filter(
-      //     (c) => c.campaign.isHighIntent === false
-      //   );
-      // }
-
-      // 3. 캠페인 상태 검증 (ACTIVE + 날짜 범위 + 삭제되지 않음)
-      // candidates = this.filterEligibleCampaigns(candidates);
-      // ======= 일단 혹시 모르니깐 주석 처리 =======
 
       // 후보가 없으면 fallback 캠페인 조회 (캐시에서)
       if (candidates.length === 0) {
@@ -94,13 +79,16 @@ export class RTBService {
       // 3. 우승자 선정
       const result = await this.selector.selectWinner(scored);
 
-      // 4. AuctionStore에 경매 데이터 저장 (ViewLog에서 조회용)
+      // 4. 패배한 캠페인들의 Spent 롤백
+      await this.rollbackLosersSpent(auctionId, result);
+
+      // 5. AuctionStore에 경매 데이터 저장 (ViewLog에서 조회용)
       await this.cacheRepository.setAuctionData(auctionId, {
         blogId: blogId,
         cost: result.winner.maxCpc,
       });
 
-      // 5. BidLog 저장 (모든 참여 캠페인의 입찰 기록)
+      // 6. BidLog 저장 (모든 참여 캠페인의 입찰 기록)
       // TODO(추후 고려 사항): 속성값 고민 및 reason 필드에 대한 고민 그리고 로그 데이터는 RedisStream으로 큐를 통한 배치처리가 고려되면 좋을 거 같음
       const bidLogs: BidLog[] = result.candidates.map((candidate) => ({
         auctionId,
@@ -129,17 +117,7 @@ export class RTBService {
         }
       }
 
-      // 6. explain(reason) 생성 추후 로깅용 -> 일단 보류
-      // return {
-      //   winner: {
-      //     ...result.winner,
-      //     explain: this.generateExplain(result.winner, context),
-      //   },
-      //   candidates: result.candidates.map((c) => ({
-      //     ...c,
-      //     explain: this.generateExplain(c, context),
-      //   })),
-      // };
+      // TODO: 7. explain(reason) 생성 로직 필요 -> 일단 보류
 
       return {
         status: 'success',
@@ -172,6 +150,33 @@ export class RTBService {
         ],
         timestamp: new Date().toISOString(),
       };
+    }
+  }
+
+  private async rollbackLosersSpent(
+    auctionId: string,
+    result: SelectionResult
+  ) {
+    const losers = result.candidates.filter(
+      (candidate) => candidate.id !== result.winner.id
+    );
+
+    for (const loser of losers) {
+      try {
+        await this.campaignCacheRepository.decrementSpent(
+          loser.id,
+          loser.maxCpc
+        );
+        this.logger.debug(
+          `Auction ${auctionId}: 패배 캠페인 ${loser.id} Spent 롤백 완료`
+        );
+      } catch (error) {
+        // 롤백 실패는 로깅만 (과다 차감은 안전한 방향)
+        this.logger.warn(
+          `Auction ${auctionId}: 패배 캠페인 ${loser.id} Spent 롤백 실패`,
+          error
+        );
+      }
     }
   }
 
