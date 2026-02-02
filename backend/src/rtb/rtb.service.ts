@@ -51,6 +51,9 @@ export class RTBService {
       let candidates: Candidate[] =
         await this.matcher.findCandidatesByTags(context);
 
+      // 2. 선제적 Spent 증가
+      candidates = await this.increaseSpentCandidates(candidates);
+
       // 후보가 없으면 fallback 캠페인 조회 (캐시에서)
       if (candidates.length === 0) {
         this.logger.warn(
@@ -74,23 +77,23 @@ export class RTBService {
         }
       }
 
-      // 2. 점수 계산 (아 복잡하다)
+      // 3. 점수 계산 (아 복잡하다)
       const scored: ScoredCandidate[] =
         await this.scorer.scoreCandidates(candidates);
 
-      // 3. 우승자 선정
+      // 4. 우승자 선정
       const result = await this.selector.selectWinner(scored);
 
-      // 4. 패배한 캠페인들의 Spent 롤백
+      // 5. 패배한 캠페인들의 Spent 롤백
       await this.rollbackLosersSpent(auctionId, result);
 
-      // 5. AuctionStore에 경매 데이터 저장 (ViewLog에서 조회용)
+      // 6. AuctionStore에 경매 데이터 저장 (ViewLog에서 조회용)
       await this.cacheRepository.setAuctionData(auctionId, {
         blogId: blogId,
         cost: result.winner.maxCpc,
       });
 
-      // 6. BidLog 저장 (모든 참여 캠페인의 입찰 기록)
+      // 7. BidLog 저장 (모든 참여 캠페인의 입찰 기록)
       // TODO(추후 고려 사항): 속성값 고민 및 reason 필드에 대한 고민 그리고 로그 데이터는 RedisStream으로 큐를 통한 배치처리가 고려되면 좋을 거 같음
       const bidLogs: BidLog[] = result.candidates.map((candidate) => ({
         auctionId,
@@ -184,6 +187,41 @@ export class RTBService {
         })
       )
     );
+  }
+
+  private async increaseSpentCandidates(candidates: Candidate[]) {
+    const eligibleCandidates: Candidate[] = [];
+
+    await Promise.allSettled(
+      candidates.map((candidate) =>
+        this.limit(async () => {
+          const { campaign } = candidate;
+          try {
+            const reserved = await this.campaignCacheRepository.incrementSpent(
+              campaign.id,
+              campaign.maxCpc,
+              campaign.dailyBudget,
+              campaign.totalBudget
+            );
+
+            if (reserved) {
+              eligibleCandidates.push(candidate);
+            } else {
+              this.logger.debug(
+                `캠페인 ${campaign.id} 예산 확보 실패 - 후보에서 제외`
+              );
+            }
+          } catch (error) {
+            this.logger.error(
+              `캠페인 ${campaign.id} 예산 확보 중 오류 발생 - 후보에서 제외`,
+              error
+            );
+          }
+        })
+      )
+    );
+
+    return eligibleCandidates;
   }
 
   // cache 문제로 인한 무의미한 주석
