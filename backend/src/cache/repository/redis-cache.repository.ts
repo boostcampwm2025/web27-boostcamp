@@ -16,6 +16,8 @@ export class RedisCacheRepository extends CacheRepository {
 
   private readonly AUCTION_CACHE_TTL = 15 * 60;
   private readonly ROLLBACK_CACHE_TTL = 5 * 60;
+  private readonly VIEW_IDEMPOTENCY_TTL_MS = 30 * 60 * 1000; // 30분 (밀리초 단위)
+  private readonly CLICK_IDEMPOTENCY_TTL_MS = 30 * 60 * 1000; // 30분 (밀리초 단위)
 
   // Auction 관련 메서드
   async setAuctionData(
@@ -68,7 +70,7 @@ export class RedisCacheRepository extends CacheRepository {
     visitorId: string,
     isHighIntent: boolean,
     viewId: number,
-    ttlMs: number = 60 * 30 * 1000
+    ttlMs: number = this.VIEW_IDEMPOTENCY_TTL_MS
   ): Promise<void> {
     const hashedUrl = this.hashUrl(postUrl);
     const intent = isHighIntent ? 'high' : 'normal';
@@ -80,7 +82,7 @@ export class RedisCacheRepository extends CacheRepository {
     postUrl: string,
     visitorId: string,
     isHighIntent: boolean,
-    ttlMs: number = 60 * 30 * 1000
+    ttlMs: number = this.VIEW_IDEMPOTENCY_TTL_MS
   ): Promise<
     | { status: 'acquired' }
     | { status: 'exists'; viewId: number }
@@ -127,7 +129,7 @@ export class RedisCacheRepository extends CacheRepository {
   // 이미 있는 값이면 true, 최초면 false return
   async setClickIdempotencyKey(
     viewId: number,
-    ttlMs: number = 60 * 30 * 1000
+    ttlMs: number = this.CLICK_IDEMPOTENCY_TTL_MS
   ): Promise<boolean> {
     const key = `dedup:click:view:${viewId}`;
 
