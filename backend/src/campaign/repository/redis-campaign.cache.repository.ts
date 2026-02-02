@@ -6,6 +6,7 @@ import {
   CachedCampaign,
   CachedCampaignWithoutSpent,
 } from '../types/campaign.types';
+import { REDIS_INCREMENT_SPENT_SCRIPT } from '../scripts/lua-script';
 
 @Injectable()
 export class RedisCampaignCacheRepository implements CampaignCacheRepository {
@@ -120,6 +121,74 @@ export class RedisCampaignCacheRepository implements CampaignCacheRepository {
     } catch (error) {
       this.logger.error(`dailySpent 업데이트 실패: ${id}`, error);
       throw error;
+    }
+  }
+
+  async incrementSpent(
+    campaignId: string,
+    cpc: number,
+    dailyBudget: number,
+    totalBudget: number | null
+  ): Promise<boolean> {
+    const key = this.getCampaignCacheKey(campaignId);
+
+    try {
+      const result = (await this.ioredisClient.eval(
+        REDIS_INCREMENT_SPENT_SCRIPT,
+        1,
+        key,
+        cpc.toString(),
+        dailyBudget.toString(),
+        totalBudget !== null ? totalBudget.toString() : 'null'
+      )) as number;
+
+      if (result === 1) {
+        this.logger.debug(
+          `캠페인 ${campaignId} Spent 증가 성공: +${cpc} (일일/총)`
+        );
+        return true;
+      }
+
+      if (result === 0) {
+        this.logger.debug(`캠페인 ${campaignId} 일일 예산 초과로 증가 실패`);
+      } else if (result === -1) {
+        this.logger.debug(`캠페인 ${campaignId} 총 예산 초과로 증가 실패`);
+      } else {
+        this.logger.warn(`캠페인 ${campaignId} 캐시 없음 (result: ${result})`);
+      }
+
+      return false;
+    } catch (error) {
+      this.logger.error(`캠페인 ${campaignId} Spent 증가 실패`, error);
+      return false;
+    }
+  }
+
+  async decrementSpent(campaignId: string, cpc: number): Promise<void> {
+    const key = this.getCampaignCacheKey(campaignId);
+
+    try {
+      // 음수 값으로 NUMINCRBY 호출하여 감소
+      await this.ioredisClient.call(
+        'JSON.NUMINCRBY',
+        key,
+        '$.dailySpent',
+        (-cpc).toString()
+      );
+      await this.ioredisClient.call(
+        'JSON.NUMINCRBY',
+        key,
+        '$.totalSpent',
+        (-cpc).toString()
+      );
+
+      this.logger.debug(
+        `캠페인 ${campaignId} Spent 롤백 완료: -${cpc} (일일/총)`
+      );
+    } catch (error) {
+      this.logger.error(`캠페인 ${campaignId} Spent 롤백 실패`, error);
+      // 롤백 실패는 치명적이지 않음 (과다 차감 방향은 안전)
+      // 일일 정산에서 보정됨
     }
   }
 
