@@ -27,6 +27,7 @@ import { AVAILABLE_TAGS } from '../common/constants';
 import { UserRepository } from 'src/user/repository/user.repository.interface';
 import { CampaignCacheRepository } from './repository/campaign.cache.repository.interface';
 import { CreditHistoryRepository } from 'src/advertiser/repository/credit-history.repository.interface';
+import { LogRepository } from 'src/log/repository/log.repository.interface';
 import { UserEntity } from 'src/user/entities/user.entity';
 import {
   CreditHistoryEntity,
@@ -42,6 +43,7 @@ export class CampaignService {
     private readonly userRepository: UserRepository,
     private readonly campaignCacheRepository: CampaignCacheRepository,
     private readonly creditHistoryRepository: CreditHistoryRepository, // TODO: 이거는 언제 쓰이는 걸까
+    private readonly logRepository: LogRepository,
     @InjectDataSource() private readonly dataSource: DataSource,
     @InjectQueue('embedding-queue')
     private readonly embeddingQueue: Queue<EmbeddingJobData>
@@ -454,6 +456,40 @@ export class CampaignService {
     }
   }
 
+  // 캠페인 클릭 히스토리 조회
+  async getClickHistory(
+    campaignId: string,
+    userId: number,
+    limit: number = 5,
+    offset: number = 0
+  ) {
+    // 소유권 검증
+    const cachedCampaign =
+      await this.campaignCacheRepository.findCampaignCacheById(campaignId);
+
+    if (!cachedCampaign) {
+      throw new NotFoundException('캠페인을 찾을 수 없습니다.');
+    }
+
+    if (cachedCampaign.userId !== userId) {
+      throw new ForbiddenException('해당 캠페인에 접근할 수 없습니다.');
+    }
+
+    // LogRepository에서 클릭 히스토리 조회
+    const { logs, total } =
+      await this.logRepository.getClickHistoryByCampaignId(
+        campaignId,
+        limit,
+        offset
+      );
+
+    return {
+      logs,
+      total,
+      hasMore: offset + limit < total,
+    };
+  }
+
   // 캠페인 삭제 (소프트 삭제, 소유권 검증)
   async deleteCampaign(campaignId: string, userId: number): Promise<void> {
     // const campaign = await this.campaignRepository.findOne(campaignId, userId); A/B campaign
@@ -604,17 +640,23 @@ export class CampaignService {
     const impressions = viewCounts.get(campaign.id) || 0;
     const clicks = clickCounts.get(campaign.id) || 0;
 
+    // DB Campaign 테이블의 dailySpent, totalSpent 사용 (Cron Job으로 동기화됨)
+    const dailySpent = campaign.dailySpent;
+    const totalSpent = campaign.totalSpent;
+
     return {
       ...campaign,
+      dailySpent,
+      totalSpent,
       impressions,
       clicks,
       ctr: this.calculateCTR(clicks, impressions),
       dailySpentPercent: this.calculatePercent(
-        campaign.dailySpent,
+        dailySpent,
         campaign.dailyBudget
       ),
       totalSpentPercent: this.calculatePercent(
-        campaign.totalSpent,
+        totalSpent,
         campaign.totalBudget
       ),
     };
@@ -653,17 +695,23 @@ export class CampaignService {
       const impressions = viewCounts.get(campaign.id) || 0;
       const clicks = clickCounts.get(campaign.id) || 0;
 
+      // DB Campaign 테이블의 dailySpent, totalSpent 사용
+      const dailySpent = campaign.dailySpent;
+      const totalSpent = campaign.totalSpent;
+
       return {
         ...campaign,
+        dailySpent,
+        totalSpent,
         impressions,
         clicks,
         ctr: this.calculateCTR(clicks, impressions),
         dailySpentPercent: this.calculatePercent(
-          campaign.dailySpent,
+          dailySpent,
           campaign.dailyBudget
         ),
         totalSpentPercent: this.calculatePercent(
-          campaign.totalSpent,
+          totalSpent,
           campaign.totalBudget
         ),
       };
