@@ -573,7 +573,20 @@ export class BannerAdRenderer implements AdRenderer {
   // Dismiss Beacon 전송
   private sendDismissBeacon(): void {
     // 클릭했거나 이미 전송했으면 무시
-    if (this.hasClicked || this.hasSentDismiss || this.currentViewId === null) {
+    if (this.hasClicked) {
+      console.log(
+        '[BoostAD SDK] Beacon 전송 스킵: 광고 클릭됨 (Spent 유지)'
+      );
+      return;
+    }
+
+    if (this.hasSentDismiss) {
+      console.log('[BoostAD SDK] Beacon 전송 스킵: 이미 전송됨 (중복 방지)');
+      return;
+    }
+
+    if (this.currentViewId === null) {
+      console.log('[BoostAD SDK] Beacon 전송 스킵: viewId 없음 (광고 미렌더링)');
       return;
     }
 
@@ -585,6 +598,10 @@ export class BannerAdRenderer implements AdRenderer {
       postUrl: window.location.href,
     };
 
+    console.log(
+      `[BoostAD SDK] Beacon 전송 시도: viewId=${this.currentViewId}, url=${window.location.href}`
+    );
+
     const blob = new Blob([JSON.stringify(payload)], {
       type: 'application/json',
     });
@@ -592,9 +609,12 @@ export class BannerAdRenderer implements AdRenderer {
 
     if (navigator.sendBeacon) {
       const sent = navigator.sendBeacon(url, blob);
-      console.log('[BoostAD SDK] Beacon 전송:', sent ? '성공' : '실패');
+      console.log(
+        `[BoostAD SDK] Beacon 전송 결과: ${sent ? '성공' : '실패'} (viewId=${this.currentViewId})`
+      );
     } else {
       // Fallback: fetch with keepalive (구형 브라우저)
+      console.log('[BoostAD SDK] Beacon fallback 사용 (구형 브라우저)');
       fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
