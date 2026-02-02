@@ -86,6 +86,10 @@ export class SdkService {
       createdAt: new Date().toISOString(),
     });
 
+    this.logger.debug(
+      `[SDK ViewLog] Rollback 정보 저장: viewId=${viewId}, campaign=${campaignId}, cost=${cost} (TTL 5분)`
+    );
+
     return viewId;
   }
 
@@ -95,27 +99,48 @@ export class SdkService {
     const isDup = await this.cacheRepository.setClickIdempotencyKey(viewId);
 
     if (isDup) {
+      this.logger.debug(`[SDK ClickLog] 중복 클릭: viewId=${viewId}`);
       return null;
     }
+
     const exists = await this.logRepository.existsByViewId(viewId);
     if (!exists) {
       throw new BadRequestException('잘못된 요청입니다.');
     }
-    return await this.logRepository.saveClickLog({ viewId });
+
+    const clickId = await this.logRepository.saveClickLog({ viewId });
+
+    // 클릭 시 Rollback 정보 삭제 (Dismiss Beacon이 와도 무시되도록)
+    await this.cacheRepository.deleteRollbackInfo(viewId);
+
+    this.logger.log(
+      `[SDK ClickLog] 클릭 기록 완료: viewId=${viewId}, clickId=${clickId} (Rollback 정보 삭제 → Spent 유지)`
+    );
+
+    return clickId;
   }
 
   async recordDismiss(dto: CreateDismissLogDto): Promise<void> {
     const { viewId } = dto;
 
+    this.logger.debug(`[SDK Dismiss] 시작: viewId=${viewId}`);
+
     // 1. Redis에서 Rollback 정보 조회
     const rollbackInfo = await this.cacheRepository.getRollbackInfo(viewId);
     if (!rollbackInfo) {
       // TTL 만료 또는 이미 처리됨 → 무시
-      this.logger.warn(`[SDK] RollbackInfo not found for viewId=${viewId}`);
+      this.logger.warn(
+        `[SDK Dismiss] RollbackInfo not found for viewId=${viewId} (TTL 만료 또는 이미 처리됨)`
+      );
       return;
     }
 
-    const { campaignId, cost } = rollbackInfo;
+    const { campaignId, cost, createdAt } = rollbackInfo;
+    const elapsedMs = Date.now() - new Date(createdAt).getTime();
+
+    this.logger.debug(
+      `[SDK Dismiss] RollbackInfo 조회 성공: viewId=${viewId}, campaign=${campaignId}, cost=${cost}, elapsed=${Math.floor(elapsedMs / 1000)}s`
+    );
 
     // 2. Spent 롤백 (Phase 2에서 구현된 메서드 사용)
     await this.campaignCacheRepository.decrementSpent(campaignId, cost);
@@ -124,7 +149,7 @@ export class SdkService {
     await this.cacheRepository.deleteRollbackInfo(viewId);
 
     this.logger.log(
-      `[SDK] Rollback 처리 완료: campaign=${campaignId}, cost=${cost}`
+      `[SDK Dismiss] 롤백 완료: viewId=${viewId}, campaign=${campaignId}, cost=-${cost} (일일/총), elapsed=${Math.floor(elapsedMs / 1000)}s`
     );
   }
 }
