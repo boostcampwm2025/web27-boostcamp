@@ -52,6 +52,7 @@ export class RedisTTLWorker implements OnModuleInit, OnModuleDestroy {
       await this.subscriber.unsubscribe('__keyevent@0__:expired');
       this.subscriber.disconnect();
       this.logger.log('TTL Worker 종료 - Keyspace Notification 구독 해제');
+      // TODO: 이 부분이 무작정 해제되도 Redis >= DB의 단방향 불일치는 유지되는가?
     }
   }
 
