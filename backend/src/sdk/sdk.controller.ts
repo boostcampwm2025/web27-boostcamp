@@ -64,6 +64,7 @@ export class SdkController {
   }
 
   @Public()
+  @UseGuards(BlogKeyValidationGuard)
   @Post('campaign-dismiss')
   @HttpCode(204)
   async recordDismiss(@Body() createDismissLogDto: CreateDismissLogDto) {
