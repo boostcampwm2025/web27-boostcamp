@@ -164,6 +164,26 @@ export class RedisCacheRepository extends CacheRepository {
     await this.redis.del(key);
   }
 
+  // Rollback 백업 관련 메서드 (TTL 없음 - Worker용)
+  async setRollbackBackup(
+    viewId: number,
+    rollbackInfo: RollbackInfo
+  ): Promise<void> {
+    const key = `backup:rollback:view:${viewId}`;
+    await this.redis.set(key, JSON.stringify(rollbackInfo)); // TTL 없음
+  }
+
+  async getRollbackBackup(viewId: number): Promise<RollbackInfo | null> {
+    const key = `backup:rollback:view:${viewId}`;
+    const data = await this.redis.get(key);
+    return data ? (JSON.parse(data) as RollbackInfo) : null;
+  }
+
+  async deleteRollbackBackup(viewId: number): Promise<void> {
+    const key = `backup:rollback:view:${viewId}`;
+    await this.redis.del(key);
+  }
+
   private getAuctionKey(auctionId: string): string {
     return `auction:${auctionId}`;
   }
