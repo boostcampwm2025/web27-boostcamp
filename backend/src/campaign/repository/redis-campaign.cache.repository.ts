@@ -6,7 +6,10 @@ import {
   CachedCampaign,
   CachedCampaignWithoutSpent,
 } from '../types/campaign.types';
-import { REDIS_INCREMENT_SPENT_SCRIPT } from '../scripts/lua-script';
+import {
+  REDIS_INCREMENT_SPENT_SCRIPT,
+  REDIS_DECREMENT_SPENT_SCRIPT,
+} from '../scripts/lua-script';
 
 @Injectable()
 export class RedisCampaignCacheRepository implements CampaignCacheRepository {
@@ -168,23 +171,28 @@ export class RedisCampaignCacheRepository implements CampaignCacheRepository {
     const key = this.getCampaignCacheKey(campaignId);
 
     try {
-      // 음수 값으로 NUMINCRBY 호출하여 감소
-      await this.ioredisClient.call(
-        'JSON.NUMINCRBY',
+      const result = (await this.ioredisClient.eval(
+        REDIS_DECREMENT_SPENT_SCRIPT,
+        1,
         key,
-        '$.dailySpent',
-        (-cpc).toString()
-      );
-      await this.ioredisClient.call(
-        'JSON.NUMINCRBY',
-        key,
-        '$.totalSpent',
-        (-cpc).toString()
-      );
+        cpc.toString() // 양수로 전달 (Lua에서 -cpc 처리)
+      )) as number;
 
-      this.logger.debug(
-        `캠페인 ${campaignId} Spent 롤백 완료: -${cpc} (일일/총)`
-      );
+      if (result === 1) {
+        this.logger.debug(
+          `캠페인 ${campaignId} Spent 롤백 완료: -${cpc} (일일/총)`
+        );
+      } else if (result === 0) {
+        this.logger.warn(
+          `캠페인 ${campaignId} 일일 Spent 음수 방지 (현재값 < ${cpc})`
+        );
+      } else if (result === -1) {
+        this.logger.warn(
+          `캠페인 ${campaignId} 총 Spent 음수 방지 (현재값 < ${cpc})`
+        );
+      } else if (result === -99) {
+        this.logger.error(`캠페인 ${campaignId} 캐시 없음 (롤백 실패)`);
+      }
     } catch (error) {
       this.logger.error(`캠페인 ${campaignId} Spent 롤백 실패`, error);
       // 롤백 실패는 치명적이지 않음 (과다 차감 방향은 안전)
