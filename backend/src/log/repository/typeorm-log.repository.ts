@@ -117,7 +117,7 @@ export class TypeOrmLogRepository extends LogRepository {
   ): Promise<{
     logs: Array<{
       id: number;
-      createdAt: Date;
+      createdAt: Date | null;
       postUrl: string | null;
       blogName: string;
       cost: number;
@@ -141,33 +141,31 @@ export class TypeOrmLogRepository extends LogRepository {
     const results = await queryBuilder
       .skip(offset)
       .take(limit)
-      .select([
-        'click_log.id',
-        'click_log.created_at',
-        'view_log.post_url',
-        'view_log.cost',
-        'view_log.behavior_score',
-        'view_log.is_high_intent',
-        'blog.name',
-      ])
+      .select('click_log.id', 'id')
+      .addSelect('click_log.created_at', 'createdAt')
+      .addSelect('view_log.post_url', 'postUrl')
+      .addSelect('view_log.cost', 'cost')
+      .addSelect('view_log.behavior_score', 'behaviorScore')
+      .addSelect('view_log.is_high_intent', 'isHighIntent')
+      .addSelect('blog.name', 'blogName')
       .getRawMany<{
-        click_log_id: number;
-        click_log_created_at: Date;
-        view_log_post_url: string | null;
-        view_log_cost: number;
-        view_log_behavior_score: number | null;
-        view_log_is_high_intent: boolean;
-        blog_name: string;
+        id: number;
+        createdAt: Date | string;
+        postUrl: string | null;
+        cost: number;
+        behaviorScore: number | null;
+        isHighIntent: boolean;
+        blogName: string;
       }>();
 
     const logs = results.map((row) => ({
-      id: row.click_log_id,
-      createdAt: new Date(row.click_log_created_at),
-      postUrl: row.view_log_post_url,
-      blogName: row.blog_name,
-      cost: row.view_log_cost,
-      behaviorScore: row.view_log_behavior_score,
-      isHighIntent: row.view_log_is_high_intent,
+      id: row.id,
+      createdAt: row.createdAt ? new Date(row.createdAt) : null,
+      postUrl: row.postUrl,
+      blogName: row.blogName,
+      cost: row.cost,
+      behaviorScore: row.behaviorScore,
+      isHighIntent: Boolean(row.isHighIntent),
     }));
 
     return { logs, total };

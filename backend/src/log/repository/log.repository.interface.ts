@@ -34,7 +34,7 @@ export abstract class LogRepository {
   ): Promise<{
     logs: Array<{
       id: number;
-      createdAt: Date;
+      createdAt: Date | null;
       postUrl: string | null;
       blogName: string;
       cost: number;
