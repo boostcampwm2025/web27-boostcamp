@@ -164,6 +164,18 @@ export class BannerAdRenderer implements AdRenderer {
     const safeImage = this.escapeHtml(campaign.image);
 
     const containerHeight = container.offsetHeight || container.clientHeight;
+    const screenWidth = window.innerWidth;
+    const isMobile = screenWidth <= 768;
+
+    // 모바일: 화면 너비가 768px 이하일 때
+    if (isMobile) {
+      return this.renderMobileWidget(
+        safeTitle,
+        safeContent,
+        safeUrl,
+        safeImage
+      );
+    }
 
     // S: 높이가 120px 이하일 때
     if (containerHeight > 0 && containerHeight <= 120) {
@@ -187,6 +199,89 @@ export class BannerAdRenderer implements AdRenderer {
 
     // 기본
     return this.renderFullWidget(safeTitle, safeContent, safeUrl, safeImage);
+  }
+
+  // Mobile (화면 너비 <= 768px)
+  private renderMobileWidget(
+    title: string,
+    content: string,
+    url: string,
+    image: string
+  ): string {
+    return /*html*/ `
+      <a href="${url}" class="boostad-link" target="_blank" rel="noopener noreferrer" style="
+        display: block;
+        width: 100%;
+        padding: 16px;
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+        background: #ffffff;
+        text-decoration: none;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        transition: box-shadow 0.2s;
+        box-sizing: border-box;
+        margin: 16px 0;
+      " onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.12)';" onmouseout="this.style.boxShadow='0 2px 6px rgba(0,0,0,0.08)';">
+        <div style="
+          display: flex;
+          gap: 12px;
+          margin-bottom: 12px;
+        ">
+          <img src="${image}" alt="${title}" style="
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            object-fit: cover;
+            flex-shrink: 0;
+          " onerror="this.style.display='none';" />
+          <div style="flex: 1; min-width: 0; overflow: hidden;">
+            <div style="font-size: 10px; color: #999; margin-bottom: 6px;">Sponsored</div>
+            <div style="
+              font-size: 15px;
+              font-weight: 500;
+              color: #333;
+              line-height: 1.4;
+              margin-bottom: 6px;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              display: -webkit-box;
+              -webkit-line-clamp: 2;
+              -webkit-box-orient: vertical;
+            ">${title}</div>
+          </div>
+        </div>
+        <div style="
+          font-size: 13px;
+          color: #666;
+          line-height: 1.5;
+          margin-bottom: 12px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+        ">${content}</div>
+        <div style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        ">
+          <span style="
+            color: #155dfc;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: underline;
+            text-decoration-color: transparent;
+            text-underline-offset: 3px;
+            transition: text-decoration-color 0.2s;
+          " class="boostad-cta">더 알아보기 →</span>
+          <span style="font-size: 10px; color: #99a1af; white-space: nowrap;">
+            by <strong>BoostAD</strong>
+          </span>
+        </div>
+      </a>
+    `;
   }
 
   // S (h-20 ~ 120px)
