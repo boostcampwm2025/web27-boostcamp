@@ -34,4 +34,15 @@ export class MetricsService {
       labels: { service: 'backend' },
     });
   }
+
+  recordHttpRequest(
+    method: string,
+    route: string,
+    status_code: number,
+    durationMs: number
+  ) {
+    const labels = { method, route, status_code };
+    this.httpRequestsTotal.inc(labels);
+    this.httpRequestDurationSeconds.observe(labels, durationMs / 1000);
+  }
 }
