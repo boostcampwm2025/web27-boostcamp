@@ -13,6 +13,7 @@ import { CreateDismissLogDto } from './dto/create-dismiss-log.dto';
 import { CampaignCacheRepository } from 'src/campaign/repository/campaign.cache.repository.interface';
 import { BlogRepository } from 'src/blog/repository/blog.repository.interface';
 import { UserRepository } from 'src/user/repository/user.repository.interface';
+import { UserRole } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class SdkService {
@@ -168,7 +169,7 @@ export class SdkService {
       `[SDK ClickLog] 클릭 기록 완료: viewId=${viewId}, clickId=${clickId} (Rollback 정보 + Backup 삭제 → Spent 유지)`
     );
 
-    // 퍼블리셔 수익 지급 (cost의 80%)
+    // 퍼블리셔 수익 지급 (cost의 80%, PUBLISHER만)
     try {
       const viewLogData =
         await this.logRepository.getBlogIdAndCostByViewId(viewId);
@@ -177,11 +178,23 @@ export class SdkService {
         const publisherId = await this.blogRepository.getUserIdByBlogId(blogId);
 
         if (publisherId) {
-          const revenue = Math.floor(cost * 0.8);
-          await this.userRepository.incrementBalance(publisherId, revenue);
-          this.logger.log(
-            `[SDK ClickLog] 퍼블리셔 수익 지급: publisherId=${publisherId}, revenue=${revenue} (cost=${cost})`
+          // PUBLISHER 역할 확인
+          const isPublisher = await this.userRepository.verifyRole(
+            publisherId,
+            UserRole.PUBLISHER
           );
+
+          if (isPublisher) {
+            const revenue = Math.floor(cost * 0.8);
+            await this.userRepository.incrementBalance(publisherId, revenue);
+            this.logger.log(
+              `[SDK ClickLog] 퍼블리셔 수익 지급: publisherId=${publisherId}, revenue=${revenue} (cost=${cost})`
+            );
+          } else {
+            this.logger.debug(
+              `[SDK ClickLog] 수익 지급 스킵: userId=${publisherId}는 퍼블리셔가 아님`
+            );
+          }
         }
       }
     } catch (error) {
