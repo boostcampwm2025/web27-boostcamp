@@ -34,7 +34,11 @@ export class CampaignCronService {
   // @Cron('25 1 * * *', { timeZone: 'Asia/Seoul' })
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async scheduledDailyReconciliation(): Promise<void> {
+    const startTime = Date.now();
     this.logger.log('===== 일일 정산 시작 =====');
+    this.logger.log(
+      `실행 시각: ${new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })}`
+    );
 
     try {
       // 0. Redis에서 한번만 로드
@@ -75,6 +79,7 @@ export class CampaignCronService {
       this.logger.error('일일 정산 중 오류 발생', error);
       throw error;
     }
+    this.logger.log(`총 소요 시간: ${Date.now() - startTime}ms`);
   }
 
   // ========================================
@@ -124,6 +129,9 @@ export class CampaignCronService {
   private async stopExpiredCampaigns(
     cachedCampaigns: CachedCampaign[]
   ): Promise<number> {
+    this.logger.log(
+      `[Step 1] 만료 캠페인 종료 처리 시작 (대상: ${cachedCampaigns.length}개)`
+    ); // 추가
     const now = new Date();
     let stoppedCount = 0;
 
@@ -143,6 +151,7 @@ export class CampaignCronService {
         this.logger.log(`캠페인 ${campaign.id} 종료 -> ENDED (날짜 만료)`);
       }
     }
+    this.logger.log(`[Step 1] 만료 캠페인 종료 완료: ${stoppedCount}개`);
     return stoppedCount;
   }
 
@@ -150,6 +159,7 @@ export class CampaignCronService {
   private async pauseOverspentCampaigns(
     cachedCampaigns: CachedCampaign[]
   ): Promise<number> {
+    this.logger.log(`[Step 2] 예산 소진 캠페인 PAUSED 처리 시작`);
     let pausedCount = 0;
 
     for (const cached of cachedCampaigns) {
@@ -169,14 +179,19 @@ export class CampaignCronService {
         this.logger.log(`캠페인 ${cached.id} 예산 소진 -> PAUSED`);
       }
     }
+    this.logger.log(`[Step 2] 예산 소진 PAUSED 완료: ${pausedCount}개`);
     return pausedCount;
   }
 
   // 시작일 된 캠페인 ACTIVE (DB First - PENDING은 Redis에 없을 수 있음)
   private async startScheduledCampaigns(): Promise<number> {
+    this.logger.log(`[Step 5] 시작 예정 캠페인 ACTIVE 처리 시작`);
     const now = new Date();
     // PENDING 캠페인은 Redis에 캐시 안 되어있을 수 있으므로 DB 조회
     const allCampaigns = await this.campaignRepository.getAll();
+    this.logger.log(
+      `[Step 5] DB 캠페인 ${allCampaigns.length}개 조회 (PENDING 필터링 예정)`
+    );
     let startedCount = 0;
 
     for (const campaign of allCampaigns) {
@@ -218,6 +233,9 @@ export class CampaignCronService {
 
     for (let i = 0; i < activeCampaigns.length; i += this.BATCH_SIZE) {
       const batch = activeCampaigns.slice(i, i + this.BATCH_SIZE);
+      this.logger.log(
+        `[Step 4] 배치 ${Math.floor(i / this.BATCH_SIZE) + 1}: ${batch.length}개 리셋 중`
+      );
       const campaignIds = batch.map((c) => c.id);
 
       // Batch Lock: ACTIVE -> PAUSED (리셋 중 비딩 차단)
@@ -270,7 +288,7 @@ export class CampaignCronService {
   // ClickLog 기반 Spent 정산
   private async reconcileSpentFromClickLog(targetDate: Date): Promise<number> {
     this.logger.log(
-      `ClickLog 정산 시작 (${targetDate.toISOString().split('T')[0]})`
+      `[Step 3] ClickLog 정산 시작 (${targetDate.toISOString().split('T')[0]})`
     );
 
     const dailyAggregation =
@@ -279,6 +297,9 @@ export class CampaignCronService {
       await this.logRepository.aggregateTotalClicksByCampaign();
     const totalSpentMap = new Map(
       totalAggregation.map((a) => [a.campaignId, a.totalCost])
+    );
+    this.logger.log(
+      `[Step 3] 일일 집계: ${dailyAggregation.length}건, 배치 크기: ${this.BATCH_SIZE}`
     );
 
     let reconciledCount = 0;
