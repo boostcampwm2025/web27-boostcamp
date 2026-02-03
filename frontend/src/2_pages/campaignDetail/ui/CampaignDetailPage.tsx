@@ -5,12 +5,14 @@ import {
   usePauseCampaign,
   useUpdateBudget,
   useUpdateCampaign,
+  useDeleteCampaign,
   CampaignDetailHeader,
   CampaignInfoCard,
   CampaignMetricsCards,
   BudgetStatusCard,
   SpendingLogCard,
   CampaignEditModal,
+  CampaignDeleteModal,
 } from '@features/campaignDetail';
 import { useAdvertiserBalance } from '@shared/lib/hooks/useAdvertiserBalance';
 import { useDocumentTitle } from '@shared/lib/hooks';
@@ -24,6 +26,7 @@ export function CampaignDetailPage() {
   const toast = useToast();
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const { campaign, isLoading, error, refetch } = useCampaignDetail(id || '');
   const { togglePause, isLoading: isPauseLoading } = usePauseCampaign();
@@ -34,6 +37,7 @@ export function CampaignDetailPage() {
     error: updateCampaignError,
   } = useUpdateCampaign();
   const { balance, refetch: refetchBalance } = useAdvertiserBalance();
+  const { deleteCampaign, isLoading: isDeleteLoading } = useDeleteCampaign();
 
   const handleBack = () => {
     navigate(-1);
@@ -58,6 +62,26 @@ export function CampaignDetailPage() {
 
   const handleEdit = () => {
     setIsEditModalOpen(true);
+  };
+
+  const handleDelete = () => {
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteModalClose = () => {
+    setIsDeleteModalOpen(false);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!campaign) return;
+
+    try {
+      await deleteCampaign(campaign.id);
+      toast.showToast('캠페인이 삭제되었습니다', 'success');
+      navigate('/advertiser/dashboard/campaigns');
+    } catch {
+      toast.showToast('캠페인 삭제에 실패했습니다', 'error');
+    }
   };
 
   const handleEditModalClose = () => {
@@ -139,6 +163,7 @@ export function CampaignDetailPage() {
             onBack={handleBack}
             onPause={handlePause}
             onEdit={handleEdit}
+            onDelete={handleDelete}
             isPauseLoading={isPauseLoading}
           />
         </div>
@@ -198,6 +223,14 @@ export function CampaignDetailPage() {
         }}
         balance={balance}
         error={updateCampaignError}
+      />
+
+      <CampaignDeleteModal
+        isOpen={isDeleteModalOpen}
+        campaignTitle={campaign.title}
+        onClose={handleDeleteModalClose}
+        onConfirm={handleDeleteConfirm}
+        isDeleting={isDeleteLoading}
       />
     </div>
   );
