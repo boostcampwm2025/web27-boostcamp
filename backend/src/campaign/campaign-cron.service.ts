@@ -30,8 +30,6 @@ export class CampaignCronService {
 
   // 매일 자정에 일일 정산 실행 (통합 Cron)
   // 실행 순서: 종료처리 -> 정산 -> 리셋 -> 시작처리
-  // 또는 특정 시간 (예: 1:25 AM)
-  // @Cron('25 1 * * *', { timeZone: 'Asia/Seoul' })
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async scheduledDailyReconciliation(): Promise<void> {
     const startTime = Date.now();
@@ -88,7 +86,7 @@ export class CampaignCronService {
   // @Cron('0 0 * * *', { timeZone: 'Asia/Seoul' })
   // 또는 특정 시간 (예: 1:25 AM)
   // @Cron('25 1 * * *')
-  @Cron('0 * * * *', { timeZone: 'Asia/Seoul' })
+  @Cron('0 * * * *')
   async hourlyReconciliation(): Promise<void> {
     this.logger.log('시간별 정합성 체크 시작');
     await this.reconcileSpentFromClickLog(new Date());
@@ -288,7 +286,7 @@ export class CampaignCronService {
   // ClickLog 기반 Spent 정산
   private async reconcileSpentFromClickLog(targetDate: Date): Promise<number> {
     this.logger.log(
-      `[Step 3] ClickLog 정산 시작 (${targetDate.toISOString().split('T')[0]})`
+      `[Step 3] ClickLog 정산 시작 (${targetDate.toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' })})`
     );
 
     const dailyAggregation =
