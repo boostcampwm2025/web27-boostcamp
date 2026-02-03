@@ -30,6 +30,8 @@ export class CampaignCronService {
 
   // 매일 자정에 일일 정산 실행 (통합 Cron)
   // 실행 순서: 종료처리 -> 정산 -> 리셋 -> 시작처리
+  // 또는 특정 시간 (예: 1:25 AM)
+  // @Cron('25 1 * * *', { timeZone: 'Asia/Seoul' })
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async scheduledDailyReconciliation(): Promise<void> {
     this.logger.log('===== 일일 정산 시작 =====');
@@ -78,7 +80,10 @@ export class CampaignCronService {
   // ========================================
   // 시간별 정합성 체크 (매시 정각)
   // ========================================
-  @Cron('0 * * * *')
+  // @Cron('0 0 * * *', { timeZone: 'Asia/Seoul' })
+  // 또는 특정 시간 (예: 1:25 AM)
+  // @Cron('25 1 * * *')
+  @Cron('0 * * * *', { timeZone: 'Asia/Seoul' })
   async hourlyReconciliation(): Promise<void> {
     this.logger.log('시간별 정합성 체크 시작');
     await this.reconcileSpentFromClickLog(new Date());
@@ -123,7 +128,7 @@ export class CampaignCronService {
     let stoppedCount = 0;
 
     for (const campaign of cachedCampaigns) {
-      if (campaign.deletedAt || campaign.status === 'ENDED') continue;
+      if (campaign.status === 'ENDED') continue;
 
       const endDate = new Date(campaign.endDate);
       if (now >= endDate) {
@@ -276,11 +281,10 @@ export class CampaignCronService {
       totalAggregation.map((a) => [a.campaignId, a.totalCost])
     );
 
-    const BATCH_SIZE = 10;
     let reconciledCount = 0;
 
-    for (let i = 0; i < dailyAggregation.length; i += BATCH_SIZE) {
-      const batch = dailyAggregation.slice(i, i + BATCH_SIZE);
+    for (let i = 0; i < dailyAggregation.length; i += this.BATCH_SIZE) {
+      const batch = dailyAggregation.slice(i, i + this.BATCH_SIZE);
       const campaignIds = batch.map((b) => b.campaignId);
 
       // Batch Lock
