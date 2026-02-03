@@ -134,13 +134,14 @@ export class TypeOrmLogRepository extends LogRepository {
       .where('view_log.campaign_id = :campaignId', { campaignId })
       .orderBy('click_log.created_at', 'DESC');
 
-    // Total count
     const total = await queryBuilder.getCount();
 
-    // Paginated logs
-    const results = await queryBuilder
-      .skip(offset)
-      .take(limit)
+    const results = await this.clickLogRepository
+      .createQueryBuilder('click_log')
+      .innerJoin('click_log.viewLog', 'view_log')
+      .innerJoin('Blog', 'blog', 'blog.id = view_log.blog_id')
+      .where('view_log.campaign_id = :campaignId', { campaignId })
+      .orderBy('click_log.created_at', 'DESC')
       .select('click_log.id', 'id')
       .addSelect('click_log.created_at', 'createdAt')
       .addSelect('view_log.post_url', 'postUrl')
@@ -148,6 +149,8 @@ export class TypeOrmLogRepository extends LogRepository {
       .addSelect('view_log.behavior_score', 'behaviorScore')
       .addSelect('view_log.is_high_intent', 'isHighIntent')
       .addSelect('blog.name', 'blogName')
+      .offset(offset)
+      .limit(limit)
       .getRawMany<{
         id: number;
         createdAt: Date | string;
