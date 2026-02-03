@@ -32,6 +32,7 @@ export class MetricsService {
     name: 'boostad_sse_connections',
     help: 'Current SSE connections',
     labelNames: ['endpoint'],
+    registers: [this.registry],
   });
 
   constructor() {
