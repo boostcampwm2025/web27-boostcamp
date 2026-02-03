@@ -46,6 +46,10 @@ export class MetricsService {
     this.httpRequestDurationSeconds.observe(labels, durationMs / 1000);
   }
 
+  getContentType(): string {
+    return this.registry.contentType;
+  }
+
   async getMetrics(): Promise<string> {
     return await this.registry.metrics(); // 레지스트리에 등록된 모든 메트릭 텍스트로 직렬화해서 리턴
   }

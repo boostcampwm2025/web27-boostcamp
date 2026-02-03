@@ -8,6 +8,7 @@ export class MetricsController {
 
   @Get()
   async getMetrics(@Res({ passthrough: true }) res: Response) {
+    res.setHeader('Content-Type', this.metricsService.getContentType());
     return await this.metricsService.getMetrics();
   }
 }
