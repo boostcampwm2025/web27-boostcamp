@@ -22,151 +22,6 @@ export class CampaignCronService {
     this.isProduction = this.configService.get('NODE_ENV') === 'production';
   }
 
-  // 매일 자정(00:00)에 상태 자동 업데이트
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
-  async scheduledUpdateCampaignStatuses(): Promise<void> {
-    await this.updateCampaignStatuses();
-  }
-
-  // 매일 자정(00:00)에 일일 예산 리셋
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
-  async scheduledResetDailyBudgets(): Promise<void> {
-    await this.resetDailyBudgets();
-  }
-
-  // @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
-  // async scheduledCleanupOrphanImages(): Promise<void> {
-  //   await this.cleanupOrphanImages();
-  // }
-
-  // 일일 예산 리셋 + Redis 동기화
-  async resetDailyBudgets(): Promise<void> {
-    this.logger.log('일일 예산 리셋 시작 (DB + Redis)');
-
-    try {
-      // 1. DB 리셋
-      await this.campaignRepository.resetAllDailySpent();
-
-      // 2. Redis 동기화
-      const allCampaigns = await this.campaignRepository.getAll();
-      let syncCount = 0;
-
-      for (const campaign of allCampaigns) {
-        if (campaign.deletedAt) continue;
-
-        const cached = await this.campaignCacheRepository.findCampaignCacheById(
-          campaign.id
-        );
-
-        if (cached) {
-          cached.dailySpent = 0;
-          cached.lastResetDate = new Date().toISOString();
-          await this.campaignCacheRepository.saveCampaignCacheById(
-            campaign.id,
-            cached
-          );
-          syncCount++;
-        }
-      }
-
-      this.logger.log(`일일 예산 리셋 완료 (DB + Redis ${syncCount}건 동기화)`);
-    } catch (error) {
-      this.logger.error('일일 예산 리셋 중 오류 발생', error);
-      throw error;
-    }
-  }
-
-  // Redis 캐시 상태 동기화 헬퍼
-  private async syncCacheStatus(
-    campaignId: string,
-    newStatus: CampaignStatus
-  ): Promise<void> {
-    try {
-      const cached =
-        await this.campaignCacheRepository.findCampaignCacheById(campaignId);
-
-      if (cached) {
-        cached.status = newStatus;
-        await this.campaignCacheRepository.saveCampaignCacheById(
-          campaignId,
-          cached
-        );
-      }
-    } catch (error) {
-      this.logger.warn(`캠페인 ${campaignId} Redis 상태 동기화 실패`, error);
-      // Redis 동기화 실패해도 Cron 전체가 실패하지 않도록
-    }
-  }
-
-  // 수동 Lazy Reset: 상태 업데이트 + 일일 예산 리셋 + 고아 이미지 정리
-  async manualReset(): Promise<{
-    statusUpdate: {
-      pendingToActive: number;
-      activeToEnded: number;
-      pausedToEnded: number;
-    };
-    dailyBudgetReset: boolean;
-    orphanImagesDeleted: number;
-  }> {
-    this.logger.log('수동 Lazy Reset 시작');
-
-    const statusUpdate = await this.updateCampaignStatuses();
-    await this.resetDailyBudgets();
-    const orphanImagesDeleted = await this.cleanupOrphanImages();
-
-    this.logger.log('수동 Lazy Reset 완료');
-
-    return {
-      statusUpdate,
-      dailyBudgetReset: true,
-      orphanImagesDeleted,
-    };
-  }
-
-  // 고아 이미지 정리: DB에 없는 이미지 삭제
-  async cleanupOrphanImages(): Promise<number> {
-    // 개발 환경에서는 이미지 삭제 로직 스킵
-    if (!this.isProduction) {
-      this.logger.log('개발 환경에서는 고아 이미지 정리를 수행하지 않습니다');
-      return 0;
-    }
-
-    this.logger.log('고아 이미지 정리 시작');
-
-    try {
-      // Object Storage에서 모든 이미지 목록 가져오기
-      const storedImages = await this.imageService.listImages('campaigns/');
-
-      // DB에서 모든 캠페인의 image URL 가져오기
-      const allCampaigns = await this.campaignRepository.getAll();
-      const usedImageUrls = new Set(
-        allCampaigns
-          .filter((campaign) => campaign.image)
-          .map((campaign) => campaign.image)
-      );
-
-      // 사용되지 않는 이미지 찾기 및 삭제
-      let deletedCount = 0;
-      for (const image of storedImages) {
-        if (!usedImageUrls.has(image.url)) {
-          try {
-            await this.imageService.deleteImage(image.url);
-            deletedCount++;
-            this.logger.log(`고아 이미지 삭제: ${image.key}`);
-          } catch (error) {
-            this.logger.error(`이미지 삭제 실패: ${image.key}`, error);
-          }
-        }
-      }
-
-      this.logger.log(`고아 이미지 정리 완료 - ${deletedCount}개 삭제`);
-      return deletedCount;
-    } catch (error) {
-      this.logger.error('고아 이미지 정리 중 오류 발생', error);
-      return 0;
-    }
-  }
-
   // ========================================
   // Phase 7: 일일 정산 (DB 동기화)
   // ========================================
@@ -196,12 +51,16 @@ export class CampaignCronService {
       // 5. 시작일 된 캠페인 ACTIVE (DB First)
       const startedCount = await this.startScheduledCampaigns();
 
+      // 6. 고아 이미지 정리 (프로덕션만)
+      const orphanImagesDeleted = await this.cleanupOrphanImages();
+
       this.logger.log(
         `===== 일일 정산 완료 ===== ` +
           `종료: ${stoppedCount}건, ` +
           `예산PAUSED: ${pausedCount}건, ` +
           `정산보정: ${reconciledCount}건, ` +
-          `시작: ${startedCount}건`
+          `시작: ${startedCount}건,` +
+          `고아이미지: ${orphanImagesDeleted}건`
       );
     } catch (error) {
       this.logger.error('일일 정산 중 오류 발생', error);
@@ -209,12 +68,38 @@ export class CampaignCronService {
     }
   }
 
-  // 매시 정각마다 정합성 체크 (배치 처리)
+  // ========================================
+  // 시간별 정합성 체크 (매시 정각)
+  // ========================================
   @Cron('0 * * * *')
   async hourlyReconciliation(): Promise<void> {
     this.logger.log('시간별 정합성 체크 시작');
-    // 시간별 체크는 '오늘' 현재까지의 데이터 기준
     await this.reconcileSpentFromClickLog(new Date());
+  }
+
+  // ========================================
+  // 수동 트리거 (API용)
+  // ========================================
+  async manualReset(): Promise<{
+    statusUpdate: { started: number; stopped: number; paused: number };
+    dailyBudgetReset: boolean;
+    orphanImagesDeleted: number;
+  }> {
+    this.logger.log('수동 Lazy Reset 시작');
+
+    const stopped = await this.stopExpiredCampaigns();
+    const paused = await this.pauseOverspentCampaigns();
+    const started = await this.startScheduledCampaigns();
+    await this.resetDailyBudgets();
+    const orphanImagesDeleted = await this.cleanupOrphanImages();
+
+    this.logger.log('수동 Lazy Reset 완료');
+
+    return {
+      statusUpdate: { started, stopped, paused },
+      dailyBudgetReset: true,
+      orphanImagesDeleted,
+    };
   }
 
   // Step 1: 종료일 지난 캠페인 ENDED (Redis First - 비딩 차단)
