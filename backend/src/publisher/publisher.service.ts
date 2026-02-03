@@ -4,7 +4,6 @@ import { Repository } from 'typeorm';
 import { UserRepository } from 'src/user/repository/user.repository.interface';
 import { ClickLogEntity } from 'src/log/entities/click-log.entity';
 import { ViewLogEntity } from 'src/log/entities/view-log.entity';
-import { CampaignEntity } from 'src/campaign/entities/campaign.entity';
 
 @Injectable()
 export class PublisherService {
