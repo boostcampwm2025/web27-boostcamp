@@ -50,4 +50,7 @@ export abstract class CampaignCacheRepository {
 
   // RTB 비딩용: 모든 캠페인 조회 (Redis에서)
   abstract getAllCampaigns(): Promise<CachedCampaign[]>;
+
+  // 일일 예산 리셋용 (자정 정산)
+  abstract resetDailySpentCache(id: string): Promise<void>;
 }

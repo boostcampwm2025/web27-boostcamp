@@ -128,6 +128,26 @@ export class RedisCampaignCacheRepository implements CampaignCacheRepository {
     }
   }
 
+  async resetDailySpentCache(id: string): Promise<void> {
+    const key = this.getCampaignCacheKey(id);
+
+    try {
+      // 개별 필드만 원자적으로 업데이트
+      await Promise.all([
+        this.ioredisClient.call('JSON.SET', key, '$.dailySpent', '0'),
+        this.ioredisClient.call(
+          'JSON.SET',
+          key,
+          '$.lastResetDate',
+          JSON.stringify(new Date().toISOString())
+        ),
+      ]);
+    } catch (error) {
+      this.logger.error(`일일 예산 리셋 실패: ${id}`, error);
+      throw error;
+    }
+  }
+
   async incrementSpent(
     campaignId: string,
     cpc: number,
