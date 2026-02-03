@@ -19,3 +19,9 @@ scrape_configs:
           - '10.0.0.6:9100'
           - '10.0.3.6:9100'
           - '10.0.3.7:9100'
+          
+  - job_name: backend-app
+    metrics_path: /api/metrics
+    static_configs:
+      - targets:
+          - '10.0.0.6:80'
