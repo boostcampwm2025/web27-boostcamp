@@ -10,7 +10,7 @@ export abstract class CampaignCacheRepository {
     ttl?: number
   ): Promise<void>;
 
-  abstract updateCampaignById(
+  abstract updateCampaignWithoutCachedById(
     id: string,
     data: CachedCampaignWithoutSpent
   ): Promise<void>;

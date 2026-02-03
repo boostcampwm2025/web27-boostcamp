@@ -56,7 +56,7 @@ export class RedisCampaignCacheRepository implements CampaignCacheRepository {
   }
 
   // 동시성 이슈가 있을 수 있는 Spent를 제외한 나머지 필드 업데이트
-  async updateCampaignById(
+  async updateCampaignWithoutCachedById(
     id: string,
     data: CachedCampaignWithoutSpent
   ): Promise<void> {
