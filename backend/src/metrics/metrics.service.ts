@@ -1,5 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { Counter, Registry, Histogram } from 'prom-client';
+import {
+  Counter,
+  Registry,
+  Histogram,
+  collectDefaultMetrics,
+} from 'prom-client';
 
 type HttpLabel = 'method' | 'route' | 'status_code';
 
@@ -21,4 +26,12 @@ export class MetricsService {
     buckets: [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2, 5],
     registers: [this.registry],
   });
+
+  constructor() {
+    collectDefaultMetrics({
+      register: this.registry,
+      prefix: 'boostad_backend_',
+      labels: { service: 'backend' },
+    });
+  }
 }
