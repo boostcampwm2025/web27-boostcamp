@@ -15,14 +15,14 @@ export class MetricsService {
 
   private readonly httpRequestsTotal = new Counter<HttpLabel>({
     name: 'boostad_http_requests_total',
-    help: 'Total number of HTTP requests',
+    help: 'Http 요청 수 총합',
     labelNames: ['method', 'route', 'status_code'],
     registers: [this.registry],
   });
 
   private readonly httpRequestDurationSeconds = new Histogram<HttpLabel>({
     name: 'boostad_http_request_duration_seconds',
-    help: 'HTTP request duration in seconds',
+    help: 'HTTP 요청 처리 시간',
     labelNames: ['method', 'route', 'status_code'],
     buckets: [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2, 5],
     registers: [this.registry],
@@ -30,8 +30,14 @@ export class MetricsService {
 
   private readonly sseConnections = new Gauge<'stream'>({
     name: 'boostad_sse_connections',
-    help: 'Current SSE connections',
+    help: '현재 SSE 커넥션 개수',
     labelNames: ['stream'],
+    registers: [this.registry],
+  });
+
+  private readonly inFlightHttpRequests = new Gauge({
+    name: 'boostad_http_in_flight_requests',
+    help: '현재 처리중인 Http 요청 수',
     registers: [this.registry],
   });
 
