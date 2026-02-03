@@ -177,7 +177,7 @@ sequenceDiagram
 ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
 ![Naver Cloud](https://img.shields.io/badge/Naver_Cloud-03C75A?style=for-the-badge&logo=naver&logoColor=white)
 
-#### Experimental
+#### Matching
 ![Transformers](https://img.shields.io/badge/Transformers-HuggingFace-FFD21E?style=for-the-badge&logo=huggingface&logoColor=000)
 ![Embeddings](https://img.shields.io/badge/Embeddings-Vector-6A5ACD?style=for-the-badge&logo=databricks&logoColor=white)
 ![Similarity](https://img.shields.io/badge/Similarity-Matching-8A2BE2?style=for-the-badge&logo=apachekafka&logoColor=white)
