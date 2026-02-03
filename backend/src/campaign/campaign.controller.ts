@@ -64,6 +64,22 @@ export class CampaignController {
     return successResponse(campaign, '캠페인을 조회했습니다.');
   }
 
+  @Get(':id/click-history')
+  async getClickHistory(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Query('limit') limit?: number,
+    @Query('offset') offset?: number
+  ) {
+    const history = await this.campaignService.getClickHistory(
+      id,
+      req.user.userId,
+      limit ? Number(limit) : 5,
+      offset ? Number(offset) : 0
+    );
+    return successResponse(history, '클릭 히스토리를 조회했습니다.');
+  }
+
   @Put(':id')
   async updateCampaign(
     @Req() req: AuthenticatedRequest,

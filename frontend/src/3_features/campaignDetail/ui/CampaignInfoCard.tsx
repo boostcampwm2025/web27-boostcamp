@@ -11,6 +11,7 @@ interface CampaignInfoCardProps {
   isHighIntent: boolean;
   startDate: string;
   endDate: string;
+  noBorder?: boolean;
 }
 
 function formatDate(dateString: string): string {
@@ -35,9 +36,14 @@ export function CampaignInfoCard({
   isHighIntent,
   startDate,
   endDate,
+  noBorder = false,
 }: CampaignInfoCardProps) {
   return (
-    <div className="p-6 bg-white border border-gray-200 rounded-xl">
+    <div
+      className={
+        noBorder ? 'p-6' : 'p-6 bg-white border border-gray-200 rounded-xl'
+      }
+    >
       <p className="text-sm text-gray-500 mb-4">기본 정보</p>
 
       <div className="flex gap-6">
