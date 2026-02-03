@@ -6,11 +6,13 @@ import { CampaignCacheRepository } from './repository/campaign.cache.repository.
 import { CampaignStatus } from './entities/campaign.entity';
 import { ImageService } from '../image/image.service';
 import { LogRepository } from '../log/repository/log.repository.interface';
+import { CachedCampaign } from './types/campaign.types';
 
 @Injectable()
 export class CampaignCronService {
   private readonly logger = new Logger(CampaignCronService.name);
   private readonly isProduction: boolean;
+  private readonly BATCH_SIZE = 10;
 
   constructor(
     private readonly campaignRepository: CampaignRepository,
@@ -33,11 +35,16 @@ export class CampaignCronService {
     this.logger.log('===== 일일 정산 시작 =====');
 
     try {
+      // 0. Redis에서 한번만 로드
+      const cachedCampaigns =
+        await this.campaignCacheRepository.getAllCampaigns();
+      this.logger.log(`Redis 캠페인 ${cachedCampaigns.length}개 로드`);
+
       // 1. 종료일 지난 캠페인 ENDED (Redis First) - 비딩 차단 최우선
-      const stoppedCount = await this.stopExpiredCampaigns();
+      const stoppedCount = await this.stopExpiredCampaigns(cachedCampaigns);
 
       // 2. 예산 소진 캠페인 PAUSED (Redis → DB)
-      const pausedCount = await this.pauseOverspentCampaigns();
+      const pausedCount = await this.pauseOverspentCampaigns(cachedCampaigns);
 
       // 3. ClickLog 기반 Spent 정산 (ClickLog → DB → Redis) - 배치 처리
       // 자정 정산이므로 '어제' 데이터 기준
@@ -46,7 +53,7 @@ export class CampaignCronService {
       const reconciledCount = await this.reconcileSpentFromClickLog(yesterday);
 
       // 4. 일일 예산 리셋 (DB → Redis) - 0으로 초기화
-      await this.resetDailyBudgets();
+      await this.resetDailyBudgets(cachedCampaigns);
 
       // 5. 시작일 된 캠페인 ACTIVE (DB First)
       const startedCount = await this.startScheduledCampaigns();
@@ -86,11 +93,13 @@ export class CampaignCronService {
     orphanImagesDeleted: number;
   }> {
     this.logger.log('수동 Lazy Reset 시작');
+    const cachedCampaigns =
+      await this.campaignCacheRepository.getAllCampaigns();
 
-    const stopped = await this.stopExpiredCampaigns();
-    const paused = await this.pauseOverspentCampaigns();
+    const stopped = await this.stopExpiredCampaigns(cachedCampaigns);
+    const paused = await this.pauseOverspentCampaigns(cachedCampaigns);
     const started = await this.startScheduledCampaigns();
-    await this.resetDailyBudgets();
+    await this.resetDailyBudgets(cachedCampaigns);
     const orphanImagesDeleted = await this.cleanupOrphanImages();
 
     this.logger.log('수동 Lazy Reset 완료');
@@ -107,13 +116,13 @@ export class CampaignCronService {
   // ========================================
 
   //종료일 지난 캠페인 ENDED (Redis First - 비딩 차단)
-  private async stopExpiredCampaigns(): Promise<number> {
+  private async stopExpiredCampaigns(
+    cachedCampaigns: CachedCampaign[]
+  ): Promise<number> {
     const now = new Date();
-    // TODO: Redis에서 목록을 가져오는 것이 이상적이지만, 현재 구조상 DB 목록 순회하며 Redis 확인
-    const allCampaigns = await this.campaignRepository.getAll();
     let stoppedCount = 0;
 
-    for (const campaign of allCampaigns) {
+    for (const campaign of cachedCampaigns) {
       if (campaign.deletedAt || campaign.status === 'ENDED') continue;
 
       const endDate = new Date(campaign.endDate);
@@ -132,9 +141,36 @@ export class CampaignCronService {
     return stoppedCount;
   }
 
-  // 시작일 된 캠페인 ACTIVE (DB First)
+  // 예산 소진 캠페인 PAUSED (Redis First)
+  private async pauseOverspentCampaigns(
+    cachedCampaigns: CachedCampaign[]
+  ): Promise<number> {
+    let pausedCount = 0;
+
+    for (const cached of cachedCampaigns) {
+      if (cached.deletedAt || cached.status !== 'ACTIVE') continue;
+
+      const isDailyExhausted = cached.dailySpent >= cached.dailyBudget;
+      const isTotalExhausted =
+        cached.totalBudget !== null && cached.totalSpent >= cached.totalBudget;
+
+      if (isDailyExhausted || isTotalExhausted) {
+        await this.syncCacheStatus(cached.id, CampaignStatus.PAUSED);
+        await this.campaignRepository.updateStatus(
+          cached.id,
+          CampaignStatus.PAUSED
+        );
+        pausedCount++;
+        this.logger.log(`캠페인 ${cached.id} 예산 소진 -> PAUSED`);
+      }
+    }
+    return pausedCount;
+  }
+
+  // 시작일 된 캠페인 ACTIVE (DB First - PENDING은 Redis에 없을 수 있음)
   private async startScheduledCampaigns(): Promise<number> {
     const now = new Date();
+    // PENDING 캠페인은 Redis에 캐시 안 되어있을 수 있으므로 DB 조회
     const allCampaigns = await this.campaignRepository.getAll();
     let startedCount = 0;
 
@@ -145,12 +181,12 @@ export class CampaignCronService {
       const endDate = new Date(campaign.endDate);
 
       if (now >= startDate && now < endDate) {
-        // DB 업데이트
+        // DB First (영구 저장 우선)
         await this.campaignRepository.updateStatus(
           campaign.id,
           CampaignStatus.ACTIVE
         );
-        // Redis 동기화
+        // Redis 동기화 (비딩 참여)
         await this.syncCacheStatus(campaign.id, CampaignStatus.ACTIVE);
         startedCount++;
         this.logger.log(`캠페인 ${campaign.id} 시작 (PENDING -> ACTIVE)`);
@@ -159,68 +195,74 @@ export class CampaignCronService {
     return startedCount;
   }
 
-  // 예산 소진 캠페인 PAUSED (Redis First)
-  private async pauseOverspentCampaigns(): Promise<number> {
-    const allCampaigns = await this.campaignRepository.getAll();
-    let pausedCount = 0;
-
-    for (const campaign of allCampaigns) {
-      if (campaign.deletedAt || campaign.status !== 'ACTIVE') continue;
-
-      const cached = await this.campaignCacheRepository.findCampaignCacheById(
-        campaign.id
-      );
-      if (!cached) continue;
-
-      const isDailyExhausted = cached.dailySpent >= cached.dailyBudget;
-      const isTotalExhausted =
-        cached.totalBudget !== null && cached.totalSpent >= cached.totalBudget;
-
-      if (isDailyExhausted || isTotalExhausted) {
-        await this.syncCacheStatus(campaign.id, CampaignStatus.PAUSED);
-        await this.campaignRepository.updateStatus(
-          campaign.id,
-          CampaignStatus.PAUSED
-        );
-        pausedCount++;
-        this.logger.log(`캠페인 ${campaign.id} 예산 소진 -> PAUSED`);
-      }
-    }
-    return pausedCount;
-  }
-
   // 일일 예산 리셋
-  private async resetDailyBudgets(): Promise<void> {
+  private async resetDailyBudgets(
+    cachedCampaigns: CachedCampaign[]
+  ): Promise<void> {
     this.logger.log('일일 예산 리셋 시작');
 
-    // DB 리셋
+    // 1. DB 전체 리셋 (단일 쿼리)
     await this.campaignRepository.resetAllDailySpent();
 
-    // Redis 동기화
-    const allCampaigns = await this.campaignRepository.getAll();
+    // 2. Redis 배치 리셋 (윈도우 분리 적용)
+    const activeCampaigns = cachedCampaigns.filter(
+      (c) => c.status === 'ACTIVE' || c.status === 'PAUSED'
+    );
+
     let syncCount = 0;
 
-    for (const campaign of allCampaigns) {
-      if (campaign.deletedAt) continue;
+    for (let i = 0; i < activeCampaigns.length; i += this.BATCH_SIZE) {
+      const batch = activeCampaigns.slice(i, i + this.BATCH_SIZE);
+      const campaignIds = batch.map((c) => c.id);
 
-      const cached = await this.campaignCacheRepository.findCampaignCacheById(
-        campaign.id
+      // Batch Lock: ACTIVE -> PAUSED (리셋 중 비딩 차단)
+      const originalStatuses = new Map<string, string>();
+
+      await Promise.all(
+        campaignIds.map(async (id) => {
+          const cached = batch.find((c) => c.id === id);
+          if (cached?.status === 'ACTIVE') {
+            originalStatuses.set(id, 'ACTIVE');
+            await this.campaignCacheRepository.updateCampaignStatus(
+              id,
+              CampaignStatus.PAUSED
+            );
+          }
+        })
       );
-      if (cached) {
-        cached.dailySpent = 0;
-        cached.lastResetDate = new Date().toISOString();
-        await this.campaignCacheRepository.saveCampaignCacheById(
-          // 덮어씌울거면 Q: PAUSED로 변경 후 해야되는 거 아닌가? - updateCampaignWithoutCachedById 이거 쓰면 좋을 거 같은데
-          campaign.id,
-          cached
-        );
-        syncCount++;
-      }
+
+      // 리셋 수행
+      await Promise.all(
+        campaignIds.map(async (id) => {
+          try {
+            await this.campaignCacheRepository.resetDailySpentCache(id);
+            syncCount++;
+          } catch (error) {
+            this.logger.warn(`캠페인 ${id} 일일 예산 리셋 실패`, error);
+          }
+        })
+      );
+
+      // Batch Unlock: 원래 상태 복구
+      await Promise.all(
+        campaignIds.map(async (id) => {
+          if (originalStatuses.get(id) === 'ACTIVE') {
+            await this.campaignCacheRepository.updateCampaignStatus(
+              id,
+              CampaignStatus.ACTIVE
+            );
+          }
+        })
+      );
+
+      // 배치 간 지연
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
     this.logger.log(`일일 예산 리셋 완료 (Redis ${syncCount}건 동기화)`);
   }
 
+  // ClickLog 기반 Spent 정산
   private async reconcileSpentFromClickLog(targetDate: Date): Promise<number> {
     this.logger.log(
       `ClickLog 정산 시작 (${targetDate.toISOString().split('T')[0]})`
@@ -249,11 +291,9 @@ export class CampaignCronService {
             await this.campaignCacheRepository.findCampaignCacheById(id);
           if (cached?.status === 'ACTIVE') {
             originalStatuses.set(id, 'ACTIVE');
-            cached.status = CampaignStatus.PAUSED;
-            // Q: 이부분도 status만 바꾸는 메서드 쓰는게 낫지 않나? - updateStatus 이거 쓰면 좋을 거 같은데
-            await this.campaignCacheRepository.saveCampaignCacheById(
+            await this.campaignCacheRepository.updateCampaignStatus(
               id,
-              cached
+              CampaignStatus.PAUSED
             );
           }
         })
@@ -269,7 +309,6 @@ export class CampaignCronService {
               campaignId
             );
 
-          // Q: 여기서 Math.abs는 무슨 의미지?
           const needsReconcile =
             !cached ||
             cached.dailySpent !== actualDailySpent ||
@@ -301,11 +340,9 @@ export class CampaignCronService {
             const cached =
               await this.campaignCacheRepository.findCampaignCacheById(id);
             if (cached) {
-              cached.status = CampaignStatus.ACTIVE;
-              // Q: 이부분도 status만 바꾸는 메서드 쓰는게 낫지 않나? - updateStatus 이거 쓰면 좋을 거 같은데
-              await this.campaignCacheRepository.saveCampaignCacheById(
+              await this.campaignCacheRepository.updateCampaignStatus(
                 id,
-                cached
+                CampaignStatus.ACTIVE
               );
             }
           }
@@ -362,15 +399,10 @@ export class CampaignCronService {
     newStatus: CampaignStatus
   ): Promise<void> {
     try {
-      const cached =
-        await this.campaignCacheRepository.findCampaignCacheById(campaignId);
-      if (cached) {
-        cached.status = newStatus;
-        await this.campaignCacheRepository.saveCampaignCacheById(
-          campaignId,
-          cached
-        );
-      }
+      await this.campaignCacheRepository.updateCampaignStatus(
+        campaignId,
+        newStatus
+      );
     } catch (error) {
       this.logger.warn(`캠페인 ${campaignId} Redis 상태 동기화 실패`, error);
     }
