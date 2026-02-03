@@ -4,6 +4,7 @@ import {
   Registry,
   Histogram,
   collectDefaultMetrics,
+  Gauge,
 } from 'prom-client';
 
 type HttpLabel = 'method' | 'route' | 'status_code';
@@ -25,6 +26,12 @@ export class MetricsService {
     labelNames: ['method', 'route', 'status_code'],
     buckets: [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2, 5],
     registers: [this.registry],
+  });
+
+  private readonly sseConnections = new Gauge<'endpoint'>({
+    name: 'boostad_sse_connections',
+    help: 'Current SSE connections',
+    labelNames: ['endpoint'],
   });
 
   constructor() {
