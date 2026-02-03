@@ -165,10 +165,7 @@ export class SdkService {
     // DB dailySpent 동기화: ClickLog 저장과 함께 DB에도 spent 증가
     const viewLog = await this.logRepository.getViewLog(viewId);
     if (viewLog) {
-      await this.campaignRepository.incrementSpent(
-        viewLog.campaignId,
-        viewLog.cost
-      );
+      this.campaignRepository.incrementSpent(viewLog.campaignId, viewLog.cost);
       this.logger.debug(
         `[SDK ClickLog] DB dailySpent 동기화: campaign=${viewLog.campaignId}, cost=+${viewLog.cost}`
       );
