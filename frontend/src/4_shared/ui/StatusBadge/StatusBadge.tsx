@@ -48,7 +48,7 @@ export function StatusBadge({ status }: StatusBadgeProps) {
     <div
       className={`flex flex-row items-center gap-1 px-1.5 py-0.5 ${config.bgColor} border ${config.borderColor} rounded-lg text-xs font-semibold ${config.textColor} w-fit`}
     >
-      <Icon.Circle className={`w-3 h-3 ${config.iconColor}`} />
+      <Icon.Circle className={`w-3 h-3 min-w-3 min-h-3 ${config.iconColor}`} />
       {config.label}
     </div>
   );

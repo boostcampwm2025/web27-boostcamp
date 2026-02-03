@@ -82,12 +82,12 @@ export function RealtimeBidsTableRow({ bid }: RealtimeBidsTableRowProps) {
       <td className="px-5 py-4 whitespace-nowrap">
         {bid.isWon ? (
           <div className="flex flex-row items-center gap-1 px-1.5 py-0.5 bg-green-100 border border-green-300 rounded-lg text-xs font-semibold text-green-500 w-fit">
-            <Icon.Circle className="w-3 h-3 text-green-500" />
+            <Icon.Circle className="w-3 h-3 min-w-3 min-h-3 text-green-500" />
             낙찰
           </div>
         ) : (
           <div className="flex flex-row items-center gap-1 px-1.5 py-0.5 bg-gray-100 border border-gray-300 rounded-lg text-xs font-semibold text-gray-500 w-fit">
-            <Icon.Circle className="w-3 h-3 text-gray-500" />
+            <Icon.Circle className="w-3 h-3 min-w-3 min-h-3 text-gray-500" />
             탈락
           </div>
         )}
