@@ -28,8 +28,12 @@ export class TypeOrmUserRepository extends UserRepository {
     return false;
   }
 
-  async createUser(email: string, role: UserRole): Promise<number> {
-    const saved = await this.userRepo.save({ email, role });
+  async createUser(
+    email: string,
+    role: UserRole,
+    termsAgreedAt?: Date
+  ): Promise<number> {
+    const saved = await this.userRepo.save({ email, role, termsAgreedAt });
     return saved.id;
   }
 
@@ -67,5 +71,14 @@ export class TypeOrmUserRepository extends UserRepository {
     }
 
     return user.balance;
+  }
+
+  async incrementBalance(userId: number, amount: number): Promise<void> {
+    await this.userRepo
+      .createQueryBuilder()
+      .update(UserEntity)
+      .set({ balance: () => `balance + ${amount}` })
+      .where('id = :id', { id: userId })
+      .execute();
   }
 }

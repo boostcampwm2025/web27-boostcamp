@@ -57,4 +57,5 @@ jobs:
           "$AWS" --endpoint-url "$ENDPOINT" s3 ls "s3://$BUCKET"
 
           # sdk/dist -> s3://bucket/sdk/
-          "$AWS" --endpoint-url "$ENDPOINT" s3 sync sdk/dist "s3://$BUCKET/$SDK_S3_PREFIX/" --delete --acl public-read
+          # Cache-Control 헤더 추가: 브라우저가 5분(300초) 동안 캐시
+          "$AWS" --endpoint-url "$ENDPOINT" s3 sync sdk/dist "s3://$BUCKET/$SDK_S3_PREFIX/" --delete --acl public-read --cache-control "max-age=300"

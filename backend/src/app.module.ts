@@ -21,6 +21,7 @@ import { ImageModule } from './image/image.module';
 import { RedisModule } from './redis/redis.module';
 import { QueueModule } from './queue/queue.module';
 import { PaymentModule } from './payment/payment.module';
+import { PublisherModule } from './publisher/publisher.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { PaymentModule } from './payment/payment.module';
     RedisModule,
     QueueModule,
     PaymentModule,
+    PublisherModule,
     // QueueModule,
   ],
   controllers: [],

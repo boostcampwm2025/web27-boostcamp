@@ -28,10 +28,18 @@ export class BannerAdRenderer implements AdRenderer {
       this.tracker.setAdUrl(campaign.url);
 
       const link = container.querySelector('.boostad-link');
-      link?.addEventListener('click', (e) => {
+
+      // 클릭/터치 이벤트 핸들러
+      const handleClick = (e: Event) => {
         e.preventDefault();
         this.handleAdClick();
-      });
+      };
+
+      // PC: click 이벤트
+      link?.addEventListener('click', handleClick);
+
+      // 모바일: touchend 이벤트 (300ms 대기 없이 즉시 반응)
+      link?.addEventListener('touchend', handleClick);
 
       // 광고 렌더링 성공 시 ViewLog 기록
       this.tracker.trackView(

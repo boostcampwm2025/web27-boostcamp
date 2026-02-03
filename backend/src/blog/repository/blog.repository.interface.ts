@@ -20,6 +20,9 @@ export abstract class BlogRepository {
   abstract findByBlogKey(blogKey: string): Promise<BlogEntity | null>;
   abstract existsBlogByUserId(userId: number): Promise<boolean>;
 
+  // blogId로 userId 조회 (퍼블리셔 수익 지급용)
+  abstract getUserIdByBlogId(blogId: number): Promise<number | null>;
+
   // 모든 블로그 조회 (초기 로딩용)
   abstract getAll(): Promise<BlogEntity[]>;
 }

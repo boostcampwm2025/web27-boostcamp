@@ -7,6 +7,11 @@ export const handleLogin = () => {
 };
 
 export const handleRegister = (role: AccountType) => {
-  const params = new URLSearchParams({ intent: 'register', role });
+  const termsAgreedAt = new Date().toISOString();
+  const params = new URLSearchParams({
+    intent: 'register',
+    role,
+    termsAgreedAt
+  });
   window.location.href = `${API_CONFIG.baseURL}/api/auth/google?${params.toString()}`;
 };

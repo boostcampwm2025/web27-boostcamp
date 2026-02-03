@@ -43,6 +43,9 @@ export class UserEntity {
   @Column({ name: 'first_login_at', type: 'datetime', nullable: true })
   firstLoginAt: Date | null;
 
+  @Column({ name: 'terms_agreed_at', type: 'datetime', nullable: true })
+  termsAgreedAt: Date | null;
+
   @DeleteDateColumn({ name: 'deleted_at', nullable: true })
   deletedAt: Date | null;
 
