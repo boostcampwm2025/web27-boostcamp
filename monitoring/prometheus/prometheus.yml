@@ -1,0 +1,21 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Host metrics (node-exporter)
+  # TODO: Replace these placeholders with real IP/DNS of each server (port 9100).
+  # Examples:
+  # - '110.165.16.250:9100'  # backend
+  # - '110.165.16.251:9100'  # db
+  # - '110.165.16.252:9100'  # redis
+  - job_name: node-exporter
+    static_configs:
+      - targets:
+          - '10.0.0.6:9100'
+          - '10.0.3.6:9100'
+          - '10.0.3.7:9100'
