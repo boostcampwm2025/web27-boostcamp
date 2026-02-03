@@ -2,7 +2,6 @@ import type {
   ViewLogRequest,
   ViewLogResponse,
   ClickLogRequest,
-  ClickLogResponse,
   DismissLogRequest,
 } from '@shared/types';
 import { API_BASE_URL } from '@shared/config/constants';
