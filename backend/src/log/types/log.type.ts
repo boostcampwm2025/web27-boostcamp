@@ -1,3 +1,8 @@
+export type SaveClickLog = {
+  viewId: number;
+  createdAt?: Date;
+};
+
 export type SaveViewLog = {
   id?: number;
   auctionId: string;
