@@ -25,3 +25,8 @@ scrape_configs:
     static_configs:
       - targets:
           - '10.0.0.6:80'
+
+  - job_name: nginx-exporter
+    static_configs:
+      - targets:
+          - '10.0.0.6:9113'
