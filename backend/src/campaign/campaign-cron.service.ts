@@ -210,7 +210,7 @@ export class CampaignCronService {
         cached.dailySpent = 0;
         cached.lastResetDate = new Date().toISOString();
         await this.campaignCacheRepository.saveCampaignCacheById(
-          // 덮어씌울거면 PAUSED로 변경 후 해야되는 거 아닌가?
+          // 덮어씌울거면 Q: PAUSED로 변경 후 해야되는 거 아닌가? - updateCampaignById 이거 쓰면 좋을 거 같은데
           campaign.id,
           cached
         );
@@ -250,6 +250,7 @@ export class CampaignCronService {
           if (cached?.status === 'ACTIVE') {
             originalStatuses.set(id, 'ACTIVE');
             cached.status = CampaignStatus.PAUSED;
+            // Q: 이부분도 status만 바꾸는 메서드 쓰는게 낫지 않나? - updateStatus 이거 쓰면 좋을 거 같은데
             await this.campaignCacheRepository.saveCampaignCacheById(
               id,
               cached
@@ -268,6 +269,7 @@ export class CampaignCronService {
               campaignId
             );
 
+          // Q: 여기서 Math.abs는 무슨 의미지?
           const needsReconcile =
             !cached ||
             cached.dailySpent !== actualDailySpent ||
@@ -300,6 +302,7 @@ export class CampaignCronService {
               await this.campaignCacheRepository.findCampaignCacheById(id);
             if (cached) {
               cached.status = CampaignStatus.ACTIVE;
+              // Q: 이부분도 status만 바꾸는 메서드 쓰는게 낫지 않나? - updateStatus 이거 쓰면 좋을 거 같은데
               await this.campaignCacheRepository.saveCampaignCacheById(
                 id,
                 cached
@@ -316,18 +319,75 @@ export class CampaignCronService {
     return reconciledCount;
   }
 
+  // 고아 이미지 정리용이나 개발환경에서는 스킵
+  private async cleanupOrphanImages(): Promise<number> {
+    if (!this.isProduction) {
+      this.logger.log('개발 환경 - 고아 이미지 정리 스킵');
+      return 0;
+    }
+
+    this.logger.log('고아 이미지 정리 시작');
+
+    try {
+      const storedImages = await this.imageService.listImages('campaigns/');
+      const allCampaigns = await this.campaignRepository.getAll();
+      const usedImageUrls = new Set(
+        allCampaigns.filter((c) => c.image).map((c) => c.image)
+      );
+
+      let deletedCount = 0;
+      for (const image of storedImages) {
+        if (!usedImageUrls.has(image.url)) {
+          try {
+            await this.imageService.deleteImage(image.url);
+            deletedCount++;
+            this.logger.log(`고아 이미지 삭제: ${image.key}`);
+          } catch (error) {
+            this.logger.error(`이미지 삭제 실패: ${image.key}`, error);
+          }
+        }
+      }
+
+      this.logger.log(`고아 이미지 정리 완료: ${deletedCount}개 삭제`);
+      return deletedCount;
+    } catch (error) {
+      this.logger.error('고아 이미지 정리 오류', error);
+      return 0;
+    }
+  }
+
+  // 캐시 상태 동기화 - Q: 이게 왜 필요할까
+  private async syncCacheStatus(
+    campaignId: string,
+    newStatus: CampaignStatus
+  ): Promise<void> {
+    try {
+      const cached =
+        await this.campaignCacheRepository.findCampaignCacheById(campaignId);
+      if (cached) {
+        cached.status = newStatus;
+        await this.campaignCacheRepository.saveCampaignCacheById(
+          campaignId,
+          cached
+        );
+      }
+    } catch (error) {
+      this.logger.warn(`캠페인 ${campaignId} Redis 상태 동기화 실패`, error);
+    }
+  }
+
   // ========================================
   // Legacy Methods (호환성 유지)
   // ========================================
 
   // 기존 updateCampaignStatuses 대체 (사용 안 함 권장)
-  async updateCampaignStatuses() {
-    const stopped = await this.stopExpiredCampaigns();
-    const started = await this.startScheduledCampaigns();
-    return {
-      pendingToActive: started,
-      activeToEnded: stopped,
-      pausedToEnded: 0, // stopExpiredCampaigns에서 처리됨
-    };
-  }
+  // async updateCampaignStatuses() {
+  //   const stopped = await this.stopExpiredCampaigns();
+  //   const started = await this.startScheduledCampaigns();
+  //   return {
+  //     pendingToActive: started,
+  //     activeToEnded: stopped,
+  //     pausedToEnded: 0, // stopExpiredCampaigns에서 처리됨
+  //   };
+  // }
 }
