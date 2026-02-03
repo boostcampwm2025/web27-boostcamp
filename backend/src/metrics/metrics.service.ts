@@ -68,6 +68,13 @@ export class MetricsService {
     this.sseConnections.dec({ stream });
   }
 
+  incInFlightHttpRequest() {
+    this.inFlightHttpRequests.inc();
+  }
+  decInFlightHttpRequest() {
+    this.inFlightHttpRequests.dec();
+  }
+
   getContentType(): string {
     return this.registry.contentType;
   }

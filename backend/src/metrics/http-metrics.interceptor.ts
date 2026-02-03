@@ -6,7 +6,7 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { type Request, type Response } from 'express';
-import { Observable, tap } from 'rxjs';
+import { Observable, finalize, tap } from 'rxjs';
 import { MetricsService } from './metrics.service';
 
 type RouteLike = { path?: unknown };
@@ -31,6 +31,8 @@ export class HttpMetricsInterceptor implements NestInterceptor {
     )
       return next.handle();
 
+    this.metricsService.incInFlightHttpRequest();
+
     return next.handle().pipe(
       tap({
         next: () => this.record(req.method, path, res.statusCode, startedAt),
@@ -39,7 +41,8 @@ export class HttpMetricsInterceptor implements NestInterceptor {
             error instanceof HttpException ? error.getStatus() : 500;
           this.record(req.method, path, statusCode, startedAt);
         },
-      })
+      }),
+      finalize(() => this.metricsService.decInFlightHttpRequest())
     );
   }
 
