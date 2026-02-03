@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-type ButtonVariant = 'blue' | 'white';
+type ButtonVariant = 'blue' | 'white' | 'red';
 type ButtonSize = 'xs' | 'sm' | 'base';
 type IconPosition = 'left' | 'right';
 
@@ -31,6 +31,7 @@ export function Button({
   const variantStyles = {
     blue: 'bg-blue-500 text-white hover:bg-blue-600',
     white: 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50',
+    red: 'bg-red-700 text-white hover:bg-red-600',
   };
 
   const sizeStyles = {
