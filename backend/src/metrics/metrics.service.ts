@@ -53,6 +53,14 @@ export class MetricsService {
     this.httpRequestDurationSeconds.observe(labels, durationMs / 1000);
   }
 
+  incSseConnections(endpoint: string) {
+    this.sseConnections.inc({ endpoint });
+  }
+
+  decSseConnections(endpoint: string) {
+    this.sseConnections.dec({ endpoint });
+  }
+
   getContentType(): string {
     return this.registry.contentType;
   }
