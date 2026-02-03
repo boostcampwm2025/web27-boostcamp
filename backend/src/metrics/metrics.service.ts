@@ -28,10 +28,10 @@ export class MetricsService {
     registers: [this.registry],
   });
 
-  private readonly sseConnections = new Gauge<'endpoint'>({
+  private readonly sseConnections = new Gauge<'stream'>({
     name: 'boostad_sse_connections',
     help: 'Current SSE connections',
-    labelNames: ['endpoint'],
+    labelNames: ['stream'],
     registers: [this.registry],
   });
 
@@ -54,12 +54,12 @@ export class MetricsService {
     this.httpRequestDurationSeconds.observe(labels, durationMs / 1000);
   }
 
-  incSseConnections(endpoint: string) {
-    this.sseConnections.inc({ endpoint });
+  incSseConnections(stream: string) {
+    this.sseConnections.inc({ stream });
   }
 
-  decSseConnections(endpoint: string) {
-    this.sseConnections.dec({ endpoint });
+  decSseConnections(stream: string) {
+    this.sseConnections.dec({ stream });
   }
 
   getContentType(): string {
