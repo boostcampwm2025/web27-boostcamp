@@ -210,7 +210,7 @@ export class CampaignCronService {
         cached.dailySpent = 0;
         cached.lastResetDate = new Date().toISOString();
         await this.campaignCacheRepository.saveCampaignCacheById(
-          // 덮어씌울거면 Q: PAUSED로 변경 후 해야되는 거 아닌가? - updateCampaignById 이거 쓰면 좋을 거 같은데
+          // 덮어씌울거면 Q: PAUSED로 변경 후 해야되는 거 아닌가? - updateCampaignWithoutCachedById 이거 쓰면 좋을 거 같은데
           campaign.id,
           cached
         );
@@ -273,7 +273,7 @@ export class CampaignCronService {
           const needsReconcile =
             !cached ||
             cached.dailySpent !== actualDailySpent ||
-            Math.abs(cached.totalSpent - actualTotalSpent) > 100;
+            Math.abs(cached.totalSpent - actualTotalSpent) > 100; // 1~2 클릭 차이로 생긴 오차 보정
 
           if (needsReconcile) {
             await this.campaignRepository.updateSpent(
