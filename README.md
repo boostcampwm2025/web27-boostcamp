@@ -51,76 +51,57 @@
 </div>
 
 ---
-
 ## 🎬 주요 기능
 
-<table>
-  <tr>
-    <td align="center" width="50%">
-      <h4>📝 SDK 연동</h4>
-      <img
-        src="https://github.com/user-attachments/assets/6bcc04e7-7f2c-459a-b7e6-671e94d0483e"
-        alt="SDK 연동"
-        width="90%"
-      />
-      <p>스크립트 한 줄로 블로그에 광고 슬롯 추가</p>
-    </td>
-    <td align="center" width="50%">
-      <h4>🎯 맥락 기반 광고 노출</h4>
-      <img
-        src="https://github.com/user-attachments/assets/cae0855b-ced3-4bf0-81d4-93dcef89264b"
-        alt="맥락 기반 광고 노출"
-        width="90%"
-      />
-      <p>글의 태그·주제에 맞는 광고가 자연스럽게 노출</p>
-    </td>
-  </tr>
+<h3 align="center">📝 SDK 연동</h3>
+<img
+  src="https://github.com/user-attachments/assets/6bcc04e7-7f2c-459a-b7e6-671e94d0483e"
+  alt="SDK 연동"
+  width="100%"
+/>
+<p align="center">스크립트 한 줄로 블로그에 광고 슬롯 추가</p>
 
-  <tr>
-    <td align="center">
-      <h4>📊 캠페인 생성</h4>
-      <img
-        src="https://github.com/user-attachments/assets/c0700c0a-40e1-4853-9147-3daf663cad07"
-        alt="캠페인 생성"
-        width="90%"
-      />
-      <p>복잡한 세팅 없이 빠르게 캠페인 등록</p>
-    </td>
-    <td align="center">
-      <h4>💰 예산 & 입찰가 관리</h4>
-      <img
-        src="https://github.com/user-attachments/assets/0c2a692c-abad-4875-90e1-1e748e102fb8"
-        alt="예산 및 입찰가 관리"
-        width="90%"
-      />
-      <p>일 예산과 CPC 입찰가를 직접 설정</p>
-    </td>
-  </tr>
+<h3 align="center">🎯 맥락 기반 광고 노출</h3>
+<img
+  src="https://github.com/user-attachments/assets/cae0855b-ced3-4bf0-81d4-93dcef89264b"
+  alt="맥락 기반 광고 노출"
+  width="100%"
+/>
+<p align="center">글의 태그·주제에 맞는 광고가 자연스럽게 노출</p>
 
-  <tr>
-    <td align="center">
-      <h4>📈 성과 대시보드</h4>
-      <img
-        src="https://github.com/user-attachments/assets/66b0deaa-7c44-46c4-aef7-b1cac30511a6"
-        alt="성과 대시보드"
-        width="90%"
-      />
-      <p>노출, 클릭, CTR 등 실시간 성과 확인</p>
-    </td>
-    <td align="center">
-      <h4>🔍 입찰 로그 (투명성)</h4>
-      <img
-        src="https://github.com/user-attachments/assets/bda3d000-34d1-4e6b-9c9d-f502ad9e7fe6"
-        alt="입찰 로그"
-        width="90%"
-      />
-      <p>왜 노출됐는지 / 안 됐는지 경매 결과 공개</p>
-    </td>
-  </tr>
-</table>
+<h3 align="center">📊 캠페인 생성</h3>
+<img
+  src="https://github.com/user-attachments/assets/c0700c0a-40e1-4853-9147-3daf663cad07"
+  alt="캠페인 생성"
+  width="100%"
+/>
+<p align="center">복잡한 세팅 없이 빠르게 캠페인 등록</p>
+
+<h3 align="center">💰 예산 & 입찰가 관리</h3>
+<img
+  src="https://github.com/user-attachments/assets/0c2a692c-abad-4875-90e1-1e748e102fb8"
+  alt="예산 및 입찰가 관리"
+  width="100%"
+/>
+<p align="center">일 예산과 CPC 입찰가를 직접 설정</p>
+
+<h3 align="center">📈 성과 대시보드</h3>
+<img
+  src="https://github.com/user-attachments/assets/66b0deaa-7c44-46c4-aef7-b1cac30511a6"
+  alt="성과 대시보드"
+  width="100%"
+/>
+<p align="center">노출, 클릭, CTR 등 실시간 성과 확인</p>
+
+<h3 align="center">🔍 입찰 로그 (투명성)</h3>
+<img
+  src="https://github.com/user-attachments/assets/bda3d000-34d1-4e6b-9c9d-f502ad9e7fe6"
+  alt="입찰 로그"
+  width="100%"
+/>
+<p align="center">왜 노출됐는지 / 안 됐는지 경매 결과 공개</p>
 
 ---
-
 
 ## 🔄 어떻게 동작하나요?
 
@@ -168,13 +149,43 @@ sequenceDiagram
 
 <div align="center">
 
-|     Frontend      |    Backend    |     Infra      |
-| :---------------: | :-----------: | :------------: |
-| React, TypeScript | NestJS, MySQL | Docker, Nginx  |
-|  Vite, Tailwind   |    TypeORM    | GitHub Actions |
-|      Zustand      |               |      NCP       |
+### 🛠 Tech Stack
+
+#### Frontend
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-38BDF8?style=for-the-badge&logo=tailwindcss&logoColor=white)
+![React Router](https://img.shields.io/badge/React_Router-CA4245?style=for-the-badge&logo=reactrouter&logoColor=white)
+![Zustand](https://img.shields.io/badge/Zustand-181717?style=for-the-badge&logo=react)
+
+#### Backend
+![NestJS](https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white)
+![TypeORM](https://img.shields.io/badge/TypeORM-262626?style=for-the-badge&logo=typescript&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)
+
+#### SDK
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![IIFE](https://img.shields.io/badge/IIFE-JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=000)
+![DOM](https://img.shields.io/badge/DOM_API-Web-4285F4?style=for-the-badge&logo=html5&logoColor=white)
+
+#### Infra / Deploy
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![Nginx](https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white)
+![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
+![Naver Cloud](https://img.shields.io/badge/Naver_Cloud-03C75A?style=for-the-badge&logo=naver&logoColor=white)
+
+#### Experimental
+![Transformers](https://img.shields.io/badge/Transformers-HuggingFace-FFD21E?style=for-the-badge&logo=huggingface&logoColor=000)
+![Embeddings](https://img.shields.io/badge/Embeddings-Vector-6A5ACD?style=for-the-badge&logo=databricks&logoColor=white)
+![Similarity](https://img.shields.io/badge/Similarity-Matching-8A2BE2?style=for-the-badge&logo=apachekafka&logoColor=white)
 
 </div>
+
+
+
 
 > 📚 아키텍처, ERD, CI/CD 등 상세 내용은 [Wiki 최종 아키텍처](https://github.com/boostcampwm2025/web27-BoostAD/wiki)에서 확인하세요!
 
