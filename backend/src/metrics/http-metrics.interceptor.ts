@@ -24,7 +24,12 @@ export class HttpMetricsInterceptor implements NestInterceptor {
 
     const path = this.getRoutePath(req);
 
-    if (path === '/api/metrics' || path === '/healthz') return next.handle();
+    if (
+      path === '/api/metrics' ||
+      path === '/healthz' ||
+      path === '/api/advertiser/bids/stream'
+    )
+      return next.handle();
 
     return next.handle().pipe(
       tap({
