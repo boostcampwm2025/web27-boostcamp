@@ -102,7 +102,11 @@ export class CampaignCronService {
     };
   }
 
-  // Step 1: 종료일 지난 캠페인 ENDED (Redis First - 비딩 차단)
+  // ========================================
+  // Private: 개별 작업 메서드
+  // ========================================
+
+  //종료일 지난 캠페인 ENDED (Redis First - 비딩 차단)
   private async stopExpiredCampaigns(): Promise<number> {
     const now = new Date();
     // TODO: Redis에서 목록을 가져오는 것이 이상적이지만, 현재 구조상 DB 목록 순회하며 Redis 확인
@@ -122,15 +126,13 @@ export class CampaignCronService {
           CampaignStatus.ENDED
         );
         stoppedCount++;
-        this.logger.log(
-          `캠페인 ${campaign.id} 종료 (ACTIVE/PAUSED -> ENDED): 날짜 만료`
-        );
+        this.logger.log(`캠페인 ${campaign.id} 종료 -> ENDED (날짜 만료)`);
       }
     }
     return stoppedCount;
   }
 
-  // Step 5: 시작일 된 캠페인 ACTIVE (DB First)
+  // 시작일 된 캠페인 ACTIVE (DB First)
   private async startScheduledCampaigns(): Promise<number> {
     const now = new Date();
     const allCampaigns = await this.campaignRepository.getAll();
@@ -157,117 +159,8 @@ export class CampaignCronService {
     return startedCount;
   }
 
-  // Step 2 & Hourly: ClickLog 기반 Spent 정산 (배치 처리 + Locking)
-  private async reconcileSpentFromClickLog(targetDate: Date): Promise<number> {
-    this.logger.log(
-      `ClickLog 기반 Spent 정산 시작 (대상일: ${targetDate.toISOString().split('T')[0]})`
-    );
-
-    const dailyAggregation =
-      await this.logRepository.aggregateClicksByDate(targetDate);
-    const totalAggregation =
-      await this.logRepository.aggregateTotalClicksByCampaign();
-
-    const totalSpentMap = new Map(
-      totalAggregation.map((a) => [a.campaignId, a.totalCost])
-    );
-
-    // 배치 처리 설정
-    const BATCH_SIZE = 10;
-    let reconciledCount = 0;
-
-    // dailyAggregation 배열을 배치 단위로 처리
-    for (let i = 0; i < dailyAggregation.length; i += BATCH_SIZE) {
-      const batch = dailyAggregation.slice(i, i + BATCH_SIZE);
-      const campaignIds = batch.map((b) => b.campaignId);
-
-      // 1. Batch Locking: 처리 중인 캠페인 잠시 중단 (Redis Status -> PAUSED)
-      // 주의: 원래 ACTIVE였던 것만 복구해야 함
-      const originalStatuses = new Map<string, string>();
-
-      await Promise.all(
-        campaignIds.map(async (id) => {
-          const cached =
-            await this.campaignCacheRepository.findCampaignCacheById(id);
-          if (cached && cached.status === 'ACTIVE') {
-            originalStatuses.set(id, 'ACTIVE');
-            cached.status = CampaignStatus.PAUSED; // 임시 정지
-            await this.campaignCacheRepository.saveCampaignCacheById(
-              id,
-              cached
-            );
-          }
-        })
-      );
-
-      // 2. 정산 수행
-      await Promise.all(
-        batch.map(async (daily) => {
-          const { campaignId, totalCost: actualDailySpent } = daily;
-          const actualTotalSpent = totalSpentMap.get(campaignId) || 0;
-
-          const cached =
-            await this.campaignCacheRepository.findCampaignCacheById(
-              campaignId
-            );
-
-          // 정합성 검사
-          if (
-            !cached ||
-            cached.dailySpent !== actualDailySpent ||
-            Math.abs(cached.totalSpent - actualTotalSpent) > 100
-          ) {
-            // DB 업데이트
-            await this.campaignRepository.updateSpent(
-              campaignId,
-              actualDailySpent,
-              actualTotalSpent
-            );
-
-            // Redis 보정
-            if (cached) {
-              cached.dailySpent = actualDailySpent;
-              cached.totalSpent = actualTotalSpent;
-              await this.campaignCacheRepository.saveCampaignCacheById(
-                campaignId,
-                cached
-              );
-              reconciledCount++;
-            }
-          }
-        })
-      );
-
-      // 3. Batch Unlocking: 원래 상태 복구
-      await Promise.all(
-        campaignIds.map(async (id) => {
-          if (originalStatuses.get(id) === 'ACTIVE') {
-            const cached =
-              await this.campaignCacheRepository.findCampaignCacheById(id);
-            if (cached) {
-              cached.status = CampaignStatus.ACTIVE;
-              await this.campaignCacheRepository.saveCampaignCacheById(
-                id,
-                cached
-              );
-            }
-          }
-        })
-      );
-
-      // 배치 간 약간의 지연으로 DB 부하 조절
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    }
-
-    this.logger.log(
-      `ClickLog 기반 Spent 정산 완료: ${reconciledCount}개 캠페인 보정`
-    );
-    return reconciledCount;
-  }
-
-  // Step 2-1: 예산 소진 캠페인 PAUSED (기존 유지)
+  // 예산 소진 캠페인 PAUSED (Redis First)
   private async pauseOverspentCampaigns(): Promise<number> {
-    // ... (기존 로직 유지)
     const allCampaigns = await this.campaignRepository.getAll();
     let pausedCount = 0;
 
@@ -284,15 +177,143 @@ export class CampaignCronService {
         cached.totalBudget !== null && cached.totalSpent >= cached.totalBudget;
 
       if (isDailyExhausted || isTotalExhausted) {
+        await this.syncCacheStatus(campaign.id, CampaignStatus.PAUSED);
         await this.campaignRepository.updateStatus(
           campaign.id,
           CampaignStatus.PAUSED
         );
-        await this.syncCacheStatus(campaign.id, CampaignStatus.PAUSED);
         pausedCount++;
+        this.logger.log(`캠페인 ${campaign.id} 예산 소진 -> PAUSED`);
       }
     }
     return pausedCount;
+  }
+
+  // 일일 예산 리셋
+  private async resetDailyBudgets(): Promise<void> {
+    this.logger.log('일일 예산 리셋 시작');
+
+    // DB 리셋
+    await this.campaignRepository.resetAllDailySpent();
+
+    // Redis 동기화
+    const allCampaigns = await this.campaignRepository.getAll();
+    let syncCount = 0;
+
+    for (const campaign of allCampaigns) {
+      if (campaign.deletedAt) continue;
+
+      const cached = await this.campaignCacheRepository.findCampaignCacheById(
+        campaign.id
+      );
+      if (cached) {
+        cached.dailySpent = 0;
+        cached.lastResetDate = new Date().toISOString();
+        await this.campaignCacheRepository.saveCampaignCacheById(
+          // 덮어씌울거면 PAUSED로 변경 후 해야되는 거 아닌가?
+          campaign.id,
+          cached
+        );
+        syncCount++;
+      }
+    }
+
+    this.logger.log(`일일 예산 리셋 완료 (Redis ${syncCount}건 동기화)`);
+  }
+
+  private async reconcileSpentFromClickLog(targetDate: Date): Promise<number> {
+    this.logger.log(
+      `ClickLog 정산 시작 (${targetDate.toISOString().split('T')[0]})`
+    );
+
+    const dailyAggregation =
+      await this.logRepository.aggregateClicksByDate(targetDate);
+    const totalAggregation =
+      await this.logRepository.aggregateTotalClicksByCampaign();
+    const totalSpentMap = new Map(
+      totalAggregation.map((a) => [a.campaignId, a.totalCost])
+    );
+
+    const BATCH_SIZE = 10;
+    let reconciledCount = 0;
+
+    for (let i = 0; i < dailyAggregation.length; i += BATCH_SIZE) {
+      const batch = dailyAggregation.slice(i, i + BATCH_SIZE);
+      const campaignIds = batch.map((b) => b.campaignId);
+
+      // Batch Lock
+      const originalStatuses = new Map<string, string>();
+      await Promise.all(
+        campaignIds.map(async (id) => {
+          const cached =
+            await this.campaignCacheRepository.findCampaignCacheById(id);
+          if (cached?.status === 'ACTIVE') {
+            originalStatuses.set(id, 'ACTIVE');
+            cached.status = CampaignStatus.PAUSED;
+            await this.campaignCacheRepository.saveCampaignCacheById(
+              id,
+              cached
+            );
+          }
+        })
+      );
+
+      // 정산 수행
+      await Promise.all(
+        batch.map(async (daily) => {
+          const { campaignId, totalCost: actualDailySpent } = daily;
+          const actualTotalSpent = totalSpentMap.get(campaignId) || 0;
+          const cached =
+            await this.campaignCacheRepository.findCampaignCacheById(
+              campaignId
+            );
+
+          const needsReconcile =
+            !cached ||
+            cached.dailySpent !== actualDailySpent ||
+            Math.abs(cached.totalSpent - actualTotalSpent) > 100;
+
+          if (needsReconcile) {
+            await this.campaignRepository.updateSpent(
+              campaignId,
+              actualDailySpent,
+              actualTotalSpent
+            );
+            if (cached) {
+              cached.dailySpent = actualDailySpent;
+              cached.totalSpent = actualTotalSpent;
+              await this.campaignCacheRepository.saveCampaignCacheById(
+                campaignId,
+                cached
+              );
+              reconciledCount++;
+            }
+          }
+        })
+      );
+
+      // Batch Unlock
+      await Promise.all(
+        campaignIds.map(async (id) => {
+          if (originalStatuses.get(id) === 'ACTIVE') {
+            const cached =
+              await this.campaignCacheRepository.findCampaignCacheById(id);
+            if (cached) {
+              cached.status = CampaignStatus.ACTIVE;
+              await this.campaignCacheRepository.saveCampaignCacheById(
+                id,
+                cached
+              );
+            }
+          }
+        })
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+
+    this.logger.log(`ClickLog 정산 완료: ${reconciledCount}개 보정`);
+    return reconciledCount;
   }
 
   // ========================================
