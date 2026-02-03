@@ -186,4 +186,14 @@ export class TypeOrmLogRepository extends LogRepository {
 
     return true;
   }
+
+  async getBlogIdAndCostByViewId(
+    viewId: number
+  ): Promise<{ blogId: number; cost: number } | null> {
+    const viewLog = await this.viewLogRepository.findOne({
+      where: { id: viewId },
+      select: ['blogId', 'cost'],
+    });
+    return viewLog ? { blogId: viewLog.blogId, cost: viewLog.cost } : null;
+  }
 }

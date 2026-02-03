@@ -45,4 +45,9 @@ export abstract class LogRepository {
   }>;
 
   abstract existsByViewId(viewId: number): Promise<boolean>;
+
+  // viewId로 blogId와 cost 조회 (퍼블리셔 수익 지급용)
+  abstract getBlogIdAndCostByViewId(
+    viewId: number
+  ): Promise<{ blogId: number; cost: number } | null>;
 }
