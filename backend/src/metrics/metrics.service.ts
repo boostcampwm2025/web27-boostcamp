@@ -40,9 +40,13 @@ export class MetricsService {
     route: string,
     status_code: number,
     durationMs: number
-  ) {
+  ): void {
     const labels = { method, route, status_code };
     this.httpRequestsTotal.inc(labels);
     this.httpRequestDurationSeconds.observe(labels, durationMs / 1000);
+  }
+
+  async getMetrics(): Promise<string> {
+    return await this.registry.metrics(); // 레지스트리에 등록된 모든 메트릭 텍스트로 직렬화해서 리턴
   }
 }
