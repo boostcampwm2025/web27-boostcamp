@@ -8,6 +8,7 @@ import { TypeOrmBidLogRepository } from './repositories/typeorm-bid-log.reposito
 import { BidLogEntity } from './entities/bid-log.entity';
 import { CampaignModule } from 'src/campaign/campaign.module';
 import { BlogModule } from 'src/blog/blog.module';
+import { MetricsModule } from 'src/metrics/metrics.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { BlogModule } from 'src/blog/blog.module';
     // EventEmitterModule은 AppModule에서 전역 등록됨
     CampaignModule,
     BlogModule,
+    MetricsModule,
   ],
   controllers: [BidLogController],
   providers: [
