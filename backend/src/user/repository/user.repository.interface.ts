@@ -11,4 +11,5 @@ export abstract class UserRepository {
   abstract findByEmail(email: string): Promise<number | null>;
   abstract setFirstLoginAtIfNull(userId: number): Promise<boolean>;
   abstract getBalanceById(userId: number): Promise<number | null>;
+  abstract incrementBalance(userId: number, amount: number): Promise<void>;
 }

@@ -72,4 +72,13 @@ export class TypeOrmUserRepository extends UserRepository {
 
     return user.balance;
   }
+
+  async incrementBalance(userId: number, amount: number): Promise<void> {
+    await this.userRepo
+      .createQueryBuilder()
+      .update(UserEntity)
+      .set({ balance: () => `balance + ${amount}` })
+      .where('id = :id', { id: userId })
+      .execute();
+  }
 }
