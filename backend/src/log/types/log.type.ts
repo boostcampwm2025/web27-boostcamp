@@ -15,3 +15,13 @@ export type SaveViewLog = {
   behaviorScore: number | null;
   createdAt?: Date;
 };
+
+export type AggregateClickRaw = {
+  campaignId: string;
+  totalCost: string; // DB는 항상 string 반환
+};
+
+export type AggregateClick = {
+  campaignId: string;
+  totalCost: number;
+};
