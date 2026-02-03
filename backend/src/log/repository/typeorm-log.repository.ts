@@ -110,6 +110,70 @@ export class TypeOrmLogRepository extends LogRepository {
     return counts;
   }
 
+  async getClickHistoryByCampaignId(
+    campaignId: string,
+    limit: number,
+    offset: number
+  ): Promise<{
+    logs: Array<{
+      id: number;
+      createdAt: Date | null;
+      postUrl: string | null;
+      blogName: string;
+      cost: number;
+      behaviorScore: number | null;
+      isHighIntent: boolean;
+    }>;
+    total: number;
+  }> {
+    // ClickLog -> ViewLog -> Blog JOIN하여 클릭 히스토리 조회
+    const queryBuilder = this.clickLogRepository
+      .createQueryBuilder('click_log')
+      .innerJoin('click_log.viewLog', 'view_log')
+      .innerJoin('Blog', 'blog', 'blog.id = view_log.blog_id')
+      .where('view_log.campaign_id = :campaignId', { campaignId })
+      .orderBy('click_log.created_at', 'DESC');
+
+    const total = await queryBuilder.getCount();
+
+    const results = await this.clickLogRepository
+      .createQueryBuilder('click_log')
+      .innerJoin('click_log.viewLog', 'view_log')
+      .innerJoin('Blog', 'blog', 'blog.id = view_log.blog_id')
+      .where('view_log.campaign_id = :campaignId', { campaignId })
+      .orderBy('click_log.created_at', 'DESC')
+      .select('click_log.id', 'id')
+      .addSelect('click_log.created_at', 'createdAt')
+      .addSelect('view_log.post_url', 'postUrl')
+      .addSelect('view_log.cost', 'cost')
+      .addSelect('view_log.behavior_score', 'behaviorScore')
+      .addSelect('view_log.is_high_intent', 'isHighIntent')
+      .addSelect('blog.name', 'blogName')
+      .offset(offset)
+      .limit(limit)
+      .getRawMany<{
+        id: number;
+        createdAt: Date | string;
+        postUrl: string | null;
+        cost: number;
+        behaviorScore: number | null;
+        isHighIntent: boolean;
+        blogName: string;
+      }>();
+
+    const logs = results.map((row) => ({
+      id: row.id,
+      createdAt: row.createdAt ? new Date(row.createdAt) : null,
+      postUrl: row.postUrl,
+      blogName: row.blogName,
+      cost: row.cost,
+      behaviorScore: row.behaviorScore,
+      isHighIntent: Boolean(row.isHighIntent),
+    }));
+
+    return { logs, total };
+  }
+
   async existsByViewId(viewId: number): Promise<boolean> {
     const viewLog = await this.viewLogRepository
       .createQueryBuilder('v')

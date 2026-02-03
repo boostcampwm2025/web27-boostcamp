@@ -79,6 +79,13 @@ export interface ClickLogResponse {
   timestamp: string;
 }
 
+// DismissLog API 요청 타입
+export interface DismissLogRequest {
+  viewId: number;
+  blogKey: string;
+  postUrl: string;
+}
+
 // 전략 패턴 인터페이스들
 export interface TagExtractor {
   extract(): Tag[];

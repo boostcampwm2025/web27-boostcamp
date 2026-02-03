@@ -22,6 +22,20 @@ export abstract class CampaignCacheRepository {
 
   abstract updateDailySpentCacheById(id: string, amount: number): Promise<void>;
 
+  // 선제적 Spent 증가 (원자적 예산 검증 + 증가)
+  // 예산 검증 통과 시 dailySpent += cpc, totalSpent += cpc 후 true 반환
+  // 예산 초과 시 증가 없이 false 반환
+  abstract incrementSpent(
+    campaignId: string,
+    cpc: number,
+    dailyBudget: number,
+    totalBudget: number | null
+  ): Promise<boolean>;
+
+  // Spent 롤백 (비딩 패배 시)
+  // dailySpent -= cpc, totalSpent -= cpc
+  abstract decrementSpent(campaignId: string, cpc: number): Promise<void>;
+
   // 태그 변경 시 임베딩 비우기
   abstract deleteCampaignEmbeddingById(id: string): Promise<void>;
 

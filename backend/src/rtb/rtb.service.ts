@@ -6,6 +6,7 @@ import type {
   DecisionContext,
   Candidate,
   ScoredCandidate,
+  SelectionResult,
 } from './types/decision.types';
 import { randomUUID } from 'crypto';
 import { BidLogRepository } from '../bid-log/repositories/bid-log.repository.interface';
@@ -14,12 +15,14 @@ import { CacheRepository } from '../cache/repository/cache.repository.interface'
 import { BidLog, BidStatus } from '../bid-log/bid-log.types';
 import { BlogRepository } from '../blog/repository/blog.repository.interface';
 import { CampaignCacheRepository } from '../campaign/repository/campaign.cache.repository.interface';
+import pLimit from 'p-limit';
 
 @Injectable()
 export class RTBService {
   private readonly logger = new Logger(RTBService.name);
   private readonly FALLBACK_CAMPAIGN_ID =
     'c1dda7a5-da58-416b-b8fa-20ba8f5535f9';
+  private readonly limit = pLimit(5);
 
   constructor(
     private readonly matcher: Matcher,
@@ -43,26 +46,13 @@ export class RTBService {
       }
       const blogId = blog.id;
 
-      // 1. 후보 필터링
+      // 1. 후보 불러오기 및 필터링
       // TODO(추후 고려 사항): 여기서도 embedding, deleteAt,active, isHighIntent 속성 반환이 필요한가? -> 아 bidLog기록을 위해서는 isHighIntent 속성은 필요할 거 같음
       let candidates: Candidate[] =
         await this.matcher.findCandidatesByTags(context);
 
-      // ======= 일단 혹시 모르니깐 주석 처리 =======
-      // 2. 고의도 필터링 (isHighIntent에 따라 광고 분리)
-      // if (context.isHighIntent) {
-      //   // 고의도 요청: is_high_intent=true 광고만
-      //   candidates = candidates.filter((c) => c.campaign.isHighIntent === true);
-      // } else {
-      //   // 일반 요청: is_high_intent=false 광고만
-      //   candidates = candidates.filter(
-      //     (c) => c.campaign.isHighIntent === false
-      //   );
-      // }
-
-      // 3. 캠페인 상태 검증 (ACTIVE + 날짜 범위 + 삭제되지 않음)
-      // candidates = this.filterEligibleCampaigns(candidates);
-      // ======= 일단 혹시 모르니깐 주석 처리 =======
+      // 2. 선제적 Spent 증가
+      candidates = await this.increaseSpentCandidates(candidates);
 
       // 후보가 없으면 fallback 캠페인 조회 (캐시에서)
       if (candidates.length === 0) {
@@ -87,20 +77,24 @@ export class RTBService {
         }
       }
 
-      // 2. 점수 계산 (아 복잡하다)
+      // 3. 점수 계산 (아 복잡하다)
       const scored: ScoredCandidate[] =
         await this.scorer.scoreCandidates(candidates);
 
-      // 3. 우승자 선정
+      // 4. 우승자 선정
       const result = await this.selector.selectWinner(scored);
 
-      // 4. AuctionStore에 경매 데이터 저장 (ViewLog에서 조회용)
+      // 5. 패배한 캠페인들의 Spent 롤백
+      await this.rollbackLosersSpent(auctionId, result);
+
+      // 6. AuctionStore에 경매 데이터 저장 (ViewLog에서 조회용)
       await this.cacheRepository.setAuctionData(auctionId, {
         blogId: blogId,
         cost: result.winner.maxCpc,
       });
 
-      // 5. BidLog 저장 (모든 참여 캠페인의 입찰 기록)
+      // 7. BidLog 저장 (모든 참여 캠페인의 입찰 기록)
+      // --------------------------------------------------------------------------------------------------------------------------------------
       // TODO(추후 고려 사항): 속성값 고민 및 reason 필드에 대한 고민 그리고 로그 데이터는 RedisStream으로 큐를 통한 배치처리가 고려되면 좋을 거 같음
       const bidLogs: BidLog[] = result.candidates.map((candidate) => ({
         auctionId,
@@ -128,18 +122,9 @@ export class RTBService {
           await this.bidLogService.emitBidCreated(savedBid.id);
         }
       }
+      // --------------------------------------------------------------------------------------------------------------------------------------
 
-      // 6. explain(reason) 생성 추후 로깅용 -> 일단 보류
-      // return {
-      //   winner: {
-      //     ...result.winner,
-      //     explain: this.generateExplain(result.winner, context),
-      //   },
-      //   candidates: result.candidates.map((c) => ({
-      //     ...c,
-      //     explain: this.generateExplain(c, context),
-      //   })),
-      // };
+      // TODO: 7. explain(reason) 생성 로직 필요 -> 일단 보류
 
       return {
         status: 'success',
@@ -173,6 +158,69 @@ export class RTBService {
         timestamp: new Date().toISOString(),
       };
     }
+  }
+
+  private async rollbackLosersSpent(
+    auctionId: string,
+    result: SelectionResult
+  ) {
+    const losers = result.candidates.filter(
+      (candidate) => candidate.id !== result.winner.id
+    );
+
+    // 병렬 처리 - p-limit 사용
+    await Promise.allSettled(
+      losers.map((loser) =>
+        this.limit(async () => {
+          try {
+            await this.campaignCacheRepository.decrementSpent(
+              loser.id,
+              loser.maxCpc
+            );
+            this.logger.debug(
+              `Auction ${auctionId}: 패배 캠페인 ${loser.id} Spent 롤백 완료`
+            );
+          } catch (error) {
+            this.logger.warn(
+              `Auction ${auctionId}: 패배 캠페인 ${loser.id} Spent 롤백 실패`,
+              error
+            );
+          }
+        })
+      )
+    );
+  }
+
+  private async increaseSpentCandidates(candidates: Candidate[]) {
+    const eligibleCandidates: Candidate[] = [];
+
+    await Promise.allSettled(
+      candidates.map((candidate) =>
+        this.limit(async () => {
+          const { campaign } = candidate;
+          try {
+            const reserved = await this.campaignCacheRepository.incrementSpent(
+              campaign.id,
+              campaign.maxCpc,
+              campaign.dailyBudget,
+              campaign.totalBudget
+            );
+
+            if (reserved) {
+              eligibleCandidates.push(candidate);
+            } else {
+              this.logger.debug(
+                `캠페인 ${campaign.id} 예산 확보 실패 - 후보에서 제외`
+              );
+            }
+          } catch (error) {
+            this.logger.warn(`캠페인 ${campaign.id} 후보에서 제외`, error);
+          }
+        })
+      )
+    );
+
+    return eligibleCandidates;
   }
 
   // cache 문제로 인한 무의미한 주석
