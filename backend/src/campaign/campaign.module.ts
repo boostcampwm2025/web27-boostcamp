@@ -15,7 +15,7 @@ import { ImageModule } from '../image/image.module';
 import { CampaignCacheRepository } from './repository/campaign.cache.repository.interface';
 import { RedisCampaignCacheRepository } from './repository/redis-campaign.cache.repository';
 import { UserModule } from 'src/user/user.module';
-import { AdvertiserModule } from 'src/advertiser/advertiser.module';
+// import { AdvertiserModule } from 'src/advertiser/advertiser.module';
 import { CacheModule } from 'src/cache/cache.module';
 import { RedisModule } from 'src/redis/redis.module';
 import { QueueModule } from 'src/queue/queue.module';
@@ -32,7 +32,7 @@ import { QueueModule } from 'src/queue/queue.module';
     LogModule,
     ImageModule,
     UserModule,
-    forwardRef(() => AdvertiserModule),
+    // forwardRef(() => AdvertiserModule),
     RedisModule,
     QueueModule,
   ],
