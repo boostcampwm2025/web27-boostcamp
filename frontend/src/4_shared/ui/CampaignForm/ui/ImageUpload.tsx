@@ -75,15 +75,15 @@ export function ImageUpload({
   };
 
   return (
-    <div className="flex flex-col gap-3">
-      <label className="text-sm font-bold text-gray-900">광고 이미지</label>
+    <div className="flex flex-col items-center gap-3">
+      <label className="text-sm font-bold text-gray-900 self-start">광고 이미지</label>
 
       <div
         onClick={handleClick}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`relative flex h-48 cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed transition-colors ${
+        className={`relative flex aspect-square w-48 cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed transition-colors ${
           isDragging
             ? 'border-blue-500 bg-blue-50'
             : 'border-gray-300 bg-gray-50 hover:border-gray-400'
@@ -99,7 +99,7 @@ export function ImageUpload({
             <img
               src={value}
               alt="미리보기"
-              className="h-full w-full rounded-lg object-contain"
+              className="h-full w-full rounded-lg object-cover"
             />
             <button
               type="button"
@@ -118,7 +118,7 @@ export function ImageUpload({
             <span className="text-xs text-gray-500">
               드래그 앤 드롭 또는 클릭하여 선택
             </span>
-            <span className="text-xs text-gray-400">권장 크기: 1200x628px</span>
+            <span className="text-xs text-gray-400">권장 크기: 200x200px</span>
           </>
         )}
       </div>
