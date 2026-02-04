@@ -52,6 +52,9 @@ export class BlogService {
         // 2. blog:exists:set에 추가 (캐싱과 동시에 처리)
         await this.blogCacheRepository.addBlogToExistsSet(blog.id);
 
+        // 3. blogKey 인덱스 저장 (O(1) 조회용)
+        await this.blogCacheRepository.saveBlogKeyIndex(blog.blogKey, blog.id);
+
         loaded++;
 
         if (loaded % 100 === 0) {
@@ -76,7 +79,6 @@ export class BlogService {
       blogKey: blog.blogKey,
       verified: blog.verified,
       createdAt: blog.createdAt.toISOString(),
-      // embedding은 Worker가 나중에 추가
     };
   }
 
@@ -107,6 +109,7 @@ export class BlogService {
       throw new BadRequestException('유효한 블로그 URL을 입력해주세요.');
     }
     if (await this.blogRepository.existsBlogByDomain(domain)) {
+      // TODO(Blog): Redis에서 불러오면 더 빠르지 않을까 싶음
       throw new ConflictException('이미 등록된 도메인입니다.');
     }
 
@@ -129,10 +132,16 @@ export class BlogService {
       }
 
       // 3. Redis 캐시 저장 + exists set 추가
-      // TODO: 근데 verified 는 언제 쓰이는 거지??!?!
+      // TODO(보류): 근데 verified 는 언제 쓰이는 거지??!?!
       await this.blogCacheRepository.saveBlogCacheById(
         createdBlog.id,
         this.convertToCachedBlogType(createdBlog)
+      );
+
+      // 4. blogKey 인덱스 저장 (O(1) 조회용)
+      await this.blogCacheRepository.saveBlogKeyIndex(
+        createdBlog.blogKey,
+        createdBlog.id
       );
 
       this.logger.log(`✅ 블로그 생성 완료 (ID: ${blogId}, Redis 동기화 완료)`);
@@ -150,6 +159,7 @@ export class BlogService {
     if (await this.userRepository.verifyRole(userId, UserRole.ADVERTISER)) {
       throw new BadRequestException('잘못된 Role의 접근입니다.');
     }
+    // TODO(Blog)(보류): Redis에서 불러오면 더 빠르지 않을까 싶음 - 대쉬보드 화면이라 비딩 성능에 직접적 영향 X
     return await this.blogRepository.existsBlogByUserId(userId);
   }
 
@@ -159,6 +169,7 @@ export class BlogService {
     if (await this.userRepository.verifyRole(userId, UserRole.ADVERTISER)) {
       throw new BadRequestException('잘못된 Role의 접근입니다.');
     }
+    // TODO(Blog)(보류): Redis에서 불러오면 더 빠르지 않을까 싶음 - 대쉬보드 화면이라 비딩 성능에 직접적 영향 X
     const blog = await this.blogRepository.findByUserId(userId);
 
     if (!blog) {
