@@ -20,16 +20,6 @@ export function EarningsHistoryTableRow({ item }: EarningsHistoryTableRowProps) 
     return `${amount.toLocaleString()}원`;
   };
 
-  const extractDomain = (url: string) => {
-    try {
-      const fullUrl = url.startsWith('http') ? url : `https://${url}`;
-      const urlObj = new URL(fullUrl);
-      return urlObj.hostname;
-    } catch {
-      return url;
-    }
-  };
-
   return (
     <tr className="text-sm border-b border-gray-100 hover:bg-gray-50">
       <td className="px-5 py-4 text-gray-900 whitespace-nowrap w-40">
@@ -50,7 +40,7 @@ export function EarningsHistoryTableRow({ item }: EarningsHistoryTableRowProps) 
           className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer text-xs"
           title={item.postUrl}
         >
-          {extractDomain(item.postUrl)}
+          {item.postUrl}
         </a>
       </td>
       <td className="px-5 py-4 text-green-600 font-semibold whitespace-nowrap">

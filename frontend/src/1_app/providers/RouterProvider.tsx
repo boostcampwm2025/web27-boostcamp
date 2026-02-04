@@ -11,7 +11,6 @@ import { RegisterPage } from '@pages/auth/ui/RegisterPage';
 import { LoginPage } from '@pages/auth/ui/LoginPage';
 import { PaymentSuccessPage, PaymentFailPage } from '@pages/payment';
 import { PublisherDashboardPage } from '@pages/publisherDashboard';
-import { PublisherEarningsPage } from '@pages/publisherEarnings';
 import { OnboardingSdkGuidePageSkeleton } from '@pages/onboardingSdkGuide';
 import { CampaignCreatePage } from '@pages/campaginCreate';
 import { BlogAdmissionPage } from '@pages/onboardingBlogAdmission/ui/BlogAdmissionPage';
@@ -82,9 +81,8 @@ export const router = createBrowserRouter([
         element: <DashboardLayout />, // 👈 다른 레이아웃 지정
         children: [
           { path: 'main', element: <PublisherDashboardPage /> },
-          { path: 'earnings', element: <PublisherEarningsPage /> },
           {
-            path: 'settings',
+            path: 'sdk-guide',
             element: (
               <Suspense fallback={<OnboardingSdkGuidePageSkeleton />}>
                 <OnboardingSdkGuidePage />
