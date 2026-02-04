@@ -9,6 +9,7 @@ import {
   MaxLength,
   Min,
   IsNotEmpty,
+  IsDivisibleBy,
 } from 'class-validator';
 
 export class CreateCampaignDto {
@@ -38,18 +39,21 @@ export class CreateCampaignDto {
   @IsNotEmpty()
   @IsInt({ message: '최대 CPC는 정수여야 합니다.' })
   @Min(100, { message: '최대 CPC는 100원 이상이어야 합니다.' })
+  @IsDivisibleBy(100, { message: '100원 단위로 입력해주세요.' })
   maxCpc: number;
 
   @Type(() => Number)
   @IsNotEmpty()
   @IsInt({ message: '일일 예산은 정수여야 합니다.' })
   @Min(3000, { message: '일일 예산은 3,000원 이상이어야 합니다.' })
+  @IsDivisibleBy(100, { message: '100원 단위로 입력해주세요.' })
   dailyBudget: number;
 
   @Type(() => Number)
   @IsNotEmpty()
   @IsInt({ message: '총 예산은 정수여야 합니다.' })
   @Min(0, { message: '총 예산은 0 이상이어야 합니다.' })
+  @IsDivisibleBy(100, { message: '100원 단위로 입력해주세요.' })
   totalBudget: number;
 
   @IsDateString({}, { message: '시작일은 ISO 8601 형식이어야 합니다.' })
