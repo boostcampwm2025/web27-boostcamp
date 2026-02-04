@@ -9,10 +9,15 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import { BlogRepository } from '../../blog/repository/blog.repository.interface';
+import { BlogCacheRepository } from '../../blog/repository/blog.cache.repository.interface';
 import type { BlogEntity } from '../../blog/entities/blog.entity';
+import type { CachedBlog } from '../../blog/types/blog.type';
+
+// Guard에서 첨부하는 blog 정보 (캐시 or DB 엔티티)
+export type BlogInfo = BlogEntity | CachedBlog;
 
 export interface BlogKeyValidatedRequest extends Request {
-  blog?: BlogEntity; // TypeORM 엔티티로 변경
+  blog?: BlogInfo;
   visitorId?: string;
 }
 
@@ -28,7 +33,10 @@ function normalizeHostname(hostname: string): string {
 export class BlogKeyValidationGuard implements CanActivate {
   private readonly logger = new Logger(BlogKeyValidationGuard.name);
 
-  constructor(private readonly blogRepository: BlogRepository) {}
+  constructor(
+    private readonly blogRepository: BlogRepository,
+    private readonly blogCacheRepository: BlogCacheRepository
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context
@@ -63,12 +71,19 @@ export class BlogKeyValidationGuard implements CanActivate {
       throw new BadRequestException('유효한 postUrl이 필요합니다.');
     }
 
-    // blogKey 검증 (DB 조회)
-    let blog: BlogEntity | null;
+    // blogKey 검증 (Redis 우선 → DB fallback)
+    let blog: BlogInfo | null;
     try {
-      blog = await this.blogRepository.findByBlogKey(blogKey);
+      // 1. Redis 캐시 우선 조회 (O(1))
+      blog = await this.blogCacheRepository.findByBlogKey(blogKey);
+
+      // 2. 캐시 미스 시 DB fallback
+      if (!blog) {
+        this.logger.debug(`blogKey 캐시 미스, DB 조회: ${blogKey}`);
+        blog = await this.blogRepository.findByBlogKey(blogKey);
+      }
     } catch (error) {
-      this.logger.error('blogKey 조회 중 DB 오류 발생', {
+      this.logger.error('blogKey 조회 중 오류 발생', {
         blogKey,
         error: error instanceof Error ? error.message : String(error),
       });
