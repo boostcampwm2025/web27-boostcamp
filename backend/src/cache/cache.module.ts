@@ -8,7 +8,6 @@ import { CampaignModule } from 'src/campaign/campaign.module';
 
 @Module({
   imports: [LogModule, RedisModule, CampaignModule],
-  controllers: [],
   providers: [
     { provide: CacheRepository, useClass: RedisCacheRepository },
     RedisTTLWorker,
