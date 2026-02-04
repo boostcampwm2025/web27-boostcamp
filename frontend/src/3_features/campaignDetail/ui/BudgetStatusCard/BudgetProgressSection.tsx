@@ -18,6 +18,9 @@ export function BudgetProgressSection({
   totalBudget,
   totalSpentPercent,
 }: BudgetProgressSectionProps) {
+  const safeDaily = dailySpent ?? 0;
+  const safeTotal = totalSpent ?? 0;
+
   return (
     <div className="flex flex-col gap-6">
       {/* 오늘 소진 예산 */}
@@ -25,13 +28,18 @@ export function BudgetProgressSection({
         <div className="flex items-center justify-between">
           <span className="text-sm text-gray-600">오늘 소진 예산</span>
           <span className="text-sm text-gray-900">
-            <span className="font-semibold">{formatWithComma(dailySpent)}원</span>
-            <span className="text-gray-400"> / {formatWithComma(dailyBudget)}원</span>
+            <span className="font-semibold">
+              {safeDaily === 0 ? '0' : formatWithComma(safeDaily)}원
+            </span>
+            <span className="text-gray-400">
+              {' '}
+              / {formatWithComma(dailyBudget)}원
+            </span>
           </span>
         </div>
         <div className="w-full">
           <ProgressBar
-            percentage={dailySpentPercent}
+            percentage={dailySpentPercent ?? 0}
             colorScheme="blue"
             showLabel={false}
             size="md"
@@ -44,7 +52,9 @@ export function BudgetProgressSection({
         <div className="flex items-center justify-between">
           <span className="text-sm text-gray-600">총 소진 예산</span>
           <span className="text-sm text-gray-900">
-            <span className="font-semibold">{formatWithComma(totalSpent)}원</span>
+            <span className="font-semibold">
+              {safeTotal === 0 ? '0' : formatWithComma(safeTotal)}원
+            </span>
             <span className="text-gray-400">
               {' '}
               / {totalBudget ? formatWithComma(totalBudget) : '-'}원
@@ -53,7 +63,7 @@ export function BudgetProgressSection({
         </div>
         <div className="w-full">
           <ProgressBar
-            percentage={totalSpentPercent}
+            percentage={totalSpentPercent ?? 0}
             colorScheme="blue"
             showLabel={false}
             size="md"
