@@ -28,14 +28,14 @@ export const REDIS_INCREMENT_SPENT_SCRIPT = `
     local totalSpent = tonumber(string.match(totalSpentRaw, '%[(%d+)%]')) or 0
     
     -- 일일 예산 검증
-    if dailySpent + cpc >= dailyBudget then
+    if dailySpent + cpc > dailyBudget then
       return 0  -- 일일 예산 초과
     end
     
     -- 총 예산 검증 (totalBudget이 "null"이 아닌 경우만)
     if totalBudgetStr ~= "null" then
       local totalBudget = tonumber(totalBudgetStr)
-      if totalSpent + cpc >= totalBudget then
+      if totalSpent + cpc > totalBudget then
         return -1  -- 총 예산 초과
       end
     end
