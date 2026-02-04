@@ -1,4 +1,3 @@
-import { Icon } from '@shared/ui/Icon';
 import { MAIN_FOOTER_LINK_GROUPS } from '../../model/content';
 
 const CURRENT_YEAR = new Date().getFullYear();
@@ -10,7 +9,11 @@ export function MainFooter() {
         <div className="md:col-span-1">
           <div className="flex items-center gap-3">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl text-blue-600">
-              <Icon.Logo className="h-5 w-5" />
+              <img
+                src="/favicon/favicon-96x96.png"
+                alt="BoostAD Logo"
+                className="h-5 w-5"
+              />
             </span>
             <span className="text-lg font-bold tracking-[-0.3px]">BoostAD</span>
           </div>

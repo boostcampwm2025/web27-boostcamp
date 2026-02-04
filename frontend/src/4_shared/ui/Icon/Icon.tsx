@@ -5,7 +5,6 @@ import Click from '@shared/ui/Icon/icons/click.svg?react';
 import Dashboard from '@shared/ui/Icon/icons/dashboard.svg?react';
 import Dollar from '@shared/ui/Icon/icons/dollar.svg?react';
 import Eye from '@shared/ui/Icon/icons/eye.svg?react';
-import Logo from '@shared/ui/Icon/icons/logo.svg?react';
 import LoudSpeaker from '@shared/ui/Icon/icons/loudspeaker.svg?react';
 import More from '@shared/ui/Icon/icons/more.svg?react';
 import Percent from '@shared/ui/Icon/icons/percent.svg?react';
@@ -48,7 +47,6 @@ export const Icon = {
   Dashboard,
   Dollar,
   Eye,
-  Logo,
   LoudSpeaker,
   More,
   Percent,

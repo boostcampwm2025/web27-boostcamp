@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { Icon } from '@shared/ui/Icon';
 import { MAIN_NAV_ITEMS } from '../../model/content';
 
 export function MainHeader() {
@@ -8,7 +7,11 @@ export function MainHeader() {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <Link to="/" className="flex items-center gap-3">
           <span className="flex h-8 w-8 items-center justify-center">
-            <Icon.Logo className="h-8 w-8 text-blue-500" />
+            <img
+              src="/favicon/favicon-96x96.png"
+              alt="BoostAD Logo"
+              className="h-8 w-8"
+            />
           </span>
           <span className="text-lg font-bold">BoostAD</span>
         </Link>
