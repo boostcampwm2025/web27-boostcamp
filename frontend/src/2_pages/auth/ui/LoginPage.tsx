@@ -16,14 +16,16 @@ export function LoginPage() {
   useEffect(() => {
     const reason = searchParams.get('reason');
     if (reason === 'registered') {
-      showToast('회원가입이 완료되었습니다. Google로 로그인해주세요', 'success');
+      showToast('회원가입이 완료되었습니다. Google로 로그인해주세요', 'info');
       // URL에서 쿼리 파라미터 제거
-      searchParams.delete('reason');
-      setSearchParams(searchParams, { replace: true });
+      const nextParams = new URLSearchParams(searchParams);
+      nextParams.delete('reason');
+      setSearchParams(nextParams, { replace: true });
     } else if (reason === 'already_exists') {
       showToast('이미 가입된 계정입니다. 로그인해주세요', 'info');
-      searchParams.delete('reason');
-      setSearchParams(searchParams, { replace: true });
+      const nextParams = new URLSearchParams(searchParams);
+      nextParams.delete('reason');
+      setSearchParams(nextParams, { replace: true });
     }
   }, [searchParams, setSearchParams, showToast]);
 

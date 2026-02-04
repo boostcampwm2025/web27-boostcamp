@@ -19,8 +19,9 @@ export function RegisterPage() {
     if (reason === 'not_found') {
       showToast('등록되지 않은 계정입니다. 회원가입해주세요', 'info');
       // URL에서 쿼리 파라미터 제거
-      searchParams.delete('reason');
-      setSearchParams(searchParams, { replace: true });
+      const nextParams = new URLSearchParams(searchParams);
+      nextParams.delete('reason');
+      setSearchParams(nextParams, { replace: true });
     }
   }, [searchParams, setSearchParams, showToast]);
 
