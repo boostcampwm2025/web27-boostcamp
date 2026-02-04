@@ -5,6 +5,7 @@ import {
   Step2Content,
   Step3Content,
   useCampaignFormStore,
+  AVAILABLE_TAGS,
 } from '@shared/ui/CampaignForm';
 import type { CampaignFormData } from '@shared/ui/CampaignForm';
 import { useImageUpload } from '@shared/lib/hooks';
@@ -41,6 +42,10 @@ function formatDateForInput(dateString: string): string {
   return `${year}-${month}-${day}`;
 }
 
+const categoryByTagId = new Map(
+  AVAILABLE_TAGS.map((tag) => [tag.id, tag.category])
+);
+
 export function CampaignEditModal({
   isOpen,
   onClose,
@@ -76,7 +81,7 @@ export function CampaignEditModal({
           tags: initialData.tags.map((tag) => ({
             id: tag.id,
             name: tag.name,
-            category: '기타' as const,
+            category: categoryByTagId.get(tag.id) ?? '기타',
           })),
           isHighIntent: initialData.isHighIntent,
           image: initialData.image,
