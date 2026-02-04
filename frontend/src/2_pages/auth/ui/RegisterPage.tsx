@@ -9,10 +9,10 @@ const AUTH_BG: 'banners' | 'lines' | 'none' = 'banners'; // 쉽게 제거/비활
 export function RegisterPage() {
   useDocumentTitle('회원가입');
   return (
-    <div className="relative flex min-h-screen w-full items-center justify-center bg-[#F6F6F8] overflow-hidden">
+    <div className="relative flex min-h-screen w-full items-start justify-center bg-[#F6F6F8] overflow-hidden pt-25">
       {AUTH_BG === 'banners' ? <DiagonalBannersBackground /> : null}
       <div className="relative z-10">
-        <Modal height="h-[600px]">
+        <Modal height="h-[535px]">
           <div className="flex flex-col gap-3">
             <RegisterForm />
             <div className="flex items-center justify-center text-sm gap-1 ">
