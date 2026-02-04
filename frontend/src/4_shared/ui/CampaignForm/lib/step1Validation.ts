@@ -11,12 +11,18 @@ export function validateTitle(title: string) {
   if (!title.trim()) {
     return '광고 제목을 입력해주세요.';
   }
+  if (title.length > 30) {
+    return '제목은 최대 30자까지 입력 가능합니다.';
+  }
   return null;
 }
 
 export function validateContent(content: string) {
   if (!content.trim()) {
     return '광고 내용을 입력해주세요.';
+  }
+  if (content.length > 100) {
+    return '내용은 최대 100자까지 입력 가능합니다.';
   }
   return null;
 }

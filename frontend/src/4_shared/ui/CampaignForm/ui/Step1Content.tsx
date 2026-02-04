@@ -157,6 +157,7 @@ export function Step1Content({ onImageUpload }: Step1ContentProps) {
         onChange={handleTitleChange}
         onBlur={handleTitleBlur}
         error={errors.campaignContent?.title}
+        maxLength={30}
       />
       <TextArea
         label="광고 내용"
@@ -165,7 +166,7 @@ export function Step1Content({ onImageUpload }: Step1ContentProps) {
         onChange={handleContentChange}
         onBlur={handleContentBlur}
         error={errors.campaignContent?.content}
-        maxLength={70}
+        maxLength={100}
       />
       <TextField
         label="광고 URL"
