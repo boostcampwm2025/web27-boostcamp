@@ -1,6 +1,11 @@
 import { useState } from 'react';
 import { CurrencyField } from '@shared/ui/CurrencyField';
 import { formatWithComma } from '@shared/lib/format';
+import {
+  validateDailyBudget,
+  validateMaxCpc,
+  isMultipleOf100,
+} from '@shared/ui/CampaignForm/lib/step2Validation';
 
 interface BudgetEditModeProps {
   currentTotalBudget: number | null;
@@ -34,8 +39,24 @@ export function BudgetEditMode({
   const [addBudget, setAddBudget] = useState(0);
   const [dailyBudget, setDailyBudget] = useState(currentDailyBudget);
   const [maxCpc, setMaxCpc] = useState(currentMaxCpc);
+  const [errors, setErrors] = useState<{
+    addBudget?: string;
+    dailyBudget?: string;
+    maxCpc?: string;
+  }>({});
 
   const finalTotalBudget = (currentTotalBudget || 0) + addBudget;
+
+  const validateAddBudget = () => {
+    if (addBudget <= 0) return undefined;
+    if (!isMultipleOf100(addBudget)) {
+      return '100원 단위로 입력해주세요.';
+    }
+    if (balance !== null && addBudget > balance) {
+      return '추가 예산이 잔액을 초과할 수 없습니다.';
+    }
+    return undefined;
+  };
 
   const handleQuickAdd = (value: number) => {
     setAddBudget((prev) => prev + value);
@@ -67,13 +88,14 @@ export function BudgetEditMode({
           </div>
 
           {/* 추가 예산 입력 */}
-          <div className="bg-white">
-            <CurrencyField
-              value={addBudget}
-              onChange={setAddBudget}
-              prefix="+"
-            />
-          </div>
+          <CurrencyField
+            value={addBudget}
+            onChange={setAddBudget}
+            onBlur={() => setErrors((prev) => ({ ...prev, addBudget: validateAddBudget() }))}
+            prefix="+"
+            error={errors.addBudget}
+            transparentMessage
+          />
 
           {/* 퀵버튼 */}
           <div className="flex flex-row justify-between items-center gap-2">
@@ -90,29 +112,50 @@ export function BudgetEditMode({
           </div>
 
           {/* 예산 잔액 표시 */}
-          <span className="text-xs font-bold text-right text-slate-400 uppercase">
-            예산 잔액: {balance !== null ? formatWithComma(balance) : '-'} 원
-          </span>
+          <div className="flex flex-row justify-between items-center">
+            <span className="text-xs text-slate-400">
+              * 모든 금액은 100원 단위로 입력해주세요
+            </span>
+            <span className="text-xs font-bold text-slate-400 uppercase">
+              예산 잔액: {balance !== null ? formatWithComma(balance) : '-'} 원
+            </span>
+          </div>
         </div>
       </div>
 
       {/* 일일 예산 */}
-      <div className="flex flex-row items-center gap-3.5 w-full self-stretch">
-        <span className="text-sm font-bold text-slate-500 uppercase">
-          일일 예산
-        </span>
-        <div className="flex-1 bg-white">
-          <CurrencyField value={dailyBudget} onChange={setDailyBudget} />
+      <div className="flex flex-col gap-1 w-full self-stretch">
+        <div className="flex flex-row items-center gap-3.5">
+          <span className="text-sm font-bold text-slate-500 uppercase">
+            일일 예산
+          </span>
+          <div className="flex-1">
+            <CurrencyField
+              value={dailyBudget}
+              onChange={setDailyBudget}
+              onBlur={() => setErrors((prev) => ({ ...prev, dailyBudget: validateDailyBudget(dailyBudget, finalTotalBudget, maxCpc) || undefined }))}
+              error={errors.dailyBudget}
+              transparentMessage
+            />
+          </div>
         </div>
       </div>
 
       {/* 최대 CPC */}
-      <div className="flex flex-row items-center gap-3 w-full self-stretch">
-        <span className="text-sm font-bold text-slate-500 uppercase">
-          최대 CPC
-        </span>
-        <div className="flex-1 bg-white">
-          <CurrencyField value={maxCpc} onChange={setMaxCpc} />
+      <div className="flex flex-col gap-1 w-full self-stretch">
+        <div className="flex flex-row items-center gap-3">
+          <span className="text-sm font-bold text-slate-500 uppercase">
+            최대 CPC
+          </span>
+          <div className="flex-1">
+            <CurrencyField
+              value={maxCpc}
+              onChange={setMaxCpc}
+              onBlur={() => setErrors((prev) => ({ ...prev, maxCpc: validateMaxCpc(maxCpc, dailyBudget) || undefined }))}
+              error={errors.maxCpc}
+              transparentMessage
+            />
+          </div>
         </div>
       </div>
 
