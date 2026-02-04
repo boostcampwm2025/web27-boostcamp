@@ -9,6 +9,7 @@ interface CampaignDetailHeaderProps {
   onBack: () => void;
   onPause: () => void;
   onEdit: () => void;
+  onDelete: () => void;
   isPauseLoading?: boolean;
 }
 
@@ -18,6 +19,7 @@ export function CampaignDetailHeader({
   onBack,
   onPause,
   onEdit,
+  onDelete,
   isPauseLoading = false,
 }: CampaignDetailHeaderProps) {
   const canPause = status === 'ACTIVE' || status === 'PAUSED';
@@ -59,6 +61,15 @@ export function CampaignDetailHeader({
           onClick={onEdit}
         >
           수정
+        </Button>
+        <Button
+          variant="red"
+          size="sm"
+          icon={<Icon.Trash className="w-3 h-3" />}
+          iconPosition="left"
+          onClick={onDelete}
+        >
+          삭제
         </Button>
       </div>
     </div>

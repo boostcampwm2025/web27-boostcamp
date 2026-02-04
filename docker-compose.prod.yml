@@ -6,6 +6,8 @@ services:
       dockerfile: nginx/Dockerfile.prod
     ports:
       - '80:80'
+    expose:
+      - '8080'
     depends_on:
       - backend
     restart: unless-stopped
@@ -58,3 +60,13 @@ services:
       - --path.sysfs=/host/sys
       - --path.rootfs=/rootfs
       - --collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)
+
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:0.11.0
+    restart: unless-stopped
+    depends_on:
+      - nginx
+    command:
+      - -nginx.scrape-uri=http://nginx:8080/stub_status
+    ports:
+      - '9113:9113'

@@ -6,6 +6,7 @@ import { BidLogRepository } from './repositories/bid-log.repository.interface';
 import { BidLogDataDto, BidLogItemDto } from './dto/bid-log-response.dto';
 import { CampaignRepository } from 'src/campaign/repository/campaign.repository.interface';
 import { BlogRepository } from 'src/blog/repository/blog.repository.interface';
+import { MetricsService } from 'src/metrics/metrics.service';
 
 @Injectable()
 export class BidLogService {
@@ -13,7 +14,8 @@ export class BidLogService {
     private readonly bidLogRepository: BidLogRepository,
     private readonly campaignRepository: CampaignRepository,
     private readonly blogRepository: BlogRepository,
-    private readonly eventEmitter: EventEmitter2
+    private readonly eventEmitter: EventEmitter2,
+    private readonly metricsService: MetricsService
   ) {}
 
   async getRealtimeBidLogs(
@@ -91,9 +93,10 @@ export class BidLogService {
       };
 
       this.eventEmitter.on(`bid.created.${userId}`, listener);
-
+      this.metricsService.incSseConnections('bidlog');
       return () => {
         this.eventEmitter.off(`bid.created.${userId}`, listener);
+        this.metricsService.decSseConnections('bidlog');
       };
     });
   }

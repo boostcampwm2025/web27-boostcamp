@@ -49,15 +49,9 @@ export function Sidebar() {
     },
     {
       id: '2',
-      to: '/publisher/dashboard/earnings',
-      icon: 'Wallet',
-      label: '수익 관리',
-    },
-    {
-      id: '3',
-      to: '/publisher/dashboard/settings',
-      icon: 'Dashboard',
-      label: '광고 설정',
+      to: '/publisher/dashboard/sdk-guide',
+      icon: 'Ad',
+      label: 'SDK 가이드',
     },
   ];
 
@@ -65,7 +59,7 @@ export function Sidebar() {
 
   return (
     <aside
-      className="flex flex-col w-52 shrink-0 bg-white border-r border-gray-200 min-h-screen fixed left-0 top-0 bottom-0"
+      className="flex flex-col w-52 shrink-0 bg-white border-r border-gray-200 min-h-screen fixed left-0 top-0 bottom-0 z-50"
       role="navigation"
       aria-label="Main navigation"
     >
