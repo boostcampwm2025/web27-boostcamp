@@ -21,7 +21,9 @@ export function CampaignStatsTableRow({
       className="text-sm border-b border-gray-100 hover:bg-blue-50 cursor-pointer transition-colors group"
       onClick={handleClick}
     >
-      <td className="px-5 py-4 text-gray-900 font-medium">{campaign.title}</td>
+      <td className="px-5 py-4 text-gray-900 font-medium max-w-50">
+        <div className="line-clamp-2">{campaign.title}</div>
+      </td>
       <td className="px-5 py-4 whitespace-nowrap">
         <StatusBadge status={campaign.status} />
       </td>
