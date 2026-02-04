@@ -52,14 +52,20 @@ export function CampaignStatsTable() {
         </Link>
       </div>
 
-      <table>
-        <CampaignStatsTableHeader />
-        <tbody>
-          {campaigns.map((campaign) => (
-            <CampaignStatsTableRow key={campaign.id} campaign={campaign} />
-          ))}
-        </tbody>
-      </table>
+      {campaigns.length === 0 ? (
+        <div className="p-10 text-center text-gray-500">
+          등록된 캠페인이 없습니다.
+        </div>
+      ) : (
+        <table>
+          <CampaignStatsTableHeader />
+          <tbody>
+            {campaigns.map((campaign) => (
+              <CampaignStatsTableRow key={campaign.id} campaign={campaign} />
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }
