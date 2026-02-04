@@ -38,10 +38,10 @@ export function CreditHistoryTableRow({ history }: CreditHistoryTableRowProps) {
         className={`px-5 py-4 text-right font-semibold whitespace-nowrap ${amountColor}`}
       >
         {amountPrefix}
-        {formatWithComma(history.amount)}원
+        {history.amount === 0 ? '0' : formatWithComma(history.amount)}원
       </td>
       <td className="px-5 py-4 text-right text-gray-900 whitespace-nowrap">
-        {formatWithComma(history.balanceAfter)}원
+        {history.balanceAfter === 0 ? '0' : formatWithComma(history.balanceAfter)}원
       </td>
     </tr>
   );

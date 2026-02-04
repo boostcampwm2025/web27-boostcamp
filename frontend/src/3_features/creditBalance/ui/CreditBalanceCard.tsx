@@ -41,7 +41,7 @@ export function CreditBalanceCard() {
       </div>
       <div className="flex flex-row items-baseline gap-4 pt-4">
         <div className="text-4xl font-bold text-gray-900">
-          {formatWithComma(balance ?? 0)}
+          {(balance ?? 0) === 0 ? '0' : formatWithComma(balance ?? 0)}
           <span className="text-2xl font-normal text-gray-600 ml-2">원</span>
         </div>
       </div>
