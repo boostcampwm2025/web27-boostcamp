@@ -112,4 +112,15 @@ export class CampaignController {
       '캠페인 상태 및 일일 예산이 리셋되었습니다.'
     );
   }
+
+  @Post('migrate-spent')
+  @Public()
+  async migrateSpent() {
+    const migratedCount =
+      await this.campaignCronService.migrateAllSpentFromClickLog();
+    return successResponse(
+      { migratedCount },
+      `전체 기간 Spent 마이그레이션 완료: ${migratedCount}개 캠페인`
+    );
+  }
 }
