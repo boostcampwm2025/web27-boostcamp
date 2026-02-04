@@ -7,7 +7,7 @@ import { CachedBlog } from '../types/blog.type';
 @Injectable()
 export class BlogRedisCacheRepository implements BlogCacheRepository {
   private readonly logger = new Logger(BlogRedisCacheRepository.name);
-  private readonly BLOG_CACHE_TTL = 60 * 60 * 24; // 24시간
+  private readonly BLOG_CACHE_TTL = 60 * 60 * 24 * 7; // 7일
   private readonly BLOG_EXISTS_SET = 'blog:exists:set';
   private readonly KEY_PREFIX = 'blog:';
   private readonly BLOG_KEY_INDEX_PREFIX = 'blog:key:'; // blogKey → blogId 매핑
