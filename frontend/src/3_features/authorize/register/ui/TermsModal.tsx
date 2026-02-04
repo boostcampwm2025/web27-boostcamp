@@ -17,7 +17,7 @@ export function TermsModal({ accountType, onClose, onAgree }: TermsModalProps) {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
-      style={{ backgroundColor: 'rgba(244, 244, 244, 0.95)' }}
+      style={{ backgroundColor: 'rgba(244, 244, 244, 0.3)' }}
       onClick={onClose}
     >
       <div
