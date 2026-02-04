@@ -1,0 +1,56 @@
+name: monitoring-deploy
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - monitoring/**
+      - .github/workflows/monitoring-deploy.yml
+
+jobs:
+  deploy:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.ref_name == 'develop' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy monitoring via SSH (pull + up)
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOY_MONITORING_HOST }}
+          username: ${{ secrets.DEPLOY_MONITORING_USER || secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_MONITORING_SSH_KEY || secrets.DEPLOY_SSH_KEY }}
+          port: ${{ secrets.DEPLOY_MONITORING_PORT || '22' }}
+          proxy_host: ${{ secrets.DEPLOY_HOST }}
+          proxy_username: ${{ secrets.DEPLOY_USER }}
+          proxy_key: ${{ secrets.DEPLOY_SSH_KEY }}
+          proxy_port: ${{ secrets.DEPLOY_PORT || '22' }}
+          script: |
+            set -euo pipefail
+
+            DEPLOY_BRANCH="${{ github.ref_name }}"
+            DEPLOY_PATH="${{ secrets.DEPLOY_MONITORING_PATH || secrets.DEPLOY_PATH }}"
+            if [ -z "$DEPLOY_PATH" ]; then
+              echo "Missing DEPLOY_MONITORING_PATH (or DEPLOY_PATH) secret."
+              exit 1
+            fi
+
+            cd "$DEPLOY_PATH"
+
+            git fetch --prune origin
+            git checkout -B "$DEPLOY_BRANCH" "origin/$DEPLOY_BRANCH"
+            git reset --hard "origin/$DEPLOY_BRANCH"
+
+            # Optional overrides (compose has sane defaults for ports)
+            export PROMETHEUS_PORT="${{ vars.PROMETHEUS_PORT || '' }}"
+            export GRAFANA_PORT="${{ vars.GRAFANA_PORT || '' }}"
+            export GRAFANA_ADMIN_USER="${{ vars.GRAFANA_ADMIN_USER || '' }}"
+            export GRAFANA_ADMIN_PASSWORD="${{ secrets.GRAFANA_ADMIN_PASSWORD || '' }}"
+
+            if docker compose version >/dev/null 2>&1; then
+              COMPOSE="docker compose"
+            else
+              COMPOSE="docker-compose"
+            fi
+
+            $COMPOSE -f monitoring/docker-compose.monitoring.yml pull
+            $COMPOSE -f monitoring/docker-compose.monitoring.yml up -d --remove-orphans
+            $COMPOSE -f monitoring/docker-compose.monitoring.yml ps

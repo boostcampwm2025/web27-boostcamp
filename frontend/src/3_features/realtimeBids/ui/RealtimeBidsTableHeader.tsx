@@ -15,7 +15,7 @@ export function RealtimeBidsTableHeader({
         <th className="px-5 py-3 text-left font-medium text-gray-600 whitespace-nowrap w-40">
           일시
         </th>
-        <th className="px-5 py-3 text-left font-medium text-gray-600 whitespace-nowrap relative">
+        <th className="px-5 py-3 text-left font-medium text-gray-600 whitespace-nowrap">
           <div className="flex items-center gap-1">
             <span>캠페인</span>
             {onCampaignChange && (

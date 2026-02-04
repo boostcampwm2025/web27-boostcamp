@@ -2,7 +2,6 @@ import type {
   ViewLogRequest,
   ViewLogResponse,
   ClickLogRequest,
-  ClickLogResponse,
   DismissLogRequest,
 } from '@shared/types';
 import { API_BASE_URL } from '@shared/config/constants';
@@ -70,43 +69,39 @@ export class AdTracker {
       return;
     }
 
-    try {
-      const requestBody: ClickLogRequest = {
-        viewId: this.currentViewId,
-        blogKey: this.blogKey,
-        postUrl: window.location.href,
-      };
+    const requestBody: ClickLogRequest = {
+      viewId: this.currentViewId,
+      blogKey: this.blogKey,
+      postUrl: window.location.href,
+    };
 
-      const response = await fetch(`${API_BASE_URL}/sdk/campaign-click`, {
+    // Beacon으로 ClickLog 전송 (비동기, 응답 안 기다림)
+    const blob = new Blob([JSON.stringify(requestBody)], {
+      type: 'application/json',
+    });
+    const url = `${API_BASE_URL}/sdk/campaign-click`;
+
+    if (navigator.sendBeacon) {
+      const sent = navigator.sendBeacon(url, blob);
+      console.log(
+        `[BoostAD SDK] ClickLog Beacon 전송: ${sent ? '성공' : '실패'}`
+      );
+    } else {
+      // Fallback: fetch with keepalive
+      fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify(requestBody),
+        credentials: 'include',
+        keepalive: true,
+      }).catch((err) => {
+        console.error('[BoostAD SDK] ClickLog Beacon fallback 실패:', err);
       });
+    }
 
-      if (response.ok) {
-        const data: ClickLogResponse = await response.json();
-        if (!data.data.clickId) {
-          console.log(
-            '[BoostAD SDK] 중복 클릭으로 판단되어 예산이 차감되지 않습니다.'
-          );
-        } else {
-          console.log('[BoostAD SDK] ClickLog 기록 성공:', data.data.clickId);
-        }
-      } else {
-        console.warn('[BoostAD SDK] ClickLog 기록 실패:', response.status);
-      }
-
-      // 클릭 로그 성공/실패 여부와 관계없이 광고 페이지 열기
-      if (this.currentAdUrl) {
-        window.open(this.currentAdUrl, '_blank');
-      }
-    } catch (error) {
-      console.error('[BoostAD SDK] ClickLog API 호출 실패:', error);
-      // API 실패 시에도 광고 페이지는 열기
-      if (this.currentAdUrl) {
-        window.open(this.currentAdUrl, '_blank');
-      }
+    // 즉시 광고 페이지 열기 (모바일 팝업 차단 방지)
+    if (this.currentAdUrl) {
+      window.open(this.currentAdUrl, '_blank');
     }
   }
 

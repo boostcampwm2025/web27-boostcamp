@@ -6,6 +6,8 @@ services:
       dockerfile: nginx/Dockerfile.prod
     ports:
       - '80:80'
+    expose:
+      - '8080'
     depends_on:
       - backend
     restart: unless-stopped
@@ -43,3 +45,28 @@ services:
     expose:
       - '3000'
     restart: unless-stopped
+
+  node-exporter:
+    image: prom/node-exporter:v1.8.1
+    restart: unless-stopped
+    network_mode: host
+    pid: host
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - --path.procfs=/host/proc
+      - --path.sysfs=/host/sys
+      - --path.rootfs=/rootfs
+      - --collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)
+
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:0.11.0
+    restart: unless-stopped
+    depends_on:
+      - nginx
+    command:
+      - -nginx.scrape-uri=http://nginx:8080/stub_status
+    ports:
+      - '9113:9113'

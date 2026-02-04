@@ -22,7 +22,6 @@ export class BoostAdSDK {
   private hasRequestedSecondAd = false;
   private mutationObserver: MutationObserver | null = null;
   private renderedZones = new Set<Element>(); // SPA 라우팅 대응: 이미 렌더링된 zone 추적
-  private behaviorTrackerStarted = false; // 행동 추적 시작 여부
   private debounceTimer: ReturnType<typeof setTimeout> | null = null; // DOM 변화 감지 디바운스
   private readonly CONTENT_SELECTORS = [
     '#article',
@@ -341,7 +340,7 @@ export class BoostAdSDK {
     const tags = this.tagExtractor.extract();
     const postUrl = window.location.href;
 
-    // 각 광고존에 1차 광고 삽입
+    // 각 광고존에 광고 삽입 (수동 모드는 행동 추적 없이 광고만 표시)
     for (const zone of limitedZones) {
       const container = zone as HTMLElement;
       container.style.margin = '30px 0';
@@ -349,52 +348,7 @@ export class BoostAdSDK {
       await this.fetchAndRenderAd(container, tags, postUrl, 0, false);
     }
 
-    // 행동 추적은 한 번만 시작
-    if (!this.behaviorTrackerStarted) {
-      this.behaviorTrackerStarted = true;
-      this.behaviorTracker.onThresholdReached(() => {
-        this.requestSecondAdManualMode(
-          tags,
-          postUrl,
-          Array.from(this.renderedZones)
-        );
-      });
-      this.behaviorTracker.start();
-    }
-  }
-
-  private async requestSecondAdManualMode(
-    tags: Tag[],
-    postUrl: string,
-    zones: Element[]
-  ): Promise<void> {
-    if (this.hasRequestedSecondAd) {
-      return;
-    }
-
-    this.hasRequestedSecondAd = true;
-
-    const score = this.behaviorTracker.getCurrentScore();
-    const isHighIntent = this.behaviorTracker.isHighIntent();
-
-    console.log(
-      '[BoostAD SDK] 2차 광고 요청 - Score:',
-      score,
-      'HighIntent:',
-      isHighIntent
-    );
-
-    // 모든 광고존의 광고를 2차 광고로 교체
-    zones.forEach(async (zone) => {
-      const container = zone as HTMLElement;
-      container.innerHTML = '';
-      await this.fetchAndRenderAd(
-        container,
-        tags,
-        postUrl,
-        score,
-        isHighIntent
-      );
-    });
+    // 수동 모드에서는 행동 추적 및 2차 광고 제거
+    // (개인정보 보호를 위해 명시적 동의 없이는 추적하지 않음)
   }
 }

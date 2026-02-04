@@ -44,7 +44,7 @@ export type GoogleIdTokenPayload = {
 export type AuthIntent = 'login' | 'register';
 export type OAuthState =
   | { intent: 'login' }
-  | { intent: 'register'; role: UserRole };
+  | { intent: 'register'; role: UserRole; termsAgreedAt: string };
 
 export type StoredOAuthState = OAuthState & { expiresAt: number };
 
@@ -77,7 +77,11 @@ export class OAuthService {
 
   private readonly OAUTH_STATE_CACHE_TTL = 15 * 60;
 
-  async getGoogleAuthUrl(intent: AuthIntent, role?: UserRole): Promise<string> {
+  async getGoogleAuthUrl(
+    intent: AuthIntent,
+    role?: UserRole,
+    termsAgreedAt?: string
+  ): Promise<string> {
     const { GOOGLE_CLIENT_ID: clientId, GOOGLE_REDIRECT_URI: redirectUri } =
       process.env;
 
@@ -94,11 +98,15 @@ export class OAuthService {
       if (role !== UserRole.ADVERTISER && role !== UserRole.PUBLISHER) {
         throw new BadRequestException('role이 올바르지 않습니다.');
       }
+      if (!termsAgreedAt) {
+        throw new BadRequestException('약관 동의가 필요합니다.');
+      }
 
       const stateData: StoredOAuthState = {
         expiresAt,
         intent: 'register',
         role,
+        termsAgreedAt,
       };
 
       await this.cacheRepository.setOAuthState(
@@ -146,7 +154,14 @@ export class OAuthService {
       if (!data.role) {
         throw new BadRequestException('role이 누락되었습니다.');
       }
-      return { intent: 'register', role: data.role };
+      if (!data.termsAgreedAt) {
+        throw new BadRequestException('약관 동의가 필요합니다.');
+      }
+      return {
+        intent: 'register',
+        role: data.role,
+        termsAgreedAt: data.termsAgreedAt,
+      };
     }
 
     return { intent: 'login' };
@@ -252,7 +267,18 @@ export class OAuthService {
       if (!role) {
         throw new BadRequestException('role이 올바르지 않습니다.');
       }
-      const id = await this.userRepository.createUser(email, role);
+
+      // 약관 동의 시각 파싱
+      const termsAgreedAt =
+        state.intent === 'register' && state.termsAgreedAt
+          ? new Date(state.termsAgreedAt)
+          : undefined;
+
+      const id = await this.userRepository.createUser(
+        email,
+        role,
+        termsAgreedAt
+      );
       await this.oauthAccountRepository.createOAuthAccount(
         provider,
         sub,

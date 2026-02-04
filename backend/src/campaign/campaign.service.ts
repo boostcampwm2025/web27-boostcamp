@@ -411,7 +411,7 @@ export class CampaignService {
         }
       );
 
-      // 4. 태그 변경과 상관 없이 임베딩 재생성
+      // 4. 태그 있으면 비교 후 임베딩 재생성
       if (
         dto.tags &&
         cachedCampaign.tags &&
