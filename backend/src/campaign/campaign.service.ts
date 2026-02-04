@@ -26,7 +26,7 @@ import type {
 import { AVAILABLE_TAGS } from '../common/constants';
 import { UserRepository } from 'src/user/repository/user.repository.interface';
 import { CampaignCacheRepository } from './repository/campaign.cache.repository.interface';
-import { CreditHistoryRepository } from 'src/advertiser/repository/credit-history.repository.interface';
+// import { CreditHistoryRepository } from 'src/advertiser/repository/credit-history.repository.interface';
 import { LogRepository } from 'src/log/repository/log.repository.interface';
 import { UserEntity } from 'src/user/entities/user.entity';
 import {
@@ -42,7 +42,7 @@ export class CampaignService {
     private readonly campaignRepository: CampaignRepository,
     private readonly userRepository: UserRepository,
     private readonly campaignCacheRepository: CampaignCacheRepository,
-    private readonly creditHistoryRepository: CreditHistoryRepository, // TODO: 이거는 언제 쓰이는 걸까
+    // private readonly creditHistoryRepository: CreditHistoryRepository, // TODO: 이거는 언제 쓰이는 걸까
     private readonly logRepository: LogRepository,
     @InjectDataSource() private readonly dataSource: DataSource,
     @InjectQueue('embedding-queue')
