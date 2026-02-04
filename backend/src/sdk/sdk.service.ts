@@ -161,6 +161,17 @@ export class SdkService {
       throw new BadRequestException('잘못된 요청입니다.');
     }
 
+    // Dismiss/TTL 만료 후 클릭 방지: rollbackInfo 또는 backup이 없으면 이미 롤백된 것
+    const rollbackInfo = await this.cacheRepository.getRollbackInfo(viewId);
+    const rollbackBackup = await this.cacheRepository.getRollbackBackup(viewId);
+
+    if (!rollbackInfo && !rollbackBackup) {
+      this.logger.warn(
+        `[SDK ClickLog] 롤백된 View 클릭 시도: viewId=${viewId} (Dismiss/TTL 만료 후 클릭 무효)`
+      );
+      return null;
+    }
+
     const clickId = await this.logRepository.saveClickLog({ viewId });
 
     // 클릭 시 Rollback 정보 + 백업 삭제 (Dismiss Beacon이 와도 무시되도록)
