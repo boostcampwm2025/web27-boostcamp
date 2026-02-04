@@ -1,6 +1,4 @@
-import { TextField } from '@shared/ui/TextField';
 import { Icon } from '@/4_shared/ui/Icon';
-import { FormDivider } from '@/4_shared/ui/Divider';
 import { useCallback } from 'react';
 import { handleRegister } from '../../lib/handleOauth';
 import { UserTypeSelector } from '@/3_features/authorize/register/ui/UserTypeSelector';
@@ -78,42 +76,7 @@ export function RegisterForm() {
             약관에 동의해야 Google로 가입할 수 있습니다
           </p>
         )}
-
-        <FormDivider />
-
-        <div className="rounded-md text-center py-2 text-sm text-[#7A8699]">
-          로컬 회원가입은 준비 중입니다. 현재는 Google로만 가입할 수 있어요.
-        </div>
-
-        <TextField
-          name="email"
-          type="email"
-          label="이메일"
-          placeholder="exmaple@email.com"
-          disabled
-        />
-        <TextField
-          name="password"
-          type="password"
-          label="비밀번호"
-          placeholder="••••••••"
-          disabled
-        />
-        <TextField
-          name="passwordConfirm"
-          type="password"
-          label="비밀번호 확인"
-          placeholder="••••••••"
-          disabled
-        />
       </div>
-      <button
-        type="submit"
-        disabled={true}
-        className="h-11 rounded-lg bg-blue-500 text-base font-semibold text-white hover:bg-blue-600 cursor-not-allowed"
-      >
-        회원가입
-      </button>
     </form>
 
     {/* 약관 모달 */}
