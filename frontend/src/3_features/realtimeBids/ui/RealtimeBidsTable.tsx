@@ -67,14 +67,20 @@ export function RealtimeBidsTable() {
         </Link>
       </div>
 
-      <table>
-        <RealtimeBidsTableHeader />
-        <tbody>
-          {bids.map((bid) => (
-            <RealtimeBidsTableRow key={bid.id} bid={bid} />
-          ))}
-        </tbody>
-      </table>
+      {bids.length === 0 ? (
+        <div className="p-10 text-center text-gray-500">
+          입찰 기록이 없습니다.
+        </div>
+      ) : (
+        <table>
+          <RealtimeBidsTableHeader />
+          <tbody>
+            {bids.map((bid) => (
+              <RealtimeBidsTableRow key={bid.id} bid={bid} />
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }

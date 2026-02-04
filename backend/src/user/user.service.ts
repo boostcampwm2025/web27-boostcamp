@@ -29,7 +29,7 @@ export class UserService {
 
       // ADVERTISER만 가입 축하 크레딧 지급
       if (user.role === UserRole.ADVERTISER) {
-        const WELCOME_CREDIT = 100000; // 100,000원
+        const WELCOME_CREDIT = 0; // TODO: 임시로 0원으로 변경 (원래 100,000원)
 
         await this.dataSource.transaction(async (manager) => {
           const userRepo = manager.getRepository(UserEntity);
