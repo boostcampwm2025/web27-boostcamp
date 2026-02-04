@@ -93,6 +93,111 @@ export class CampaignCronService {
   }
 
   // ========================================
+  // 전체 기간 마이그레이션 (수동 실행용) -> 일회용!
+  // ========================================
+  async migrateAllSpentFromClickLog(): Promise<number> {
+    this.logger.log('[Migration] 전체 기간 Spent 마이그레이션 시작');
+    const startTime = Date.now();
+
+    // 전체 기간 totalSpent 집계
+    const totalAggregation =
+      await this.logRepository.aggregateTotalClicksByCampaign();
+
+    this.logger.log(
+      `[Migration] 전체 캠페인 집계: ${totalAggregation.length}건, 배치 크기: ${this.BATCH_SIZE}`
+    );
+
+    let migratedCount = 0;
+
+    for (let i = 0; i < totalAggregation.length; i += this.BATCH_SIZE) {
+      const batch = totalAggregation.slice(i, i + this.BATCH_SIZE);
+      const campaignIds = batch.map((b) => b.campaignId);
+
+      // Batch Lock
+      const originalStatuses = new Map<string, string>();
+      await Promise.all(
+        campaignIds.map(async (id) => {
+          const cached =
+            await this.campaignCacheRepository.findCampaignCacheById(id);
+          if (cached?.status === 'ACTIVE') {
+            originalStatuses.set(id, 'ACTIVE');
+            await this.campaignCacheRepository.updateCampaignStatus(
+              id,
+              CampaignStatus.PAUSED
+            );
+          }
+        })
+      );
+
+      // 마이그레이션 수행
+      await Promise.all(
+        batch.map(async (total) => {
+          const { campaignId, totalCost: actualTotalSpent } = total;
+
+          // 오늘 날짜 기준 dailySpent도 계산
+          const dailyAggregation =
+            await this.logRepository.aggregateClicksByDate(new Date());
+          const dailyData = dailyAggregation.find(
+            (d) => d.campaignId === campaignId
+          );
+          const actualDailySpent = dailyData?.totalCost || 0;
+
+          const cached =
+            await this.campaignCacheRepository.findCampaignCacheById(
+              campaignId
+            );
+
+          // DB 업데이트 (무조건 실행)
+          await this.campaignRepository.updateSpent(
+            campaignId,
+            actualDailySpent,
+            actualTotalSpent
+          );
+
+          // Redis 업데이트
+          if (cached) {
+            cached.dailySpent = actualDailySpent;
+            cached.totalSpent = actualTotalSpent;
+            await this.campaignCacheRepository.saveCampaignCacheById(
+              campaignId,
+              cached
+            );
+          }
+
+          migratedCount++;
+          this.logger.debug(
+            `[Migration] campaign=${campaignId}, dailySpent=${actualDailySpent}, totalSpent=${actualTotalSpent}`
+          );
+        })
+      );
+
+      // Batch Unlock
+      await Promise.all(
+        campaignIds.map(async (id) => {
+          if (originalStatuses.get(id) === 'ACTIVE') {
+            const cached =
+              await this.campaignCacheRepository.findCampaignCacheById(id);
+            if (cached) {
+              await this.campaignCacheRepository.updateCampaignStatus(
+                id,
+                CampaignStatus.ACTIVE
+              );
+            }
+          }
+        })
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+
+    const duration = Date.now() - startTime;
+    this.logger.log(
+      `[Migration] 전체 기간 마이그레이션 완료: ${migratedCount}개 (${duration}ms)`
+    );
+    return migratedCount;
+  }
+
+  // ========================================
   // 수동 트리거 (API용)
   // ========================================
   async manualReset(): Promise<{
