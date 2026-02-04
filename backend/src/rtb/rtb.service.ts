@@ -22,7 +22,8 @@ export class RTBService {
   private readonly logger = new Logger(RTBService.name);
   private readonly FALLBACK_CAMPAIGN_ID =
     'c1dda7a5-da58-416b-b8fa-20ba8f5535f9';
-  private readonly limit = pLimit(5);
+  private readonly BATCH_LIMIT = 10;
+  private readonly limit = pLimit(this.BATCH_LIMIT);
 
   constructor(
     private readonly matcher: Matcher,
@@ -117,6 +118,7 @@ export class RTBService {
       // SSE: 입찰 이벤트 발행 (모든 BidLog에 대해)
       const savedBids = await this.bidLogRepository.findByAuctionId(auctionId);
 
+      // TODO: 이 부분 병렬처리로 최적화 가능할 듯
       for (const savedBid of savedBids) {
         if (savedBid.id) {
           await this.bidLogService.emitBidCreated(savedBid.id);
