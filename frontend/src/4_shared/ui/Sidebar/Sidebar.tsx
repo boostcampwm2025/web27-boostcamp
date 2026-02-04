@@ -49,15 +49,9 @@ export function Sidebar() {
     },
     {
       id: '2',
-      to: '/publisher/dashboard/earnings',
-      icon: 'Wallet',
-      label: '수익 관리',
-    },
-    {
-      id: '3',
-      to: '/publisher/dashboard/settings',
-      icon: 'Dashboard',
-      label: '광고 설정',
+      to: '/publisher/dashboard/sdk-guide',
+      icon: 'Ad',
+      label: 'SDK 가이드',
     },
   ];
 

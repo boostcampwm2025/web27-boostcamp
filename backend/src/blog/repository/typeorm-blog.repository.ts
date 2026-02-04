@@ -57,6 +57,15 @@ export class TypeOrmBlogRepository extends BlogRepository {
     return false;
   }
 
+  // blogId로 userId 조회 (퍼블리셔 수익 지급용)
+  async getUserIdByBlogId(blogId: number): Promise<number | null> {
+    const blog = await this.blogRepo.findOne({
+      where: { id: blogId },
+      select: ['userId'],
+    });
+    return blog ? blog.userId : null;
+  }
+
   // 모든 블로그 조회 (초기 로딩용)
   async getAll(): Promise<BlogEntity[]> {
     return await this.blogRepo.find();
