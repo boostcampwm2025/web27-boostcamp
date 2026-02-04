@@ -1,6 +1,6 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { BullModule } from '@nestjs/bullmq';
+// import { BullModule } from '@nestjs/bullmq';
 import { CampaignRepository } from './repository/campaign.repository.interface';
 import { TypeOrmCampaignRepository } from './repository/typeorm-campaign.repository';
 import { CampaignService } from './campaign.service';
@@ -18,6 +18,7 @@ import { UserModule } from 'src/user/user.module';
 import { AdvertiserModule } from 'src/advertiser/advertiser.module';
 import { CacheModule } from 'src/cache/cache.module';
 import { RedisModule } from 'src/redis/redis.module';
+import { QueueModule } from 'src/queue/queue.module';
 
 @Module({
   imports: [
@@ -33,9 +34,7 @@ import { RedisModule } from 'src/redis/redis.module';
     UserModule,
     forwardRef(() => AdvertiserModule),
     RedisModule,
-    BullModule.registerQueue({
-      name: 'embedding-queue',
-    }),
+    QueueModule,
   ],
   controllers: [CampaignController],
   providers: [

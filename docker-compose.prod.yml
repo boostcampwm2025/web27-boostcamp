@@ -1,9 +1,6 @@
 services:
   nginx:
     image: ${NCR_ENDPOINT:-local}/boostad/nginx:${IMAGE_TAG:-deploy}
-    build:
-      context: .
-      dockerfile: nginx/Dockerfile.prod
     ports:
       - '80:80'
     expose:
@@ -14,10 +11,6 @@ services:
 
   backend:
     image: ${NCR_ENDPOINT:-local}/boostad/backend:${IMAGE_TAG:-deploy}
-    build:
-      context: .
-      dockerfile: backend/Dockerfile.prod
-      target: runner
     environment:
       PORT: '3000'
       # 배포 시 Object Storage(정적 호스팅) 도메인으로 교체
@@ -44,6 +37,17 @@ services:
       TOSS_SECRET_KEY: ${TOSS_SECRET_KEY}
     expose:
       - '3000'
+    restart: unless-stopped
+
+  backend-worker:
+    image: ${NCR_ENDPOINT:-local}/boostad/backend:${IMAGE_TAG:-deploy}
+    command: ['node', 'dist/worker.main.js']
+    environment:
+      # Worker는 HTTP 서버를 띄우지 않고 BullMQ Consumer만 실행합니다.
+      NODE_ENV: ${NODE_ENV:-development}
+      REDIS_HOST: ${REDIS_HOST:-localhost}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      # Xenova 모델 로딩(부트스트랩) 시 필요한 설정은 별도 없음.
     restart: unless-stopped
 
   node-exporter:

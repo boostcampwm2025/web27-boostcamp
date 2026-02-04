@@ -19,7 +19,6 @@ import { JwtCookieGuard } from './auth/guards/jwt-cookie.guard';
 import { BlogModule } from './blog/blog.module';
 import { ImageModule } from './image/image.module';
 import { RedisModule } from './redis/redis.module';
-import { QueueModule } from './queue/queue.module';
 import { PaymentModule } from './payment/payment.module';
 import { PublisherModule } from './publisher/publisher.module';
 import { MetricsModule } from './metrics/metrics.module';
@@ -55,7 +54,6 @@ import { MetricsModule } from './metrics/metrics.module';
     BlogModule,
     ImageModule,
     RedisModule,
-    QueueModule,
     PaymentModule,
     PublisherModule,
     MetricsModule,

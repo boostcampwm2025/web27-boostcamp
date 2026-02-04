@@ -110,5 +110,5 @@ jobs:
             fi
 
             $COMPOSE -f docker-compose.prod.yml pull
-            $COMPOSE -f docker-compose.prod.yml up -d --remove-orphans
+            $COMPOSE -f docker-compose.prod.yml up -d --remove-orphans --no-build
             $COMPOSE -f docker-compose.prod.yml ps
