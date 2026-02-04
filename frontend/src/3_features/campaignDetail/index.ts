@@ -2,6 +2,7 @@ export { useCampaignDetail } from './lib/useCampaignDetail';
 export { useUpdateCampaign } from './lib/useUpdateCampaign';
 export { useUpdateBudget } from './lib/useUpdateBudget';
 export { usePauseCampaign } from './lib/usePauseCampaign';
+export { useDeleteCampaign } from './lib/useDeleteCampaign';
 export { useSpendingLog } from './lib/useSpendingLog';
 
 export { CampaignDetailHeader } from './ui/CampaignDetailHeader';
@@ -10,6 +11,7 @@ export { CampaignMetricsCards } from './ui/CampaignMetricsCards';
 export { BudgetStatusCard } from './ui/BudgetStatusCard';
 export { SpendingLogCard } from './ui/SpendingLogCard';
 export { CampaignEditModal } from './ui/CampaignEditModal';
+export { CampaignDeleteModal } from './ui/CampaignDeleteModal';
 
 export type {
   CampaignStatus,
