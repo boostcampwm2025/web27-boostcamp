@@ -7,7 +7,7 @@ import { CachedBlog } from '../types/blog.type';
 @Injectable()
 export class BlogRedisCacheRepository implements BlogCacheRepository {
   private readonly logger = new Logger(BlogRedisCacheRepository.name);
-  private readonly DEFAULT_TTL = 60 * 60 * 24; // 24시간
+  private readonly BLOG_CACHE_TTL = 60 * 60 * 24; // 24시간
   private readonly BLOG_EXISTS_SET = 'blog:exists:set';
   private readonly KEY_PREFIX = 'blog:';
 
@@ -21,7 +21,7 @@ export class BlogRedisCacheRepository implements BlogCacheRepository {
     ttl?: number
   ): Promise<void> {
     const key = this.getBlogKey(id);
-    const expiryTime = ttl ?? this.DEFAULT_TTL;
+    const expiryTime = ttl ?? this.BLOG_CACHE_TTL;
 
     // TODO: 블로그 삭제 로직 부재 따라서 없어진 블로그에 대해서 거르는 로직을 구현할 수가 없음
     try {

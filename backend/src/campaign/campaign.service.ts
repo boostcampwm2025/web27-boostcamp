@@ -427,7 +427,7 @@ export class CampaignService {
       }
 
       // 3. Redis 전체 동기화 (DB 결과 반영, 요청한 상태로 복원)
-      await this.campaignCacheRepository.updateCampaignCacheWithoutSpentById(
+      await this.campaignCacheRepository.updateCampaignWithoutCachedById(
         updatedCampaign.id,
         this.convertToCachedCampaignTypeWithoutSpent(updatedCampaign)
       );

@@ -4,8 +4,12 @@ import { Repository } from 'typeorm';
 import { LogRepository } from './log.repository.interface';
 import { ViewLogEntity } from '../entities/view-log.entity';
 import { ClickLogEntity } from '../entities/click-log.entity';
-import { SaveViewLog } from '../types/save-view-log.type';
-import { SaveClickLog } from '../types/save-click-log.type';
+import {
+  SaveClickLog,
+  SaveViewLog,
+  AggregateClick,
+  AggregateClickRaw,
+} from '../types/log.type';
 
 @Injectable()
 export class TypeOrmLogRepository extends LogRepository {
@@ -187,6 +191,49 @@ export class TypeOrmLogRepository extends LogRepository {
     return true;
   }
 
+  // 날짜별 ClickLog 기반 campaignId별 totalCost 집계
+  async aggregateClicksByDate(date: Date): Promise<Array<AggregateClick>> {
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const result = await this.clickLogRepository
+      .createQueryBuilder('click_log')
+      .innerJoin('click_log.viewLog', 'view_log')
+      .select('view_log.campaign_id', 'campaignId')
+      .addSelect('SUM(view_log.cost)', 'totalCost')
+      .where('click_log.created_at BETWEEN :start AND :end', {
+        start: startOfDay,
+        end: endOfDay,
+      })
+      .groupBy('view_log.campaign_id')
+      .getRawMany<AggregateClickRaw>();
+
+    return result.map((row) => ({
+      campaignId: row.campaignId,
+      totalCost: parseInt(row.totalCost, 10) || 0,
+    }));
+  }
+
+  // 전체 ClickLog 기반 campaignId별 totalCost 집계 (totalSpent 계산용)
+  async aggregateTotalClicksByCampaign(): Promise<Array<AggregateClick>> {
+    const result = await this.clickLogRepository
+      .createQueryBuilder('click_log')
+      .innerJoin('click_log.viewLog', 'view_log')
+      .select('view_log.campaign_id', 'campaignId')
+      .addSelect('SUM(view_log.cost)', 'totalCost')
+      .groupBy('view_log.campaign_id')
+      .getRawMany<AggregateClickRaw>();
+
+    return result.map((row) => ({
+      campaignId: row.campaignId,
+      totalCost: parseInt(row.totalCost, 10) || 0,
+    }));
+  }
+
+  // viewId로 blogId와 cost 조회 (퍼블리셔 수익 지급용)
   async getBlogIdAndCostByViewId(
     viewId: number
   ): Promise<{ blogId: number; cost: number } | null> {

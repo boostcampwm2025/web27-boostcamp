@@ -11,6 +11,7 @@ import { CacheRepository } from 'src/cache/repository/cache.repository.interface
 import { CreateClickLogDto } from './dto/create-click-log.dto';
 import { CreateDismissLogDto } from './dto/create-dismiss-log.dto';
 import { CampaignCacheRepository } from 'src/campaign/repository/campaign.cache.repository.interface';
+import { CampaignRepository } from 'src/campaign/repository/campaign.repository.interface';
 import { BlogRepository } from 'src/blog/repository/blog.repository.interface';
 import { UserRepository } from 'src/user/repository/user.repository.interface';
 import { UserRole } from 'src/user/entities/user.entity';
@@ -23,6 +24,7 @@ export class SdkService {
     private readonly logRepository: LogRepository,
     private readonly cacheRepository: CacheRepository,
     private readonly campaignCacheRepository: CampaignCacheRepository,
+    private readonly campaignRepository: CampaignRepository,
     private readonly blogRepository: BlogRepository,
     private readonly userRepository: UserRepository
   ) {}
@@ -165,8 +167,17 @@ export class SdkService {
     await this.cacheRepository.deleteRollbackInfo(viewId);
     await this.cacheRepository.deleteRollbackBackup(viewId);
 
+    // DB dailySpent 동기화: ClickLog 저장과 함께 DB에도 spent 증가
+    const viewLog = await this.logRepository.getViewLog(viewId);
+    if (viewLog) {
+      this.campaignRepository.incrementSpent(viewLog.campaignId, viewLog.cost);
+      this.logger.debug(
+        `[SDK ClickLog] DB dailySpent 동기화: campaign=${viewLog.campaignId}, cost=+${viewLog.cost}`
+      );
+    }
+
     this.logger.log(
-      `[SDK ClickLog] 클릭 기록 완료: viewId=${viewId}, clickId=${clickId} (Rollback 정보 + Backup 삭제 → Spent 유지)`
+      `[SDK ClickLog] 클릭 기록 완료: viewId=${viewId}, clickId=${clickId} (Rollback 삭제 + DB 동기화)`
     );
 
     // 퍼블리셔 수익 지급 (cost의 80%, PUBLISHER만)

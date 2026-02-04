@@ -243,6 +243,18 @@ export class TypeOrmCampaignRepository extends CampaignRepository {
     return this.logRepository.countClickLogsByCampaignIds(campaignIds);
   }
 
+  // Phase 7: 정산용 Spent 업데이트
+  async updateSpent(
+    campaignId: string,
+    dailySpent: number,
+    totalSpent: number
+  ): Promise<void> {
+    await this.campaignRepo.update(
+      { id: campaignId },
+      { dailySpent, totalSpent }
+    );
+  }
+
   // Entity를 Plain Object로 변환 (Relation 타입 제거)
   private toPlainObject = (entity: CampaignEntity): CampaignWithTags => {
     return {
