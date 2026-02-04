@@ -23,6 +23,7 @@ async function bootstrap() {
       transform: true,
     })
   );
+  app.enableShutdownHooks();
 
   // CORS 설정
   const corsOrigin = process.env.CORS_ORIGIN;
