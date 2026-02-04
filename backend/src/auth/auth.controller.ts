@@ -22,7 +22,8 @@ export class AuthController {
   async redirectToGoogleAuth(
     @Res() res: Response,
     @Query('intent') intent: AuthIntent,
-    @Query('role') role?: UserRole
+    @Query('role') role?: UserRole,
+    @Query('termsAgreedAt') termsAgreedAt?: string
   ): Promise<void> {
     if (intent !== 'login' && intent !== 'register') {
       throw new BadRequestException('잘못된 접근입니다.');
@@ -36,11 +37,15 @@ export class AuthController {
       if (role !== UserRole.ADVERTISER && role !== UserRole.PUBLISHER) {
         throw new BadRequestException('role이 올바르지 않습니다.');
       }
+      if (!termsAgreedAt) {
+        throw new BadRequestException('약관 동의가 필요합니다.');
+      }
     }
 
     const url = await this.oauthService.getGoogleAuthUrl(
       intent,
-      intent === 'register' ? role : undefined
+      intent === 'register' ? role : undefined,
+      intent === 'register' ? termsAgreedAt : undefined
     );
     return res.redirect(url);
   }
