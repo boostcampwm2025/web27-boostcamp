@@ -40,12 +40,8 @@ export class RTBService {
     try {
       const auctionId = randomUUID();
 
-      // 0. blogKey → Blog 조회 (Guard에서 이미 검증됨)
-      const blog = await this.blogRepository.findByBlogKey(context.blogKey);
-      if (!blog) {
-        throw new Error(`블로그를 찾을 수 없습니다: ${context.blogKey}`);
-      }
-      const blogId = blog.id;
+      // 0. blogId는 Guard에서 이미 검증됨 (중복 조회 제거)
+      const blogId = context.blogId;
 
       // 1. 후보 불러오기 및 필터링
       // TODO(추후 고려 사항): 여기서도 embedding, deleteAt,active, isHighIntent 속성 반환이 필요한가? -> 아 bidLog기록을 위해서는 isHighIntent 속성은 필요할 거 같음
@@ -125,8 +121,6 @@ export class RTBService {
         }
       }
       // --------------------------------------------------------------------------------------------------------------------------------------
-
-      // TODO: 7. explain(reason) 생성 로직 필요 -> 일단 보류
 
       return {
         status: 'success',
