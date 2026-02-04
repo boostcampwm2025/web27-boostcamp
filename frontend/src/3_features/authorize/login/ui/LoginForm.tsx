@@ -17,23 +17,41 @@ export function LoginForm() {
         </p>
       </div>
       <div className="flex flex-col gap-6">
-        {/* 서비스 소개 카드 */}
-        <div className="w-full p-4 rounded-xl bg-gradient-to-br from-blue-50 to-purple-50 border border-blue-100">
-          <p className="text-sm font-bold text-gray-800 mb-2">
-            BoostAD로 시작하세요
-          </p>
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-2 text-sm text-gray-700">
-              <span className="text-blue-500">•</span>
-              <span>
-                <span className="font-semibold">광고주:</span> 효율적인 타겟팅
-              </span>
+        {/* 공지사항 배너 */}
+        <div className="w-full rounded-lg border border-gray-200 bg-white overflow-hidden">
+          {/* 헤더 */}
+          <div className="bg-gray-50 px-4 py-2.5 border-b border-gray-200">
+            <h3 className="text-sm font-semibold text-gray-700">공지사항</h3>
+          </div>
+
+          {/* 공지 목록 */}
+          <div className="divide-y divide-gray-100">
+            <div className="flex items-start gap-3 p-4 hover:bg-gray-50 transition-colors">
+              <div className="flex-shrink-0 mt-0.5">
+                <span className="inline-flex items-center justify-center w-12 px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 text-blue-700">
+                  이벤트
+                </span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 mb-1">
+                  신규 광고주 가입 시 크레딧 10만원 지급
+                </p>
+                <p className="text-xs text-gray-500">2026.02.01</p>
+              </div>
             </div>
-            <div className="flex items-center gap-2 text-sm text-gray-700">
-              <span className="text-purple-500">•</span>
-              <span>
-                <span className="font-semibold">퍼블리셔:</span> 블로그 수익화
-              </span>
+
+            <div className="flex items-start gap-3 p-4 hover:bg-gray-50 transition-colors">
+              <div className="flex-shrink-0 mt-0.5">
+                <span className="inline-flex items-center justify-center w-12 px-2 py-0.5 rounded text-xs font-semibold bg-orange-100 text-orange-700">
+                  점검
+                </span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 mb-1">
+                  2월 6일 오전 2시 - 4시 서버 정기 점검
+                </p>
+                <p className="text-xs text-gray-500">2026.02.03</p>
+              </div>
             </div>
           </div>
         </div>
@@ -49,7 +67,9 @@ export function LoginForm() {
 
         <div className="flex items-center justify-center gap-1 text-sm -mt-3">
           <p className="text-[#616E89]">계정이 없나요?</p>
-          <Link to={'/auth/register'}>회원가입</Link>
+          <Link to={'/auth/register'} className="text-blue-500 hover:underline">
+            회원가입
+          </Link>
         </div>
       </div>
     </form>
