@@ -13,7 +13,12 @@ export class PrototypeCampaignSelector implements CampaignSelector {
       }
 
       // 2차: 동점이면 max_cpc 비교
-      return b.maxCpc - a.maxCpc;
+      if (b.maxCpc !== a.maxCpc) {
+        return b.maxCpc - a.maxCpc;
+      }
+
+      // 3차: 점수와 maxCpc가 모두 같으면 랜덤 정렬
+      return Math.random() - 0.5;
     });
 
     // 1등 = winner, 나머지 = candidates
