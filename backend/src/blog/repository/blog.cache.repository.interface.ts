@@ -13,12 +13,6 @@ export abstract class BlogCacheRepository {
 
   abstract deleteBlogCacheById(id: number): Promise<void>;
 
-  // embedding을 나중에 worker가 추가하는 용도
-  abstract updateBlogEmbeddingById(
-    id: number,
-    embedding: number[]
-  ): Promise<void>;
-
   // blog:exists:set 관리
   abstract addBlogToExistsSet(id: number): Promise<void>;
 
