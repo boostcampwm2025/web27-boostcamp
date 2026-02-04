@@ -10,6 +10,7 @@ interface CurrencyFieldProps {
   placeholder?: string;
   unit?: string;
   prefix?: string;
+  transparentMessage?: boolean;
 }
 
 export function CurrencyField({
@@ -22,6 +23,7 @@ export function CurrencyField({
   placeholder = '0',
   unit = '원',
   prefix,
+  transparentMessage = false,
 }: CurrencyFieldProps) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const numberValue = parseNumber(e.target.value);
@@ -39,7 +41,7 @@ export function CurrencyField({
       {label && <label className="text-sm font-bold text-gray-900">{label}</label>}
 
       <div
-        className={`flex h-11 items-center rounded-lg border px-3 focus-within:ring-2 ${
+        className={`flex h-11 items-center rounded-lg border px-3 bg-white focus-within:ring-2 ${
           error
             ? 'border-red-300 focus-within:ring-red-200'
             : 'border-gray-200 focus-within:ring-blue-200'
@@ -58,8 +60,8 @@ export function CurrencyField({
         <span className="ml-2 text-sm text-gray-500">{unit}</span>
       </div>
 
-      {hint && !error && <p className="text-xs text-gray-400">{hint}</p>}
-      {error && <p className="text-xs text-red-500">{error}</p>}
+      {hint && !error && <p className={`text-xs text-gray-400 ${transparentMessage ? 'bg-transparent' : ''}`}>{hint}</p>}
+      {error && <p className={`text-xs text-red-500 ${transparentMessage ? 'bg-transparent' : ''}`}>{error}</p>}
     </div>
   );
 }

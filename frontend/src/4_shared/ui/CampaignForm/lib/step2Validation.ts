@@ -60,10 +60,18 @@ export function formatDateForDisplay(date: string) {
 
 // 예산 유효성 검사
 export const MIN_DAILY_BUDGET = 3000;
+export const BUDGET_UNIT = 100;
+
+export function isMultipleOf100(value: number): boolean {
+  return value % BUDGET_UNIT === 0;
+}
 
 export function validateMaxCpc(maxCpc: number, dailyBudget: number) {
   if (maxCpc <= 0) {
     return 'CPC를 입력해주세요.';
+  }
+  if (!isMultipleOf100(maxCpc)) {
+    return '100원 단위로 입력해주세요.';
   }
   if (dailyBudget > 0 && maxCpc > dailyBudget) {
     return 'CPC 값은 하루 예산을 초과할 수 없습니다.';
@@ -78,6 +86,9 @@ export function validateDailyBudget(
 ) {
   if (dailyBudget <= 0) {
     return '하루 예산을 입력해주세요.';
+  }
+  if (!isMultipleOf100(dailyBudget)) {
+    return '100원 단위로 입력해주세요.';
   }
   if (dailyBudget < MIN_DAILY_BUDGET) {
     return `최소 ${MIN_DAILY_BUDGET.toLocaleString()}원 이상 입력해주세요`;
@@ -99,6 +110,9 @@ export function validateTotalBudget(
 ) {
   if (totalBudget <= 0) {
     return '총 예산을 입력해주세요.';
+  }
+  if (!isMultipleOf100(totalBudget)) {
+    return '100원 단위로 입력해주세요.';
   }
   if (dailyBudget > 0 && totalBudget < dailyBudget) {
     return '총 예산은 하루 예산 이상이어야 합니다.';

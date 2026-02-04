@@ -20,8 +20,8 @@ export function Step2Content() {
 
   const totalBudgetHint =
     balance !== null
-      ? `(일 예산 이상 · 잔액: ${balance.toLocaleString()}원)`
-      : '(일 예산 이상)';
+      ? `100원 단위 · 일 예산 이상 · 잔액: ${balance.toLocaleString()}원`
+      : '100원 단위 · 일 예산 이상';
 
   const handleDailyBudgetChange = (value: number) => {
     updateBudgetSettings({ dailyBudget: value });
@@ -110,7 +110,7 @@ export function Step2Content() {
         value={dailyBudget}
         onChange={handleDailyBudgetChange}
         onBlur={handleDailyBudgetBlur}
-        hint={`(최소 ${MIN_DAILY_BUDGET.toLocaleString()}원)`}
+        hint={`100원 단위 · 최소 ${MIN_DAILY_BUDGET.toLocaleString()}원`}
         error={errors.budgetSettings?.dailyBudget}
       />
 
@@ -128,7 +128,7 @@ export function Step2Content() {
         value={maxCpc}
         onChange={handleMaxCpcChange}
         onBlur={handleMaxCpcBlur}
-        hint="(일 예산 이하)"
+        hint="100원 단위 · 일 예산 이하"
         error={errors.budgetSettings?.maxCpc}
       />
 
