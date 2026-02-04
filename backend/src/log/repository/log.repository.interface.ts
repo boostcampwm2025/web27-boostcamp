@@ -45,15 +45,13 @@ export abstract class LogRepository {
 
   abstract existsByViewId(viewId: number): Promise<boolean>;
 
-<<<<<<< feat/bidding-spent-flow2-268
   // Phase 7: 정산용 집계 메서드
   abstract aggregateClicksByDate(date: Date): Promise<Array<AggregateClick>>;
 
   abstract aggregateTotalClicksByCampaign(): Promise<Array<AggregateClick>>;
-=======
+
   // viewId로 blogId와 cost 조회 (퍼블리셔 수익 지급용)
   abstract getBlogIdAndCostByViewId(
     viewId: number
   ): Promise<{ blogId: number; cost: number } | null>;
->>>>>>> develop
 }

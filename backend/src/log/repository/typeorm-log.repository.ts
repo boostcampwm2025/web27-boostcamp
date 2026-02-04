@@ -231,6 +231,9 @@ export class TypeOrmLogRepository extends LogRepository {
       campaignId: row.campaignId,
       totalCost: parseInt(row.totalCost, 10) || 0,
     }));
+  }
+
+  // viewId로 blogId와 cost 조회 (퍼블리셔 수익 지급용)
   async getBlogIdAndCostByViewId(
     viewId: number
   ): Promise<{ blogId: number; cost: number } | null> {

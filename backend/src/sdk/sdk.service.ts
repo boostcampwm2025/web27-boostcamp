@@ -11,13 +11,10 @@ import { CacheRepository } from 'src/cache/repository/cache.repository.interface
 import { CreateClickLogDto } from './dto/create-click-log.dto';
 import { CreateDismissLogDto } from './dto/create-dismiss-log.dto';
 import { CampaignCacheRepository } from 'src/campaign/repository/campaign.cache.repository.interface';
-<<<<<<< feat/bidding-spent-flow2-268
 import { CampaignRepository } from 'src/campaign/repository/campaign.repository.interface';
-=======
 import { BlogRepository } from 'src/blog/repository/blog.repository.interface';
 import { UserRepository } from 'src/user/repository/user.repository.interface';
 import { UserRole } from 'src/user/entities/user.entity';
->>>>>>> develop
 
 @Injectable()
 export class SdkService {
@@ -27,12 +24,9 @@ export class SdkService {
     private readonly logRepository: LogRepository,
     private readonly cacheRepository: CacheRepository,
     private readonly campaignCacheRepository: CampaignCacheRepository,
-<<<<<<< feat/bidding-spent-flow2-268
-    private readonly campaignRepository: CampaignRepository
-=======
+    private readonly campaignRepository: CampaignRepository,
     private readonly blogRepository: BlogRepository,
     private readonly userRepository: UserRepository
->>>>>>> develop
   ) {}
 
   async recordView(dto: CreateViewLogDto, visitorId: string) {
