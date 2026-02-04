@@ -109,7 +109,7 @@ export class BlogService {
       throw new BadRequestException('유효한 블로그 URL을 입력해주세요.');
     }
     if (await this.blogRepository.existsBlogByDomain(domain)) {
-      // TODO(Blog): Redis에서 불러오면 더 빠르지 않을까 싶음
+      // TODO(Blog)(보류): Redis에서 불러오면 더 빠르지 않을까 싶음 - 생성 과정에서 굳이 Redis 조회할 필요 없음
       throw new ConflictException('이미 등록된 도메인입니다.');
     }
 
