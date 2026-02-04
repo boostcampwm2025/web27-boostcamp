@@ -411,7 +411,7 @@ export class CampaignService {
         }
       );
 
-      // 4. 태그 변경과 상관 없이 임베딩 재생성
+      // 4. 태그 있으면 비교 후 임베딩 재생성
       if (
         dto.tags &&
         cachedCampaign.tags &&
@@ -427,7 +427,7 @@ export class CampaignService {
       }
 
       // 3. Redis 전체 동기화 (DB 결과 반영, 요청한 상태로 복원)
-      await this.campaignCacheRepository.updateCampaignCacheWithoutSpentById(
+      await this.campaignCacheRepository.updateCampaignWithoutCachedById(
         updatedCampaign.id,
         this.convertToCachedCampaignTypeWithoutSpent(updatedCampaign)
       );

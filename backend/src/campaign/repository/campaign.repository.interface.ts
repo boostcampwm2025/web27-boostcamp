@@ -61,4 +61,11 @@ export abstract class CampaignRepository {
   abstract getClickCountsByCampaignIds(
     campaignIds: string[]
   ): Promise<Map<string, number>>;
+
+  // Phase 7: 정산용 Spent 업데이트
+  abstract updateSpent(
+    campaignId: string,
+    dailySpent: number,
+    totalSpent: number
+  ): Promise<void>;
 }

@@ -1,5 +1,4 @@
-import { SaveClickLog } from '../types/save-click-log.type';
-import { SaveViewLog } from '../types/save-view-log.type';
+import { SaveClickLog, SaveViewLog, AggregateClick } from '../types/log.type';
 
 export abstract class LogRepository {
   // 뷰 로그 저장
@@ -45,6 +44,11 @@ export abstract class LogRepository {
   }>;
 
   abstract existsByViewId(viewId: number): Promise<boolean>;
+
+  // Phase 7: 정산용 집계 메서드
+  abstract aggregateClicksByDate(date: Date): Promise<Array<AggregateClick>>;
+
+  abstract aggregateTotalClicksByCampaign(): Promise<Array<AggregateClick>>;
 
   // viewId로 blogId와 cost 조회 (퍼블리셔 수익 지급용)
   abstract getBlogIdAndCostByViewId(

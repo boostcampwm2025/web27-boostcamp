@@ -9,7 +9,7 @@ export class TransformerMatcher extends Matcher {
   private readonly logger = new Logger(TransformerMatcher.name);
 
   // 최종 매칭 점수(0~1) 임계값
-  private readonly SIMILARITY_THRESHOLD = 0.4;
+  private readonly SIMILARITY_THRESHOLD = 0.3;
 
   /**
    * 고도화된 스코어링(요청 텍스트 vs 캠페인 태그별 유사도 집계)
