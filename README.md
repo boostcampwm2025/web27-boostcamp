@@ -235,7 +235,7 @@ sequenceDiagram
 BoostAD SDK를 사용 중인 부스트캠프 10기 동료들의 프로젝트도 확인해보세요!
 
 - [WEB01 BoostUS](https://boostus.site)
-- [WEB04 우리 모두 다빈치](https://we-are-all-davinci.netlify.app/)
+- [WEB04 우리 모두 다빈치](https://wlldv.art/)
 - [WEB08 JAMstack](https://lets-codejam.vercel.app/)
 - [WEB11 말만해](https://malmanhae.com/)
 - [WEB21 Funda](https://funda.website/)
