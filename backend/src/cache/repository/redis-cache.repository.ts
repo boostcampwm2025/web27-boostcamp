@@ -15,9 +15,10 @@ export class RedisCacheRepository extends CacheRepository {
   }
 
   private readonly AUCTION_CACHE_TTL = 15 * 60;
-  private readonly ROLLBACK_CACHE_TTL = 5 * 60; // 1 * 30 테스트 용으로 추천
-  private readonly VIEW_IDEMPOTENCY_TTL_MS = 30 * 60 * 1000; // 30분 (밀리초 단위)
-  private readonly CLICK_IDEMPOTENCY_TTL_MS = 30 * 60 * 1000; // 30분 (밀리초 단위)
+  private readonly ROLLBACK_CACHE_TTL = 15 * 60;
+  private readonly BACKUP_ROLLBACK_CACHE_TTL = 30 * 60;
+  private readonly VIEW_IDEMPOTENCY_TTL_MS = 15 * 60 * 1000; // 15분 (밀리초 단위)
+  private readonly CLICK_IDEMPOTENCY_TTL_MS = 15 * 60 * 1000; // 15분 (밀리초 단위)
 
   // Auction 관련 메서드
   async setAuctionData(
@@ -150,7 +151,7 @@ export class RedisCacheRepository extends CacheRepository {
   async setRollbackInfo(
     viewId: number,
     rollbackInfo: RollbackInfo,
-    ttl: number = this.ROLLBACK_CACHE_TTL // 5분 (초 단위)
+    ttl: number = this.ROLLBACK_CACHE_TTL // 15분 (초 단위)
   ): Promise<void> {
     const key = `rollback:view:${viewId}`;
     await this.redis.setex(key, ttl, JSON.stringify(rollbackInfo));
@@ -167,13 +168,14 @@ export class RedisCacheRepository extends CacheRepository {
     await this.redis.del(key);
   }
 
-  // Rollback 백업 관련 메서드 (TTL 없음 - Worker용)
+  // Rollback 백업 관련 메서드 (TTL 30분 - worker용)
   async setRollbackBackup(
     viewId: number,
-    rollbackInfo: RollbackInfo
+    rollbackInfo: RollbackInfo,
+    ttl: number = this.BACKUP_ROLLBACK_CACHE_TTL
   ): Promise<void> {
     const key = `backup:rollback:view:${viewId}`;
-    await this.redis.set(key, JSON.stringify(rollbackInfo)); // TTL 없음
+    await this.redis.setex(key, ttl, JSON.stringify(rollbackInfo));
   }
 
   async getRollbackBackup(viewId: number): Promise<RollbackInfo | null> {
