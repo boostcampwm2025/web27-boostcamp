@@ -14,7 +14,7 @@ export function OnboardingHeader() {
           className="flex items-center gap-3 text-lg font-bold text-gray-900"
         >
           <span className="flex h-8 w-8 items-center justify-center">
-            <Icon.Logo className="h-8 w-8 text-blue-500" />
+            <img src="/favicon/favicon-96x96.png" alt="BoostAD Logo" className="h-8 w-8" />
           </span>
           BoostAD
         </button>
