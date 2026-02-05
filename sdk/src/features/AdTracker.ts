@@ -75,29 +75,20 @@ export class AdTracker {
       postUrl: window.location.href,
     };
 
-    // Beacon으로 ClickLog 전송 (비동기, 응답 안 기다림)
-    const blob = new Blob([JSON.stringify(requestBody)], {
-      type: 'application/json',
-    });
+    // fetch keepalive로 ClickLog 전송 (AdBlock 우회)
     const url = `${API_BASE_URL}/sdk/campaign-click`;
 
-    if (navigator.sendBeacon) {
-      const sent = navigator.sendBeacon(url, blob);
-      console.log(
-        `[BoostAD SDK] ClickLog Beacon 전송: ${sent ? '성공' : '실패'}`
-      );
-    } else {
-      // Fallback: fetch with keepalive
-      fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody),
-        credentials: 'include',
-        keepalive: true,
-      }).catch((err) => {
-        console.error('[BoostAD SDK] ClickLog Beacon fallback 실패:', err);
-      });
-    }
+    fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(requestBody),
+      credentials: 'include',
+      keepalive: true,
+    }).catch((err) => {
+      console.error('[BoostAD SDK] ClickLog 전송 실패:', err);
+    });
+
+    console.log('[BoostAD SDK] ClickLog 전송 (keepalive)');
 
     // 즉시 광고 페이지 열기 (모바일 팝업 차단 방지)
     if (this.currentAdUrl) {
@@ -105,7 +96,7 @@ export class AdTracker {
     }
   }
 
-  // Dismiss Beacon 전송 (페이지 이탈 시)
+  // Dismiss 전송 (페이지 이탈 시)
   sendDismissBeacon(): void {
     if (this.hasClicked || this.hasSentDismiss || this.currentViewId === null) {
       return;
@@ -119,27 +110,21 @@ export class AdTracker {
       postUrl: window.location.href,
     };
 
-    const blob = new Blob([JSON.stringify(payload)], {
-      type: 'application/json',
-    });
     const url = `${API_BASE_URL}/sdk/campaign-dismiss`;
 
-    if (navigator.sendBeacon) {
-      const sent = navigator.sendBeacon(url, blob);
-      console.log(
-        `[BoostAD SDK] Beacon 전송: ${sent ? '성공' : '실패'} (viewId=${this.currentViewId})`
-      );
-    } else {
-      // Fallback: fetch with keepalive (구형 브라우저)
-      fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-        keepalive: true,
-      }).catch((err) => {
-        console.error('[BoostAD SDK] Beacon fallback 실패:', err);
-      });
-    }
+    // fetch keepalive로 전송 (AdBlock 우회)
+    fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      keepalive: true,
+    }).catch((err) => {
+      console.error('[BoostAD SDK] Dismiss 전송 실패:', err);
+    });
+
+    console.log(
+      `[BoostAD SDK] Dismiss 전송 (keepalive, viewId=${this.currentViewId})`
+    );
   }
 
   // 광고 URL 설정 (클릭 시 사용)
