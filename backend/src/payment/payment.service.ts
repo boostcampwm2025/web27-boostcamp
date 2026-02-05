@@ -78,8 +78,7 @@ export class PaymentService {
 
     // 크레딧 충전
     if (paymentData.status === 'DONE') {
-      // TODO: 크레딧 충전 막음
-      // await this.advertiserService.chargeCredit(userId, amount, '크레딧 충전');
+      await this.advertiserService.chargeCredit(userId, amount, '크레딧 충전');
       this.logger.log(`[결제 완료] userId: ${userId}, amount: ${amount}`);
     } else {
       throw new BadRequestException(
