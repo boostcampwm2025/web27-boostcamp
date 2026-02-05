@@ -181,7 +181,7 @@ export class SdkService {
     // DB dailySpent 동기화: ClickLog 저장과 함께 DB에도 spent 증가
     const viewLog = await this.logRepository.getViewLog(viewId);
     if (viewLog) {
-      this.campaignRepository.incrementSpent(viewLog.campaignId, viewLog.cost);
+      this.campaignRepository.incrementSpent(viewLog.campaignId, viewLog.cost); // await 기다릴 필요 없음
       this.logger.debug(
         `[SDK ClickLog] DB dailySpent 동기화: campaign=${viewLog.campaignId}, cost=+${viewLog.cost}`
       );
@@ -197,6 +197,7 @@ export class SdkService {
         await this.logRepository.getBlogIdAndCostByViewId(viewId);
       if (viewLogData) {
         const { blogId, cost } = viewLogData;
+        // TODO(Blog)(보류): Redis에서 불러오면 더 빠르지 않을까 싶음 - 비딩 성능에 직접적 영향 X
         const publisherId = await this.blogRepository.getUserIdByBlogId(blogId);
 
         if (publisherId) {

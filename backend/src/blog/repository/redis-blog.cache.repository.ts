@@ -7,9 +7,10 @@ import { CachedBlog } from '../types/blog.type';
 @Injectable()
 export class BlogRedisCacheRepository implements BlogCacheRepository {
   private readonly logger = new Logger(BlogRedisCacheRepository.name);
-  private readonly BLOG_CACHE_TTL = 60 * 60 * 24; // 24시간
+  private readonly BLOG_CACHE_TTL = 60 * 60 * 24 * 7; // 7일
   private readonly BLOG_EXISTS_SET = 'blog:exists:set';
   private readonly KEY_PREFIX = 'blog:';
+  private readonly BLOG_KEY_INDEX_PREFIX = 'blog:key:'; // blogKey → blogId 매핑
 
   constructor(
     @Inject(IOREDIS_CLIENT) private readonly ioredisClient: AppIORedisClient
@@ -84,31 +85,48 @@ export class BlogRedisCacheRepository implements BlogCacheRepository {
     }
   }
 
-  async updateBlogEmbeddingById(
-    id: number,
-    embedding: number[]
-  ): Promise<void> {
-    const key = this.getBlogKey(id);
-
-    try {
-      await this.ioredisClient.call(
-        'JSON.SET',
-        key,
-        '$.embedding', // embedding속성에 따로 임베딩 값 저장
-        JSON.stringify(embedding)
-      );
-    } catch (error) {
-      this.logger.error(`블로그 임베딩 업데이트 실패 ${id}:`, error);
-      throw error;
-    }
-  }
-
   async addBlogToExistsSet(id: number): Promise<void> {
     try {
       await this.ioredisClient.sadd(this.BLOG_EXISTS_SET, id.toString());
     } catch (error) {
       this.logger.error(`blog:exists:set 추가 실패: ${id}`, error);
       throw error;
+    }
+  }
+
+  // blogKey → blogId 인덱스 저장 (O(1) 조회용)
+  async saveBlogKeyIndex(blogKey: string, blogId: number): Promise<void> {
+    const indexKey = `${this.BLOG_KEY_INDEX_PREFIX}${blogKey}`;
+
+    try {
+      await this.ioredisClient.set(indexKey, blogId.toString());
+      // TTL은 blog 캐시와 동일하게 설정
+      await this.ioredisClient.expire(indexKey, this.BLOG_CACHE_TTL);
+    } catch (error) {
+      this.logger.error(`blogKey 인덱스 저장 실패: ${blogKey}`, error);
+      throw error;
+    }
+  }
+
+  // blogKey로 캐시된 블로그 조회 (O(1))
+  async findByBlogKey(blogKey: string): Promise<CachedBlog | null> {
+    const indexKey = `${this.BLOG_KEY_INDEX_PREFIX}${blogKey}`;
+
+    try {
+      // 1. blogKey → blogId 인덱스 조회
+      const blogIdStr = await this.ioredisClient.get(indexKey);
+      if (!blogIdStr) {
+        this.logger.debug(`blogKey 인덱스 미스: ${blogKey}`);
+        return null;
+      }
+
+      const blogId = parseInt(blogIdStr, 10);
+
+      // 2. blogId로 캐시 조회
+      return await this.findBlogCacheById(blogId);
+    } catch (error) {
+      this.logger.error(`blogKey로 블로그 조회 실패: ${blogKey}`, error);
+      return null;
     }
   }
 

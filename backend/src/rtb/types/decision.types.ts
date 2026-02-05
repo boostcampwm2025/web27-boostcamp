@@ -20,6 +20,7 @@ export interface Campaign {
 }
 export interface DecisionContext {
   blogKey: string;
+  blogId: number; // Guard에서 가져온 값 (중복 조회 방지)
   tags: string[];
   postUrl: string;
   behaviorScore: number;

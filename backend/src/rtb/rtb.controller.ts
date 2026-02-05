@@ -43,6 +43,7 @@ export class RTBController {
 
     const context: DecisionContext = {
       blogKey: body.blogKey,
+      blogId: req.blog!.id, // Guard에서 이미 검증/조회한 blog 활용
       tags: body.tags,
       postUrl: body.postUrl,
       behaviorScore: body.behaviorScore,
