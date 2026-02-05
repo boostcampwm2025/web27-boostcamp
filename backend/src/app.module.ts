@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScheduleModule } from '@nestjs/schedule';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { getTypeOrmConfig } from './config/typeorm.config';
-import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+// import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { RTBModule } from './rtb/rtb.module';
 import { BidLogModule } from './bid-log/bid-log.module';
@@ -28,12 +28,12 @@ import { MetricsModule } from './metrics/metrics.module';
     ConfigModule.forRoot({ isGlobal: true }),
     EventEmitterModule.forRoot(),
     ScheduleModule.forRoot(),
-    ThrottlerModule.forRoot([
-      {
-        ttl: 60000, // 60초
-        limit: 100, // IP당 100회
-      },
-    ]),
+    // ThrottlerModule.forRoot([
+    //   {
+    //     ttl: 60000, // 60초
+    //     limit: 100, // IP당 100회
+    //   },
+    // ]),
     RTBModule,
 
     // 팩토리 함수 사용해서 typeORM 설정 비동기 로드
@@ -61,10 +61,10 @@ import { MetricsModule } from './metrics/metrics.module';
   ],
   controllers: [],
   providers: [
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: ThrottlerGuard,
+    // },
     {
       provide: APP_GUARD,
       useClass: JwtCookieGuard,
