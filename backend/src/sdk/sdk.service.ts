@@ -67,7 +67,7 @@ export class SdkService {
           createdAt: new Date().toISOString(),
         });
 
-        // Rollback 백업 정보 저장 (TTL 없음 - Worker용) - TTL 만료로 인한 삭제시 이벤트 명만 발생하면서 삭제 -> 그 이벤트 명에 맞는 RollBack 백업 정보 필요
+        // Rollback 백업 정보 저장 (기본 TTL - Worker용)
         await this.cacheRepository.setRollbackBackup(existingViewId, {
           campaignId,
           cost,
@@ -109,14 +109,14 @@ export class SdkService {
       viewId
     );
 
-    // Rollback 정보 Redis 저장 (TTL 5분)
+    // Rollback 정보 Redis 저장 (기본 TTL)
     await this.cacheRepository.setRollbackInfo(viewId, {
       campaignId,
       cost,
       createdAt: new Date().toISOString(),
     });
 
-    // Rollback 백업 정보 저장 (TTL 없음 - Worker용) - TTL 만료로 인한 삭제시 이벤트 명만 발생하면서 삭제 -> 그 이벤트 명에 맞는 RollBack 백업 정보 필요
+    // Rollback 백업 정보 저장 (기본 TTL - Worker용)
     await this.cacheRepository.setRollbackBackup(viewId, {
       campaignId,
       cost,
@@ -124,7 +124,7 @@ export class SdkService {
     });
 
     this.logger.debug(
-      `[SDK ViewLog] Rollback 정보 저장: viewId=${viewId}, campaign=${campaignId}, cost=${cost} (TTL 5분 + Backup)`
+      `[SDK ViewLog] Rollback 정보 저장: viewId=${viewId}, campaign=${campaignId}, cost=${cost} (TTL + Backup)`
     );
 
     return viewId;
@@ -133,6 +133,21 @@ export class SdkService {
   async recordClick(dto: CreateClickLogDto): Promise<number | null> {
     const { viewId } = dto;
 
+    const exists = await this.logRepository.existsByViewId(viewId);
+    if (!exists) {
+      throw new BadRequestException('잘못된 요청입니다.');
+    }
+
+    // Dismiss/TTL 만료 후 클릭 방지: rollbackInfo 또는 backup이 없으면 이미 롤백된 것
+    const rollbackInfo = await this.cacheRepository.getRollbackInfo(viewId);
+    const rollbackBackup = await this.cacheRepository.getRollbackBackup(viewId);
+
+    if (!rollbackInfo && !rollbackBackup) {
+      this.logger.warn(
+        `[SDK ClickLog] 롤백된 View 클릭 시도: viewId=${viewId} (Dismiss/TTL 만료 후 클릭 무효)`
+      );
+      return null;
+    }
     const isDup = await this.cacheRepository.setClickIdempotencyKey(viewId);
 
     if (isDup) {
@@ -153,22 +168,6 @@ export class SdkService {
         );
       }
 
-      return null;
-    }
-
-    const exists = await this.logRepository.existsByViewId(viewId);
-    if (!exists) {
-      throw new BadRequestException('잘못된 요청입니다.');
-    }
-
-    // Dismiss/TTL 만료 후 클릭 방지: rollbackInfo 또는 backup이 없으면 이미 롤백된 것
-    const rollbackInfo = await this.cacheRepository.getRollbackInfo(viewId);
-    const rollbackBackup = await this.cacheRepository.getRollbackBackup(viewId);
-
-    if (!rollbackInfo && !rollbackBackup) {
-      this.logger.warn(
-        `[SDK ClickLog] 롤백된 View 클릭 시도: viewId=${viewId} (Dismiss/TTL 만료 후 클릭 무효)`
-      );
       return null;
     }
 
