@@ -43,6 +43,7 @@ export function BudgetProgressSection({
             colorScheme="blue"
             showLabel={false}
             size="md"
+            width="full"
           />
         </div>
       </div>
@@ -67,6 +68,7 @@ export function BudgetProgressSection({
             colorScheme="blue"
             showLabel={false}
             size="md"
+            width="full"
           />
         </div>
       </div>

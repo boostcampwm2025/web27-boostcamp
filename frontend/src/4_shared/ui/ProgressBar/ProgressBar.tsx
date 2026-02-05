@@ -5,6 +5,7 @@ interface ProgressBarProps {
   colorScheme?: ColorScheme;
   showLabel?: boolean;
   size?: 'sm' | 'md';
+  width?: 'fixed' | 'full';
 }
 
 const COLOR_CLASSES = {
@@ -20,6 +21,11 @@ const SIZE_CLASSES = {
   md: 'h-3',
 } as const;
 
+const WIDTH_CLASSED = {
+  fixed: 'w-32',
+  full: 'w-full',
+} as const;
+
 function getAutoColor(percentage: number): keyof typeof COLOR_CLASSES {
   if (percentage >= 80) return 'red';
   if (percentage >= 50) return 'yellow';
@@ -31,14 +37,19 @@ export function ProgressBar({
   colorScheme = 'auto',
   showLabel = true,
   size = 'sm',
+  width = 'fixed',
 }: ProgressBarProps) {
-  const colorKey = colorScheme === 'auto' ? getAutoColor(percentage) : colorScheme;
+  const colorKey =
+    colorScheme === 'auto' ? getAutoColor(percentage) : colorScheme;
   const colors = COLOR_CLASSES[colorKey];
   const sizeClass = SIZE_CLASSES[size];
+  const widthSize = WIDTH_CLASSED[width];
 
   return (
     <div className="flex items-center gap-2 whitespace-nowrap">
-      <div className={`w-32 ${sizeClass} bg-gray-200 rounded-full overflow-hidden shrink-0`}>
+      <div
+        className={`${widthSize} ${sizeClass} bg-gray-200 rounded-full overflow-hidden shrink-0`}
+      >
         <div
           className={`h-full rounded-full ${colors.bar}`}
           style={{ width: `${Math.min(percentage, 100)}%` }}
