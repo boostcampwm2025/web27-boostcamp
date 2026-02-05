@@ -4,10 +4,13 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { CampaignCacheRepository } from 'src/campaign/repository/campaign.cache.repository.interface';
 import { RedisCampaignCacheRepository } from 'src/campaign/repository/redis-campaign.cache.repository';
 import { QueueModule } from 'src/queue/queue.module';
-import { EmbeddingWorker } from 'src/queue/workers/embedding.worker';
+import { EmbeddingWorker } from 'src/worker/embedding.worker';
 import { RedisModule } from 'src/redis/redis.module';
 import { MLEngine } from 'src/rtb/ml/mlEngine.interface';
 import { XenovaMLEngine } from 'src/rtb/ml/xenova-mlEngine';
+import { CacheRepository } from 'src/cache/repository/cache.repository.interface';
+import { RedisCacheRepository } from 'src/cache/repository/redis-cache.repository';
+import { RedisTTLWorker } from './redis-ttl.worker';
 
 @Module({
   imports: [
@@ -18,10 +21,15 @@ import { XenovaMLEngine } from 'src/rtb/ml/xenova-mlEngine';
   ],
   providers: [
     EmbeddingWorker,
+    RedisTTLWorker,
     { provide: MLEngine, useClass: XenovaMLEngine },
     {
       provide: CampaignCacheRepository,
       useClass: RedisCampaignCacheRepository,
+    },
+    {
+      provide: CacheRepository,
+      useClass: RedisCacheRepository,
     },
   ],
 })

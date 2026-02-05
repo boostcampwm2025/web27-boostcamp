@@ -1,4 +1,4 @@
-import { Module, forwardRef } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 // import { BullModule } from '@nestjs/bullmq';
 import { CampaignRepository } from './repository/campaign.repository.interface';
@@ -15,14 +15,12 @@ import { ImageModule } from '../image/image.module';
 import { CampaignCacheRepository } from './repository/campaign.cache.repository.interface';
 import { RedisCampaignCacheRepository } from './repository/redis-campaign.cache.repository';
 import { UserModule } from 'src/user/user.module';
-import { AdvertiserModule } from 'src/advertiser/advertiser.module';
-import { CacheModule } from 'src/cache/cache.module';
+// import { AdvertiserModule } from 'src/advertiser/advertiser.module';
 import { RedisModule } from 'src/redis/redis.module';
 import { QueueModule } from 'src/queue/queue.module';
 
 @Module({
   imports: [
-    CacheModule,
     TypeOrmModule.forFeature([
       CampaignEntity,
       TagEntity,
@@ -32,7 +30,7 @@ import { QueueModule } from 'src/queue/queue.module';
     LogModule,
     ImageModule,
     UserModule,
-    forwardRef(() => AdvertiserModule),
+    // forwardRef(() => AdvertiserModule),
     RedisModule,
     QueueModule,
   ],

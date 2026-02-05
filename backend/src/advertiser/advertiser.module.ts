@@ -1,4 +1,4 @@
-import { Module, forwardRef } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AdvertiserController } from './advertiser.controller';
 import { AdvertiserService } from './advertiser.service';
@@ -13,7 +13,8 @@ import { TypeOrmCreditHistoryRepository } from './repository/typeorm-credit-hist
   imports: [
     TypeOrmModule.forFeature([CreditHistoryEntity]),
     UserModule,
-    forwardRef(() => CampaignModule),
+    // forwardRef(() => CampaignModule),
+    CampaignModule,
     LogModule,
   ],
   controllers: [AdvertiserController],
