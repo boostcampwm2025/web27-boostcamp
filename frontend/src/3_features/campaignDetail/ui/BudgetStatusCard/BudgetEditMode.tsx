@@ -63,6 +63,17 @@ export function BudgetEditMode({
   };
 
   const handleSave = () => {
+    const addBudgetError = validateAddBudget();
+    const dailyBudgetError =
+      validateDailyBudget(dailyBudget, finalTotalBudget, maxCpc) || undefined;
+    const maxCpcError = validateMaxCpc(maxCpc, dailyBudget) || undefined;
+
+    setErrors({ addBudget: addBudgetError, dailyBudget: dailyBudgetError, maxCpc: maxCpcError });
+
+    if (addBudgetError || dailyBudgetError || maxCpcError) {
+      return;
+    }
+
     onSave({
       totalBudget: finalTotalBudget,
       dailyBudget,
@@ -91,7 +102,9 @@ export function BudgetEditMode({
           <CurrencyField
             value={addBudget}
             onChange={setAddBudget}
-            onBlur={() => setErrors((prev) => ({ ...prev, addBudget: validateAddBudget() }))}
+            onBlur={() =>
+              setErrors((prev) => ({ ...prev, addBudget: validateAddBudget() }))
+            }
             prefix="+"
             error={errors.addBudget}
             transparentMessage
@@ -133,7 +146,17 @@ export function BudgetEditMode({
             <CurrencyField
               value={dailyBudget}
               onChange={setDailyBudget}
-              onBlur={() => setErrors((prev) => ({ ...prev, dailyBudget: validateDailyBudget(dailyBudget, finalTotalBudget, maxCpc) || undefined }))}
+              onBlur={() =>
+                setErrors((prev) => ({
+                  ...prev,
+                  dailyBudget:
+                    validateDailyBudget(
+                      dailyBudget,
+                      finalTotalBudget,
+                      maxCpc
+                    ) || undefined,
+                }))
+              }
               error={errors.dailyBudget}
               transparentMessage
             />
@@ -151,7 +174,12 @@ export function BudgetEditMode({
             <CurrencyField
               value={maxCpc}
               onChange={setMaxCpc}
-              onBlur={() => setErrors((prev) => ({ ...prev, maxCpc: validateMaxCpc(maxCpc, dailyBudget) || undefined }))}
+              onBlur={() =>
+                setErrors((prev) => ({
+                  ...prev,
+                  maxCpc: validateMaxCpc(maxCpc, dailyBudget) || undefined,
+                }))
+              }
               error={errors.maxCpc}
               transparentMessage
             />
@@ -173,8 +201,8 @@ export function BudgetEditMode({
           <button
             type="button"
             onClick={handleSave}
-            disabled={isLoading}
-            className="flex-1 flex justify-center items-center py-2 bg-blue-500 rounded-lg text-xs font-bold text-white shadow-sm hover:bg-blue-600 transition-colors disabled:opacity-50"
+            disabled={isLoading || !!(errors.addBudget || errors.dailyBudget || errors.maxCpc)}
+            className="flex-1 flex justify-center items-center py-2 bg-blue-500 rounded-lg text-xs font-bold text-white shadow-sm hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             저장
           </button>
