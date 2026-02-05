@@ -8,6 +8,8 @@ import { EmbeddingWorker } from 'src/worker/embedding.worker';
 import { RedisModule } from 'src/redis/redis.module';
 import { MLEngine } from 'src/rtb/ml/mlEngine.interface';
 import { XenovaMLEngine } from 'src/rtb/ml/xenova-mlEngine';
+import { CacheRepository } from 'src/cache/repository/cache.repository.interface';
+import { RedisCacheRepository } from 'src/cache/repository/redis-cache.repository';
 
 @Module({
   imports: [
@@ -22,6 +24,10 @@ import { XenovaMLEngine } from 'src/rtb/ml/xenova-mlEngine';
     {
       provide: CampaignCacheRepository,
       useClass: RedisCampaignCacheRepository,
+    },
+    {
+      provide: CacheRepository,
+      useClass: RedisCacheRepository,
     },
   ],
 })
