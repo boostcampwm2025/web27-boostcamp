@@ -279,6 +279,32 @@ export class CampaignService {
     }
 
     try {
+      const maxCpc =
+        dto.maxCpc === undefined ? cachedCampaign.maxCpc : dto.maxCpc;
+      const dailyBudget =
+        dto.dailyBudget === undefined
+          ? cachedCampaign.dailyBudget
+          : dto.dailyBudget;
+      const totalBudget =
+        dto.totalBudget === undefined
+          ? cachedCampaign.totalBudget
+          : dto.totalBudget;
+
+      if (maxCpc === null) {
+        throw new BadRequestException('최대 CPC는 null일 수 없습니다.');
+      }
+      if (dailyBudget === null) {
+        throw new BadRequestException('일일 예산은 null일 수 없습니다.');
+      }
+
+      await this.validateBudget({
+        userId,
+        maxCpc,
+        dailyBudget,
+        totalBudget,
+        checkBalance: false,
+      });
+
       // 2. 총 예산 변경에 따른 크레딧 조정 + DB 업데이트 (트랜잭션)
       const updatedCampaign = await this.dataSource.transaction(
         async (manager) => {
