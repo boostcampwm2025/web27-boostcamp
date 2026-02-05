@@ -10,6 +10,7 @@ import { MLEngine } from 'src/rtb/ml/mlEngine.interface';
 import { XenovaMLEngine } from 'src/rtb/ml/xenova-mlEngine';
 import { CacheRepository } from 'src/cache/repository/cache.repository.interface';
 import { RedisCacheRepository } from 'src/cache/repository/redis-cache.repository';
+import { RedisTTLWorker } from './redis-ttl.worker';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { RedisCacheRepository } from 'src/cache/repository/redis-cache.repositor
   ],
   providers: [
     EmbeddingWorker,
+    RedisTTLWorker,
     { provide: MLEngine, useClass: XenovaMLEngine },
     {
       provide: CampaignCacheRepository,
