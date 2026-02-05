@@ -16,6 +16,12 @@ export class RedisCampaignCacheRepository implements CampaignCacheRepository {
   private readonly logger = new Logger(RedisCampaignCacheRepository.name);
   private readonly KEY_PREFIX = 'campaign:';
   private readonly CAMPAIGN_CACHE_TTL = 60 * 60 * 24;
+  private readonly ALL_CAMPAIGNS_CACHE_TTL_MS = 1_000; // RTB decision hot path (짧은 TTL로 Redis SCAN/JSON.GET 비용 완화)
+  private allCampaignsCache: {
+    value: CachedCampaign[];
+    expiresAtMs: number;
+  } | null = null;
+  private allCampaignsInFlight: Promise<CachedCampaign[]> | null = null;
 
   constructor(
     @Inject(IOREDIS_CLIENT) private readonly ioredisClient: AppIORedisClient
@@ -254,48 +260,93 @@ export class RedisCampaignCacheRepository implements CampaignCacheRepository {
 
   // RTB 비딩용: Redis에서 모든 캠페인 조회
   async getAllCampaigns(): Promise<CachedCampaign[]> {
-    try {
-      const pattern = `${this.KEY_PREFIX}*`;
-      const keys: string[] = [];
+    const nowMs = Date.now();
 
-      // SCAN으로 모든 campaign:* 키 조회
-      let cursor = '0';
-      do {
-        const result = await this.ioredisClient.scan(
-          cursor,
-          'MATCH',
-          pattern,
-          'COUNT',
-          100
-        );
-        cursor = result[0];
-        keys.push(...result[1]);
-      } while (cursor !== '0');
-
-      if (keys.length === 0) {
-        return [];
-      }
-
-      // 각 키에 대해 JSON.GET 수행
-      const campaigns: CachedCampaign[] = [];
-
-      for (const key of keys) {
-        try {
-          const result = await this.ioredisClient.call('JSON.GET', key);
-          if (result && typeof result === 'string') {
-            campaigns.push(JSON.parse(result) as CachedCampaign);
-          }
-        } catch (error) {
-          this.logger.warn(`캠페인 조회 실패: ${key}`, error);
-          // 개별 캠페인 조회 실패는 스킵
-        }
-      }
-
-      return campaigns;
-    } catch (error) {
-      this.logger.error('모든 캠페인 조회 실패', error);
-      return [];
+    const cached = this.allCampaignsCache;
+    if (cached && cached.expiresAtMs > nowMs) {
+      return cached.value;
     }
+
+    if (this.allCampaignsInFlight) {
+      return this.allCampaignsInFlight;
+    }
+
+    const work = (async () => {
+      try {
+        const pattern = `${this.KEY_PREFIX}*`;
+        const keys: string[] = [];
+
+        // SCAN으로 모든 campaign:* 키 조회
+        let cursor = '0';
+        do {
+          const result = await this.ioredisClient.scan(
+            cursor,
+            'MATCH',
+            pattern,
+            'COUNT',
+            100
+          );
+          cursor = result[0];
+          keys.push(...result[1]);
+        } while (cursor !== '0');
+
+        if (keys.length === 0) {
+          return [];
+        }
+
+        // JSON.GET는 다건 호출 시 latency가 커져 in-flight 요청이 쌓이며 heap spike로 이어질 수 있음
+        // → pipeline + batch로 라운드트립을 줄입니다.
+        const campaigns: CachedCampaign[] = [];
+        const BATCH_SIZE = 200;
+
+        for (let i = 0; i < keys.length; i += BATCH_SIZE) {
+          const batchKeys = keys.slice(i, i + BATCH_SIZE);
+          const pipeline = this.ioredisClient.pipeline();
+
+          batchKeys.forEach((key) => {
+            pipeline.call('JSON.GET', key);
+          });
+
+          const results = await pipeline.exec();
+          if (!results) continue;
+
+          results.forEach(([error, result], idx) => {
+            if (error) {
+              this.logger.warn(`캠페인 조회 실패: ${batchKeys[idx]}`, error);
+              return;
+            }
+
+            if (result && typeof result === 'string') {
+              try {
+                campaigns.push(JSON.parse(result) as CachedCampaign);
+              } catch (parseError) {
+                this.logger.warn(
+                  `캠페인 JSON 파싱 실패: ${batchKeys[idx]}`,
+                  parseError
+                );
+              }
+            }
+          });
+        }
+
+        return campaigns;
+      } catch (error) {
+        this.logger.error('모든 캠페인 조회 실패', error);
+        return [];
+      } finally {
+        this.allCampaignsInFlight = null;
+      }
+    })();
+
+    this.allCampaignsInFlight = work;
+
+    const campaigns = await work;
+    this.allCampaignsCache = {
+      value: campaigns,
+      expiresAtMs: Date.now() + this.ALL_CAMPAIGNS_CACHE_TTL_MS,
+    };
+
+    return campaigns;
   }
 
   private getCampaignCacheKey(id: string): string {
