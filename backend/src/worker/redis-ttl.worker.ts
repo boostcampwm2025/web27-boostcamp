@@ -8,7 +8,7 @@ import { Inject } from '@nestjs/common';
 import Redis from 'ioredis';
 import { IOREDIS_CLIENT } from 'src/redis/redis.constant';
 import type { AppIORedisClient } from 'src/redis/redis.type';
-import { CacheRepository } from './repository/cache.repository.interface';
+import { CacheRepository } from '../cache/repository/cache.repository.interface';
 import { CampaignCacheRepository } from 'src/campaign/repository/campaign.cache.repository.interface';
 
 // TTL 만료 이벤트를 감지하여 롤백을 수행하는 Worker
